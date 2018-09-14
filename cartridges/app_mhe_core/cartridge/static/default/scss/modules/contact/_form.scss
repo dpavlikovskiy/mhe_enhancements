@@ -1,0 +1,85 @@
+// =============================================================================
+// Contact Form - Form Elements
+// =============================================================================
+ 
+.contact_container {
+	.contact_form {
+		width: 300px;
+		float: left;
+		margin-left: 235px;
+		h3 {
+			@include centered();
+			
+			font-weight: $regular;
+			font-size: $base-font-size;
+		}
+		label {
+			display: none;
+		}
+		input[type='text'],
+		textarea {
+			@include transition(all 0.3s ease-out);
+		}
+		input[type='text'] {
+			color: $white;
+		}
+		input[type='text']:focus,
+		textarea:focus {
+			background-color: $lightblack;
+		}
+		button[type='submit'] {
+			display: block;
+			@include centerelement();
+		}
+		.selector {
+			height: auto;
+			span.selectHolder {
+				@include centered();
+			}
+		}
+		.form-row-valid {
+			span.selectHolder {
+				color: $white;
+			}
+		}
+		select {
+			visibility: hidden;
+			&.custom-select {
+				visibility: visible;
+			}
+			option {
+				color: $white;
+				&:disabled {
+					color: $lightgrey;
+				}
+			}
+		}
+		@include placeholder {
+			@include centered();
+			text-transform: uppercase;
+		}
+		textarea, .textareaClone {
+		    min-height: 100px;
+		    max-width: 300px;
+		    width: 100%;
+		    color: $white;
+		    border: 1px solid $darkgrey;
+		}
+		.remaining {
+			font-size: 12px;
+			display: block;
+			@include centered();
+			margin: 14px auto 18px;
+			span {
+				display: inline-block;
+				color: $lightergrey;
+				margin-left: 6px;
+			}
+		}
+	}
+	.confirmation-message {
+		width: 300px;
+		float: left;
+		margin-left: 235px;
+	}
+}

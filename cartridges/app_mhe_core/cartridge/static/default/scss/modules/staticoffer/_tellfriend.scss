@@ -1,0 +1,101 @@
+// =============================================================================
+// Static Offer - Tell a Friend Modal
+// =============================================================================
+
+.static-offer {
+	.tellfriend-header {
+		padding: 10px 20px 0;
+		text-align: center;
+		h1 {
+			font-size: 60px;
+		}
+		h2 {
+			font-size: 14px;
+		}
+		p {
+			margin-bottom: 0;
+		}
+	}
+	.tellfriend-content {
+		padding: 30px 20px;
+		text-align: left;
+		label {
+			font-size: $small_heading;
+			float: left;
+			padding-top: 8px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			text-align: right;
+			width: 246px;
+			display: inline-block;
+			padding-right: 10px;
+		}
+		.optional {
+			display: none;
+		}
+		input[type='text'],
+		textarea {
+			@include transition(all 0.3s ease-out);
+			text-align: left;
+			padding-left: 10px;
+			padding-right: 10px;
+			text-transform:none;
+			font-size:1.2em;
+		}
+		input[type='text'] {
+			color: $white;
+			line-height:0.8em;
+		}
+		input[type='text']:focus,
+		textarea:focus {
+			background-color: $lightblack;
+		}
+		textarea,
+		.textareaClone {
+		    min-height: 90px;
+		    width: 300px;
+		    text-transform: none;
+		    color: $white;
+		    border: 1px solid $darkgrey;
+		    font-family:$fixed-font-family;
+		}
+		.form-row {
+			.error {
+				width: 300px;
+				margin-left: 246px;
+			}
+			&:after {
+				right: 120px;
+			}
+		}
+		.remaining {
+			font-size: 12px;
+			display: block;
+			margin: 0 0 18px 250px;
+			span {
+				display: inline-block;
+				color: $lightergrey;
+				margin-left: 6px;
+			}
+		}
+		hr {
+			background-color: $darkpurple;
+			margin: 30px auto;
+			width: 95%;
+		}
+		.button.savechanges {
+			width: 180px;
+			margin-left: 250px;
+		}
+	}
+	.confirm-message {
+		h2 {
+			font-size: 14px;
+			margin-bottom: 0;
+		}
+		padding: 18px 20px 0;
+	}
+	.ui-dialog.tellfriend {
+		width: 730px !important;
+	}
+}

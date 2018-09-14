@@ -1,0 +1,12 @@
+<iscache type="relative" hour="24"/>
+
+<isif condition="${slotcontent != null}">
+	<isloop items="${slotcontent.content}" var="markupText">
+		<isif condition="${!empty(slotcontent.custom) && 'headerDescription' in slotcontent.custom }">
+			<div class="getName">
+				<span class="bmValue">${slotcontent.custom.headerDescription}</span>
+			</div>
+		</isif>
+		<isprint value="${markupText.markup}" encoding="off"/>
+	</isloop>
+</isif>

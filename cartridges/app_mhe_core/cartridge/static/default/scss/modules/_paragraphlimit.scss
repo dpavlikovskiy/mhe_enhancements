@@ -1,0 +1,14 @@
+// =============================================================================
+// Paragraph Limiter
+// =============================================================================
+
+.limited-para {
+	.limit-para-trigger {
+		cursor: pointer;
+	}
+	.limit-para-extra {
+		&.limit-para-hidden {
+			display: none;
+		}
+	}	
+}

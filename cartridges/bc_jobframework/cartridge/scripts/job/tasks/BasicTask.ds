@@ -1,0 +1,467 @@
+/**
+* This script implements a task and holds all necessary functions.
+*/
+importPackage( dw.io );
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.util );
+importScript( 'util/LogToFileLib.ds' );
+importScript( 'util/libInheritance.ds' );
+
+/** JobInfo Singleton */
+var jobInfo = null;
+var cvLogger : Logger = Logger.getLogger( 'BasicTask' );
+
+/** Log Levels */
+var LogLevel_FATAL 	: Number = 0;
+var LogLevel_ERROR 	: Number = 1;
+var LogLevel_WARN 	: Number = 2;
+var LogLevel_INFO 	: Number = 3;
+var LogLevel_DEBUG 	: Number = 4;
+var LogLevel_TRACE 	: Number = 5;
+
+/*doSomething() {
+	task.register();	
+}*/
+
+
+/**
+* Factory function that initializes a task.
+* 
+* @param config JSON object that the task configuration.
+* 
+* return Task
+*/
+function initBasicTask( taskConfig : Object, jobMonitor : JobMonitor ) : Task {
+	return new BasicTask( taskConfig, jobMonitor );
+};
+
+//Hack, because vars are cannot be imported in DW, only functions
+function getTaskClass() {
+	return BasicTask;
+};
+function getBasicTaskClass() {
+	return BasicTask;
+};
+
+/**
+* BasicTask implementation.
+*/
+var BasicTask = Class.extend ( 
+/** @lends BasicTask.prototype */
+{
+	/**
+	* Initialises the service object smoothly
+	* @constructs
+	*/
+	init : function( taskConfig : Object, jobMonitor : Object ) {
+		
+		//save config string for
+		this.config  = taskConfig;
+		
+		//in case of initialization errors, the message is expected here
+		this.initErrorMessage = '';
+		
+		//determine log level number
+		var taskLogLevel = taskConfig['logLevel'];
+		this.logLevel = null;
+		if ( !empty(taskLogLevel) ) {
+			this.logLevel = {"fatal":LogLevel_FATAL, "error":LogLevel_ERROR, "warn":LogLevel_WARN, "info":LogLevel_INFO, "debug":LogLevel_DEBUG, "trace":LogLevel_TRACE }[this.config['logLevel']];
+		} 
+		if ( empty(this.logLevel) ) {		
+			this.logLevel = jobMonitor.getLogLevel();
+		} 
+
+		//set empty status object ID
+		this.statusObjectID = null;
+		
+		//set the Job Monitor
+		this.jobMonitor = jobMonitor;
+		
+		//defines if a task is executable based on the task configuration.
+		this.executable = false;
+		
+		//defines afetr what time the processing time is supposed to be over		
+		this.runtimeExceededAfter = 0;
+		
+		//a task has to have at least a pipeline specified
+		if ( empty( this.config.pipeline ) ) {
+			this.initErrorMessage = 'Parameter \'pipeline\' expected but not specified!';
+			cvLogger.error( 'Parameter \'pipeline\' expected but not specified!' );
+			return;
+		}
+		
+		//a task does also need to have a name
+		if ( empty( this.config.name ) ) {
+			this.initErrorMessage = 'Parameter \'name\' expected but not specified!';
+			cvLogger.error( 'Parameter \'name\' expected but not specified!' );
+			return;
+		}
+
+		//mark the task as executable in principle		
+		this.executable = true;
+	},
+	
+	/**
+	* Tells if the task is disabled
+	*
+	* @return true if task is suspended from execution, otherwise false
+	*/
+	isDisabled : function() : Boolean {
+		return this.config.disabled;
+	},
+	
+	/**
+	* Tells if the task is executable per se
+	*
+	* @return true if task is executable, otherwise false
+	*/
+	isExecutable : function() : Boolean {
+		return this.executable;
+	},
+	
+	/**
+	* This tells if the configured maximum runtime has exceeded since the task execution started. 
+	* Jobs which are using the framework need to query and react on it as needed.
+	*
+	* @return false if there is no maximum runtime configured or the time isn't exceeded, otherwise true
+	*/
+	maxRuntimeExceeded : function() : boolean {
+		return ( this.runtimeExceededAfter > 0 ) && ( this.runtimeExceededAfter < (new Date()).getTime() );
+	},
+
+	
+	/**
+	* Gets the pipeline that needs to be executed.
+	* 
+	* @return String
+	*/
+	getPipeline : function() : String {
+		return this.config.pipeline;
+	},
+	
+	/**
+	* Gets the name of the task. If no name was configured, the function returns the name of the pipeline.
+	* 
+	* @return String
+	*/
+	getName : function() : String {
+		if ( empty(this.config.name) ) {
+			return this.getPipeline();
+		} else {
+			return this.config.name;
+		}
+	},
+	
+	/**
+	* Returns the parameter defined for the task.
+	*
+	* @param parameterName name of the parameter at the to be returned
+	* @param defaultValue value that should be returned if the parameter is not present
+	*/
+	getParameter : function( parameterName : String, defaultValue : Object ) : Object {
+		if ( parameterName ) {
+			if ( !empty(this.config[parameterName]) ) {
+				return this.config[parameterName];
+			}
+		}
+		return defaultValue;
+	},
+	
+	getStatusObject : function() {
+		//retrieve the status object
+		if ( empty( this.statusObjectID ) ) {
+			this.statusObjectID = this.config.name + UUIDUtils.createUUID();
+		}		
+		var statusObject : CustomObject = CustomObjectMgr.getCustomObject('JobStatus', this.statusObjectID);
+		if ( empty(statusObject) ) {
+			statusObject = CustomObjectMgr.createCustomObject('JobStatus', this.statusObjectID );
+			statusObject.custom.name = this.config.name;
+			statusObject.custom.type = 'task';
+			statusObject.custom.parent = this.jobMonitor.statusObjectID;
+			statusObject.custom.siteId = Site.getCurrent().ID;
+			if ( !empty(this.logFile) ) {
+				statusObject.custom.logFilePath = this.logFile.fullPath;
+			}
+		}
+		return statusObject;
+	},
+	
+	/**
+	* Set status of the job execution.
+	*
+	* @param state 			The state of the status which should be updated. The following values are valid:
+ 	*                       	"RUNNING" : The job is running.
+ 	*							"FINISHED": The job finished with no errors.
+ 	*							"FAILED"  : The job finished with errors.
+ 	* @param message 		An optional message which will be set at the status object.
+ 	* @param errorMessage 	An optional error message which will be set at the status object.
+	*/
+	setStatus : function( state : String, message : String, errorMessage : String ) {
+		if ( empty(state) ) {
+			cvLogger.debug('setStatus: Input parameter "state" missing.');
+			return;
+		}
+		if ( state != 'RUNNING'
+			&& state != 'FINISHED'
+			&& state != 'FAILED') {
+			Logger.error('setStatus: The input parameter "state" has an invalid value: "' + state + '".');
+			return;
+		}
+		if ( message ) {
+			this.logMessage( message );
+		} else {
+			this.logMessage('Job ' + state);
+		}
+		if ( errorMessage ) {
+			this.logMessage( errorMessage );
+		} 
+		
+		var statusObject = this.getStatusObject();		
+		//set new values
+		statusObject.custom.message = message;
+		if ( errorMessage ) {
+			statusObject.custom.errorMessage = errorMessage;
+		}
+		statusObject.custom.state = state;
+		if ( state == 'FINISHED' || state == 'FAILED' ) {
+			statusObject.custom.endDate = System.getCalendar().getTime();
+		}
+	},
+	
+	/**
+	* Set status of the job execution.
+	*
+ 	* @param message An message which will be set at the status object.
+	*/
+	setStatusMessage : function( message : String ) {
+		if ( message ) {
+			this.logMessage( message );
+			var statusObject : CustomObject = this.getStatusObject();
+			//set new values
+			statusObject.custom.message = message;
+		}  
+	},
+
+	/**
+	* Set status message of the task.
+	*
+ 	* @param message 		A message which will be set at the status object.
+	*/
+	setErrorStatusMessage : function( message : String ) {
+		if ( message ) {
+			this.error( message );
+			var statusObject : CustomObject = this.getStatusObject();
+			//set new values
+			statusObject.custom.errorMessage = message;
+		}
+	},
+
+	/**
+	* Set status of the job execution.
+	*
+ 	* @param message 		An optional message which will be set at the status object.
+	*/
+	setStatusErrorMessage : function( message : String ) {
+		if ( message ) {
+			var statusObject : CustomObject = this.getStatusObject();
+			//set new values
+			statusObject.custom.errorMessage = message;
+		}  
+	},
+
+	/**
+	* Sets the current task.
+	* 
+	* @param task Task that is about to start.
+	*/
+	start : function() {
+		this.statusObjectID = null;
+		//initialize the log file
+		if ( this.jobMonitor.config.fileLogging == 'Task Based' ) { 				
+			var logFileName : String = this.config.name; 
+			logFileName = logFileName.toLowerCase().replace(/[^a-z0-9]/g, '');
+			this.logFile = new File(dw.io.File.IMPEX +'/customLogs/' + logFileName + '_' + StringUtils.formatCalendar(dw.system.System.getCalendar(), 'yyyyMMdd_HHmmssSSS') + '.log');
+			this.fileLogger = new LogToFileLib(this.logFile);
+		} else {
+			this.fileLogger = this.jobMonitor.fileLogger;
+		}
+
+		//write task configuration to file (if enabled)
+		this.logMessage( 'Current Task Configuration: ' + hidePasswords( JSON.stringify(this.config) ) );
+
+		this.jobMonitor.startTask( this );
+		this.setStatus('RUNNING', 'Task started.');
+
+		if ( this.config.maxRuntime ) {
+			this.runtimeExceededAfter = new Date().getTime() + this.config.maxRuntime * 1000; 
+		}
+		
+		function hidePasswords( str : String ) : String {
+			return str.replace( /"(\w*password\w*)":"(?:[^"\\]+|\\.)+"/ig, '"$1":"xxxx"' );
+		}
+	},
+
+	/**
+	* Used to specify that the current task was successfully completed. Thereafter the reference is being removed (current task dosn't exist any longer). 
+	*/
+	finished : function() {
+		this.jobMonitor.taskFinished( this );
+		this.setStatus('FINISHED', 'Task successfully completed.');
+	},
+
+	/**
+	* Used to specify that the current task has failed. Thereafter the reference is being removed (current task dosn't exist any longer). 
+	*/
+	failed : function() {
+		this.jobMonitor.taskFailed( this );
+		this.setStatus('FAILED', 'Task failed.');
+	},
+	
+	/**
+	* Logs a message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	logMessage : function( message : String ) {
+		if ( !empty(message) ) {
+			if ( !empty(this.fileLogger) ) {
+				this.fileLogger.log(message);
+			} else {
+				cvLogger.debug(message);
+			}
+		}
+	},
+	
+	/**
+	* Gets the current log level number:
+	*
+    * fatal - 0
+    * error - 1
+    * warn	- 2
+    * info 	- 3
+    * debug - 4
+	* trace - 5
+	* 
+	* @return 
+	*/
+	getLogLevel : function( ) : Number {
+		return this.logLevel;
+	},
+
+	/**
+	* This method returns true if error logging is enabled
+	*/
+	isErrorEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_ERROR;
+	},	
+
+	/**
+	* Logs an error message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	error : function( message : String, arg0: Object, arg1: Object, arg2: Object, arg3: Object, arg4: Object, arg5: Object, arg6: Object, arg7: Object, arg8: Object, arg9: Object ) {
+		if ( !empty(message) && this.isErrorEnabled() ) {
+			this.logMessage( '(error) ' + StringUtils.format( message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) );
+		}
+		return;
+	},
+
+	/**
+	* This method returns true if warn logging is enabled
+	*/
+	isWarnEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_WARN;
+	},	
+
+	/**
+	* Logs a warn message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	warn : function( message : String, arg0: Object, arg1: Object, arg2: Object, arg3: Object, arg4: Object, arg5: Object, arg6: Object, arg7: Object, arg8: Object, arg9: Object ) {
+		if ( !empty(message) && this.isWarnEnabled() ) {
+			this.logMessage( '(warn) ' + StringUtils.format( message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) );
+		}
+		return;
+	},
+
+	/**
+	* This method returns true if info logging is enabled
+	*/
+	isInfoEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_INFO;
+	},	
+	
+	/**
+	* Logs an info message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	info : function( message : String, arg0: Object, arg1: Object, arg2: Object, arg3: Object, arg4: Object, arg5: Object, arg6: Object, arg7: Object, arg8: Object, arg9: Object ) {
+		if ( !empty(message) && this.isInfoEnabled() ) {
+			this.logMessage( '(info) ' + StringUtils.format( message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) );
+		}
+		return;
+	},
+
+	/**
+	* This method returns true if debug logging is enabled
+	*/
+	isDebugEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_DEBUG;
+	},	
+
+	/**
+	* Logs an debug message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	debug : function( message : String, arg0: Object, arg1: Object, arg2: Object, arg3: Object, arg4: Object, arg5: Object, arg6: Object, arg7: Object, arg8: Object, arg9: Object ) {
+		if ( !empty(message) && this.isDebugEnabled() ) {
+			this.logMessage( '(debug) ' + StringUtils.format( message, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) );
+		}
+		return;
+	},
+	
+	/**
+	* Specifies how the task should react on temporary errors. If it hasn't been defined for 
+	* the task itself, it falls back to the JobConfiguration.
+	*
+	* @return reaction directive defined at the task configuration
+	*/
+	onTemporaryError : function () {
+		if (this.config.onTemporaryError) {
+			return this.config.onTemporaryError;
+		}
+		return this.jobMonitor.onTemporaryError( );
+	},
+	
+	/**
+	* Get the configured error email address.
+	*
+	* @return email address
+	*/	
+	getErrorMailAddress : function () {
+		return this.config.errorEmail ? this.config.errorEmail : this.jobMonitor.getErrorMailAddress();
+	},
+	
+	/**
+	* Get the configured error email address.
+	*
+	* @return email address
+	*/	
+	getSuccessMailAddress : function () {
+		return this.config.successEmail ? this.config.successEmail : this.jobMonitor.getSuccessMailAddress();
+	},
+
+	/**
+	 * Get the log-file for sending per mail
+	 * @return the log file
+	 */
+	 getLogFile : function() {
+	 	return this.logFile;
+	 }
+
+} );

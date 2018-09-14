@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="salutation" label="profile.salutation2" type="string" mandatory="true" binding="salutation"  missing-error="profile.salutation2.missing-error">
+	<options>
+	<option optionid="" 	label="forms.address.selectState" value=""/>
+	<option optionid="" 	label="salutation.displayValue1" value="Mr"/>
+	<option optionid="" 	label="salutation.displayValue2" value="Ms"/>
+	<option optionid="" 	label="salutation.displayValue3" value="Miss"/>
+	<option optionid="" 	label="salutation.displayValue4" value="Dr"/>
+	</options>
+	</field>
+	<field formid="firstname" label="forms.orderaddress.001" type="string" mandatory="true" binding="firstName" max-length="128" missing-error="forms.address.firstname.missing" />
+	<field formid="lastname" label="forms.orderaddress.002" type="string" mandatory="true" binding="lastName" max-length="128" missing-error="forms.address.lastname.missing" />
+	<field formid="companyName" label="forms.orderaddress.031" type="string" mandatory="false" binding="companyName" max-length="50"/>
+	<field formid="address1" label="forms.orderaddress.003" type="string" mandatory="true" binding="address1" max-length="50" missing-error="forms.addresserror"/>
+	<field formid="address2" label="forms.orderaddress.004" type="string" mandatory="false" binding="address2" max-length="50"/>
+	<field formid="city" label="forms.city.cities" type="string" mandatory="true" binding="city" max-length="50" missing-error="forms.address.city.missing"/>
+	<field formid="state" label="forms.state.states" type="string" mandatory="false" binding="stateCode" max-length="50"/>
+		
+	
+	<field formid="email"  label="forms.checkout.003"  description="forms.address.emailDescription"  parse-error="forms.profile.emailParserErr"  missing-error="forms.profile.emailParserErr" mandatory="false" 
+		type="string" 
+		max-length="322" 
+		regexp="(?i)[a-z0-9!#$%\&amp;'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%\&amp;'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[a-z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|edu|family)\b"/>
+	<field formid="zip" label="forms.orderaddress.015" type="string" mandatory="true" min-length="4" max-length="4" regexp="^\d{4}" binding="postalCode" missing-error="forms.errorzip" parse-error="forms.address.field.invalid"/>
+		
+	<field formid="country" label="forms.country.countries" type="string" mandatory="true" binding="countryCode">
+		
+	</field>
+	<!-- we provide both a mandatory and an optional phone field - either one can be used
+	     depending on the specific requirements -->
+	<field formid="phone" label="profile.phone"  type="string" mandatory="true" binding="phone"  max-length="15" default-value="+41" regexp="[+]?[ 0-9]+" missing-error="forms.address.phone.missing" parse-error="forms.customeraddress.phone.parse-error" />
+	<!-- all possible actions performed on an address -->
+	<action formid="cancel" valid-form="false"/>
+	<action formid="confirm" valid-form="true"/>
+</form>

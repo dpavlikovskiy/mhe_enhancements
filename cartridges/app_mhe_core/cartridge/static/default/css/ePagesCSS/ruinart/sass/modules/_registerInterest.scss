@@ -1,0 +1,250 @@
+.moet-overlay {
+	&.ui-dialog {
+		background: $bodyGreyBg;
+	    border: none;
+	    padding: 10px;
+	    &.secureForms{
+			.ui-dialog-titlebar{
+				span, a.ui-dialog-titlebar-close {
+					display: none;
+				}
+			}
+			.newIcon{
+				height: 40px;
+			    position: absolute;
+			    right: 20px;
+			    top: 20px;
+			    width: 40px;
+			    z-index: 999;
+			    cursor: pointer;
+			    color: $darkBrownText;
+				&:before{
+					font-family: "icomoon";
+					content: "\e60e";
+					font-size: 36px;
+				}
+				&:hover {
+					color: $brandcolor;
+				}
+			}
+		}
+	    .ui-dialog-titlebar{
+			border:1px solid $brandcolor;
+			border-bottom:medium none;
+			a {
+				font-size: 36px;
+				color: $darkBrownText;
+				right: 20px;
+				top: 20px;
+				width: 40px;
+				height: 40px;
+				&:hover {
+					color: $brandcolor;
+				}
+			}
+		}
+		.ui-dialog-titlebar-close {
+			a {
+				
+			}
+		}
+		.ui-dialog-content{
+			border:1px solid $brandcolor;
+			border-top:medium none;
+			color: $darkBrownText;
+			h2 {
+				font: $big_text $titleFont;
+				color: $brandcolor;
+				&.confirmRegister {
+					font: $slightly_big_text $titleFont;
+				}
+			}
+			.section {
+				.beta-heading {
+					font: $slightly_big_text $titleFont;
+					color: $brandcolor;
+					text-transform: uppercase;
+					margin-bottom: 5px;
+				}
+				p {
+					font: Italic $normal-font-size $regularFont;
+					color: $packerygreyText;
+					&.instruction {
+						font-style: normal;
+					}
+				}
+				.formWrapper {
+					background: $bodyGreyBg;
+					border: none;
+					width:720px;
+					margin: 70px auto 0;
+					.formWrapperLeft {
+						width:50%;
+						float: left;
+						border-right: $brandcolor 1px solid;
+					}
+					.formWrapperRight {
+						width:50%;
+						float: left;
+					}
+					.form-row {
+						margin: 0 auto 15px;
+						text-align: left;
+						div {
+							margin-top: 5px;
+						}
+						label {
+							color: $formLabel;
+							font: $very_small_text $titleFont;
+						}
+						
+						.optionalLabel {
+							position: absolute;
+							left: 0;
+							top: -4px;
+						}
+						.optional {
+							position: relative;
+							right: 0;
+							top: -5px;
+							float: right;
+							font: Italic $very_small_text $regularFont;
+							color: $formLabel;
+						}
+						input[type="text"], input[type="password"] {
+							background: $white;
+							border: $brandcolor 1px solid;
+							height: 28px;
+							text-align: left;
+						}
+						select {
+							background: $white;
+							border: $brandcolor 1px solid;
+							height: 28px;
+							option {
+								background: $white;
+							}
+						}
+						textarea {
+							background: $white;
+							border: $brandcolor 1px solid;
+							width: 300px;
+							height: 149px;
+						}
+						.char-count {
+							font: Italic $very_small_text $regularFont;
+							text-align: right;
+							color: $formLabel;
+						}
+						.focus span.selectHolder {
+							border: $brandcolor 1px solid !important;
+						}
+						span.selectHolder {
+							background-color: $white;
+							background-image: url(images/sprite.png);
+							background-position: right 2px;
+							border: $brandcolor 1px solid;
+							height: 28px;
+						}
+						.error {
+							background: $white;
+							border: $brandcolor 1px solid;
+							font: $small-text-1 $titleFont;
+							font-weight: normal;
+							margin-top: 10px;
+							&:before {
+								background: $white;
+								border-top: $brandcolor 1px solid;
+								border-left: $brandcolor 1px solid;
+							}
+						}
+						&.isinputtext {
+							@include inline-block();
+							.optionalLabel {
+								top: 0px;
+							}
+						}
+						&.form-row-valid {
+							&:after {
+								content: url("images/form-valid.png");
+							}
+						}
+					}
+					.registerSelect {
+						&.form-row-valid {
+							&:after {
+								top: 27px;
+							}
+						}
+						&.form-row-error {
+							&:after {
+								top: 27px;
+							}
+						}
+					}
+					.registerTele {
+						.form-row-valid {
+							&:after {
+								top: 20px;
+							}
+						}
+						.form-row-error {
+							&:after {
+								top: 20px;
+							}
+						}
+					}
+					.buttonWrapper {
+						text-align: right;
+						padding: 10px 18px 0 0;
+						.button {
+							&.secondary {
+								background: $brandBg;
+							}
+							.face {
+								color: $white;
+								font-family: $titleFont;
+							}
+						}
+					}
+				}
+			}
+			.tellfriend-content {
+				.form-row {
+					label {
+						display: none;
+					}
+					input {
+						color: $greyBorder;
+						text-align: center;
+					}
+					textarea {
+						background: $white;
+						border: $greyBorder 1px solid;
+						color: $greyBorder;
+					}
+					&:after {
+						right: -20px;
+					}
+				}
+				hr {
+					display: none;
+				}
+				.remaining {
+					margin: 0 auto;
+					text-align: center;
+				}
+				.form-row-button {
+					text-align: center;
+					margin: 20px auto;
+					button.savechanges {
+						margin: 20px auto 0;
+					}
+				}
+				.error {
+					margin:10px 0 0 0;
+				}
+			}
+		}
+	}
+}

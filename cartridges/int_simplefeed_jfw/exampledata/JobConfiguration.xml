@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<custom-objects xmlns="http://www.demandware.com/xml/impex/customobject/2006-10-31">
+    <custom-object type-id="JobConfiguration" object-id="FullDataImport">
+        <object-attribute attribute-id="errorEmail">anyone@demandware.com</object-attribute>
+        <object-attribute attribute-id="fileLogging">Job Based</object-attribute>
+        <object-attribute attribute-id="logLevel">debug</object-attribute>
+        <object-attribute attribute-id="maxRuntime">0</object-attribute>
+        <object-attribute attribute-id="name">Full Data Import</object-attribute>
+        <object-attribute attribute-id="onTemporaryError">FAIL</object-attribute>
+        <object-attribute attribute-id="tasks">
+            <value>{"disabled":false,"name":"Category Import", "pipeline1":"FeedJob-DownloadAndImport", "type": "impex", "impexType":"catalog", "remoteFolderUrl": "inbound/", "tempFolder":"temp", "remoteFilePattern":".*_catalog_category_.*xml", "fileListBased":true, "deleteRemoteFile":false}</value>
+            <value>{"disabled":false,"name":"Product Import", "pipeline1":"FeedJob-DownloadAndImport", "type": "impex", "impexType":"catalog", "remoteFolderUrl": "inbound/", "tempFolder":"temp", "remoteFilePattern":".*_catalog_product_.*xml", "fileListBased":true, "deleteRemoteFile":false}</value>
+            <value>{"disabled":false,"name":"Product Category Assignment Import", "pipeline1":"FeedJob-DownloadAndImport", "type": "impex", "impexType":"catalog", "remoteFolderUrl": "inbound/", "tempFolder":"temp", "remoteFilePattern":".*_catalog_assign_.*xml", "fileListBased":true, "deleteRemoteFile":false}</value>
+            <value>{"disabled":false,"name":"Inventory Import", "pipeline1":"FeedJob-DownloadAndImport", "type": "impex", "impexType":"inventorylists", "remoteFolderUrl": "inbound/", "tempFolder":"temp", "remoteFilePattern":".*_inventory_.*xml", "fileListBased":true, "deleteRemoteFile":false}</value>
+            <value>{"disabled":false,"name":"Pricebook Import", "pipeline1":"FeedJob-DownloadAndImport", "type": "impex", "impexType":"pricebooks", "remoteFolderUrl": "inbound/", "tempFolder":"temp", "remoteFilePattern":".*_pricebook_.*xml", "fileListBased":true, "deleteRemoteFile":false}</value>
+            <value>{"disabled":false, "name": "Update Product Search Indexes", "pipeline": "MiscJobs-UpdateSearchIndexes", "index": "product", "synchronous": false, "incremental": true, "currentSite": true }</value>
+            <value>{"disabled":false, "name": "Invalidate Web Cache", "pipeline": "MiscJobs-InvalidateWebCache", "static": false, "page": true, "site": true }</value>
+        </object-attribute>
+    </custom-object>
+</custom-objects>

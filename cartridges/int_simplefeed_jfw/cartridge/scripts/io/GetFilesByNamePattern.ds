@@ -1,0 +1,51 @@
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.io );
+ 
+/**
+ * GetFilesByNamePattern.ds
+ *
+ * Gets all files from a directory that match the given file name pattern.
+ *
+ * @input sourcePath : String source directory
+ * @input name : String template name
+ * @output files : dw.util.SortedSet sorted set of import files
+ */ 
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // ===================================================
+	// =====     	PROCESS INPUT PARAMETERS 		 ===== 
+    // ===================================================
+	var sourcePath : String = pdict.sourcePath;
+	var name : String = pdict.name;
+	
+    // ===================================================
+	// =====            DONE                         =====
+    // ===================================================
+	// check input parameter
+	if(sourcePath == null)
+	{
+		Logger.error("Source path is missing.");		
+		return PIPELET_ERROR;
+	}
+	// checks correctness of source path
+	var directory : File = new File(File.IMPEX);
+	directory = new File(directory, "src");
+	directory = new File(directory, sourcePath);
+	if(!directory.isDirectory()) 
+	{
+		Logger.error("The provided path [{0}] is not a directory.", sourcePath);		
+		return PIPELET_ERROR;
+	}
+	var files : SortedSet = new SortedSet();
+	for each (var file : String in directory.list())
+	{
+		if(RegExp(name).test(file))
+		{
+			files.add(file);
+		}	
+	}
+	pdict.files = files;
+	return PIPELET_NEXT;
+}

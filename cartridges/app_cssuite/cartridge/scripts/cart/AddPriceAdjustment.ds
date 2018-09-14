@@ -1,0 +1,39 @@
+/**
+* This script adds a price adjustment to the basket.
+* @input Basket : dw.order.Basket : The basket.
+* @input PriceAdjustment : Number The price adjustment
+* @input CalloutMessage : String The reason for the price adjustment.
+* @output ErrorMessage : String error message in case of error.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var priceAdjustment : Number = pdict.PriceAdjustment;
+	if (empty(priceAdjustment)) {
+		pdict.ErrorMessage = "The price adjustment must be a numeric value.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;		
+	}
+	if (basket.getAdjustedMerchandizeTotalPrice().value + priceAdjustment < 0) {
+		pdict.ErrorMessage = "The price adjustment decrement exceeds the total price.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;			
+	}
+	var calloutMessage : String = pdict.CalloutMessage;
+	if (empty(calloutMessage)) {
+		pdict.ErrorMessage = "No callout message for the price adjustment was given.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;		
+	}
+	if (Logger.isDebugEnabled()) {
+		Logger.debug("Adding price adjustment [{0}] with callout message [{1}]", priceAdjustment, calloutMessage);
+	}
+	var adjustment : PriceAdjustment = basket.createPriceAdjustment(UUIDUtils.createUUID());
+	adjustment.setPriceValue(priceAdjustment);
+	adjustment.setLineItemText(calloutMessage);
+    return PIPELET_NEXT;
+}

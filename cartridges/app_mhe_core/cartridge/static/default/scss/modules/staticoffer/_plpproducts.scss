@@ -1,0 +1,15 @@
+// =============================================================================
+// Static Offer - PLP Products
+// =============================================================================
+
+.static-offer {
+	ul.search-result-items {
+		text-align: center;
+		height: 580px;
+		overflow: hidden;
+		li.products-tile {
+			display: inline-block;
+			float: none;
+		}
+	}
+}

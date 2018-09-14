@@ -1,0 +1,36 @@
+/**
+* Use this script just for testing purpose.
+* For production use the html markup submission via post
+*
+*  @input URL : String The url to generate the pdf for.
+*  @output PDFContent : String The pdf content.
+*
+*/
+importPackage( dw.system );
+importPackage( dw.net );
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+    // read pipeline dictionary input parameter
+    var src = pdict.URL;
+    var generatorURL = Site.getCurrent().preferences.custom.googleAppEngineURLforPDF+'?src=https://dev04-stores-mhe.demandware.net/on/demandware.store/Sites-UKSite-Site/en_GB/PDF-Test1';
+    
+    Logger.debug("Generate PDF for " + generatorURL);
+    
+	var httpClient : HTTPClient = new HTTPClient();
+ 	httpClient.open('GET', generatorURL);
+ 	httpClient.send();
+
+ 	if (httpClient.statusCode == 200)
+ 	{
+     	pdict.PDFContent = httpClient.text;
+ 	}
+ 	else {
+ 		Logger.error("Error generating the pdf: " + httpClient.statusMessage);
+ 		return PIPELET_ERROR;
+ 	}
+ 	
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,56 @@
+
+<isinclude template="util/modules"/>
+
+
+<iscomment>if theres an error message to show. add the class errors-total-visible to the .errors-total div below</iscomment>
+<isif condition="${!pdict.CurrentForms.login.loginsucceeded.valid || !pdict.CurrentForms.login.passwordMatch.valid || (pdict.TempCustomer != null && pdict.TempCustomer.profile != null && pdict.TempCustomer.profile.credentials.locked) }">
+<div class="errors-total errors-total-visible" style="max-height:90px;">
+<iselse>
+<div class="errors-total">  
+</isif>
+	<div class="errors-total-inner">
+			<iscomment>Login Unsuccessful Error Message</iscomment>
+			<isif condition="${pdict.TempCustomer != null && pdict.TempCustomer.profile != null && pdict.TempCustomer.profile.credentials.locked}">
+				<div class="error-form">${Resource.msg('logininclude.locked','account',null)}</div>
+			<iselseif condition="${pdict.TempCustomer != null && pdict.TempCustomer.profile != null && (pdict.TempCustomer.profile.credentials.remainingLoginAttempts == 1)}">
+				<div class="error-form">${Resource.msg('logininclude.willbelocked','account',null)}</div>
+			<iselseif condition="${!pdict.CurrentForms.login.loginsucceeded.valid}">
+				<div class="error-form">${Resource.msg('logininclude.loginerror','account',null)}</div>
+			<iselseif condition="${!pdict.CurrentForms.login.passwordMatch.valid}">
+				<div class="error-form">${Resource.msg('logininclude.passworderror','account',null)}</div>
+			</isif>
+	</div>
+</div>
+
+		
+			<form action="${URLUtils.httpsContinue()}" method="post" class="clearfix" id="${pdict.CurrentForms.login.htmlName}">
+			
+		
+			
+			
+				<isinputfield formfield="${pdict.CurrentForms.login.username}" type="input" xhtmlclass="email-input" p_dynamic="true" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhusername','forms',null)}"/>
+				
+				<isinputfield formfield="${pdict.CurrentForms.login.password}" type="password" xhtmlclass="" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+				
+				<iscontentasset aid="checkout_tnc_left"/>
+				
+				<div class="actions loginActions clearfix borderTop">
+					
+					
+					<button type="submit" value="${Resource.msg('global.login','locale',null)}" name="${pdict.CurrentForms.login.login.htmlName}" class="button fill">
+						<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+					</button>
+					
+				</div>
+				
+				<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+				
+			
+		</form>
+		
+
+	
+	
+
+	

@@ -1,0 +1,116 @@
+// =============================================================================
+// Help and FAQ Popup Footer Links
+// =============================================================================
+
+.help-faq-cont {
+	.footerlinks_header {
+		background-color: $black;
+		padding: 0 20px;
+		@include centered();
+		.title {
+			font-family: $heading-font-family, $base-font-family;
+			line-height: 1.25;
+			letter-spacing: -1px;
+			color: $white;
+			font-size: 26px;
+			display: block;
+			padding-top: 14px;
+		}
+	}
+	.footerlinks_title {
+		margin-top: 40px;
+		margin-bottom: 65px;
+		@include centered();
+		h1 {
+			font-size: 50px;
+			margin-bottom: 5px;
+		}
+		h2 {
+			font-size: $small_text;
+		}
+	}
+	.footerlinks_left_nav {
+		float: left;
+		width: 290px;
+		margin-left: 40px;
+		padding-right: 45px;
+		ul li {
+			font-size: $small_heading;
+			text-transform: uppercase;
+			margin-bottom: 18px;
+			letter-spacing: 1px;
+			a {
+				color: $lightergrey;
+				@include transition(all 0.2s ease-out);
+				&:hover,
+				&:focus,
+				&.active {
+					color: $white;
+				}
+			}
+		}
+	}
+	.footerlinks_right_content {
+		float: left;
+		width: 420px;
+		font-size: 15px;
+		padding-left: 50px;
+		border-left: 1px solid $border_dark;
+		min-height: 450px;
+		h3 {
+			font-size: $small_text;
+			margin-bottom: 35px;
+		}
+		h4 {
+			font-family: $fixed-font-family, $base-font-family;
+			margin: 25px 0 6px;
+			font-size: 15px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid $border_dark;
+		}
+		.panel-group {
+			.panel-heading {
+				font-size: 15px;
+				
+				letter-spacing: 1px;
+				padding: 14px 0;
+				a {
+					@include transition(all 0.2s ease-out);
+					color: $white;
+					span {
+						@include icon();
+						@extend .icon-minus;
+						margin-right: 9px;
+					}
+					&.collapsed {
+						color: $lightergrey;
+						span {
+							@extend .icon-plus;
+						}
+					}
+					&:hover {
+						color: $white;
+					}
+				}
+			}
+		}
+	}
+	.footerlinks_footer {
+		background-color: $black;
+		margin-top: 60px;
+		
+		p {
+			color: $lightergrey;
+			font-size: $small_heading;
+			@include centered();
+			margin-bottom: 0;
+			span {
+				color: $darkpurple;
+				display: inline-block;
+				margin: 0 6px;
+			}
+		}
+	}
+}

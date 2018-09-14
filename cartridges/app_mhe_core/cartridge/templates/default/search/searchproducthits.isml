@@ -1,0 +1,91 @@
+<isdecorate template="search/pt_searchresult_content">
+	<iscomment>
+		Use the decorator template based on the requested output. If
+		a partial page was requested an empty decorator is used.
+		The default decorator for the product hits page is
+		search/pt_productsearchresult.
+	</iscomment>
+	
+	<iscache type="relative" minute="30" varyby="price_promotion"/>
+	
+	<isinclude template="util/modules"/>
+	
+	<iscomment>
+		Configured as default template for the product search results.
+		Displays a global slot with static html and the product search
+		result grid.
+	</iscomment>
+	<iscomment>create reporting event</iscomment>
+	<isinclude template="util/reporting/ReportSearch.isml"/>
+	
+	<isif condition="${!empty(pdict.CurrentHttpParameterMap.sp1.value)}">
+		<div class="searchResultHeader textGA"><iscomment>textGA class is added for Google Analytics</iscomment>
+			<div class="optionSearch">
+				<span><isprint value="${pdict.ProductSearchResult.count}"/></span>
+				 
+				<isif condition="${pdict.ProductSearchResult.count > 1}" >
+				   <isprint value="${Resource.msgf('search.results','search',null,pdict.CurrentHttpParameterMap.sp1.value,'s')}" />
+				 <iselse> 
+				   <isprint value="${Resource.msgf('search.result','search',null,pdict.CurrentHttpParameterMap.sp1.value)}" />
+				 </isif>
+				<isprint value="${Resource.msgf('search.foundforyour','search',null,pdict.CurrentHttpParameterMap.sp2.value)}" />
+				<isif condition="${!empty(pdict.CurrentHttpParameterMap.sp3.value)}"> 
+					<span>
+					  <isprint value="${Resource.msgf('search.for','search',null,pdict.CurrentHttpParameterMap.sp3.value)}" />
+					</span>
+				</isif>
+			</div>
+		</div>	
+	<iselse>
+		<div class="searchResultHeader manual">
+			<div class="optionSearch">
+				<span><isprint value="${pdict.ProductSearchResult.count}"/></span>
+					<isprint value="${Resource.msg('seacrh.resultsfoundfor','search',null)}" />
+				<span class="norSize">" <span class="firstLetter"><isprint value="${pdict.CurrentHttpParameterMap.q.value}" /></span> "</span>
+		 	</div>
+		 	<div id="secondary" class="refinements">
+		 		<isinclude template="search/components/searchrefinebar"/>
+			</div>
+		</div>
+	 </isif>
+	 
+	<isset name="srpPageName" value="${Resource.msg('pagename.srp','components',null)}" scope="page" />
+	<iscomment>
+		Render promotional content at the top of search results as global slot.
+		This content is only displayed if the search result is refined by a category.
+		If the search result is not refined by a category a global default is displayed.
+	</iscomment>
+	<iscomment>Dkum37: To be Removed
+ 	<form action="${URLUtils.url('Search-Show')}" method="get" name="searchAgain">
+		<div class="form-row label-above">
+			<label for="q">${Resource.msg('search.again','search',null)}</label>
+			<input type="text" class="input-text" name="q" value="" />
+			
+			<a onclick="document.searchAgain.submit();">Search icon</a>
+		</div>
+	</form>
+	</iscomment>
+			
+	<isif condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+		<div class="search-result-options searchOpt" id="js-sort-options">
+            <iscomment>sort by</iscomment>
+            <isproductsortingoptions productsearchmodel="${pdict.ProductSearchResult}" pagingmodel="${pdict.ProductPagingModel}" uniqueid="grid-sort" pagetype="${srpPageName}"/>
+            <iscomment>pagination</iscomment>
+			<ispaginginformation pagingmodel="${pdict.ProductPagingModel}" pageurl="${pdict.ProductSearchResult.url('Search-Show')}"  uniqueid="grid-paging-header"/>
+            <ispagingbar pageurl="${pdict.ProductSearchResult.url('Search-Show')}" pagingmodel="${pdict.ProductPagingModel}"/> 
+		</div>
+
+		<div class="search-result-content newSearch">
+			<iscomment>Slots appearing between the product tiles</iscomment>
+			<isproductgrid pagingmodel="${pdict.ProductPagingModel}" category="${pdict.ProductSearchResult.category}" pagetype="${srpPageName}" />
+		</div>			        
+	</isif>
+
+	<iscomment>The JS is written for Google Analytics</iscomment>
+	<script type="text/javascript">
+		$(window).load(function(){
+			$("div.optionSearch").click();		
+		});
+	</script>
+
+</isdecorate>

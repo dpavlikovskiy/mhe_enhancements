@@ -1,0 +1,133 @@
+<!--- TEMPLATENAME: leadgenerationlandingpage.isml --->
+<isdecorate template="account/pt_lead_generation">
+
+<isinclude template="util/modules"/>
+
+<div class="leadHead">
+	<img src="${URLUtils.staticURL('/css/img/common/lead-logo.png')}" alt="Selection Logo" />
+</div>
+<h1>${Resource.msg('leadgenerationheader','account',null)}</h1>
+<form action="${URLUtils.httpsContinue()}" method="post" id="referForm" name="${pdict.CurrentForms.leadgeneration.htmlName}">
+	<div class="midLine">
+		<div class="formBox first">
+			<h3>${Resource.msg('leadgenerationintroducefriend','account',null)}</h3>
+			
+			<isscript>
+				importScript('checkout/Utils.ds');
+				var titleMap : dw.util.Map = getTitleMap();		
+				var salutationMap : dw.util.Map = getSalutationMap();				
+			</isscript>
+			<div class="form-row required" data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+						<label>${Resource.msg('profile.salutation2','forms',null)}</label>
+						<select id="${pdict.CurrentForms.leadgeneration.refereesalutation.htmlName}" name="${pdict.CurrentForms.leadgeneration.refereesalutation.htmlName}" class="input-text required">
+							<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+							<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.leadgeneration.refereesalutation.htmlValue.equals(salutationMap.get(key))}">							 
+						 		 <option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+								<iselse>
+								<option  value="${key}">${salutationMap.get(key)}</option>
+						</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+					<div class="form-row required">
+						<label>${Resource.msg('profile.salutation','forms',null)}</label>
+						<select id="${pdict.CurrentForms.leadgeneration.refereetitle.htmlName}" name="${pdict.CurrentForms.leadgeneration.refereetitle.htmlName}">
+							<option value="">${Resource.msg('profile.salutation','forms',null)}</option>
+							<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.leadgeneration.refereetitle.htmlValue.equals(titleMap.get(key))}">							 
+						 		 <option selected="selected" value="${key}">${titleMap.get(key)}</option>
+								<iselse>
+								<option  value="${key}">${titleMap.get(key)}</option>
+						</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereefname}" xhtmlclass="name-input" type="input" requiredtext="${Resource.msg('forms.customeraddress.refereefirstname.missing-error','forms',null)}" />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereelname}" xhtmlclass="name-input" type="input" requiredtext="${Resource.msg('forms.customeraddress.refereelastname.missing-error','forms',null)}" />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereeemail}" xhtmlclass="email-input" type="input" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" />
+			<div class="form-row">
+				<label><isprint value="${Resource.msg('forms.referralMessage.label','forms',null)}" /></label>
+				<select id="referralFormMessage" name="referralFormMessage" class="input-text ">
+					<option selected="selected" value=""><isprint value="${Resource.msg('forms.referralMessage.msg','forms',null)}" /></option>
+					<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('referralMessage')}" var="options" status="loopstatus">								
+						<option value="${options.getDisplayValue()}"> 	 ${options.getValue()}		</option> 					                				
+					</isloop>
+				</select>
+			</div>
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.message}" type="textarea" rowclass="last" />
+		</div>
+		<div class="formBox">
+			<h3>${Resource.msg('leadgenerationyourdetails','account',null)}</h3>
+			
+			
+		<div class="form-row required" data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+					<label>${Resource.msg('profile.salutation2','forms',null)}</label>
+						<select id="${pdict.CurrentForms.leadgeneration.referrersalutation.htmlName}" name="${pdict.CurrentForms.leadgeneration.referrersalutation.htmlName}" class="input-text required">
+							<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+							<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.leadgeneration.referrersalutation.htmlValue.equals(salutationMap.get(key))}">							 
+						 		 	<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+								<iselse>
+									<option  value="${key}">${salutationMap.get(key)}</option>
+								</isif>	                            				
+							</isloop>
+						</select>
+			</div>
+			<div class="form-row required " data-required-text="${Resource.msg('profile.salutation.missing-error','forms',null)}" >
+				<label><span>${Resource.msg('profile.salutation','forms',null)}</span></label>
+				<select id="${pdict.CurrentForms.leadgeneration.referrertitle.htmlName}" name="${pdict.CurrentForms.leadgeneration.referrertitle.htmlName}">
+					<option value="">${Resource.msg('profile.salutation','forms',null)}</option>
+					<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">      
+                         <isif condition="${pdict.CurrentForms.leadgeneration.referrertitle.htmlValue.equals(titleMap.get(key))}">
+                           <option selected="selected" value="${key}">${titleMap.get(key)}</option>                
+                         <iselse>                                                    
+                            <option  value="${key}">${titleMap.get(key)}</option>
+                         </isif>  
+                    </isloop>
+				</select>
+			</div>
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.referrerfname}" xhtmlclass="name-input" type="input" requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}" />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.referrerlname}" xhtmlclass="name-input" type="input" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}" />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.referreremail}" xhtmlclass="email-input" type="input" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.company}" type="input"  />
+			<isinputfield formfield="${pdict.CurrentForms.leadgeneration.rememberme}" type="checkbox" rowclass="label-inline" />
+		</div>
+	</div>
+	<div class="actions">
+		<button class="button secondary sendButton" type="submit" name="${pdict.CurrentForms.leadgeneration.confirm.htmlName}" value="confirm" >
+			<span class="face front">${Resource.msg('leadgenerationsend','account',null)}</span>
+			<span class="face back">${Resource.msg('leadgenerationsend','account',null)}</span>
+		</button>
+	</div>
+	
+    <isif condition="${pdict.src!=null && !empty(pdict.src)}"> 
+	<isset name="popupurl" value="${URLUtils.url('RegistrationFlow-LeadGeneration','src',pdict.src)}" scope="page" />
+	<iselse>
+	<isset name="popupurl" value="${URLUtils.url('RegistrationFlow-LeadGeneration')}" scope="page" />
+	</isif>
+
+</form>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	if(${pdict.ConfirmationPage=="true"})
+	{
+	var $el = $("#leadForm");
+	var userData = "<div class='popUp'><a href=${popupurl} class='manualClose'>Manual Close</a> ${dw.web.Resource.msg('referfriend.popup1','account',null)}  ${pdict.CurrentForms.leadgeneration.refereefname.value.toString()}<br /> <br /> ${dw.web.Resource.msg('referfriend.popup2','account',null)}<br/>${dw.web.Resource.msg('referfriend.popup3','account',null)} <br /> <br /> ${dw.web.Resource.msg('referfriend.popup4','account',null)} <br /><br /><a class='button secondary inviButton' href=${popupurl}><span class='face front'>${Resource.msg('leadgenerationinvite','account',null)}</span><span class='face back'>${Resource.msg('leadgenerationinvite','account',null)}</span></a></div>",
+		dlg = app.dialog.create({target:$("#leadFormDialog"),
+		options:{
+			width:500,
+			height:'auto'
+		}
+	});
+	$("#leadFormDialog").html(userData).parents(".ui-dialog").addClass("cartPrompts leadPopUp");
+	dlg.dialog("open");
+   }
+});
+</script>
+
+
+
+</isdecorate>

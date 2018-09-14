@@ -1,0 +1,30 @@
+<!--- TEMPLATENAME:  --->
+
+<h1> ${Resource.msg('notdelivered.header','common',null)} </h1>
+<table border="1" >
+	<thead>
+		<tr>
+			<th>
+			${Resource.msg('sapmail.tableheader1','common',null)}</th>
+			<th>
+			${Resource.msg('sapmail.tableheader2','common',null)}</th>
+			<th>
+			${Resource.msg('notdelivered.tableheader3','common',null)}</th>
+		</tr>
+	</thead>
+	<tbody>
+	
+		<isloop items="${pdict.OrdersList}" var="order" status="loopstate0">
+			<tr>
+				<td> ${order.orderNo}</td>
+			     <td> ${order.creationDate}</td>
+				<isloop items="${order.shipments}" var="shipment" status="shipmentloopstate">
+					<isif condition="${!empty(shipment.custom.requestedDeliveryDate)}" >
+						<td> ${shipment.custom.requestedDeliveryDate}</td>
+						<isbreak />		
+					</isif> 
+				</isloop>
+			</tr> 
+		</isloop>
+	</tbody>
+</table>

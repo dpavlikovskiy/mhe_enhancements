@@ -1,0 +1,309 @@
+<iscomment>
+	Renders product detail page both quickview and normal view.
+	If the product is a product set or bundle, then it also includes subproduct template to 
+	render sub product details.
+	
+	params:
+	pdict.CurrentHttpParameterMap.source - Search(ajax), quickview, cart - in these cases there is no decorator (empty) thus final 
+	html does not include header, footer or left nav.
+	
+	product.js - app.Product object
+	contains the javascript code related to the dynamic behavior of the product detail page
+	e.g. pricing, image management, selecting/deselecting variation attributes, options, enable/disable A2C button,  A2WL, Gift registry and other links etc.
+	Initializes jquery plugins to create horizontal carousel, tabs, and binds different event handlers. 
+	
+	This template creates 
+	app.Product instances with product json (productjson.isml) and assigns it to global var app.ProductCache
+	in case of a set/bundle, for each subproduct
+		create product instances of app.Product with product json (productjson.isml)
+		add them to the main product
+			app.ProductCache.subProducts.push
+		call app.Product.show() which does UI initializations and jQuery events binding etc.
+	
+	call app.ProductCache.show which does UI initializations and jQuery events binding etc.
+	
+</iscomment>
+<isset name="DecoratorTemplate" value="product/pt_productdetails" scope="page"/>
+<iscomment>pwr = power review write</iscomment>
+<isif condition="${pdict.CurrentHttpParameterMap.pwr.stringValue == 'true' || pdict.CurrentHttpParameterMap.source.stringValue == 'search' || pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart'}">
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+</isif>
+
+<isdecorate template="${DecoratorTemplate}">
+	<iscache type="relative" minute="30" varyby="price_promotion"/>
+	<isinclude template="util/modules"/>
+	
+	<isif condition="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart'}">
+		<isset name="isQuickView" value="${true}" scope="page"/>
+	<iselse>
+		<isset name="isQuickView" value="${false}" scope="page"/>
+	</isif>
+
+	<isif condition="${!isQuickView}">
+		<isinclude template="components/productbreadcrumbs"/>
+	</isif>
+
+	<div id="pdpMain" class="productdetail">
+		<isobject object="${pdict.Product}" view="detail">
+	
+			<iscomment>
+				render previous/next if the search result contains products
+				currentProdUrl is being initialized here and might be changed by productnav.isml in case we are coming from a search page 
+				in which case all the search params or refinements must remain part of the url i.e. url always preserved 
+			</iscomment>
+			<isset name="currentProdUrl" value="${URLUtils.url('Product-Show','pid', pdict.Product.ID)}" scope="page"/>
+			<isif condition="${!empty(pdict.ProductSearchResult) && pdict.ProductSearchResult.count > 0}">		
+				<isinclude template="search/productnav"/>
+			</isif>
+		
+			<script type="text/javascript"><!--
+				// constants
+				app.constants.AVAIL_STATUS_IN_STOCK 		= "${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK}";
+				app.constants.AVAIL_STATUS_PREORDER 		= "${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}";
+				app.constants.AVAIL_STATUS_BACKORDER 		= "${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}";
+				app.constants.AVAIL_STATUS_NOT_AVAILABLE 	= "${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE}";
+				
+				// product availability messages
+				app.resources["${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK}"] = "${StringUtils.format(Resource.msg('global.instock','locale',null))}";
+				app.resources["QTY_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK}"] = "${StringUtils.format(Resource.msg('global.quantityinstock','locale',null))}";
+				app.resources["${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}"] = "${StringUtils.format(Resource.msg('global.allpreorder','locale',null))}";
+				app.resources["QTY_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}"] = "${StringUtils.format(Resource.msg('global.quantitypreorder','locale',null))}";
+				app.resources["REMAIN_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}"] = "${StringUtils.format(Resource.msg('global.remainingpreorder','locale',null))}";
+				app.resources["${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}"] = "${StringUtils.format(Resource.msg('global.allbackorder','locale',null))}";
+				app.resources["QTY_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}"] = "${StringUtils.format(Resource.msg('global.quantitybackorder','locale',null))}";
+				app.resources["REMAIN_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}"] = "${StringUtils.format(Resource.msg('global.remainingbackorder','locale',null))}";
+				app.resources["${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE}"] = "${StringUtils.format(Resource.msg('global.allnotavailable','locale',null))}";
+				app.resources["REMAIN_${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE}"] = "${StringUtils.format(Resource.msg('global.remainingnotavailable','locale',null))}";
+				app.resources["IN_STOCK_DATE"] = "${Resource.msg('global.inStockDate','locale',null)}";
+				app.resources["NON_SELECTED"] = "${StringUtils.format(Resource.msg('global.nonSelected','locale',null))}";
+				app.resources["MISSING_VAL"] = "${StringUtils.format(Resource.msg('product.missingval','product',null))}";
+				app.resources["SIZECHART_TITLE"] = "${StringUtils.format(Resource.msg('product.sizecharttitle','product',null))}";
+				app.resources["SEND_TO_FRIEND"] = "${Resource.msg('account.sendfriend','account',null)}";				
+				
+				// THIS MUST BE CALLED BEFORE ANY app.product calls!!!
+				// execute unobtrusive js code
+				app.execUjs();
+				
+				jQuery(document).ready(function(){
+					app.ProductCache = new app.Product({data: <isinclude template="product/productjson"/>});
+				});
+			//--></script>
+	
+			<div class="productdetailcolumn productinfo"> <!-- dwMarker="product" dwContentID="${pdict.Product.UUID}" -->
+				<h1 class="productname"><!-- Product Name Display --><isprint value="${pdict.Product.name}"/></h1>
+				<div class="itemNo productid">${Resource.msg('product.item','product',null)} <isprint value="${ pdict.Product.ID }"/></div><!-- END: productid -->
+				<isif condition="${isQuickView}">
+					<div id="pdpFullDetailsLink">
+						<!-- shown only in quick view -->
+						<iscomment>currentProdUrl is calculated inside productnav.isml, if its null then standard product show url is used</iscomment>					
+						<a href="${currentProdUrl}" title="${pdict.Product.name}">${Resource.msg('product.viewdetails','product',null)}</a>
+					</div><!-- END: pdpFullDetailsLink -->
+				</isif>
+				<isset name="showTieredPrice" value="${true}" scope="page"/>
+				<isinclude template="product/components/pricing"/>
+				<isset name="showTieredPrice" value="${false}" scope="page"/>
+				<isinclude template="product/components/promotions"/>
+				<isif condition="${pdict.Product.productSet}">
+					<div id="pdpProductSetDiv" class="productset">
+						<iscomment>Display Product Set Individual Products</iscomment>
+						<iscomment>Preserve the current product instance</iscomment>
+						<isset name="ProductSet" value="${pdict.Product}" scope="pdict"/>
+						<isloop items="${pdict.ProductSet.getProductSetProducts()}" var="SetProduct" status="productSetLoop">
+							<isif condition="${SetProduct.online}">								
+								<isset name="Product" value="${SetProduct}" scope="pdict"/>
+								<isset name="ProductCount" value="${productSetLoop.count}" scope="pdict"/>
+								
+								<isobject object="${pdict.Product}" view="setproduct">
+									<isinclude template="product/components/subproduct"/>
+								</isobject>
+			
+								<script type="text/javascript"><!--
+									jQuery(document).ready(function(){
+										var subProduct = new app.Product({data: <isinclude template="product/productjson"/>});
+										app.ProductCache.subProducts.push(subProduct);
+										subProduct.show({containerId: "subProduct${pdict.ProductCount}Div", append: true, source: "${pdict.CurrentHttpParameterMap.source.stringValue}"});								
+									});
+								//--></script>
+							</isif>
+						</isloop>
+						<iscomment>Restore the current product instance</iscomment>
+						<isset name="Product" value="${pdict.ProductSet}" scope="pdict"/>
+					</div><!-- END: productset -->
+				</isif>
+				<isif condition="${pdict.Product.bundle && pdict.Product.getBundledProducts().size() > 0}">
+					<div id="pdpBundleDiv" class="bundle">					
+						<iscomment>Display bundle Individual Products</iscomment>
+						<iscomment>Preserve the current product instance</iscomment>
+						<isset name="ProductBundle" value="${pdict.Product}" scope="pdict"/>
+						<isloop items="${pdict.Product.getBundledProducts()}" var="BundledProduct" status="bundleLoop">
+							<isset name="Product" value="${BundledProduct}" scope="pdict"/>
+							<isset name="ProductCount" value="${bundleLoop.count}" scope="pdict"/>
+
+							<isobject object="${pdict.Product}" view="setproduct">
+								<isinclude template="product/components/subproduct"/>
+							</isobject>
+		
+							<script type="text/javascript"><!--
+								jQuery(document).ready(function(){
+									var bundledProduct = new app.Product({data: <isinclude template="product/productjson"/>});
+									app.ProductCache.subProducts.push(bundledProduct);
+									bundledProduct.show({containerId: "subProduct${pdict.ProductCount}Div", append: true, source: "${pdict.CurrentHttpParameterMap.source.stringValue}"});								
+								});
+							//--></script>
+		
+						</isloop>
+						<iscomment>restore the current product instance</iscomment>
+						<isset name="Product" value="${pdict.ProductBundle}" scope="pdict"/>
+					</div><!-- END: bundle -->
+				</isif>
+				<isinclude template="product/components/variations"/>
+				<div class="mainattributes"><!-- Displays Product Main Attributes -->
+					<isset name="pam" value="${pdict.Product.getAttributeModel()}" scope="page"/>
+					<isset name="group" value="${pam.getAttributeGroup('mainAttributes')}" scope="page"/>
+					<isinclude template="product/components/group"/>
+					<div class="clear"><!-- FLOAT CLEAR --></div>
+				</div><!-- END: mainattributes -->
+				<isinclude template="product/components/options"/>
+				<isif condition="${!pdict.Product.productSet}">
+					<div class="availability">
+						<span class="label">${Resource.msg('global.availability','locale',null)}: </span><span class="value"><!-- Product Availability Message --></span>
+					</div><!-- END: availability -->
+				</isif>
+				<div id="pdpATCDivpdpMain" class="addtocartbar">
+					<div class="addtocart">
+						<isif condition="${!(pdict.Product.productSet || pdict.Product.bundle)}"> <iscomment>bundle/product set do not have a quantity box</iscomment>
+							<div class="quanity">
+								<span class="label">${Resource.msg('global.qty','locale',null)}:</span><input class="quantityinput" value="${Number(empty(pdict.CurrentHttpParameterMap.Quantity.stringValue) ? 1 : pdict.CurrentHttpParameterMap.Quantity.stringValue).toFixed()}"/>
+							</div><!-- END: quanity -->
+						</isif>
+						<button type="button" title="${Resource.msg('global.addtocart','locale',null)}" value="${Resource.msg('global.addtocart','locale',null)}" class="addtocartbutton"><span>${Resource.msg('global.addtocart','locale',null)}</span></button>
+					</div><!-- END: addtocart -->
+					<isinclude template="product/components/pricing"/>
+				</div><!-- END: addtocartbar -->
+
+				<div class="productactions">
+					<isif condition="${!(pdict.Product.productSet)}">
+						<isif condition="${!empty(pdict.CurrentHttpParameterMap.source.stringValue)}">
+							<isset name="wishlistUrl" value="${URLUtils.https('Wishlist-Add', 'source', pdict.CurrentHttpParameterMap.source.stringValue)}" scope="page"/>
+						<iselse>
+							<isset name="wishlistUrl" value="${URLUtils.https('Wishlist-Add')}" scope="page"/>
+						</isif>
+						<div class="addtowishlist"><a href="${wishlistUrl}">${Resource.msg('global.addtowishlist','locale',null)}</a></div>
+						<div class="addtoregistry"><a href="${URLUtils.https('GiftRegistry-AddProduct')}">${Resource.msg('global.addtogiftregistry','locale',null)}</a></div>				
+					</isif>
+					<div class="sendtofriend"><a>${Resource.msg('product.sendfriend','product',null)}</a></div>
+					<script language="javascript" type="text/javascript">
+					<!--
+						function openPDFPopup() {
+							window.open('${URLUtils.http('PDF-Generate', 'url', dw.util.StringUtils.encodeBase64(URLUtils.http('ShowcaseProduct-PDF', 'pid', pdict.Product.ID).toString()))}', 'PDF', 'width=900,height=600,resizable=yes,scrollbars=yes'); 
+							return false;						
+						}	
+						
+					// --> </script>				
+					<div class="downloadaspdf"><a href="#" onclick="javascript:openPDFPopup();">Download PDF</a></div>
+				</div><!-- END: productactions -->
+				<div class="productreview">
+					<iscomment>Product Ratings (PowerReviews)</iscomment>
+					<isif condition="${!isQuickView}">
+		        	<isinclude template="product/components/reviewsmini"/>
+					<div class="reviewlinks">
+						<a id="pdpReadReview" title="${Resource.msg('global.readreviews','locale',null)}">${Resource.msg('global.readreviews','locale',null)}</a><span class="divider">|</span><a id="pdpWriteReview" href="${URLUtils.url('PowerReviews-WriteReview')}?pid=${pdict.Product.ID}" title="${Resource.msg('global.writeareview','locale',null)}">${Resource.msg('global.writeareview','locale',null)}</a>
+					</div><!-- END: review_links -->
+					</isif>
+				</div><!-- END: productreview -->
+				<div class="clear"><!-- FLOAT CLEAR -->	</div>
+			</div><!-- END: productdetailcolumn -->
+			<isif condition="${pdict.Product.master && pdict.CurrentVariationModel && pdict.CurrentVariationModel.variants.size() > 0}">
+				<isset name="imageProduct" value="${pdict.CurrentVariationModel.variants[0]}" scope="page"/>
+			<iselse/>
+				<isset name="imageProduct" value="${pdict.Product}" scope="page"/>
+			</isif>
+		
+			<isif condition="${!empty(imageProduct.getImage('large',0))}">
+				<isset name="imageUrl" value="${imageProduct.getImage('large',0).url}" scope="page"/>
+				<isset name="imageAlt" value="${imageProduct.getImage('large',0).alt}" scope="page"/>
+				<isset name="imageTitle" value="${imageProduct.getImage('large',0).title}" scope="page"/>
+			<iselse/>
+				<isset name="imageUrl" value="${URLUtils.staticURL('/images/noimagelarge.png')}" scope="page"/>
+				<isset name="imageAlt" value="${pdict.Product.name}" scope="page"/>
+				<isset name="imageTitle" value="${pdict.Product.name}" scope="page"/>
+			</isif>
+		
+			<div class="productdetailcolumn productimages">
+				<div class="productimage"><!-- Product Image -->
+					<img src="${imageUrl}" alt="${imageAlt}" title="${imageTitle}"/>
+				</div>
+				<isset name="largeImagesSize" value="${pdict.Product.getImages('large').size()}" scope="page"/>
+				<isset name="smallImagesSize" value="${pdict.Product.getImages('small').size()}" scope="page"/>
+				<isset name="noOfImages" value="${largeImagesSize > smallImagesSize ? smallImagesSize : largeImagesSize}" scope="page"/>			
+				<div class="productthumbnails"><!-- Product Thumbnails -->
+					<iscomment>show thumbnails if more than one</iscomment>
+					<isif condition="${smallImagesSize > 1}">
+						<isloop items="${pdict.Product.getImages('small')}" var="img" status="imgSmStatus">
+							<iscomment>we only show the smallest of large or small images, there is 1-1 correspondence</iscomment>
+							<isif condition="${imgSmStatus.count > noOfImages - 1}">
+								<isbreak/>
+							</isif>
+							<img src="${img.url}" alt="${img.alt}" title="${img.title}"/>						
+						</isloop>
+					</isif>
+				</div>			
+				<isif condition="${!isQuickView}">
+					<div class="maywerecommend"><!-- Product Links Carousel -->
+						<isinclude template="product/components/recommendations"/>
+					</div>
+				</isif>
+				<div class="clear"><!-- FLOAT CLEAR --></div>
+			</div><!-- END: productdetailcolumn -->
+			<div class="clear"><!-- FLOAT CLEAR --></div>
+			<isset name="vags" value="${pam.getVisibleAttributeGroups()}" scope="page"/>
+			<isif condition="${!pdict.Product.productSet && !pdict.Product.bundle && !isQuickView}">
+				<div id="pdpTabsDiv" class="product_tabs">
+					<ul>
+						<isif condition="${! empty(pdict.Product.shortDescription) && pdict.Product.shortDescription.markup.length > 0}"><li><a href="#pdpTab1"><span>${Resource.msg('product.tab1','product',null)}</span></a></li></isif>
+						<isif condition="${! empty(pdict.Product.longDescription) && pdict.Product.longDescription.markup.length > 0}"><li><a href="#pdpTab2"><span>${Resource.msg('product.tab2','product',null)}</span></a></li></isif>
+						<isif condition="${vags.length > 0}"><li><a href="#pdpTab3"><span>${Resource.msg('product.tab3','product',null)}</span></a></li></isif>
+						<li><a href="#pdpReviewsTab"><span>${Resource.msg('product.tab4','product',null)}</span></a></li>
+					</ul>
+					<isif condition="${! empty(pdict.Product.shortDescription) && pdict.Product.shortDescription.markup.length > 0}"><div id="pdpTab1"><a class="printpage">${Resource.msg('global.print','locale',null)}</a><isprint value="${pdict.Product.shortDescription}" encoding="off"/></div></isif>
+					<isif condition="${! empty(pdict.Product.longDescription) && pdict.Product.longDescription.markup.length > 0}"><div id="pdpTab2"><a class="printpage">${Resource.msg('global.print','locale',null)}</a><isprint value="${pdict.Product.longDescription}" encoding="off"/></div></isif>
+					<isif condition="${vags.length > 0}">
+					<div id="pdpTab3" class="productsattributes">
+						<a class="printpage" title="${Resource.msg('global.print','locale',null)}">${Resource.msg('global.print','locale',null)}</a>
+						<isloop items="${vags}" var="AttributeGroup" status="loopstatus">
+							<isif condition="${AttributeGroup.ID != 'mainAttributes'}">
+								<isset name="group" value="${AttributeGroup}" scope="page"/>
+								<h3><isprint value="${group.getDisplayName()}"/></h3>
+								<isinclude template="product/components/group"/>
+								<div class="clear"><!-- FLOAT CLEAR --></div>
+							</isif>
+						</isloop>
+					</div>
+					</isif>
+					<div id="pdpReviewsTab">
+						<a class="printpage">${Resource.msg('global.print','locale',null)}</a>
+						<isinclude template="product/components/reviews"/>
+					</div>
+				</div>
+			</isif>
+		</isobject>		
+	</div><!-- END: productdetail -->
+	<script type="text/javascript"><!--	
+	
+		jQuery(document).ready(function(){
+			app.ProductCache.show({containerId: "pdpMain", append: false, source: "${pdict.CurrentHttpParameterMap.source.stringValue}"});
+			// used for send to friend
+			// dialogopen is a very generic name, may be it should be specific to send to friend
+			jQuery(document).bind('dialogopen', function(event, msg) {
+				jQuery('#dialogcontainer').dialog('option', 'title', '${Resource.msg('product.sendfriend','product',null)}');
+	
+			    jQuery("[name=${pdict.CurrentForms.sendtofriend.message.htmlName}]");
+			    jQuery("[name=${pdict.CurrentForms.sendtofriend.subject.htmlName}]").val("${Resource.msg('product.sendfriendemailsubject','product',null)}");
+		     	jQuery("[name=${pdict.CurrentForms.sendtofriend.messagelink.htmlName}]").val("${URLUtils.http('Product-Show', 'pid', pdict.Product.ID)}");
+			    jQuery("[name=${pdict.CurrentForms.sendtofriend.messagelinktext.htmlName}]").val("${Resource.msg('product.sendfriendemailsubject','product',null)}");
+			});
+	
+			app.URLs.sendToFriend = '${URLUtils.http('SendToFriend-Start')}';			
+		});
+	//--></script>
+</isdecorate>

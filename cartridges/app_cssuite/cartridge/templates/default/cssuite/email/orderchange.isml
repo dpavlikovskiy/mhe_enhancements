@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<iscontent type="text/html" charset="UTF-8">
+<isset name="SHOP_URL" value="${URLUtils.http(new dw.web.URLAction('Home-Show', pdict.StorefrontName))}" scope="PAGE"/>
+<isset name="TRACK_URL" value="${URLUtils.https(new dw.web.URLAction('Order-Track', pdict.StorefrontName))}" scope="PAGE"/>
+
+<subject><isprint value="${empty(dw.system.Site.getCurrent().preferences.custom.email_orderChangeConfirmationSubject)?'Order Changed':dw.system.Site.getCurrent().preferences.custom.email_orderChangeConfirmationSubject}" encoding="off"> <isprint value="${pdict.Order.originalOrderNo}"></subject>
+
+<head>
+<style type="text/css">
+body {
+	color: Black;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-style: normal;
+	font-size: 9pt;
+	border: none;
+	background:#FFFFFF;
+	margin:auto; }
+h1 {
+	font-family: 'Century Gothic',Arial,Verdana,sans-serif;
+	padding: 3px;
+	text-transform: none;
+	color: #006;
+	font-size: 18pt;
+	font-weight: normal;
+	text-transform: uppercase;
+	border: 0px; }
+h3 {
+	font-family: 'Century Gothic',Arial,Verdana,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: uppercase;
+	line-height: 1.1;
+	color: #6699cc;
+	padding: 3px 5px 0px 0px;
+	margin: 0px 0px 0px 10px;}
+p {
+	margin: 10px;}
+p.bonus {
+	color: red;
+	margin: 0px;
+	padding: 0px; }
+table.producttable {
+	width: 636px;
+	margin: 1px;
+	border: 1px solid #eee;
+	font-size: 9pt; }
+table.producttable tr th {
+	background-color: #e0e0e0;
+	white-space: nowrap;
+	color: Black;
+	padding: 2px 5px;
+	text-transform: uppercase;
+	text-align: center; }
+table.producttable tr th.blank {
+	background:#ffffff; }
+table.producttable tr td.blank {
+	background:#ffffff; }
+table.producttable tfoot td {
+	padding: 3px 5px;
+	text-align: right;
+	background-color: #e0e0e0; }
+table.producttable tr td {
+	padding: 3px 5px;
+	margin: 0px;
+	background-color: #f3f3f3;}
+table.producttable tr td.quantitycolumn {
+	text-align: center;
+	vertical-align: middle;
+	width: 70px; }
+table.producttable td .alreadyordered {
+	display: block;
+	color: Green; }
+table.producttable tr.odd td {
+	background-color: #f3f3f3; }
+table.producttable tr.even td {
+	background-color: #fcfcfc; }
+table.producttable td a {
+	text-decoration: none;
+	color: #006699; }
+table.producttable td a:hover {
+	text-decoration: underline; }
+table.producttable td.price {
+	text-align: right;
+	width: 85px; }
+table.producttable .imagecolumn {
+	margin: auto;
+	text-align: center;
+	vertical-align: middle; }
+table.producttable .remove {
+	margin: auto;
+	text-align: center;
+	vertical-align: middle; }
+table.producttable .shippinggrouping { }
+table.producttable .shiptoline {
+	background-color: #fcfcfc;}
+table.producttable .shippinggroupinginfo {
+	text-align: right; }
+table.producttable .shippinggroupingpromo{
+	text-align: right;
+	color: Red; }
+table.producttable .shippingunadjusted {
+	text-decoration: line-through; }
+table.producttable td.ordertotalsdivider {
+	margin: 0px;
+	padding: 1px;
+	background:#ffffff;
+	border-top: 1px solid #cdcdcd;
+	border-bottom: 1px solid #cdcdcd; }
+table.producttable tfoot td.blank {
+	background:#ffffff; }
+table.producttable .ordertotal{
+	text-align: right;
+	background-color: #dcdcdc; }
+table.producttable .ordertotalprice {
+	text-align: right;
+	font-weight: bold;
+	background-color: #dcdcdc; }
+table.producttable tfoot td {
+	background-color: #fcfcfc; }
+.shippingunadjusted {
+	text-decoration:line-through; }
+.promotiondescription {
+	color: red; }
+</style>
+</head>
+
+<!---
+Each tag is to be specified max. once.
+Multiple email address can be separated by , (a la RFC2822)
+
+<TO>to@yourshophere.com</TO>
+<CC>cc1@yourshophere.com, cc2@yourshophere.com</CC>
+<BCC>bcc@yourshophere.com</BCC>
+<FROM>sender@yourshophere.com</FROM>
+--->
+
+<body>
+
+<table style="margin:auto;640px;padding:5px;">
+  <tbody>
+  <tr>
+	<td style="width:315px">
+		<h1>${Resource.msg('global.text.storename','global',null)}</h1>
+	</td>
+	<td style="float:right;text-align:right;width:315px;font-size:10pt;"><strong>${Resource.msg('global.text.storename','global',null)}</strong><br />
+		${Resource.msg('order.orderconfirmation-email.storeaddress','order',null)}<br />
+		${Resource.msg('order.orderconfirmation-email.storelocation','order',null)}<br />
+		<a href="${SHOP_URL}" title="${Resource.msg('order.orderconfirmation-email.jumptostore','order',null)}"><span>${Resource.msg('global.text.storenameweb','global',null)}</span></a><br />
+		${Resource.msg('order.orderconfirmation-email.storephone','order',null)}</td>
+  </tr>
+  </tbody>
+</table>
+
+<div style="margin:auto; border:1px solid #666666; width:640px;">
+	<div style="background:#f0f0e0; border-bottom:1px solid #666666; padding:5px; font-size:14px;">
+	${Resource.msg('order.orderconfirmation-email.confirmnumber','order',null)} <span style="color: #c99a38;"><isprint value="${pdict.Order.originalOrderNo}"></span> <strong>${Resource.msg('order.orderconfirmation-email.thankyou','order',null)}</strong>
+	</div>
+		<p>${Resource.msg('order.orderconfirmation-email.012','order',null)} <a href="${SHOP_URL}" title="${Resource.msg('global.text.storenameweb','global',null)}">${Resource.msg('global.text.storenameweb','global',null)}</a>${Resource.msg('order.orderconfirmation-email.015','order',null)} <a href="${TRACK_URL}" title="${Resource.msg('order.orderconfirmation-email.jumptostore','order',null)}">${Resource.msg('order.orderconfirmation-email.017','order',null)}</a> ${Resource.msg('order.orderconfirmation-email.018','order',null)} <a href="${TRACK_URL}" title="${Resource.msg('order.orderconfirmation-email.jumptostore','order',null)}">${Resource.msg('global.text.storename','global',null)}</a></p>
+
+		<p><strong>${Resource.msg('order.orderconfirmation-email.thankyouus','order',null)}</strong></p>
+
+		<p style="color:red;">${Resource.msg('order.orderconfirmation-email.print','order',null)}</font></p>
+
+		<p>${Resource.msg('order.orderconfirmation-email.pleasenote','order',null)} ${Resource.msg('order.orderconfirmation-email.note','order',null)} <strong>${Resource.msg('order.orderconfirmation-email.phone','order',null)}</strong></p>
+
+	<div style="font-size:9pt;">
+		<isinclude template="util/modules">
+		<!--- overwrite the default address format (miniaddress) in case you need a different address format for email only
+			(usually you probably will replace the addressformat in user/miniaddress in general though)
+		--->
+		<isset name="Container" value="${pdict.Order}" scope="REQUEST">
+		<isinclude template="order/orderdetails">
+
+		<div id="paymentdetailstable">
+		<h3>${Resource.msg('order.orderdetails.009','cssuite',null)}</h3>
+			<table class="producttable">
+				<thead>
+                	<tr>
+						<th colspan="2">${Resource.msg('order.orderdetails.ordersummary','cssuite',null)}</th>
+					</tr>
+				</thead>
+				<tfoot>
+	                <tr class="ordertotal">
+						<td class="ordertotal">${Resource.msg('order.orderdetails.009','cssuite',null)}</td>
+						<td class="ordertotalprice">
+							<isprint value="${pdict.Order.totalGrossPrice}">
+						</td>
+					</tr>
+				</tfoot>
+
+				<isif condition="${pdict.Order.productLineItems.size() > 0}">
+					<tr>
+						<td class="orderinfocolumn">${Resource.msg('order.orderdetails.004','cssuite',null)}</td>
+						<td class="price"><isprint value="${pdict.Order.getAdjustedMerchandizeTotalPrice(false)}"></td>
+					</tr>
+				</isif>
+
+				<isif condition="${pdict.Order.priceAdjustments.size() > 0}">
+					<isloop iterator="${pdict.Order.priceAdjustments}" alias="Promo">
+						<tr>
+							<td class="orderinfocolumn"><span class="promotiondescription"><isprint value="${Promo.lineItemText}"></span></td>
+							<td class="price"><span class="promotiondescription"><isprint value="${Promo.price}"></span></td>
+						</tr>
+					</isloop>
+				</isif>
+
+				<isif condition="${pdict.Order.giftCertificateLineItems.size() > 0}">
+					<tr>
+						<td class="orderinfocolumn">${Resource.msg('order.orderdetails.005','cssuite',null)}</td>
+						<td class="price"><isprint value="${pdict.Order.giftCertificateTotalPrice}"></td>
+					</tr>
+				</isif>
+
+				<tr>
+					<td class="orderinfocolumn">${Resource.msg('order.orderdetails.007','cssuite',null)}</td>
+					<td class="price"><isprint value="${pdict.Order.adjustedShippingTotalPrice}"></td>
+				</tr>
+
+				<tr>
+					<td class="orderinfocolumn">${Resource.msg('order.orderdetails.008','cssuite',null)}</td>
+					<td class="price"><isprint value="${pdict.Order.totalTax}"></td>
+				</tr>
+
+
+			</table>
+		</div>
+		<isinclude template="order/paymentdetails">
+	</div>
+</div>
+</body>
+</html>

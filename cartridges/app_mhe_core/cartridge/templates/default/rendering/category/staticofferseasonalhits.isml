@@ -1,0 +1,107 @@
+<isdecorate template="product/pt_staticofferlist" scope="page">
+<iscache type="relative" minute="30" varyby="price_promotion" />
+<isinclude template="util/modules" />
+<iscomment>create reporting event</iscomment>
+<isinclude template="util/reporting/ReportSearch.isml" /> 
+<isset name="slpPageName" value="${Resource.msg('pagename.seasonal','components',null)}" scope="page" />
+<!-- Dirty but had to add to hide breadcrumb on this page only -->
+<style>.breadcrumb{display:none}</style>
+<isset name="catDisplayName" value="${pdict.ProductSearchResult.category.displayName}" scope="page" />
+<div id="catvalue" style="display:none">${pdict.ProductSearchResult.category.ID}</div>
+<div class="ePageModule">
+	<div id="picnicEvents" class="picnicEvents">
+		<isslot id="seasonalTemplate_slot1" context="category" description="Events Landing Module" context-object="${pdict.ProductSearchResult.category}"/>
+	</div>
+</div>
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot2" context="category" description="Events Carousel Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<isif condition="${pdict.ProductSearchResult.count != null &&  pdict.ProductSearchResult.count > 1 }">
+<div class="ePageModule">
+	<div clas="getName"><span class="bmValue"><isprint value="${Resource.msg('seasonal.productlist','components',null)}" encoding="off" /></span></div>
+	<div class="categoryProducts" id="categoryProducts">
+		<h2><isprint value="${Resource.msg('seasonal.productlist','components',null)}" encoding="off" /></h2>
+		<div class="homePage">
+			<div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+				<div class="box">
+					<ul class="slider shopnow-list">
+						<isproductgrid pagingmodel="${pdict.ProductPagingModel}" category="${pdict.ProductSearchResult.category}" pagetype="${slpPageName}" />
+					</ul>
+			        <div class="controls">
+			            <a href="#" class="prev">&nbsp;</a>
+			            <a href="#" class="next">&nbsp;</a>
+			            <div class="disabledLayer"></div>
+			        </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</isif>
+
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot3" context="category" description="Videos Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot4" context="category" description="Events Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot5" context="category" description="Twitter Text" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot6" context="category" description="Cocktails Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="seasonalTemplate_slot7" context="category" description="Recipes Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="epages-footer">
+	<isslot id="footer_category" context="category" description="Footer Category Slot" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+ 
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	$('body').addClass('pdpPage');
+	
+	
+
+	var cartform = $("#sendtofriend");
+	cartform.on("click", function(e) {
+		
+		var dlg1 = app.dialog.create({target:$("#sendtofrienddlg"), 
+			options:{
+				width:600,
+				height:"auto",
+				title:this.title
+			}
+		});
+		var catid=$("#catvalue").text();
+		var url = app.util.appendParamsToUrl(app.urls.sendtofriendurl,{catid:catid,	format:"ajax"});
+		var options = {
+			url: url,
+			data: cartform.serialize(),
+			type: "POST"
+		};
+		$.ajax( options ).done(function(data){
+			if( typeof(data)!=='string' ) {
+				if (!data.success ) {
+					app.page.refresh();
+				} else {
+					alert(data.message);
+					return false;
+				}
+			} else {
+				$("#sendtofrienddlg").html(data).parents(".ui-dialog").addClass("cartPrompts tellfriend");
+				app.validator.init();
+				dlg1.dialog("open");
+			}
+		}); 
+	});
+	app.product.init();
+	app.search.init();
+
+});
+</script>
+</isdecorate>

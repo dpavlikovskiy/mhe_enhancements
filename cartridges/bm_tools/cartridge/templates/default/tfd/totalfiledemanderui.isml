@@ -1,0 +1,802 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<isscript>
+	var lfsForm = pdict.CurrentForms.browselocal;
+	var rfsForm = pdict.CurrentForms.browseremote.filesystem;
+</isscript>
+
+<!-- Page Navigator -->
+<isset name="TOP_URL"   value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="PAGE">
+<ISBreadcrumb name1="${pdict.CurrentHttpParameterMap.mainmenuname}" url1="${TOP_URL}" name2="Browse Remote - Http">
+<!-- EO Page Navigator -->
+<hr/>
+<h1 class="overview_title">Total File Demander</h1>
+<h2 class="table_title_description">This Business Manager Module gives you the possibility to access remote server from this instance to circumvent firewall issues. Also it provides you with a local file commander, and the possibility to exchange files between the systems</h2>
+<table style="width:90%" class="n w e s aldi">
+	<tr style="vertical-align: top;">
+		<th class="table_title aldi" style="width:50%;">Remote File System</th>
+		<th class="table_title aldi" style="width:50%;">Local File System</th>
+	</tr>
+	<tr>
+		<td class="infobox" style="vertical-align: top;">
+			<form action="${URLUtils.continueURL()}" method="post" id="remotefilenavigator">
+				<input name="${pdict.CurrentForms.browseremote.filesystem.url.htmlName}" type="hidden" />
+				<table>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.protocol}" type="select" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.host}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.port}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.user}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.password}" type="password" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${rfsForm.path}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td/>
+						<td/>
+						<td style="vertical-align: bottom; text-align: right;">
+							<button type="button">Submit</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td>
+		<td class="infobox" style="vertical-align: top;">
+			<form action="${URLUtils.url('BrowseRemote-BrowseLocalFS')}" method="post" id="localfilenavigator">
+				<table>
+					<tr>
+						<td>
+							<isinputfield formfield="${lfsForm.basePath}" type="select" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${lfsForm.relativePath}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr style="display: none;" id="siteIDFormField">
+						<td id="siteSelector">
+							<isinputfield formfield="${lfsForm.siteID}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr style="display: none;" id="catalogIDFormField">
+						<td id="catalogSelector">
+							<isinputfield formfield="${lfsForm.catalogID}" type="input" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<isinputfield formfield="${lfsForm.analyzeFolderSize}" type="select" attribute1="style" value1="width:200px;">
+						</td>
+					</tr>
+					<tr>
+						<td/>
+						<td/>
+						<td style="vertical-align: bottom; text-align: right;">
+							<button type="button">Submit</button>
+						</td>
+					</tr>
+				</table>
+			</form>	
+			<br/>
+			<form action="${URLUtils.url('TFD-UploadFileToLocaleFS')}" method="post" enctype="multipart/form-data" id="formFileUpload">
+				<table>
+					<tr>
+						<td align="right" class="fielditem2">
+							<span>Select File:</span>
+						</td>
+						<td>
+							<input type="file" name="uploadFileName" id="uploadFileName" />
+							<input type="hidden" name="fileUploadTargetDirectory" id="fileUploadTargetDirectory" value="" />
+						</td>
+						<td>
+							<button type="submit">Upload</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+	<tr>
+		<td class="infobox" style="vertical-align: top;" colspan="2" id="operationInformationBox">
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align: top;">
+			<div id="remotefilesystem_content">
+				<isinclude template="tfd/remotefscontent"/>
+			</div>
+		</td>
+		<td style="vertical-align: top;">
+			<div id="localfilesystem_content">
+			</div>
+		</td>
+	</tr>
+</table>
+
+<div style="display: none;" id="hiddenContentContainer"></div>
+
+<script type="text/javascript">
+
+	//
+	var TotalFileDemander = { 
+			nameOfOperationInProgress : null,
+			locked : false,
+			siteIDsLoaded : false,
+			catalogIDsLoaded : false,
+			lockMonitor : function ( name ) {
+				this.nameOfOperationInProgress = name;
+				this.locked = true;
+				var operationText = 'There is an operation being performed. '
+				if ( this.nameOfOperationInProgress ) {
+					operationText = 'Operation currently being processed: <br/><br/>' + name;
+				}
+				operationText += '<br/><br/>Please wait until operation is done!<br/><br/>';
+				$$('td#operationInformationBox')[0].innerHTML = '<span class="error">' + operationText + '</span>'; 
+				this.setUIElementsDisabled( true ); 
+			},
+			isLocked : function () {
+				return this.locked;  
+			},
+			unlockMonitor: function ( name ) {
+				this.nameOfOperationInProgress = null;
+				this.locked = false;
+				$$('td#operationInformationBox')[0].innerHTML = "";
+				this.setUIElementsDisabled( false ); 
+			},
+			setUIElementsDisabled: function( disabled ) {
+				var formFields = $$('#remotefilenavigator input, #remotefilenavigator select, #remotefilenavigator button, #localfilenavigator input, #localfilenavigator select, #localfilenavigator button, #formFileUpload button'); 
+				for ( var index = 0; index < formFields.length; index++  ) { 
+					formFields[index].disabled = disabled;
+				}
+			},
+			//Detect accessible sites automatically
+			loadSiteIDs: function( callback ) {
+				if ( this.siteIDsLoaded ) {
+					return true;
+				}				
+				new Ajax.Updater('hiddenContentContainer', '${URLUtils.url('ViewChannelList-ListAll')}', { 
+					method 		 : 'get',
+					asynchronous : false,
+					onComplete	 : function ( test ) {
+						var selectedValue = $$('input[name=dwfrm_browselocal_siteID]')[0].value;  
+						var siteNames = [];
+						var siteIDs = [];
+						var prospectCells = $$('div#hiddenContentContainer form[name=detailForm] td.table_detail');
+						var siteName = null;
+						for ( var index = 0; index< prospectCells.length; index++ ) {
+							if ( siteName == null) {
+								var siteNameElement = prospectCells[index].childElements('a')[0];
+								if ( siteNameElement && siteNameElement.href && siteNameElement.href.indexOf('ViewChannel-Edit') != -1 ) {
+									siteName = siteNameElement.innerHTML;
+								}
+							} else {
+								var siteID = prospectCells[index].innerHTML;
+								siteNames.push( siteName );
+								siteIDs.push( siteID.replace(/&nbsp;/g,'') );
+								siteName = null;
+							}
+						}
+						if ( siteNames.length == siteIDs.length ) {
+							var sitesDropdownHTML = ['<select name="${lfsForm.siteID.htmlName}" style="width:200px;">'];
+							for ( var i = 0; i<siteIDs.length; i++) {
+								if ( selectedValue == siteIDs[i] ) {
+									sitesDropdownHTML.push( '<option value="' + siteIDs[i] + '" selected="selected">' + siteNames[i] + '</option>');
+								} else {
+									sitesDropdownHTML.push( '<option value="' + siteIDs[i] + '">' + siteNames[i] + '</option>');
+								}
+							}
+							sitesDropdownHTML.push( '</select>' );
+							$$('#siteIDFormField td.infobox_item')[0].innerHTML = sitesDropdownHTML.join('');
+							$$('#localfilenavigator select[name=${lfsForm.siteID.htmlName}]')[0].observe('change', setLocalBaseDirectory);
+						}
+						TotalFileDemander.siteIDsLoaded = true;
+						if( callback ) {
+							callback();
+						}
+					}});
+			},
+			//Detect accessible sites automatically
+			loadCatalogIDs: function( callback ) {
+				if ( this.catalogIDsLoaded ) {
+					return true;
+				}				
+				new Ajax.Updater('hiddenContentContainer', '${URLUtils.url('ViewChannelCatalogList_52-ListAll')}', { 
+					method 		 : 'get',
+					asynchronous : false,
+					onComplete	 : function ( test ) {
+						var selectedValue = $$('input[name=dwfrm_browselocal_catalogID]')[0].value;  
+						var catalogNames = [];
+						var catalogIDs = [];
+						var prospectElements = $$('div#hiddenContentContainer a.catalog');
+						var catalogName = null;
+						for ( var index = 0; index< prospectElements.length; index++ ) {
+							var catalogNameElement = prospectElements[index];
+							if ( catalogNameElement && catalogNameElement.href && catalogNameElement.href.indexOf('ViewChannelCatalog_52-Browse') != -1 ) {
+								catalogName = catalogNameElement.innerHTML;
+								catalogNames.push( catalogName );
+								catalogIDs.push( catalogName );
+							}
+						}
+						if ( catalogNames.length > 0 && catalogNames.length == catalogIDs.length ) {
+							var catalogDropdownHTML = ['<select name="${lfsForm.catalogID.htmlName}" style="width:200px;">'];
+							for ( var i = 0; i<catalogIDs.length; i++) {
+								if ( selectedValue == catalogIDs[i] ) {
+									catalogDropdownHTML.push( '<option value="' + catalogIDs[i] + '" selected="selected">' + catalogNames[i] + '</option>');
+								} else {
+									catalogDropdownHTML.push( '<option value="' + catalogIDs[i] + '">' + catalogNames[i] + '</option>');
+								}
+							}
+							catalogDropdownHTML.push( '</select>' );
+							$$('#catalogIDFormField td.infobox_item')[0].innerHTML = catalogDropdownHTML.join('');
+							$$('#localfilenavigator select[name=${lfsForm.catalogID.htmlName}]')[0].observe('change', setLocalBaseDirectory);
+						}
+						TotalFileDemander.catalogIDsLoaded = true;
+						if( callback ) {
+							callback();
+						}
+					}});
+			}
+	};
+
+	//**** remote directory navigator ***//
+	
+	//register click event for files
+	var remoteDirectoryElements = $$('#remotefilenavigator tr.directory td.name');
+	for ( var index = 0; index < remoteDirectoryElements.length; index++  ) { 
+		remoteDirectoryElements[index].observe('click', setRelativeRemoteDirectory);
+	}
+	
+	function setRelativeRemoteDirectory( event ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var directoryName = event.target.innerHTML;
+			var relativePathField = $$('input[name=${rfsForm.path.htmlName}]')[0];
+			var currentPath = relativePathField.value;
+			var newPath = '';
+			if ( directoryName == '.' ) {
+				newPath = currentPath;
+			} else if ( directoryName == '..' ) {
+				if ( currentPath.lastIndexOf('/')+1 == currentPath.length ) {
+					currentPath = currentPath.substr(0,currentPath.lastIndexOf('/'));
+				}
+				newPath = currentPath.substr(0,currentPath.lastIndexOf('/')+1);
+			} else {
+				newPath = currentPath + directoryName + '/';
+			}
+			relativePathField.value = newPath;
+			//alert(newURL);
+			//document.forms["remotefilenavigator"].submit();
+			loadRemoteDirectory();
+		}
+	}
+
+	function loadRemoteDirectory( silent ) {
+		if ( !TotalFileDemander.isLocked() || silent ) {
+			var protocol = $$('#remotefilenavigator select[name=${rfsForm.protocol.htmlName}]')[0].value;
+			var domain = $$('input[name=${rfsForm.host.htmlName}]')[0].value;
+			var port = $$('input[name=${rfsForm.port.htmlName}]')[0].value;
+			var user = $$('input[name=${rfsForm.user.htmlName}]')[0].value;
+			var password = $$('input[name=${rfsForm.password.htmlName}]')[0].value;
+			var path = $$('input[name=${rfsForm.path.htmlName}]')[0].value;
+	
+			var urlArray = [ protocol ];
+			urlArray.push( '://' );
+			if ( !domain ) {
+				if( !silent ) { 
+					alert('Please define the host!');
+				}
+				return;
+			}
+			urlArray.push(domain);
+			if ( port ) {
+				urlArray.push( ':' );
+				urlArray.push( port );
+			}
+	
+			$$('input[name=${rfsForm.url.htmlName}][type=hidden]')[0].value = urlArray.join('');
+			
+			if ( !user ) {
+				if( !silent ) { 
+					alert( 'Please define the user!' );
+				}
+				return;
+			}
+	
+			if ( !password ) {
+				if( !silent ) { 
+					alert('Please define the password!');
+				}
+				return;
+			}
+	
+			var requestParameters = $$('#remotefilenavigator')[0].serialize();
+	
+			$$('#remotefilesystem_content')[0].innerHTML="<h1>Loading ...</h1>";
+			TotalFileDemander.lockMonitor( 'Load remote directory.' );
+			new Ajax.Updater( 'remotefilesystem_content', '${URLUtils.url('TFD-RemoteFS')}?' + requestParameters, {
+				onComplete: function ( test ) {
+					var remoteDirectoryElements = $$('tr.remotedirectory td.name');
+					for ( var index = 0; index < remoteDirectoryElements.length; index++  ) { 
+						remoteDirectoryElements[index].observe('click', setRelativeRemoteDirectory);
+					}
+					var remoteDirectoryElements = $$('#remotefilesystem_content td.file_operation span.delete');
+					for ( var index = 0; index < remoteDirectoryElements.length; index++  ) { 
+						remoteDirectoryElements[index].observe('click', deleteRemoteFile);
+					}
+					var remoteDirectoryElements = $$('#remotefilesystem_content td.file_operation span.copy');
+					for ( var index = 0; index < remoteDirectoryElements.length; index++  ) { 
+						remoteDirectoryElements[index].observe('click', copyRemote2Local);
+					}
+					TotalFileDemander.unlockMonitor();
+				},
+				evalScripts: true
+			});
+		}
+	}
+	
+	$$('#remotefilenavigator button')[0].observe('click', loadRemoteDirectory);
+	
+	function deleteRemoteFile( element ){
+		var self = this;
+		performRemoteFileOperation( self, 'delete', true);
+	}
+
+	function performRemoteFileOperation( triggeredElement, operation, confirmationRequired ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var requestParameters = getRemoteOperationsRequestParameters( triggeredElement );
+			requestParameters.operation = operation;
+			if ( confirmationRequired ) {
+				if ( !confirm('Do you really want to ' + operation + ' ' + requestParameters.path + '?') ) {
+					return;
+				}
+			}
+			TotalFileDemander.lockMonitor( operation + ' ' + requestParameters.path );
+			new Ajax.Request( '${URLUtils.url('TFD_JSON-RemoteFileOperations')}', { 
+				method:'post',
+				parameters : requestParameters,
+				onSuccess: function(transport, json){
+					try {
+						var response = JSON.parse(transport.responseText);
+						if ( response.result && response.result == 'ok' ) {
+							//do nothing
+						} else {
+							alert( unescape(response.message) );
+						}
+					} catch(e) {
+						//do nothing
+					}
+				},
+				onComplete : function() {
+					TotalFileDemander.unlockMonitor();
+					loadRemoteDirectory();
+				}});
+		}
+	}
+	
+	function getRemoteOperationsRequestParameters( element ) {
+
+		var protocol = $$('#remotefilenavigator select[name=${rfsForm.protocol.htmlName}]')[0].value;
+		var domain = $$('#remotefilenavigator input[name=${rfsForm.host.htmlName}]')[0].value;
+		var port = $$('#remotefilenavigator input[name=${rfsForm.port.htmlName}]')[0].value;
+		var user = $$('#remotefilenavigator input[name=${rfsForm.user.htmlName}]')[0].value;
+		var password = $$('#remotefilenavigator input[name=${rfsForm.password.htmlName}]')[0].value;
+		var path = $$('#remotefilenavigator input[name=${rfsForm.path.htmlName}]')[0].value;
+
+		var nameElement = element.up('tr').down('td.name');
+		if ( path.length > 0 && !path.match(/\/$/) ) {
+			path += '/'
+		}
+		path += nameElement.innerHTML;
+			
+		var urlArray = [ protocol ];
+		urlArray.push( '://' );
+		if ( !domain ) {
+			if( !silent ) { 
+				alert('Please define the host!');
+			}
+			return;
+		}
+		urlArray.push(domain);
+		if ( port ) {
+			urlArray.push( ':' );
+			urlArray.push( port );
+		}
+
+		var url = urlArray.join('');
+
+		return {
+			protocol : protocol,
+			domain:  domain,
+			port: port,
+			user: user,
+			password: password,
+			path: path,
+			url: url
+		};
+	}
+
+	//**** local directory navigator ***//
+
+	var localDirectoryElements = $$('tr.localdirectory td.name');
+	for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+		localDirectoryElements[index].observe('click', setLocalRelativeDirectory);
+	}
+
+	var localBaseDirectoryElement = $$('#localfilenavigator select')[0].observe('change', setLocalBaseDirectory);
+
+	function setLocalBaseDirectory() {
+		$$('#localfilenavigator input[name=${lfsForm.relativePath.htmlName}]')[0].value = "/";
+		$$('#siteIDFormField').invoke('hide');
+		$$('#catalogIDFormField').invoke('hide');
+		
+		var context = $$('#localfilenavigator select[name=${lfsForm.basePath.htmlName}]')[0].value;
+
+		if ( context == 'CATALOGS' ) {
+			TotalFileDemander.loadCatalogIDs( this );
+			$$('#catalogIDFormField').invoke('show');
+		} else if ( context == 'LIBRARIES' ) {
+			TotalFileDemander.loadSiteIDs( this );
+			$$('#siteIDFormField').invoke('show');
+		}
+		
+		loadLocalDirectory();
+	}
+		
+	function setLocalRelativeDirectory( event ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var directoryName = event.target.innerHTML;
+			var relativePathElement = $$('#localfilenavigator input[name=${lfsForm.relativePath.htmlName}]')[0];
+			var currentRelativePath = relativePathElement.value;
+			var newRelativePath = '';
+			if ( directoryName == '.' ) {
+				newRelativePath = currentRelativePath;
+			} else if ( directoryName == '..' ) {
+				if ( currentRelativePath.lastIndexOf('/')+1 == currentRelativePath.length ) {
+					currentRelativePath = currentRelativePath.substr(0,currentRelativePath.lastIndexOf('/'));
+				}
+				newRelativePath = currentRelativePath.substr(0,currentRelativePath.lastIndexOf('/')+1);
+			} else {
+				newRelativePath = currentRelativePath + directoryName + '/';
+			}
+			relativePathElement.value = newRelativePath;
+			loadLocalDirectory();
+		}
+	}
+
+	function loadLocalDirectory() {
+		if ( !TotalFileDemander.isLocked() ) {
+			var context = $$('#localfilenavigator select[name=${lfsForm.basePath.htmlName}]')[0].value;
+			var relativePath = $$('#localfilenavigator input[name=${lfsForm.relativePath.htmlName}]')[0].value;
+			var siteID = $$('select[name=${lfsForm.siteID.htmlName}],input[name=${lfsForm.siteID.htmlName}]')[0].value;
+			var catalogID = $$('select[name=${lfsForm.catalogID.htmlName}],input[name=${lfsForm.catalogID.htmlName}]')[0].value;
+			var absolutePathArray = ['/', context];	
+			if ( context == 'LIBRARIES' ) {
+				if ( TotalFileDemander.loadSiteIDs( this ) ) {
+					if ( !siteID ) {
+						alert('Please provide a Site ID!');
+						return;
+					} else {
+						absolutePathArray.push('/');
+						absolutePathArray.push(siteID);
+					}
+				}
+			} else if ( context == 'CATALOGS' ) {
+				if ( TotalFileDemander.loadCatalogIDs( this ) ) {
+					if ( !catalogID ) {
+						alert('Please provide a Catalog ID!');
+						return;
+					} else {
+						absolutePathArray.push('/');
+						absolutePathArray.push(catalogID);
+					}
+				}
+			}
+			absolutePathArray.push(relativePath);
+						
+			var requestParameters = $$('#localfilenavigator')[0].serialize();
+			$$('#localfilesystem_content')[0].innerHTML="<h1>Loading ...</h1>";
+			TotalFileDemander.lockMonitor( 'Loading Local Directory' );
+			new Ajax.Updater( 'localfilesystem_content', '${URLUtils.url('TFD-LocalFS')}?' + requestParameters, {
+				onComplete: function ( test ) {
+					var localDirectoryElements = $$('tr.localdirectory td.name');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', setLocalRelativeDirectory);
+					}
+					var localDirectoryElements = $$('#localfilesystem_content td.file_operation span.newdirectory');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', newdirectoryLocalFS);
+					}
+					var localDirectoryElements = $$('#localfilesystem_content td.file_operation span.uncompress');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', uncompressLocalFile);
+					}
+					var localDirectoryElements = $$('#localfilesystem_content td.file_operation span.compress');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', compressLocalFile);
+					}
+					var localDirectoryElements = $$('#localfilesystem_content td.file_operation span.delete');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', deleteLocalFile);
+					}
+					var localDirectoryElements = $$('#localfilesystem_content td.file_operation span.copy');
+					for ( var index = 0; index < localDirectoryElements.length; index++  ) { 
+						localDirectoryElements[index].observe('click', copyLocal2Remote);
+					}
+					TotalFileDemander.unlockMonitor();
+					$('fileUploadTargetDirectory').value = absolutePathArray.join('');
+				},
+				evalScripts: true
+			});
+		}
+	}
+
+	$$('#localfilenavigator button')[0].observe('click', loadLocalDirectory);
+
+	//** initial load of directories **//
+	loadLocalDirectory( true );
+	loadRemoteDirectory( true );
+
+	var context = $$('#localfilenavigator select[name=${lfsForm.basePath.htmlName}]')[0].value;
+	if ( context == 'CATALOGS' ) {
+		$$('#catalogIDFormField').invoke('show');
+	} else if ( context == 'LIBRARIES' ) {
+		$$('#siteIDFormField').invoke('show');
+	}
+
+
+	//** local file operations **//
+	
+	function newdirectoryLocalFS( element ){
+		var self = this;
+		var directoryName = prompt("Name of the new directory", "");
+		performLocalFileOperation( self, 'newdirectory', false, directoryName);
+	}
+
+	function compressLocalFile( element ){
+		var self = this;
+		performLocalFileOperation( self, 'zip', true);
+	}
+
+	function uncompressLocalFile( element ){
+		var self = this;
+		performLocalFileOperation( self, 'unzip', true);
+	}
+
+	function deleteLocalFile( element ){
+		var self = this;
+		performLocalFileOperation( self, 'delete', true);
+	}
+
+	function performLocalFileOperation( triggeredElement, operation, confirmationRequired, newDirectoryName ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var requestParameters = getLocalOperationsRequestParameters( triggeredElement );
+			requestParameters.operation = operation;
+			if ( operation == 'newdirectory'  ) {
+				requestParameters.newDirectoryName = newDirectoryName;
+			}
+			if ( confirmationRequired ) {
+				if ( !confirm('Do you really want to ' + operation + ' ' + requestParameters.filePath + '?') ) {
+					return;
+				}
+			}
+			TotalFileDemander.lockMonitor( operation + ' ' + requestParameters.filePath );
+			new Ajax.Request( '${URLUtils.url('TFD_JSON-LocalFileOperations')}', { 
+				method:'post',
+				parameters : requestParameters,
+				onSuccess: function(transport, json){
+					try {
+						var response = JSON.parse(transport.responseText);
+						if ( response.result && response.result == 'ok' ) {
+							//do nothing
+						} else {
+							alert( unescape(response.message) );
+						}
+					} catch(e) {
+						//do nothing
+					}
+				},
+				onComplete : function() {
+					TotalFileDemander.unlockMonitor();
+					loadLocalDirectory();
+			}});
+		}
+	}
+	
+	function getLocalOperationsRequestParameters( element ) {
+		var context = $$('#localfilenavigator select[name=${lfsForm.basePath.htmlName}]')[0].value;
+		var relativePath = $$('#localfilenavigator input[name=${lfsForm.relativePath.htmlName}]')[0].value;
+		var siteID = $$('select[name=${lfsForm.siteID.htmlName}],input[name=${lfsForm.siteID.htmlName}]')[0].value;
+		var catalogID = $$('select[name=${lfsForm.catalogID.htmlName}],input[name=${lfsForm.catalogID.htmlName}]')[0].value;
+		var nameElement = element.up('tr').down('td.name');
+		if ( element.up('tr').down('td.name a') ) {
+			nameElement = element.up('tr').down('td.name a');
+		}
+		if ( nameElement ) {
+			relativePath += nameElement.innerHTML;
+		} /*else {
+			relativePath = $$('#fileUploadTargetDirectory')[0].value;
+		}*/
+		return {
+			filePath : relativePath,
+			context:  context,
+			siteID: siteID,
+			catalogID: catalogID
+		};
+	}
+
+	//** Copy files between local and remote file system **//
+	
+	function copyLocal2Remote( ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var self = this;
+			var requestParameters = getLocalOperationsRequestParameters( self );
+	
+			var protocol = $$('#remotefilenavigator select')[0].value;
+			var domain = $$('input[name=${rfsForm.host.htmlName}]')[0].value;
+			var port = $$('input[name=${rfsForm.port.htmlName}]')[0].value;
+			var user = $$('input[name=${rfsForm.user.htmlName}]')[0].value;
+			var password = $$('input[name=${rfsForm.password.htmlName}]')[0].value;
+			var path = $$('input[name=${rfsForm.path.htmlName}]')[0].value;
+	
+			var urlArray = [ protocol ];
+			urlArray.push( '://' );
+			if ( !domain ) {
+				if( !silent ) { 
+					alert('Please define the host!');
+				}
+				return;
+			}
+			urlArray.push(domain);
+			if ( port ) {
+				urlArray.push( ':' );
+				urlArray.push( port );
+			}
+	
+			$$('input[name=${rfsForm.url.htmlName}][type=hidden]')[0].value = urlArray.join('');
+			
+			if ( !user ) {
+				alert( 'Please define the user!' );
+				return;
+			}
+	
+			if ( !password ) {
+				alert('Please define the password!');
+				return;
+			}
+	
+			var urlArray = [ protocol ];
+			urlArray.push( '://' );
+			if ( !domain ) {
+				if( !silent ) { 
+					alert('Please define the host!');
+				}
+				return;
+			}
+			urlArray.push(domain);
+			if ( port ) {
+				urlArray.push( ':' );
+				urlArray.push( port );
+			}
+	
+			var url = urlArray.join('');
+			requestParameters.protocol 	=	protocol;
+			requestParameters.domain	=	domain;
+			requestParameters.port		= 	port;
+			requestParameters.user		=	user;
+			requestParameters.password	=	password;
+			requestParameters.path		=	path;
+			requestParameters.url		=	url;
+			requestParameters.operation	= 	'LOCAL2REMOTE';
+			
+			//alert('copyLocal2Remote: ' + JSON.stringify(requestParameters) );
+			TotalFileDemander.lockMonitor( 'Copy Local \'' + requestParameters.filePath + '\' to Remote \'' + requestParameters.path + '\' on \'' + requestParameters.url + '\'' );
+	
+			new Ajax.Request( '${URLUtils.url('TFD_JSON-Copy')}', { 
+				method:'post',
+				parameters : requestParameters,
+				onSuccess: function(transport, json){
+					try {
+						var response = JSON.parse(transport.responseText);
+						if ( response.result && response.result == 'ok' ) {
+							//do nothing
+						} else {
+							alert( unescape(response.message) );
+						}
+					} catch(e) {
+						//do nothing
+					}
+				},
+				onComplete : function() {
+					TotalFileDemander.unlockMonitor();
+					loadRemoteDirectory();
+				}});
+		}
+	}
+
+	function copyRemote2Local( ) {
+		if ( !TotalFileDemander.isLocked() ) {
+			var self = this;
+			var requestParameters = getRemoteOperationsRequestParameters( self );
+	
+			var context = $$('select[name=${lfsForm.basePath.htmlName}]]')[0].value;
+			var relativePath = $$('input[name=${lfsForm.relativePath.htmlName}]]')[0].value;
+			var siteID = $$('select[name=${lfsForm.siteID.htmlName}],input[name=${lfsForm.siteID.htmlName}]')[0].value;
+			var catalogID = $$('select[name=${lfsForm.catalogID.htmlName}],input[name=${lfsForm.catalogID.htmlName}]')[0].value;
+	
+			if ( context == 'LIBRARIES' && !siteID ) {
+				alert('Please provide a Site ID!');
+				return;
+			}
+			if ( context == 'CATALOGS' && !catalogID ) {
+				alert('Please provide a Catalog ID!');
+				return;
+			}
+	
+			requestParameters.filePath 	= relativePath;
+			requestParameters.context 		=  context;
+			requestParameters.siteID 		= siteID;
+			requestParameters.catalogID	= catalogID;
+			requestParameters.operation	= 'REMOTE2LOCAL';
+	
+			TotalFileDemander.lockMonitor( 'Copy Remote \'' + requestParameters.path + '\' from \'' + requestParameters.url + '\' to Local: ' + requestParameters.filePath );
+			
+			new Ajax.Request( '${URLUtils.url('TFD_JSON-Copy')}', { 
+				method:'post',
+				parameters : requestParameters,
+				onSuccess: function(transport, json){
+					try {
+						var response = JSON.parse(transport.responseText);
+						if ( response.result && response.result == 'ok' ) {
+							//do nothing
+						} else {
+							alert( unescape(response.message) );
+						}
+					} catch(e) {
+						//do nothing
+					}
+				},
+				onComplete : function() {
+					TotalFileDemander.unlockMonitor();
+					loadLocalDirectory();
+				}});
+		}
+	}
+
+	$('formFileUpload').observe('submit', uploadFileToLocalFileSystem);
+	
+	function uploadFileToLocalFileSystem() {
+		if ( !TotalFileDemander.isLocked() ) {
+			TotalFileDemander.lockMonitor( 'Upload \'' + $('uploadFileName').value + '\' to Local: ' + $('fileUploadTargetDirectory').value );
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	TotalFileDemander.loadSiteIDs();
+</script>
+
+</isdecorate>

@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="MyAccount">
+  <description>Manages the order history of a registered user.</description>
+  <branch basename="History">
+    <segment>
+      <node>
+        <start-node name="History" secure="true"/>
+        <node-display x="1" y="0"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="&quot;Order-History&quot;" key="From_0"/>
+          <key-binding alias="TargetPipeline" key="To_0"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="!empty(CurrentCustomer.profile)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Search orders of current user" pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+                <config-property key="ObjectType" value="Order"/>
+                <config-property key="SearchExpression" value="customerNo={1} AND status != {2} AND confirmationStatus ={3}"/>
+                <key-binding alias="OrdersUnpaged" key="SearchResult"/>
+                <key-binding alias="OrdersUnpagedCount" key="SearchResultCount"/>
+                <key-binding alias="null" key="Search3Key"/>
+                <key-binding alias="null" key="Search4Key"/>
+                <key-binding alias="null" key="Search4Value"/>
+                <key-binding alias="null" key="Search5Key"/>
+                <key-binding alias="null" key="Search5Value"/>
+                <key-binding alias="&quot;creationDate&quot;" key="SortBy1"/>
+                <key-binding alias="2" key="SortBy1Direction"/>
+                <key-binding alias="null" key="SortBy2"/>
+                <key-binding alias="null" key="SortBy2Direction"/>
+                <key-binding alias="null" key="SortBy3"/>
+                <key-binding alias="null" key="SortBy3Direction"/>
+                <key-binding alias="CurrentCustomer.profile.customerNo" key="Search1Value"/>
+                <key-binding alias="null" key="Search1Key"/>
+                <key-binding alias="dw.order.Order.ORDER_STATUS_REPLACED" key="Search2Value"/>
+                <key-binding alias="dw.order.Order.CONFIRMATION_STATUS_CONFIRMED" key="Search3Value"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="Paging" pipelet-set-identifier="bc_api">
+                <key-binding alias="OrdersUnpaged" key="Objects"/>
+                <key-binding alias="OrdersUnpagedCount" key="ObjectsCount"/>
+                <key-binding alias="CurrentHttpParameterMap.start.intValue" key="Start"/>
+                <key-binding alias="OrderPagingModel" key="PagingModel"/>
+                <key-binding alias="OrdersUnpagedCount" key="PageSize"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="ClearFormElement" pipelet-set-identifier="bc_api">
+                <key-binding alias="CurrentForms.orders.orderlist" key="FormElement"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="UpdateFormWithObject" pipelet-set-identifier="bc_api">
+                <key-binding alias="CurrentForms.orders.orderlist" key="Form"/>
+                <key-binding alias="OrderPagingModel.pageElements" key="Object"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+          <bend-point relative-to="target" x="1" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="5"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="UpdatePageMetaData" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.web.Resource.msg(&quot;orders.metadata.keywords&quot;,&quot;account&quot;,null)" key="DefaultKeywords"/>
+          <key-binding alias="dw.web.Resource.msg(&quot;orders.metadata.description&quot;,&quot;account&quot;,null)" key="DefaultDescription"/>
+          <key-binding alias="null" key="Product"/>
+          <key-binding alias="null" key="Category"/>
+          <key-binding alias="dw.web.Resource.msg(&quot;myaccount.metadata.title&quot;,&quot;account&quot;,null)+&quot; &quot;+ dw.web.Resource.msg(&quot;global.pipe&quot;,&quot;locale&quot;,null) + &quot; &quot;+dw.web.Resource.msg(&quot;orders.metadata.title&quot;,&quot;account&quot;,null) +&quot; &quot;+ dw.web.Resource.msg(&quot;global.pipe&quot;,&quot;locale&quot;,null) + &quot; &quot; +dw.system.Site.getCurrent().getCustomPreferenceValue('pageTitleValue')" key="DefaultTitle"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="account/orderhistory/orders"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_2">
+    <segment>
+      <node>
+        <text-node>
+          <description>Renders a page with the order history of the current logged in customer.</description>
+        </text-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Details">
+    <segment>
+      <node>
+        <start-node name="Details" secure="true"/>
+        <node-display x="3" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="account/user/OrderDetails.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="ordernum" key="confirmPasswordField"/>
+          <key-binding alias="CurrentHttpParameterMap.orderId.stringValue" key="ordernum"/>
+          <key-binding alias="order" key="order"/>
+          <key-binding alias="CurrentHttpParameterMap.orderId.stringValue" key="orderNum"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="(null!=CurrentCustomer.profile)?(order.customerNo==CurrentCustomer.profile.customerNo):false" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <interaction-node transaction-required="false">
+                <template buffered="true" dynamic="false" name="components/order/orderdetails"/>
+              </interaction-node>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <jump-node start-name-ref="Home-ErrorNotFound"/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_4">
+    <segment>
+      <node>
+        <text-node>
+          <description>Renders a page with details of a single order. The pipeline is intended to render the order details by the UUID of the order, therefor can also be used for unregistered customers to track the status of their orders.</description>
+        </text-node>
+        <node-display width="2" x="5" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Track">
+    <segment>
+      <node>
+        <start-node name="Track" secure="false"/>
+        <node-display x="5" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="!empty(CurrentHttpParameterMap.orderID.stringValue)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Determine single order by its UUID" pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+                <config-property key="ObjectType" value="Order"/>
+                <config-property key="SearchExpression" value="UUID={1} AND status!={2}"/>
+                <key-binding alias="Orders" key="SearchResult"/>
+                <key-binding alias="null" key="Search3Key"/>
+                <key-binding alias="null" key="Search4Key"/>
+                <key-binding alias="null" key="Search4Value"/>
+                <key-binding alias="null" key="Search5Key"/>
+                <key-binding alias="null" key="Search5Value"/>
+                <key-binding alias="null" key="SortBy2"/>
+                <key-binding alias="null" key="SortBy2Direction"/>
+                <key-binding alias="null" key="SortBy3"/>
+                <key-binding alias="null" key="SortBy3Direction"/>
+                <key-binding alias="CurrentHttpParameterMap.orderID.stringValue" key="Search1Value"/>
+                <key-binding alias="null" key="Search1Key"/>
+                <key-binding alias="dw.order.Order.ORDER_STATUS_REPLACED" key="Search2Value"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <decision-node condition-key="!empty(Orders)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <key-binding alias="Orders.next()" key="From_0"/>
+                      <key-binding alias="Order" key="To_0"/>
+                      <key-binding alias="null" key="From_1"/>
+                      <key-binding alias="null" key="To_1"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="../../+2"/>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in2" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="2"/>
+      </node>
+      <transition target-connector="in2" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="target" x="2" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="account/orderhistory/orderdetails"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_6">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline is intended to find an order by its order number and the postal code of the billing address. The pipeline is used by the login page and end on a named end node &quot;ok&quot; if the order was found or ends with a named end node &quot;error&quot; to report back to the calling pipeline.</description>
+        </text-node>
+        <node-display width="2" x="8" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Find">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="Find" secure="false"/>
+        <node-display x="8" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="!empty(CurrentForms.ordertrack.orderNumber.value) &amp;&amp; !empty(CurrentForms.ordertrack.postalCode.value)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Determine single order by its order number" pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+                <config-property key="ObjectType" value="Order"/>
+                <config-property key="SearchExpression" value="orderNo={1} AND status!={2}"/>
+                <key-binding alias="Orders" key="SearchResult"/>
+                <key-binding alias="null" key="Search4Key"/>
+                <key-binding alias="null" key="Search4Value"/>
+                <key-binding alias="null" key="Search5Key"/>
+                <key-binding alias="null" key="Search5Value"/>
+                <key-binding alias="null" key="SortBy2"/>
+                <key-binding alias="null" key="SortBy2Direction"/>
+                <key-binding alias="null" key="SortBy3"/>
+                <key-binding alias="null" key="SortBy3Direction"/>
+                <key-binding alias="CurrentForms.ordertrack.orderNumber.value" key="Search1Value"/>
+                <key-binding alias="null" key="Search1Key"/>
+                <key-binding alias="dw.order.Order.ORDER_STATUS_REPLACED" key="Search2Value"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <decision-node condition-key="!empty(Orders)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <key-binding alias="Orders.next()" key="From_0"/>
+                      <key-binding alias="FoundOrder" key="To_0"/>
+                      <key-binding alias="null" key="From_1"/>
+                      <key-binding alias="null" key="To_1"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <decision-node condition-key="FoundOrder.billingAddress.postalCode.equals(CurrentForms.ordertrack.postalCode.value)" condition-operator="expr"/>
+                    <node-display x="0" y="1"/>
+                    <branch basename="b2" source-connector="yes">
+                      <transition target-connector="in"/>
+                      <segment>
+                        <node>
+                          <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                            <key-binding alias="FoundOrder" key="From_0"/>
+                            <key-binding alias="Order" key="To_0"/>
+                            <key-binding alias="null" key="From_1"/>
+                            <key-binding alias="null" key="To_1"/>
+                            <key-binding alias="null" key="From_2"/>
+                            <key-binding alias="null" key="To_2"/>
+                            <key-binding alias="null" key="From_3"/>
+                            <key-binding alias="null" key="To_3"/>
+                            <key-binding alias="null" key="From_4"/>
+                            <key-binding alias="null" key="To_4"/>
+                            <key-binding alias="null" key="From_5"/>
+                            <key-binding alias="null" key="To_5"/>
+                            <key-binding alias="null" key="From_6"/>
+                            <key-binding alias="null" key="To_6"/>
+                            <key-binding alias="null" key="From_7"/>
+                            <key-binding alias="null" key="To_7"/>
+                            <key-binding alias="null" key="From_8"/>
+                            <key-binding alias="null" key="To_8"/>
+                            <key-binding alias="null" key="From_9"/>
+                            <key-binding alias="null" key="To_9"/>
+                          </pipelet-node>
+                          <node-display x="0" y="1"/>
+                        </node>
+                        <simple-transition/>
+                        <node>
+                          <end-node name="ok"/>
+                          <node-display x="0" y="1"/>
+                        </node>
+                      </segment>
+                    </branch>
+                  </node>
+                  <transition target-connector="in2" target-path="../../+2"/>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in2" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="2"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <end-node name="error"/>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_8">
+    <segment>
+      <node>
+        <text-node/>
+        <node-display x="13" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="NotExportedOrderListOtherMeans">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="NotExportedOrderListOtherMeans" secure="false"/>
+        <node-display x="13" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="&quot;ORDER_OTHER_MEANS&quot;" key="From_0"/>
+          <key-binding alias="paymentMethod" key="To_0"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="From_1"/>
+          <key-binding alias="mailFrom" key="To_1"/>
+          <key-binding alias="dw.web.Resource.msg(&quot;checkout.otherreasonorderlistheader&quot;,&quot;checkout&quot;,null)" key="From_2"/>
+          <key-binding alias="subject" key="To_2"/>
+          <key-binding alias="&quot;mail/orderlist&quot;" key="From_3"/>
+          <key-binding alias="template" key="To_3"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.AdminEmailOtherMeans" key="From_4"/>
+          <key-binding alias="mailTo" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+          <config-property key="ObjectType" value="Order"/>
+          <config-property key="CaseSensitive" value="false"/>
+          <config-property key="SearchExpression" value="exportStatus={1} AND status!={2} AND confirmationStatus = {3}"/>
+          <key-binding alias="Orders" key="SearchResult"/>
+          <key-binding alias="null" key="SearchResultCount"/>
+          <key-binding alias="null" key="Search1Key"/>
+          <key-binding alias="dw.order.Order.EXPORT_STATUS_NOTEXPORTED" key="Search1Value"/>
+          <key-binding alias="null" key="Search2Key"/>
+          <key-binding alias="null" key="Search3Key"/>
+          <key-binding alias="null" key="Search4Key"/>
+          <key-binding alias="null" key="Search4Value"/>
+          <key-binding alias="null" key="Search5Key"/>
+          <key-binding alias="null" key="Search5Value"/>
+          <key-binding alias="null" key="SortBy1"/>
+          <key-binding alias="null" key="SortBy1Direction"/>
+          <key-binding alias="null" key="SortBy2"/>
+          <key-binding alias="null" key="SortBy2Direction"/>
+          <key-binding alias="null" key="SortBy3"/>
+          <key-binding alias="null" key="SortBy3Direction"/>
+          <key-binding alias="dw.order.Order.ORDER_STATUS_CANCELLED" key="Search2Value"/>
+          <key-binding alias="dw.order.Order.CONFIRMATION_STATUS_CONFIRMED" key="Search3Value"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="account/payment/FetchPaymentMethodOrders.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="Orders" key="OrderList"/>
+          <key-binding alias="paymentMethod" key="PaymentMethod"/>
+          <key-binding alias="FilteredOrderList" key="FilteredOrderList"/>
+          <key-binding alias="ErrorMessage" key="ErrorMessage"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="2" y="0"/>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="MailFrom"/>
+                <key-binding alias="&quot;mail/orderlist&quot;" key="MailTemplate"/>
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailTo" key="MailTo"/>
+                <key-binding alias="null" key="LocaleID"/>
+                <key-binding alias="null" key="MailCC"/>
+                <key-binding alias="null" key="MailBCC"/>
+                <key-binding alias="dw.web.Resource.msg(&quot;checkout.otherreasonorderlistsubject&quot;,&quot;checkout&quot;,null)" key="MailSubject"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <transition target-connector="in3" target-path="../+1">
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="2"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="mailFrom" key="MailFrom"/>
+          <key-binding alias="template" key="MailTemplate"/>
+          <key-binding alias="mailTo" key="MailTo"/>
+          <key-binding alias="subject" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="null" key="MailCC"/>
+          <key-binding alias="null" key="MailBCC"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_10">
+    <segment>
+      <node>
+        <text-node/>
+        <node-display x="16" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="NotExportedOrderListReplacement">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="NotExportedOrderListReplacement" secure="false"/>
+        <node-display x="16" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="&quot;ORDER_REPLACEMENT&quot;" key="From_0"/>
+          <key-binding alias="paymentMethod" key="To_0"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="From_1"/>
+          <key-binding alias="mailFrom" key="To_1"/>
+          <key-binding alias="dw.web.Resource.msg(&quot;checkout.replacementorderlistheader&quot;,&quot;checkout&quot;,null)" key="From_2"/>
+          <key-binding alias="subject" key="To_2"/>
+          <key-binding alias="&quot;mail/orderlist&quot;" key="From_3"/>
+          <key-binding alias="template" key="To_3"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.AdminEmailReplacement" key="From_4"/>
+          <key-binding alias="mailTo" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+          <config-property key="ObjectType" value="Order"/>
+          <config-property key="CaseSensitive" value="false"/>
+          <config-property key="SearchExpression" value="exportStatus={1} AND status!={2} AND confirmationStatus = {3}"/>
+          <key-binding alias="Orders" key="SearchResult"/>
+          <key-binding alias="null" key="SearchResultCount"/>
+          <key-binding alias="null" key="Search1Key"/>
+          <key-binding alias="dw.order.Order.EXPORT_STATUS_NOTEXPORTED" key="Search1Value"/>
+          <key-binding alias="null" key="Search2Key"/>
+          <key-binding alias="null" key="Search3Key"/>
+          <key-binding alias="null" key="Search4Key"/>
+          <key-binding alias="null" key="Search4Value"/>
+          <key-binding alias="null" key="Search5Key"/>
+          <key-binding alias="null" key="Search5Value"/>
+          <key-binding alias="null" key="SortBy1"/>
+          <key-binding alias="null" key="SortBy1Direction"/>
+          <key-binding alias="null" key="SortBy2"/>
+          <key-binding alias="null" key="SortBy2Direction"/>
+          <key-binding alias="null" key="SortBy3"/>
+          <key-binding alias="null" key="SortBy3Direction"/>
+          <key-binding alias="dw.order.Order.ORDER_STATUS_CANCELLED" key="Search2Value"/>
+          <key-binding alias="dw.order.Order.CONFIRMATION_STATUS_CONFIRMED" key="Search3Value"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="account/payment/FetchPaymentMethodOrders.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="Orders" key="OrderList"/>
+          <key-binding alias="paymentMethod" key="PaymentMethod"/>
+          <key-binding alias="FilteredOrderList" key="FilteredOrderList"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="2" y="0"/>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="MailFrom"/>
+                <key-binding alias="&quot;mail/orderlist&quot;" key="MailTemplate"/>
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailTo" key="MailTo"/>
+                <key-binding alias="dw.web.Resource.msg(&quot;checkout.replacementorderlistsubject&quot;,&quot;checkout&quot;,null)" key="MailSubject"/>
+                <key-binding alias="null" key="LocaleID"/>
+                <key-binding alias="null" key="MailCC"/>
+                <key-binding alias="null" key="MailBCC"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1">
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="2"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="mailFrom" key="MailFrom"/>
+          <key-binding alias="template" key="MailTemplate"/>
+          <key-binding alias="mailTo" key="MailTo"/>
+          <key-binding alias="subject" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="null" key="MailCC"/>
+          <key-binding alias="null" key="MailBCC"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

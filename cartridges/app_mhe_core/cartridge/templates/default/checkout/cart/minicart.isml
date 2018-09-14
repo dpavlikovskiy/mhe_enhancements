@@ -1,0 +1,126 @@
+<iscomment>This includes global utilities into the pages</iscomment>
+<isinclude template="util/modules"/>
+<iscomment>
+	This creates reporting data for the cart. The application assumes that
+	the minicartcontent template will be embeeded into every page, so that the information about
+	an open cart can be report as soon as it is available or changed.
+	Additionally this page must not be cached to allow the correct reporting any time.
+
+	This include also takes care of reporting source codes.
+</iscomment>
+<isinclude template="util/reporting/ReportBasket.isml"/>
+
+<script type="text/javascript">
+var photoBoothImageId = "";
+<isif condition="${'photoBoothImageID' in pdict.CurrentSession.custom && !empty(pdict.CurrentSession.custom.photoBoothImageID)}">
+photoBoothImageId = "${pdict.CurrentSession.custom.photoBoothImageID.toString()}";
+</isif>
+</script>
+<iscomment> the mini cart total which is always visible</iscomment>
+<div class="mini-cart-total">
+	<isif condition="${(pdict.Basket != null) && (pdict.Basket.productLineItems.size() + pdict.Basket.giftCertificateLineItems.size() > 0 )}">
+		<isscript>
+			// calculate the total number of items in the cart by adding quantities together
+			// do not count bonus line items
+			var cartQty : Number = 0;
+			var childDelivery : Boolean = false;
+			var pliIt : dw.util.Iterator = pdict.Basket.productLineItems.iterator();
+			var lstQty : Number = pdict.lstQty;
+			while (pliIt.hasNext()) { 
+				var pli : dw.order.ProductLineItem = pliIt.next(); 
+				cartQty += pli.quantity;
+				childDelivery=pli.custom.chilledDeliveryService;
+				 
+				//lstQty=pli.quantity; 
+			}
+ 			// add the gift certificates to cart quantity
+			cartQty += pdict.Basket.giftCertificateLineItems.size();
+		</isscript>
+		<isif condition="${cartQty > 1}">
+			<isset name="item_word" value="${Resource.msg('minicart.items','checkout',null)}" scope="page"/>
+		<iselse>
+			<isset name="item_word" value="${Resource.msg('minicart.item','checkout',null)}" scope="page"/>
+		</isif>
+		<a href="${URLUtils.http('Cart-Show')}" class="mini-cart-link">
+			<isif condition="${childDelivery}">
+				<span class="mini-cart-label chilled">
+			<iselse>
+				<span class="mini-cart-label">
+			</isif>
+				${Resource.msg('minicart.label','checkout',null)}
+			</span>
+			<isif condition="${cartQty >= 1}"> 
+	          (<isprint value="${cartQty}" formatter="##" />)
+			</isif>
+			<iscomment>Davinder Kumar: Commenting as not required as per VD
+			<span class="mini-cart-item-word"><isprint value="${item_word}"/></span>
+			<span class="mini-cart-total-label">${Resource.msg('minicart.total','checkout',null)} <isprint value="${pdict.Basket.getAdjustedMerchandizeTotalPrice(true).add(pdict.Basket.giftCertificateTotalPrice)}"/></span>
+			</iscomment>
+		</a>
+	<iselse>
+		<span class="mini-cart-label">${Resource.msg('minicart.label','checkout',null)}</span> 
+	</isif>
+</div>
+
+<iscomment> the dynamically shown view of the last added item </iscomment>
+<isif condition="${!empty(pdict.Basket) && (pdict.Basket.productLineItems.size() > 0 || pdict.Basket.giftCertificateLineItems.size() > 0)}">
+
+	<div class="mini-cart-content">
+		<iscomment>DO NOT REMOVE THESE SPANs | Used to get the main Product details for the accessory products | Naveen Kumar</iscomment>
+		<isif condition="${!empty(pdict.ProductLineItem)}">
+			<span class="mainProdId" style="display: none">${pdict.ProductLineItem.productID}</span>
+			<span class="mainProdPos" style="display: none">${pdict.ProductLineItem.custom.pliPosition}</span>
+			<span class="addedFrom" style="display: none">${pdict.CurrentHttpParameterMap.addedFrom}</span>
+			<span class="currentQty" style="display: none">${pdict.CurrentHttpParameterMap.Quantity}</span>
+			
+			<span style="display: none">
+			   <isif  condition="${!empty(pdict.CurrentCustomer.profile)}" > 
+				  <isprint value="${pdict.CurrentCustomer.profile.title}"/> <isprint value="${pdict.CurrentCustomer.profile.firstName}"/>${Resource.msg('cart.header','checkout',null)}
+		      </isif>
+			</span>
+		</isif>
+		<div class="nano">
+			<div class="content">
+				<div class="mini-cart-header">
+					<iscomment>Dkum37: 
+					${Resource.msg('minicart.title','checkout',null)}
+					<span class="mini-cart-close">Close</span>
+					</iscomment>
+					
+					<isif condition="${!empty(pdict.recentlyAdded)&& pdict.recentlyAdded =='true'}">
+						<isif condition="${lstQty > 1}">
+							<span><isprint value="${lstQty}" formatter="##"/> ${Resource.msg('minicart.items','checkout',null)} ${Resource.msg('minicart.added','checkout',null)}</span>
+					   <iselse>
+						    <span><isprint value="${lstQty}" formatter="##"/> ${Resource.msg('minicart.item','checkout',null)}  ${Resource.msg('minicart.added','checkout',null)}</span>
+					   </isif>
+				   </isif>
+				 	<p>${Resource.msg('minicart.youhave','checkout',null)} <isprint value="${cartQty}" formatter="##"/><isif condition="${cartQty > 1}"> ${Resource.msg('minicart.bagitems','checkout',null)}<iselse> ${Resource.msg('minicart.bagitem','checkout',null)} </isif> ${Resource.msg('minicart.inyourbag','checkout',null)}</p>
+				</div>
+			
+				<ul class="mini-cart-products">
+					<isminilineitems p_lineitemctnr="${pdict.Basket}" p_showreverse="${true}" p_productlineitem="${pdict.ProductLineItem}" p_giftcertlineitem="${pdict.GiftCertificateLineItem}"/>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="mini-cart-totals">
+			
+			<div class="mini-cart-subtotals">
+				<span class="label uppercase">${Resource.msg('ordersummary.ordersubtotal','components',null)}</span>
+				<span class="value"><isprint value="${pdict.Basket.getAdjustedMerchandizeTotalPrice(false).add(LineItemCtnr.giftCertificateTotalPrice)}"/></span>
+			</div>
+			
+			<iscomment> The class 'mini-cart-link' is added for Google Analytics </iscomment>
+			<a class="button mini-cart-link" href="${URLUtils.http('Cart-Show')}">
+				<span class="face front">${Resource.msg('minicart.directcheckout','checkout',null)}</span>
+				<span class="face back">${Resource.msg('minicart.directcheckout','checkout',null)}</span>
+			</a>
+	     	     
+	  	    <div class="mini-cart-slot">
+				<isslot id="minicart-banner" description="This is the banner within the minicart, directly above the View Cart/Checkout link." context="global" />
+			</div>
+			
+		</div>
+	</div>	
+</isif>
+<isbonusdiscountlineitem p_alert_text="${Resource.msg('product.bonusproductalert','product',null)}" p_discount_line_item="${pdict.BonusDiscountLineItem}"/>

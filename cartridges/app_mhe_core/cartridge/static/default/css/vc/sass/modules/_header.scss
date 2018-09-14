@@ -1,0 +1,103 @@
+.header {
+	background-color: $bgheader;
+	padding-bottom: 29px;
+	.highlighted {
+		color:$white;
+	}
+	.newsletter-cont{
+		border-right: 1px solid $headerDivider;
+	}
+	a{
+		color:$white;
+		&:visited, &:hover, &:focus { color:$white; }
+	}
+	.logo_header{
+		width: 145px;
+		padding: 0 0 0 16px;
+		img{
+			width:145px;
+		}
+	}
+	header{
+		.header-right{
+		width:500px;	 
+		}
+		.side-module {
+	 	 	li{
+	 	 		.textSearch{
+	 	 			margin-top: -10px;
+	 	 		}
+	 	 	}		
+	 	 }
+	}
+}
+
+.navigation{
+	background-color: $packerygreyText;
+	li{
+		a{
+			background-color: $packerygreyText;
+			&:hover {
+				color: $brandcolor;
+			}
+		}
+	}
+}
+.pt_checkout{
+	.logo_header{
+		background:$bgheader;
+		img{
+			width:170px;
+		}
+		
+	}
+}
+.pt_product-details {
+	.header {
+		background-color: $bgheader;
+	}
+}
+.ie8{
+	.pt_product-details .header{
+		background: url(img/common/ie8-header-fade.png);
+	}
+	.header .menu-category li .menu-wrapper li.arrow {
+		display: none;
+	}
+}
+
+.ie8 {
+	.header {
+		background: $brandcolor;
+	}
+}
+
+
+.header header .side-module {
+  margin: 15px 0 0 0; 
+}
+
+.checkout-shipping{
+	.deliveryDetails{
+		&.commonBg{
+			&.checkout-module{
+			 
+			}
+		}
+	}
+	.giftMessage{
+		&.commonBg{
+		 
+		}
+	}
+	.shippingMethods{
+		&.commonBg{
+		 
+		}
+	}
+}
+textarea{
+		 background:$brandlightbg;
+}
+
+

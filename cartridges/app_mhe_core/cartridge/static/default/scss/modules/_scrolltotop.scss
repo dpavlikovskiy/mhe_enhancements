@@ -1,0 +1,83 @@
+// =============================================================================
+// Scroll to Top Link
+// =============================================================================
+
+.back-top {
+	width: 141px;
+	height: 104px;
+	position: fixed;
+	z-index: 5000;
+	bottom: 36px;
+	margin-left: 1050px;
+	a {
+		display: block;
+		position: relative;
+		width: 141px;
+		height: 104px;
+	}
+	.arrow {
+		display: block;
+		position: absolute;
+		top: 32px;
+		left: 50px;
+		background: url('./img/common/back-to-top.png') 0 0 no-repeat;
+		width:39px;
+		height:39px;
+	}
+	.particles {
+		@include opacity(0);
+		top: 0;
+		left: 0;
+		width: 141px;
+		height: 104px;
+		position: absolute;
+		@include transform-style(preserve-3d);
+		@include transition(all 0.3s ease-out);
+		@include transform(scale(0));
+		img {
+			position: absolute;
+			top: 0;
+		}
+	}
+	&:hover .particles {
+		@include opacity(1);
+		@include transform(scale(1));
+		@include transform-style(preserve-3d);
+	}
+	.pulse-once {
+		-webkit-animation: pulse ease-in 1;
+		-moz-animation: pulse ease-in 1;
+		-o-animation: pulse ease-in 1;
+		animation: pulse ease-in 1;
+		-webkit-animation-fill-mode: forwards;
+		-moz-animation-fill-mode: forwards;
+		-o-animation-fill-mode: forwards;
+		animation-fill-mode: forwards;
+		-webkit-animation-duration: 1.4s;
+		-moz-animation-duration: 1.4s;
+		-o-animation-duration: 1.4s;
+		animation-duration: 1.4s;
+	}
+}
+
+//Keyframes for Animation --------------------------------------------
+@-webkit-keyframes pulse {
+	0%   { @include opacity(0); @include transform(scale(0)); }
+	50%  { @include opacity(1); @include transform(scale(1)); }
+	100% { @include opacity(0); @include transform(scale(0)); }
+}
+@-moz-keyframes pulse {
+	0%   { @include opacity(0); @include transform(scale(0)); }
+	50%  { @include opacity(1); @include transform(scale(1)); }
+	100% { @include opacity(0); @include transform(scale(0)); }
+}
+@-o-keyframes pulse {
+	0%   { @include opacity(0); @include transform(scale(0)); }
+	50%  { @include opacity(1); @include transform(scale(1)); }
+	100% { @include opacity(0); @include transform(scale(0)); }
+}
+@keyframes pulse {
+	0%   { @include opacity(0); @include transform(scale(0)); }
+	50%  { @include opacity(1); @include transform(scale(1)); }
+	100% { @include opacity(0); @include transform(scale(0)); }
+}

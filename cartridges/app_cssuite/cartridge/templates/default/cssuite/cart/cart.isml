@@ -1,0 +1,35 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<isscript>
+var nos = pdict.newBasketStatus;
+var basket = pdict.Basket;
+</isscript>
+
+<isif condition="${!empty(basket)}">
+	<script type="text/javascript">
+	<!--
+		$("${'#'}order_list").hide();
+		$("${'#'}order_list").hide();
+		$("${'#'}order_detail").show();
+		$("${'#'}lefttab_orders").show();
+		$("${'#'}tabs").show();
+		//set the tab to the line items
+		$('${'#'}lefttabs ul').tabs('select', '${'#'}lefttab_orders');
+		
+		CSSuite.setContext(CSSuite.CONTEXT_ORDER);
+		
+		Order.refreshAllDetails();
+	// -->
+	</script>
+</isif>
+
+
+<table id="totalContainer" width="100%">
+	<tr>
+	<td align="right">
+	<div id="lic_products">Product list</div>
+	</td>
+	</tr>
+</table>
+
+

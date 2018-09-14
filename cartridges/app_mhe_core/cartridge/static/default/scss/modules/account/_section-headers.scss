@@ -1,0 +1,25 @@
+// =============================================================================
+// Section headers (for No Orders page)
+// =============================================================================
+
+.section-headers {
+	h3 {
+		position:absolute;
+		text-transform:uppercase;
+		text-align:center;
+		line-height:200px;
+		font-family: $fixed-font-family;
+		font-size:34px;
+		font-weight:$bold;
+		text-shadow: 1px 1px 1px rgba(0,0,0,0.33);
+		width:100%;
+		letter-spacing:4px;
+	}
+	li {
+		margin-top:20px;
+		position:relative;
+		&:first-child {
+			margin-top:32px;
+		}
+	}
+}

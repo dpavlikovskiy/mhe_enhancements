@@ -1,0 +1,23 @@
+<!--- TEMPLATENAME:  --->
+
+<h1> ${Resource.msg('sapmail.header','common',null)} </h1>
+<table border="1" >
+	<thead>
+		<tr>
+			<th>
+			${Resource.msg('sapmail.tableheader1','common',null)}</th>
+			<th>
+			${Resource.msg('sapmail.tableheader2','common',null)}</th>
+		</tr>
+	</thead>
+	<tbody>
+	
+		<isloop items="${pdict.OrdersList}" var="order" status="loopstate0">
+			<tr>
+				<td> ${order.orderNo}</td>
+			     <td> ${order.creationDate}</td>			
+			</tr>
+		</isloop>
+		
+	</tbody>
+</table>

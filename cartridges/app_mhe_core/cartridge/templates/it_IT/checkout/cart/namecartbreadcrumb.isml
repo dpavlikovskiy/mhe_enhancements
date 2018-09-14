@@ -1,0 +1,1 @@
+<isset name="cartnav"  value="${Resource.msg('pt_cart.breadcrumb','checkout',null)}" scope="page"/>

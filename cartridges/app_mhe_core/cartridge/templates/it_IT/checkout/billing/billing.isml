@@ -1,0 +1,252 @@
+<isdecorate template="checkout/pt_checkout"/>
+	<isinclude template="util/modules"/>
+	
+	<iscomment>
+		This template visualizes the billing step of both checkout scenarios.
+		It provides selecting a payment method, entering gift certificates and
+		specifying a separate billing address.
+		Depending on the checkout scenario (single or multi shipping) it is
+		either the second or third checkout step.
+	</iscomment>
+	 
+	<iscomment>Report this checkout step</iscomment>
+	<isreportcheckout checkoutstep="4" checkoutname="${'Billing'}"/>
+
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		checkout progress indicator
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+ 
+    <isif condition="${!pdict.CurrentForms.multishipping.entered.value}">
+    	<ischeckoutprogressindicator step="2" multishipping="false" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	<iselse>
+		<ischeckoutprogressindicator step="3" multishipping="true" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	</isif>
+	
+    <isif condition="${pdict.PlaceOrderErrorCode != null}">
+		<div class="serverError">
+			<span class="error">${Resource.msg('error_message','forms',null)}</span><br/>
+			${Resource.msg(pdict.PlaceOrderErrorCode,'checkout',null)}
+		</div>
+	</isif>
+	
+	
+  <div class="leftSide">
+  
+  <div class="checkHeader">
+	<h1>${Resource.msg('pt_checkout.breadcrumb','checkout',null)}</h1>
+	<h3>${Resource.msg('checkoutprogressindicator.step2','checkout',null)} ${Resource.msg('checkoutprogressindicator.billing','checkout',null)}</h3>
+	<p class="normal">${Resource.msg('enter_payment_details','checkout',null)}</p>
+</div>
+
+	<div class="errors-total">
+		<div class="errors-total-inner">
+			<iscomment>All validation errors listed at the top of the form</iscomment>
+		</div>
+	</div>
+
+  <form action="${URLUtils.continueURL()}" method="post" id="${pdict.CurrentForms.billing.htmlName}" class="checkout-billing address">
+  <div class="commonBg deliveryDetails clearfix" id="billingDetails">	
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		billing address
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	 <iscomment>billing address area</iscomment>
+
+		<iscomment>hidden input with action to trigger for the address form</iscomment>
+		<input type="hidden" name="${pdict.CurrentForms.billing.save.htmlName}" value="true" />
+		<h3> ${Resource.msg('billing.addressheader','checkout',null)}</h3>
+	    <div id="billing-address-form">
+	    
+	     <isif condition="${ pdict.billingAddressCount  <= 0 }">
+			<div class="form-row plainText">
+				<label class="absLabel">${Resource.msg('forms.fiscalOption.select','forms',null)}</label>
+				<div class="form-row radioBox">
+					<isif condition="${empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value) && empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value)}">
+				    	<input type="radio" class="radio-input fiscal" value="fiscalcode" id="fiscalCodeRadio" name="fiscalCodebtn"checked>
+				    	<label class="radio-label" for="fiscalCodeRadio"><span></span>${Resource.msg('forms.fiscalCode','forms',null)}</label>
+					<iselseif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value)}">
+						<input type="radio" class="radio-input fiscal" value="fiscalcode" id="fiscalCodeRadio" name="fiscalCodebtn"checked>
+						<label class="radio-label" for="fiscalCodeRadio"><span></span>${Resource.msg('forms.fiscalCode','forms',null)}</label>
+					<iselse>
+						<input type="radio" class="radio-input fiscal" value="fiscalcode" id="fiscalCodeRadio" name="fiscalCodebtn">
+						<label class="radio-label" for="fiscalCodeRadio"><span></span>${Resource.msg('forms.fiscalCode','forms',null)}</label>
+					</isif>
+				</div>
+				<div class="form-row radioBox">
+					<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value)}" >
+						<input type="radio" class="radio-input fiscal" value="vatnumber" id="vatNumberRadio" name="fiscalCodebtn"checked>
+						<label class="radio-label" for="vatNumberRadio"><span></span>${Resource.msg('forms.vatNumber','forms',null)}</label>
+					<iselse>
+						<input type="radio" class="radio-input fiscal" value="vatnumber" id="vatNumberRadio" name="fiscalCodebtn">
+						<label class="radio-label" for="vatNumberRadio"><span></span>${Resource.msg('forms.vatNumber','forms',null)}</label>
+					</isif>
+				</div>
+			 </div>
+			</isif>
+		   <div id="fiscaldiv"> 
+				 <isif condition="${pdict.billingAddressCount > 0 }">
+				 
+				  <isif condition="${empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value) &&  empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value)}">
+					   <div class="form-row"> <label>${Resource.msg('forms.fiscalCode','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value}" /></div>
+					   <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode}" rowclass="hidden" type="hidden" />				
+					   <div class="form-row hasAsset">  <label>&nbsp;</label><iscontentasset aid="fiscalCodeText"/> </div>
+					 <iselseif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value)}">
+					    <div class="form-row"> <label>${Resource.msg('forms.fiscalCode','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value}" /></div>
+					    <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode}" rowclass="hidden" type="hidden" />	
+				        <div class="form-row hasAsset">  <label>&nbsp;</label> <iscontentasset aid="fiscalCodeText"/> </div>
+				     <iselseif  condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value)}" >
+				        <div class="form-row"> <label>${Resource.msg('forms.vatNumber','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value}" /></div>
+					    <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber}"   rowclass="hidden" type="hidden" />	
+					    <div class="form-row hasAsset"> <label>&nbsp;</label> <iscontentasset aid="vatNumberText"/> </div>
+					</isif>
+					
+				<iselse>	
+					 <isif condition="${empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value) &&  empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value)}">
+					   <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode}"  type="input"      rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.fiscalcode.missing-error','forms',null)}" />				
+					     <div class="form-row hasAsset"> <label>&nbsp;</label> <iscontentasset aid="fiscalCodeText"/> </div>
+					 <iselseif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode.value)}">
+					    <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode}" type="input"    rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.vatnumber.missing-error','forms',null)}" />
+				          <div class="form-row hasAsset"> <label>&nbsp;</label>  <iscontentasset aid="fiscalCodeText"/> </div>
+				     <iselseif  condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value)}" >
+					    <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber}"  type="input"   rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.fiscalcode.missing-error','forms',null)}" />
+					     <div class="form-row hasAsset"> <label>&nbsp;</label>  <iscontentasset aid="vatNumberText"/> </div>
+					</isif>
+				</isif>
+	        </div> 
+	    
+	 	    <isif condition="${pdict.CurrentCustomer.authenticated}">
+ 				<isif condition="${pdict.billingAddressCount > 0 }">
+ 	              <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName}" rowclass="hidden" type="hidden"  />
+ 	              <div class="form-row"> <label>${Resource.msg('profile.addressName','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName.value}" /></div>
+    	       <iselse>	
+    	         <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName}" type="input" requiredtext="${Resource.msg('forms.addressName.value-error','forms',null)}" />
+    	       </isif>
+    		   <iscomment>Add address to Address Book</iscomment>
+		       <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addToAddressBook}" type="hidden" rowclass="hidden" rowclass="form-indent hidden label-inline checkBox"/>
+		    </isif>
+     
+		 <isif condition="${pdict.billingAddressCount > 0 }">
+		 
+	       <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName}" rowclass="hidden" type="hidden"  />
+	  	   <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName}" rowclass="hidden" type="hidden" />
+	       <div class="form-row"> <label>${Resource.msg('profile.firstname','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName.value}" /></div>
+    	   <div class="form-row"> <label>${Resource.msg('profile.lastname','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName.value}" /></div>
+
+	    <iselse>	
+	       <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.firstname.missing','forms',null)}" />
+	       <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.lastname.missing','forms',null)}" />
+	    </isif>	
+	    
+	    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.value) && pdict.billingAddressCount > 0 }">
+    	  <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName}" rowclass="hidden" type="hidden"  />
+		  <div class="form-row"> <label>${Resource.msg('forms.companyname','forms',null)}</label> <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName.value}" /></div>
+		<iselse>
+		  <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName}" type="input" rowclass="companyName" requiredtext="${Resource.msg('forms.address.companyName.missing','forms',null)}" />
+		</isif>
+
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.states.state}" type="select" requiredtext="${Resource.msg('forms.address.state.missing','forms',null)}"/>
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.address1}" type="input" requiredtext="${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.address2}" rowclass="hideOptionalText" type="input"/>
+		
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.zip}" type="input" xhtmlclass="postcode-input" requiredtext="${Resource.msg('forms.errorzip','forms',null)}" />
+
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.city}" type="input" requiredtext="${Resource.msg('forms.address.city.missing','forms',null)}"/>
+     	
+     	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.country}" rowclass="hidden" type="hidden"  />
+    	<div class="form-row plainText">
+	    	<label>${Resource.msg('forms.country','forms',null)}</label> 
+	     	 <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+			 	 <isprint value="${country.getDisplayValue()}"/> 
+                 <isbreak />	  
+          	 </isloop>
+		</div>
+		<div class="form-field-tooltip">
+		     <span class="tooltip left">
+		     	<span class="ptIcon"></span>
+		     	<div class="tooltip-content">${Resource.msg('tooltip.country','forms',null)}</div>
+		     </span>
+	    </div>
+  
+      
+        
+	  	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.phone}" type="input" xhtmlclass="phone-input" requiredtext="${Resource.msg('forms.address.phone.missing','forms',null)}" />
+    	<div class="form-field-tooltip">
+		     <span class="tooltip left">
+		     	<span class="ptIcon"></span>
+		     	<div class="tooltip-content">${Resource.msg('tooltip.phone','forms',null)}</div>
+		     </span>
+	    </div>
+	 </div>
+	
+	 <isif  condition="${empty(pdict.CurrentCustomer.profile) || empty(pdict.billingAddressCount) || pdict.billingAddressCount  <= 0 }">			
+		<div id="emailaddressField"  class="clearfix">
+			<isif condition="${!pdict.CurrentCustomer.authenticated }">	
+				<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.email.emailAddress}" type="input" xhtmlclass="email-input" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" />
+			</isif>
+		</div>
+	 </isif>
+ 
+   </div>
+  
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		coupon / discount codes
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	
+        <input type="hidden" name="${pdict.CurrentForms.billing.secureKeyHtmlName}" value="${pdict.CurrentForms.billing.secureKeyValue}"/>	
+		<isset name="OrderTotal" value="${pdict.Basket.totalGrossPrice.value}" scope="pdict"/>
+		  
+			 
+      
+ 	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		payment methods
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+
+	<iscomment>payment method area</iscomment>
+	<isinclude template="checkout/billing/paymentmethods"/>
+	<input type="hidden" name="${pdict.CurrentForms.billing.paymentMethods.selectedPaymentMethodID.htmlName}" />
+	<isbonusdiscountlineitem p_alert_text="${Resource.msg('billing.bonusproductalert','checkout',null)}" p_discount_line_item="${pdict.BonusDiscountLineItem}"/>
+	
+	<div class="checkActions clearfix">
+		<div class="checkBack">
+			<a id="BackToBasketGA" href="${URLUtils.https('COShipping-Start')}" ><isprint value="${Resource.msg('checkout.backtoshipping','checkout',null)}"/></a>
+		</div>
+		<div class="checkForward">
+			<button id="BillingNextGA" class="button-fancy-large button" type="submit" name="${pdict.CurrentForms.billing.save.htmlName}" value="${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}">
+				<span class="face front">${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}</span>
+				<span class="face back">${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}</span>
+			</button>
+		</div>
+	</div>
+</form>
+</div>
+<isinclude template="checkout/minisummary"/>
+<isinclude url="${URLUtils.url('Cybersource-IncludeDigitalFingerprint')}" />
+
+<isscript>
+	importScript("util/ViewHelpers.ds");
+	var stateForm = pdict.CurrentForms.billing.billingAddress.addressFields.states;
+	var countryField = pdict.CurrentForms.billing.billingAddress.addressFields.country; 
+	var countries = ViewHelpers.getCountriesAndRegions(countryField, stateForm, "forms");	
+	var json = JSON.stringify(countries);	
+</isscript>
+<script>if (window.app) {app.countries = <isprint value="${json}" encoding="off"/>;}</script>	
+
+<script type="text/javascript">
+ $(document).ready(function(){
+ 	$(".fiscal").click(function(){
+		var optedfield=this.value;
+		var url = app.util.appendParamsToUrl(app.urls.clearFiscalFields,{reqfield:optedfield});
+		var options = {
+				url: url,
+				data :{format:"ajax"}
+			};
+		$.ajax( options ).done(function(data){
+			 $("#fiscaldiv").html(data);
+		});
+			
+	});
+});
+</script>
+ 
+</isdecorate>

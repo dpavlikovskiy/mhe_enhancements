@@ -1,0 +1,87 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude template="cssuite/utils/modules">
+
+<isscript>
+	importScript("app_cssuite:css/utils.ds");
+	var _shipment = pdict.CurrentForms.csshipping.object;
+	var shipmentShortDescription = getShipmentDescr(_shipment);
+</isscript>
+
+<form id="EditShippingForm" action="${URLUtils.httpsContinue()}" onsubmit="return false;">
+	<table class="listTable parentTable" cellpadding="0" cellspacing="0" border="0" >
+		<tbody>
+		<tr><td colspan="2">
+			<table class="topTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tr>
+					<td>&nbsp;</td> <!--- we need this cause isinputfield does not generate for checkboxes 2 --->
+					<isinputfield formfield="${pdict.CurrentForms.csshipping.includeGiftMessage}" type="checkbox" 
+						attribute1="onchange" value1="toggleMessageBoxState();" attribute2="id" value2="gift_checkbox">
+				</tr>
+				<tr>
+					<isinputfield formfield="${pdict.CurrentForms.csshipping.giftMessage}" type="textarea" 
+						attribute1="id" value1="gift_msg_box" attribute2="disabled" value2="disabled">
+				</tr>
+				<tr><td style="height:10px;">&nbsp;</td></tr>
+				<tr>
+					<isinputfield formfield="${pdict.CurrentForms.csshipping.deliveryInstructions}" type="textarea">
+				</tr>
+				<!---
+				<tr class="tracking">
+					<isinputfield formfield="${pdict.CurrentForms.csshipping.trackingNumber}" type="input">
+				</tr>
+				--->
+				<input type="hidden" id="DeleteThisShipment" value="true"/>
+			</table>
+		</td></tr>
+		
+		<tr class="rowPad"><td colspan="2">&nbsp;</td></tr>
+		<tr valign="top">
+			<td>
+				<isinclude template="cssuite/address/orderaddress">
+			</td>
+			<td>
+				<isinclude template="cssuite/shipment/pagecomponent/shippingmethod">
+			</td>
+		</tr>
+	</table>
+
+</form>
+<br/>
+<div class="clear"></div>
+<script type="text/javascript">
+<!--
+    function toggleMessageBoxState() {
+    	var checkBoxId = '#gift_checkbox';
+    	var textFieldId = '#gift_msg_box';
+    	var checkBox = $(checkBoxId)[0];
+    	if (checkBox.checked) {
+   			$(textFieldId)[0].disabled = false;
+    	} else {
+   			$(textFieldId)[0].disabled = true;
+    	}
+    }
+
+		Dialog.formDialog('Shipment: ${shipmentShortDescription}', 
+			{
+				"Save": function() { 
+					Order.saveShipment('${pdict.CurrentForms.csshipping.save.htmlName}');
+					document.getElementById("DeleteThisShipment").value="false";
+					$(this).dialog("destroy");					
+				},
+				"Cancel": function() { 
+					Order.saveShipment('${pdict.CurrentForms.csshipping.cancel.htmlName}');
+					document.getElementById("DeleteThisShipment").value="false";
+					$(this).dialog("destroy");
+				}
+			},
+			false, 'auto', 'auto', null, null,
+				function() { 
+						if(document.getElementById("DeleteThisShipment").value=="true") {
+							Dialog.deleteShipment('${_shipment.ID}');
+						}
+				}
+		);
+		CSSuite.toggleStateCodes('Id_${pdict.CurrentForms.csshipping.addressfields.country.htmlName}', 'Id_${pdict.CurrentForms.csshipping.addressfields.state.htmlName}');
+		toggleMessageBoxState();
+//-->
+</script>

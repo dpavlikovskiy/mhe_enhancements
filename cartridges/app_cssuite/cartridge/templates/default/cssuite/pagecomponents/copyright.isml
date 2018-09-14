@@ -1,0 +1,13 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<div id="copyright">
+	${Resource.msg('pagecomponents.copyright.copyright','cssuite',null)}
+	${Resource.msg('pagecomponents.copyright.copyrightsymbol','cssuite',null)}
+	${Resource.msg('pagecomponents.copyright.002','cssuite',null)}
+	${Resource.msg('pagecomponents.copyright.year','cssuite',null)}
+	<isif condition="${Resource.msg('pagecomponents.copyright.year','cssuite',null) < new Date().getFullYear()}">
+		<isprint value="${new Date().getFullYear()}" formatter="#">
+	</isif>
+</div>
+					
+					

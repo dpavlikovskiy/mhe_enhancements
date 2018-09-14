@@ -1,0 +1,146 @@
+/**
+* This script calculates the total amount of an order 
+* that will be paid for by Gift Certificate Payment Instruments 
+* and the remaininig amount that will be applied to 
+* the remaining Payment Instrument (such as a Credit Card).
+*
+* As input, this script requires the Basket. 
+*
+* @input Basket : Object
+* @output ErrorMessage : String
+* @output PrimaryPaymentInstrument : dw.order.PaymentInstrument
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.value );
+importPackage( dw.util );
+importScript( "app_cssuite:css/utils.ds" );
+importScript( 'cssuite/payment/libPayments.ds' );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var giftCardIDSet : dw.util.HashSet = new dw.util.HashSet();
+	giftCardIDSet.add('METHOD_PPGC', 'METHOD_SVGC');
+
+
+	// get the basket
+    var basket : Basket = pdict.Basket;
+    
+    if (basket == null) 
+    {
+    	Logger.error( "No basket available" );
+    	return PIPELET_ERROR;
+    }
+    
+    // get the total amount of gift certificates 
+    var totalPrice : Money = basket.getTotalGrossPrice();
+
+	var creditCards : Collection = null;
+	var retailCards : Collection = null;
+	var cardCollection : Collection = basket.getPaymentInstruments(PaymentInstrument.METHOD_CREDIT_CARD);
+	
+	if (!empty(cardCollection))
+	{
+		creditCards = filterCreditCards(cardCollection);
+		retailCards = filterRetailCards(cardCollection);
+	}		
+    
+    // create a holder for the other total amounts
+    var otherTotals : Money = new Money(0.0, basket.getCurrencyCode());
+    var giftCertificateTotals : Money = new Money(0.0, basket.getCurrencyCode());
+    
+    for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments()) {
+    	var toRemove : Boolean = false;
+    	if ('toRemove' in pi.custom) 
+			toRemove = pi.custom.toRemove;    	
+    	
+    	if (giftCardIDSet.contains(pi.paymentMethod)) {
+			if (!toRemove){
+    			otherTotals = otherTotals.add(pi.paymentTransaction.amount);
+    		}
+    	} else if ( pi.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE) {
+    		otherTotals = otherTotals.add(pi.paymentTransaction.amount);
+    		giftCertificateTotals = giftCertificateTotals.add(pi.paymentTransaction.amount);
+    	} else if (!empty(pi.paymentTransaction.transactionID)) {
+    		otherTotals = otherTotals.add(pi.paymentTransaction.amount);
+    	}
+    }
+	
+	// this is for identification if there are some primary payment instruments
+	var primaryPaymentInstrumentPresent : Boolean = false;
+	var nonGiftCertPaymentInstrument : OrderPaymentInstrument = null;
+	// assuming we can have maximum 1 primary payment instruments without a transaction id, we loop
+	// through all payments and pick up the one with no transaction assigned
+	if ( !empty(creditCards) ) {
+		primaryPaymentInstrumentPresent = true;		
+		for each (var pi : OrderPaymentInstrument in creditCards) {
+			if (empty(pi.paymentTransaction.transactionID)) { 
+				nonGiftCertPaymentInstrument = pi;
+				break;
+			}
+		}
+	}
+	if (!empty(basket.getPaymentInstruments(PaymentInstrument.METHOD_BML))) {
+		primaryPaymentInstrumentPresent = true;	
+		for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments(PaymentInstrument.METHOD_BML)) {
+			if (empty(pi.paymentTransaction.transactionID)) { 
+				nonGiftCertPaymentInstrument = pi;
+				otherTotals = otherTotals.add(pi.paymentTransaction.amount);
+				break;
+			}
+		}
+	}
+	if (!empty(retailCards)) {
+		primaryPaymentInstrumentPresent = true;
+		for each (var pi : OrderPaymentInstrument in retailCards) { 		
+			if (empty(pi.paymentTransaction.transactionID)) {
+				nonGiftCertPaymentInstrument = pi;
+				break;
+			}
+		}
+	}
+	
+	if (basket.paymentInstruments[0].paymentMethod.equalsIgnoreCase('PAYPAL')) {
+		primaryPaymentInstrumentPresent = true;	
+		for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments()) {
+			if (empty(pi.paymentTransaction.transactionID)) { 
+				nonGiftCertPaymentInstrument = pi;
+				otherTotals = otherTotals.add(pi.paymentTransaction.amount);
+				break;
+			}
+		}
+	}
+	
+	
+	Logger.debug("otherTotals vs. totalPrice" + otherTotals + ":" + totalPrice);
+	// check if basket total is covered
+	if (otherTotals.value < totalPrice.value) {
+		// if not, try to assign the rest-amount to a non-giftcert payment instrument that has no transaction id (nonGiftCertPaymentInstrument)
+		if (nonGiftCertPaymentInstrument != null && !isBMLUsed(basket)) {
+			nonGiftCertPaymentInstrument.getPaymentTransaction().setAmount(totalPrice.subtract(otherTotals));
+		} else {
+			pdict.ErrorMessage = "The currently available payment instruments do not cover the order amount.";
+			return PIPELET_ERROR;
+		}
+	} else {
+		if(giftCertificateTotals.value > totalPrice.value){
+			pdict.ErrorMessage = "The amount paid with gift certificate payment instruments exceeds the order amount.";
+			return PIPELET_ERROR;
+		}
+		// if basket total is covered, we need to idetify if we have a 'backup' payment instrument (CC, BML, TDRC)
+		if (!empty(nonGiftCertPaymentInstrument)) {
+			// we have a nongiftcertpaymentinstrument, we assign 0.01 to the transaction;
+			// this amount is needed for authorization purposes			
+			nonGiftCertPaymentInstrument.getPaymentTransaction().setAmount(new Money(0.01, Site.getCurrent().defaultCurrency));
+			pdict.PrimaryPaymentInstrument = nonGiftCertPaymentInstrument;			
+		} 
+	}
+
+	if (!primaryPaymentInstrumentPresent)
+	{
+		pdict.ErrorMessage = "No primary payment instrument such as Credit Card or BML is available but it is required for backup purposes.";
+		return PIPELET_ERROR;
+	}
+		
+    return PIPELET_NEXT;
+}

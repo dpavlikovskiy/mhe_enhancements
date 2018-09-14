@@ -1,0 +1,31 @@
+/**
+* Demandware Script File
+* Update custom attribute of PLI - engravingText from CurrentHttpParameterMap
+* 
+*  @input Basket: dw.order.Basket  
+* 
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+function execute( pdict : PipelineDictionary ) : Number
+{
+     var  engravingText:String=pdict.CurrentHttpParameterMap.engravingText.stringValue;
+     var  pliPosition:Number =pdict.CurrentHttpParameterMap.pliPosition.intValue;
+     var  pid =pdict.CurrentHttpParameterMap.pid.stringValue;
+     try{
+    	 var  basket =pdict.Basket;
+    	 var productLineItems : Iterator =basket.getProductLineItems(pid).iterator();
+	 	 while(productLineItems.hasNext())
+		 {
+		  var productLineItem : ProductLineItem = productLineItems.next();
+		  if(productLineItem.position==pliPosition){
+			 productLineItem.custom.engravingMessageLine1=engravingText;	
+		 }
+		}
+      }catch(err){
+       Logger.error("Error in update engraving text : ", err.message);
+       return PIPELET_ERROR;
+     }
+   return PIPELET_NEXT;
+}

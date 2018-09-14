@@ -1,0 +1,308 @@
+a {
+	text-decoration: none;
+	color: $link_color;
+	cursor: pointer;
+	&:visited { color: $link_color; }
+	&:hover { text-decoration: none; color: $hover_color; }
+	&:focus { outline: thin dotted; color: $focus_color; }
+}
+.button{
+	.face{
+		border:1px solid $brandBorder;
+		color: $brandcolor;
+		&.back {
+			background-color: $mediumpurple;
+	    	border: 1px solid $mediumpurple;
+	    	color: white;
+		}
+	}
+	&.fill {
+    	.face {
+    		background-color: $blackgrey;
+    	}
+    }
+    &.darkfill {
+    	.face {
+    		background-color: $black;
+    	}
+    }
+    &.grey {
+    	.face {
+    		border-color: $lightergrey;
+    		color: $lightergrey;
+    		&.back {
+    			background-color: $lightergrey;
+    			border-color: $lightergrey;
+    			color: $white;
+    		}
+    	}
+    }
+    &.secondary {
+		background:none;
+		&.plain .face {
+			color: $lightergrey;
+			border-color: $border_light;
+			&.back {
+				background-color: $darkgrey;
+				color: $white;
+				border-color: $darkgrey;
+			}
+		}
+	}
+    &.trans {
+    	.face {
+    		background: $black;
+    		background: rgba(0,0,0,0.5);
+    	}
+    }
+    &.hero {
+    	.face {
+    		border-color: $white;
+    		color: $white;
+			&.front {
+				background: $blackgrey;
+    			background: rgba(22,21,28,0.2);
+			}
+			&.back {
+				background-color: $white;
+				border-color: $white;
+				color: $black;
+			}
+		}
+    }
+}
+input[type="text"],
+input[type="password"] {
+    background:$input_background;
+    border:1px solid $inputBorder;
+    color:$input_color;
+}
+textarea {
+    background-color: $black;
+    border: 1px solid $greyText;
+    color: $greyText;
+}
+.pt_checkout{
+	h1, h3{
+		color:$greyText;
+		.main-title{
+			color: white;
+		}
+	}
+}
+.checkActions{
+	border-top:3px solid $headerDivider;
+	.checkBack a{
+		background-position:0 -251px;
+		color:$lightergrey;
+		&:hover{
+			color:$white;
+		}
+	}
+}
+.step{
+	&.inactive{
+		a, span.disabled{
+			border-bottom:3px solid $headerDivider
+		}
+	}
+	&.active{
+		a, span.disabled{
+			border-bottom:3px solid $lightpurple;
+		}
+	}
+	&.current a, &.current span.disabled{
+		background:url(../img/icons/checkout-glow.png) no-repeat center bottom;
+	}
+}
+
+
+.mini-address-location{
+	color:$greyText;
+}
+.mini-address-title{
+	h2, strong.placeName{
+		color:$white;
+	}
+}
+.form-row label{
+	color:$white;
+	.optional{
+		color:$greyText;
+	}
+}
+.products-container .sort-by .sbHolder a{
+	color:$greyText;
+	&:hover{
+		color:$white;
+	}
+}
+.products .products-tile{
+	h2, h3{
+		color:$plpProductNames;
+		a{
+			color:$plpProductNames;
+		}
+	}
+	.promo-msg{
+		color:$promoMsg;
+	}
+	&.products-tile-magnum{
+		h2, h3, p{
+			color:$greyText;
+		}
+		background-color:$bgbody;
+		.content-asset {
+			h2 {
+				font-family:$heading-font-family;
+			}
+		}
+	}
+	.swatch{
+		color:#4b415f;
+		border:2px solid #4b415f;
+		&:hover {
+			background-color:#4a4062;
+		}
+	}
+}
+.products-tile-inner{
+	&:hover{
+		h2,
+		h2 a,
+		.product-sales-price, .productBoxDescription,
+		.swatch {
+			color:#fff;
+		}
+		.content-asset {
+			h2,h3,p {
+				color:#fff;
+			}
+		}
+	}
+}
+.breadcrumb{
+		font-size:13px;
+		li{
+			 a{
+				color: $lightGreyText;
+			}
+		}
+}
+.pdp-section-hero{
+	.product-price{
+		color: $white;
+	}
+			.product-store-locator {
+			.gamma-heading {
+				font-size: 12px;
+				color: $violet01;
+				font-family: $fixed-font-family;
+				text-transform: uppercase;
+				letter-spacing: 2px;
+				font-weight: bold;
+				}
+				.strapline {
+				font-size: 24px;
+				font-family: $heading-font-family;
+				}
+				.cta-store-locator a {
+					font-family: $fixed-font-family;
+					color:$bodycolor;
+						.icon-locator_01 {
+							color: $white;
+					}
+				}
+			}
+	.lead-copy, .limited-para, .keep-me-updated{
+		color:$greyText;
+		font-family: $fixed-font-family;
+		margin: 0 50px 25px;
+		.limit-para-trigger {
+			color: $white;
+		}
+	}
+	.promotion-callout p{
+		color:$brandcolor;
+		a{
+			color:$white;
+		}
+	}
+	.sup-info a{
+		color:$greyText;
+		font-size:$small_heading;
+	}
+	.column-personalisation{
+		p{
+			color:$white;
+		}
+		.gamma-heading{
+			font-size: 40px; 
+		}
+	}
+	.alpha-heading{
+		font-size: 38px;
+		color:$white;
+	}
+	.column-details{
+		.out-of-stock-msg {
+			&.limited {
+				text-align: left;
+				width:130px;
+				padding: 0 0 20px;
+				margin: -20px 0 0 363px
+			}
+		}
+	}
+}
+.accessory-list{
+	.product-name, .product-price{
+		color:$greyText;
+	}
+}
+.accessories-section{
+	.beta-heading{
+		color:$accessoryHead;
+	}
+}
+.basketHead p {
+	color:$lightgrey;
+	span{
+		color:$white;
+	}
+}
+.personaldetails .personaldetails a,
+.orderhistory .orderhistory a ,
+.paymentinformationlist .paymentinformationlist a,
+.mysavedaddresses .mysavedaddresses a,
+.mybillingaddresses .mybillingaddresses a,
+.referafriend .referafriend a  {
+	color:#fff;
+}
+.uppercase {
+	color: $lightergrey;
+}
+.product-list {
+	.products-tile-bg {
+				&:before {
+					content: '';
+					display: block;
+					height: 5px;
+					width: 5px;
+					position: absolute;
+					bottom: -20px;
+					left: 48%;
+					border-radius: 100%;
+					background-color: $violet01;
+				}
+		}
+}
+.pt_cart,
+.checkoutTable,
+.order-summary-footer{
+	.basketContent{
+		.promo-adjustment{
+			color:$violet01 !important;
+		}
+	}
+}

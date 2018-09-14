@@ -1,0 +1,18 @@
+<isdecorate template="storelocator/pt_storelocator">
+<iscache type="relative" hour="24" />
+<isinclude template="util/modules"/>
+<div id="storelocator" class="storelocator clearfix">
+	<isinclude template="storelocator/components/storesearchbar" />
+	<div id="contentheader" class="storeResults">
+		<iscomment>Creative-show/hide of map </iscomment>
+		<div class="scrollPanel nano">
+			<ul id="vertical-scrollbar-demo" class="scroll-content demo content">
+				
+			</ul>
+		</div>
+		<div id="map_canvas" class="map_canvas"></div>
+		<div id="map_location" class="map_location hidden"></div>
+	</div>
+</div>
+<div id="storedetails"></div>
+</isdecorate>

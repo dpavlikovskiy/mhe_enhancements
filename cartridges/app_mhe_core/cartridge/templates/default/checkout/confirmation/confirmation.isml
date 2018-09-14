@@ -1,0 +1,96 @@
+<isdecorate template="checkout/pt_orderconfirmation">
+
+<isinclude template="util/modules"/>
+<isinclude template="util/reporting/ReportOrder.isml"/>
+<iscomment>
+	This template visualizes the order confirmation page. Note, that it
+	uses a different decorator template.
+	It displays the order related information, such as the order number,
+	creation date, payment information, order totals and shipments of
+	the order.
+</iscomment>
+<isscript>
+importScript( "util/DateUtil.ds" );
+</isscript>
+
+<isif condition="${pdict.Order.getTotalGrossPrice().available}">
+ 	<isset name="orderTotalValue" value="${pdict.Order.getTotalGrossPrice()}" scope="page"/>
+<iselse>
+	<isset name="orderTotalValue" value="${pdict.Order.getAdjustedMerchandizeTotalPrice(true).add(pdict.Order.getGiftCertificateTotalPrice())}" scope="page"/>
+</isif>
+			
+<div class="confirmWrap">
+	<div class="ocHead">
+		<isset name="billingAddress" value="${pdict.Order.billingAddress}" scope="page"/>
+		<h2 class="normalCase">
+			<isprint value="${Resource.msg('confirmation.thankyou','checkout',null)}" /> 
+			<isif condition="${!empty(pdict.Order.getCustomer().profile)}"> 
+				<span class="capitalize"><isprint value="${pdict.CurrentCustomer.profile.salutation}"/>
+				<isprint value="${pdict.Order.getCustomer().profile.title}" /> <isprint value="${pdict.Order.getCustomer().profile.lastName}" /></span>
+			<iselse>
+				<span class="capitalize"><isprint value="${billingAddress.salutation}"/> <isprint value="${billingAddress.title}"/> <isprint value="${billingAddress.lastName}"/></span>
+			</isif>
+		</h2>
+		<p class="normalCase">
+		<iscomment>
+			<isif condition="${!empty(billingAddress)}">
+				<isprint value="${billingAddress.title}"/> <isprint value="${billingAddress.lastName}"/>
+			</isif>	
+		</iscomment>
+		<span><isprint value="${Resource.msg('confirmation.orderplaced','checkout',null)}" /></span><br />
+		<isprint value="${StringUtils.format(Resource.msg('confirmation.orderconfirmationmail','checkout',null),pdict.Order.getCustomerEmail())}" encoding="off"/>
+		</p>
+	</div>
+	
+	<div class="ocModule totalPaid">
+		<h3>
+			<span><isprint value="${Resource.msg('confirmation.orderhash','checkout',null)}" /><isprint value="${pdict.Order.currentOrderNo}" /></span>
+			<isprint value="${Resource.msg('confirmation.placedon','checkout',null)}" />
+			<span><isprint value="${pdict.Order.getCreationDate()}" /></span>
+		</h3>
+		<div class="ocMContent">
+			<isprint value="${Resource.msg('confirmation.totalpaid','checkout',null)}" /> <span><isprint value="${orderTotalValue}"/></span>
+		</div>
+	</div>
+
+ <isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh')) && !(dw.system.Site.getCurrent().getCustomPreferenceValue('disableLoginRegister')) }"> 	
+ 	<isif condition="${!(pdict.CurrentCustomer.registered)}">
+		<isinclude template="checkout/confirmation/confirmationregister.isml"/>
+	</isif>	
+</isif>
+					  
+	<isset name="ifConfirmationPage" value="${true}" scope="pdict" >
+	<isorderdetailscheckout order="${pdict.Order}"/>
+	
+	
+	
+	<div class="checkActions clearfix">
+		<div class="checkBackOrder">
+			<a class="button grey wide" onclick="printFunc()">
+				<span class="face front">${Resource.msg('confirmation.print','checkout',null)}</span>
+				<span class="face back">${Resource.msg('confirmation.print','checkout',null)}</span>
+			</a>
+		</div>
+		<div class="checkForward">
+			<isif condition="${!(pdict.CurrentCustomer.authenticated) && !empty(pdict.Order.custom.staticCategoryId)}">
+		<isscript>
+		var category=dw.catalog.CatalogMgr.getCategory(pdict.Order.custom.staticCategoryId);
+		</isscript>
+		
+				<a href="${URLUtils.http('Search-Show','cgid',category.ID)}" class="button">
+					<span class="face front">${Resource.msg('confirmation.continueshop','checkout',null)}</span>
+				<span class="face back">${Resource.msg('confirmation.continueshop','checkout',null)}</span>
+				</a>
+		<iselse>
+			<a href="${URLUtils.http('Home-Show')}" class="button">
+			<span class="face front">${Resource.msg('confirmation.continueshop','checkout',null)}</span>
+				<span class="face back">${Resource.msg('confirmation.continueshop','checkout',null)}</span>
+				</a>
+
+		</isif>
+		</div>
+	</div>
+</div>
+
+</isdecorate>
+

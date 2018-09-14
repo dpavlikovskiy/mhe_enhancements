@@ -1,0 +1,38 @@
+// =============================================================================
+// Helper mixins
+// =============================================================================
+
+
+// floats etc ------------------------------------------------------------------
+@mixin cl{clear:both;}
+@mixin fl{float:left;}
+@mixin fr{float:right;}
+@mixin centered{text-align:center;}
+@mixin centerelement{margin:0 auto;}
+
+.cl { @include cl(); }
+.fl { @include fl(); }
+.fr { @include fr(); }
+.centered { @include centered(); }
+
+@mixin clearfix {
+	@include legacy-pie-clearfix();
+}
+.clearfix { @include clearfix(); }
+
+
+// Hidden ---------------------------------------------------------------------
+@mixin visually-hidden{
+	position:absolute; left:-999em;
+}
+
+.visually-hidden { @include visually-hidden(); }
+
+
+// Placeholders ---------------------------------------------------------------------
+@mixin placeholder {
+  ::-webkit-input-placeholder {@content}
+  :-moz-placeholder           {@content}
+  ::-moz-placeholder          {@content}
+  :-ms-input-placeholder      {@content}  
+}

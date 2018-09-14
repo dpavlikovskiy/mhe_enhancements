@@ -1,0 +1,28 @@
+<div class="paymenttransaction_isml_container">
+<table cellspacing="0" cellpadding="0" class="orders_tab_expandand paymenttransaction">
+	<tr class="amount_paid">
+		<td class="label searchtable_row_left">Amount paid:</td>
+		<td class="value searchtable_row_right"><isprint value="${pdict.transaction.amount}"></td>
+	</tr>
+	<isif condition="${!empty(pdict.transaction.paymentProcessor)}">
+		<tr class="processor">
+	    	<td class="label searchtable_row_left">Payment Processor:</td>
+	        <td class="value searchtable_row_right"><isprint value="${pdict.transaction.paymentProcessor.getID()}"></td>
+		</tr>
+	</isif>
+	<isif condition="${!empty(pdict.transaction.transactionID)}">
+	    <tr class="transaction">
+	    	<td class="label searchtable_row_left">Transaction ID:</td>
+	        <td class="value searchtable_row_right"><div><isprint value="${pdict.transaction.transactionID}"></div></td>
+		</tr>
+	</isif>
+    <!---
+    <tr class="type">
+    	<td class="label">Type:</td>
+        <td class="value">${transac.type}</td>
+	</tr>
+	--->
+	
+<tr><td class="bottom_padding" colspan="2"><!-- SPACER --></td></tr>	
+</table>
+</div>

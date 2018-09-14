@@ -1,0 +1,125 @@
+/**
+*   @input ProductID : String
+*	@input CustomerEmail : String
+*	@input CsOnly : String
+*	@input ParamMap : dw.web.HttpParameterMap
+*
+*/
+
+importPackage( dw.util );
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.web );
+
+var EMAILS_ALLOWED_IN_ONE_CUSTOM_OBJECT : number = 119;
+function execute( pdict : PipelineDictionary ) : Number
+{	
+	var paramMap : HttpParameterMap = pdict.ParamMap;
+	var objId : String = pdict.ProductID;
+	var csOnly : String = pdict.CsOnly;
+    var customerEmail : String = pdict.CustomerEmail;
+	var riObj : dw.object.CustomObject = getCustomObjectToUpdate(objId,csOnly);	
+		
+	var salutation : String = null;
+	var title : String = null;
+	var name : String = null;
+	var surname : String = null;
+	var customerEmail : String = null;
+	var contactNumber : String = null;
+	var message : String = null;
+	
+	
+	if(null != paramMap.salutation){
+		salutation = paramMap.salutation.stringValue;
+	}
+	if(!empty(paramMap.title)){
+		title = paramMap.title.stringValue;
+	}else if(empty(paramMap.title)  && dw.system.Site.current.ID=="DESelection") {
+	title = " ";
+	}
+	if(null != paramMap.firstname){
+		name =paramMap.firstname.stringValue;
+	}
+	if(null != paramMap.lastname){
+		surname =  paramMap.lastname.stringValue;
+	}
+	if(null != paramMap.email){
+		customerEmail = paramMap.email.stringValue;
+	}
+	if(null != paramMap.dwfrm_reginterest_phone){
+		contactNumber = paramMap.dwfrm_reginterest_phone.value.toString();
+	}
+	if(null != paramMap.dwfrm_reginterest_message){
+		message = paramMap.dwfrm_reginterest_message.value;
+	}
+	
+
+	try {
+		 
+		 var emailList : List = new ArrayList(riObj.custom.emailIds);
+		 
+		var concateDetails : String = "";
+		if(salutation == null){
+			 concateDetails = title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}else if(title == null && dw.system.Site.current.ID!="DESelection" ){
+			concateDetails = salutation+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}else if(dw.system.Site.current.ID=="DESelection") {
+			concateDetails = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		
+		}else{
+		concateDetails = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}
+		
+		//var concateDetails : String = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		emailList.push(concateDetails);
+		 riObj.custom.emailIds = emailList;
+		 
+		
+		//var emailList : List = new ArrayList(riObj.custom.emailIds);
+		//emailList.push(customerEmail);
+		//riObj.custom.emailIds = emailList;
+				
+	} catch (e){
+		Logger.error("Error in Registering Interest for PID - " + objId + " :: Email Address - " + customerEmail + "\n Error Message - " + e.message);
+		var ss:String=e.message;
+		return PIPELET_ERROR;
+	}
+	return PIPELET_NEXT;
+}
+
+function getCustomObjectToUpdate(prodId: String,csOnly :String) : dw.object.CustomObject {
+	
+	var objType : String = "CO_KeepMeUpdated";	
+	if(csOnly =='true'){
+		var objType : String = "CO_CSOnlyProducts";	
+	}
+	var qry : String = "custom.prodId LIKE {0}";
+	var sort : String = "custom.prodId desc";
+	
+	var customObjItr : dw.util.SeekableIterator = dw.object.CustomObjectMgr.queryCustomObjects(objType, qry, sort, (prodId+"*"));
+	var customObj : dw.object.CustomObject = null;
+	var customObjCounter : Number = 1;
+	
+	try {
+		if (!customObjItr.hasNext()){
+			//Create New Custom Object
+			customObj = dw.object.CustomObjectMgr.createCustomObject(objType, prodId + "_" + customObjCounter);
+			return customObj;
+		} else {
+			//Get the Latest Custom IOject
+			customObjCounter = customObjItr.count+1;
+			customObj = customObjItr.first();		
+			var emailList : List = new ArrayList(customObj.custom.emailIds);
+			if (emailList.size() >= EMAILS_ALLOWED_IN_ONE_CUSTOM_OBJECT){
+				//Create New Custom Object
+				customObj = dw.object.CustomObjectMgr.createCustomObject(objType, prodId + "_" + customObjCounter);
+			}			
+			return customObj;			
+		}
+		
+	} catch (e){
+		Logger.error("Error in Finding/Creating Register Interest Custom Object for PID - " + prodId + "\n Error Message - " + e.message);
+		return customObj;
+	}	
+}

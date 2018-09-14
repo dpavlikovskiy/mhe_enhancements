@@ -1,0 +1,25 @@
+/**
+* Demandware Script File
+* Update custom attribute of PLI - engravingText from CurrentHttpParameterMap
+*  @input origPID: String
+*  @input productLineItem: dw.order.ProductLineItem
+ * @input msgMap:  dw.util.HashMap  
+ * @input pid:  String
+* 
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+function execute( pdict : PipelineDictionary ) : Number
+{
+    	 
+    	  var pli : ProductLineItem = pdict.productLineItem;
+		  if(pli.product.isOptionProduct()){
+		  if(pdict.origPID==pdict.pid){
+			 pli.custom.engravingMessageLine1= pdict.msgMap.get(pdict.pid).toString();	
+		  }else{
+		   pli.custom.engravingMessageLine1= pdict.msgMap.get(pdict.origPID).toString();	
+		  }
+		  }
+   return PIPELET_NEXT;
+}

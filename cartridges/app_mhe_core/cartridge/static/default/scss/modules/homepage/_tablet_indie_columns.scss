@@ -1,0 +1,58 @@
+.mobile-tablet {
+	height: 100%;
+
+	body,
+	.homepage-wrapper,
+	.main,
+	.homepage-indie-cols {
+		height: 100%;
+	}
+	.row .col {
+		width: 33.3333333%; // LEAVES AN ANNOYING GAP ON COL-02
+        height: 100%;
+        float: left;
+        overflow: hidden;
+		.js-col-inner {
+			width: 103.75%; /* - This works in Chrome - */
+            height: 100%;
+            overflow-y: scroll;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* - Adds naitve scrolling type bounce to iOS devices - */
+		}
+		.hero_banner {
+			overflow: hidden;
+			.banner {
+				position: relative;
+			}
+		}
+		&.col-01 {
+			.hero_banner {
+				margin-left: 0;
+				.banner {
+					margin-left: 0;
+				}
+			}
+		}
+		&.col-02 {
+			.hero_banner {
+				margin-left: 0;
+				.banner {
+					margin-left: -100%;
+				}
+				.hero_promo {
+					left: 0;
+				}
+			}
+		}
+		&.col-03 {
+			.hero_banner {
+				margin-left: 0;
+				.banner {
+					margin-left: -200%;
+				}
+			}
+		}
+	}
+
+}

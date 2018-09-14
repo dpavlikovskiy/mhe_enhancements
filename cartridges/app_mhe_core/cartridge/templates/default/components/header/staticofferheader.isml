@@ -1,0 +1,36 @@
+<!--- TEMPLATENAME: staticofferheader.isml --->
+<iscache type="relative" hour="24"/>
+<isinclude template="util/modules"/>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+	importScript("util/DisImageSO.ds");
+</isscript>
+<div id="header" class="header" role="banner">
+	<header>
+		
+	<isif condition="${!empty(pdict.CurrentHttpParameterMap.slpPageName) && (pdict.CurrentHttpParameterMap.slpPageName!='StaticSeasonalPage')}">
+		<div class="social-links">
+	    	<iscontentasset aid="social-networking-links">
+	    </div>
+	 </isif>   	
+	    <div class="header_right static-cart">
+			<iscomment>INCLUDE: Mini-cart, do not cache</iscomment>
+		  	<div id="mini-cart" class="mini-cart">
+		    	<isinclude url="${URLUtils.url('Cart-MiniCart')}"/>
+		    </div>
+		</div>
+	
+		<div class="static-logo" id="headerLogo">
+			<h1>
+				<a href="${URLUtils.url('Search-Show','cgid',pdict.category.ID)}">
+					<isset name="image1" value="${ new DisImage('staticofferbrandlogo', pdict.category.getThumbnail()) }" scope="page" />
+					<img src="${image1.getURL()}" alt="${pdict.category.ID}" class="logo" />
+					<iscomment>
+					<img src="${pdict.category.thumbnail.URL}" alt="${pdict.category.displayName}" class="logo" />
+					</iscomment>
+				</a>
+			</h1>
+		</div>
+		
+	</header>
+</div><!-- /header -->

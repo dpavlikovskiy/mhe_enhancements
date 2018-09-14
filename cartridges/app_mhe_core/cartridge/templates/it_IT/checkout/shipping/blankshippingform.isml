@@ -1,0 +1,37 @@
+<!--- TEMPLATENAME: blankshippingForm.isml --->
+<isinclude template="util/modules"/>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.addressName}" type="input" attribute1="placeholder" value1="${Resource.msg('addressname.placeholder','checkout',null)}"  />
+<iscomment>Add address to Address Book</iscomment>
+<isif condition="${pdict.CurrentCustomer.authenticated}">
+	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addToAddressBook}" type="checkbox"  attribute1="checked" value1="checked"   rowclass="form-indent checkBox label-inline"/>
+</isif>
+<!--title deleted-->
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.firstName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.firstname.missing','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.lastName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.lastname.missing','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.companyName}" type="input" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.states.state}" type="select" requiredtext="${Resource.msg('forms.address.state.missing','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address1}" type="input"  requiredtext="${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address2}" type="input"  rowclass="hideOptionalText" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.country}" type="hidden"  />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.zip}" type="input" xhtmlclass="postcode-input" requiredtext="${Resource.msg('forms.errorzip','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.city}" type="input" requiredtext="${Resource.msg('forms.address.city.missing','forms',null)}" />
+
+<div class="form-row plainText"> <label>${Resource.msg('forms.country','forms',null)}:</label> 
+<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+  <isprint value="${country.getDisplayValue()}"/> 
+  <isbreak />		 
+  </isloop>
+</div>
+<div class="form-field-tooltip">
+  <span class="tooltip left">
+  	<span class="ptIcon"></span>
+  	<div class="tooltip-content">${Resource.msg('tooltip.country','forms',null)}</div>
+  </span>
+</div>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.phone}" type="input" xhtmlclass="phone-input" requiredtext="${Resource.msg('forms.address.phone.missing','forms',null)}"/>
+<div class="form-field-tooltip">
+  <span class="tooltip left">
+  	<span class="ptIcon"></span>
+  	<div class="tooltip-content">${Resource.msg('tooltip.phone','forms',null)}</div>
+  </span>
+</div>

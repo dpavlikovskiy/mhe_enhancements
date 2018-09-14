@@ -1,0 +1,57 @@
+/**
+ * SetDefaultAddress.ds
+ *
+ * This script sets the default address for the customer addressbook.
+ *
+ *
+ * @input CurrentCustomer : dw.customer.Customer
+ * @input fiscalCode : dw.web.FormField
+ * @input vatNumber : dw.web.FormField
+ * @input companyName : dw.web.FormField
+ */
+ 
+importPackage( dw.customer );
+importPackage( dw.system );
+importPackage(dw.util);
+
+function execute( args : PipelineDictionary ) : Number
+{
+
+	var customer : Customer = args.CurrentCustomer;
+	var addressBook : AddressBook = customer.profile.addressBook;
+	var addressList: List =addressBook.getAddresses();
+	var company=args.companyName;
+	var validcode: Boolean=true;
+    if(!empty(args.fiscalCode.value)){
+	    var addIterator: Iterator =addressList.iterator();
+	    while(addIterator.hasNext()){
+		    var address:CustomerAddress =addIterator.next();
+		    if(address.custom.addressType=="billing" && "fiscalCode" in address.custom && args.fiscalCode.value.toString().equalsIgnoreCase(address.custom.fiscalCode)){
+			    validcode=false;
+			    args.fiscalCode.invalidateFormElement();
+		    }
+	    
+	    }
+    } else if(!empty(args.vatNumber.value)){
+	    var addIterator: Iterator =addressList.iterator();
+	    if(empty(company.value)){
+		          validcode=false;;
+		          args.companyName.invalidateFormElement();
+		   }
+	    while(addIterator.hasNext()){
+		    var address:CustomerAddress =addIterator.next();
+		    if(address.custom.addressType=="billing" && "vatNumber" in address.custom && args.vatNumber.value.toString().equalsIgnoreCase(address.custom.vatNumber)){
+			    validcode=false;
+			    args.vatNumber.invalidateFormElement();
+		    }
+	    }
+	     
+    }
+    
+    if(!validcode){
+		
+		return PIPELET_ERROR;
+	}
+	
+	  return PIPELET_NEXT;
+}

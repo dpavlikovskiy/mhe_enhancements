@@ -1,0 +1,125 @@
+.header {
+	background-color: $white;
+	.highlighted {
+		color:$brandcolor;
+	}
+	.newsletter-cont{
+		border-right: 1px solid $headerDivider;
+	}
+	a{
+		color:$darkblack;
+		&:visited, &:hover, &:focus { color:$darkblack; }
+	}
+	.logo_header{
+		padding:5px 4px 0px 0px;
+		display:inline-block;
+		float:left;
+		h1 {
+    		font-size: 16px;
+			}
+		img{
+			width:145px;
+		}
+	} 
+	header{
+		.header-right{	 
+		}
+		.side-module {
+	 	 	li{
+	 	 		.textSearch{
+   					background: url("images/ad-dog.png") no-repeat scroll -2px -2px rgba(0, 0, 0, 0);
+    				height: 40px;
+    				margin-top: -10px;
+    				padding-left: 40px;
+	 	 		}
+	 	 	}		
+	 	 }
+	}
+}
+#wrapper.pt_customer-service {
+    background: none repeat scroll 0 0 transparent;
+}
+.help-faq-cont {
+	.footerlinks_title {
+		margin-top: 40px;
+		margin-bottom: 65px;
+			h1 {
+			font-size: 40px;
+			margin-bottom: 5px;
+			color: $brandcolor;
+		}
+	}
+	.footerlinks_header {
+		background-color: $white;
+		padding: 10px 20px 0px 20px;
+	}
+
+	.footerlinks_left_nav {
+		ul li {
+			a {
+				color: $lightergrey;
+				&:hover,
+				&:focus,
+				&.active {
+					color: $brandcolor;
+				}
+			}
+		}
+	}
+
+}
+
+.footerlinks_right_content {
+		float: left;
+		width: 420px;
+		font-size: 15px;
+		padding-left: 50px;
+		border-left: 1px solid $border_dark;
+		min-height: 450px;
+		h3 {
+			margin-bottom: 35px;
+			color: $brandcolor;
+		}
+	}
+
+.followus-footer{
+	background: url("images/ad-dog.png") no-repeat scroll 95px 0px rgba(0, 0, 0, 0);
+	height: 40px;
+	padding-left: 40px;
+}
+
+
+.navigation{
+	padding-top:10px;
+	float:left;
+	li{
+		a{
+			
+		}
+	}
+}
+.pt_checkout{
+	.logo_header{
+		background:$white;
+	}
+}
+
+.pt_product-details {
+	.header {
+		background-color: $white;
+	}
+}
+.ie8{
+	.pt_product-details .header{
+		background: url(img/common/ie8-header-fade.png);
+	}
+}
+
+
+#header header .menu-utility-user.side-module {
+  margin: 0px 0 0 0; 
+  li:first-child{
+  	border-right:medium none;
+  }
+}
+

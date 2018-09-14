@@ -1,0 +1,83 @@
+/**
+* CreateReversal.ds
+* Performs the reversal service on provided input parameters authId and purchase object.
+*
+* @input Order : dw.order.LineItemCtnr
+*
+* @output SubscriptionIDToken :String
+* @output Decision :String
+* @output InvalidField : Array;
+* @output MissingField : Array
+* @output ReasonCode : Object
+* @output RequestID : Object
+* @output RequestToken : Object
+* @output StatusMessage : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.rpc );
+importPackage( dw.util );
+importPackage( dw.value);
+
+importScript('cybersource/libCybersource.ds');
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+   // read pipeline dictionary input parameter
+    var order : Order = pdict.Order;
+    
+   	if(order.getPaymentInstruments(PaymentInstrument.METHOD_CREDIT_CARD).empty)
+   	{
+   		pdict.StatusMessage="Error in ProvideReversal flow.PaymentInstrument. METHOD_CREDIT_CARD is empty for a particular order " +order.getCurrentOrderNo().toString();
+		return PIPELET_ERROR;
+   	}
+    	
+	var CybersourceHelper = getCybersourceHelper();
+		
+	var csReference : WebReference = webreferences.CyberSourceTransaction;
+	var service : Stub = csReference.getService("TransactionProcessor", "portXML");
+	
+	CybersourceHelper.setEndpoint(service);
+	
+	if(!CybersourceHelper.createHeader(service)){
+		return null;
+	}
+
+	var request = new csReference.RequestMessage();
+
+	CybersourceHelper.addCCReversalRequestInfo(request, order);
+	
+	var response = null;
+	// send request
+	try{
+		response = service.runTransaction(request);
+		Logger.error("[libCybersource.ds] Refund response --- ( {0} )",response);		
+	}catch(e){
+		Logger.error("[libCybersource.ds] Error in Reversal (Refund) request ( {0} )",e.message);
+		pdict.StatusMessage="[libCybersource.ds] Error in Reversal (Refund) request "+ e.message;
+		return PIPELET_ERROR;
+	}
+	
+	if(response == null){
+		pdict.StatusMessage="Error in Reversal (Refund) request . Response is null";
+		return PIPELET_ERROR;
+	}
+	else
+	{
+		if ( null != response.paySubscriptionCreateReply)
+		{
+			pdict.SubscriptionIDToken = response.paySubscriptionCreateReply.subscriptionID;
+		}
+		pdict.Decision = response.decision;
+		pdict.InvalidField = response.invalidField;
+		pdict.MissingField = response.missingField;
+		pdict.ReasonCode = response.reasonCode;
+		pdict.RequestID = response.requestID;
+		pdict.RequestToken = response.requestToken;
+	}
+	return PIPELET_NEXT;
+}
+

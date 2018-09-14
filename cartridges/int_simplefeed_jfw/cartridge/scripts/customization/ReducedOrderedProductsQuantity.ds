@@ -1,0 +1,100 @@
+/**
+* Demandware Script File
+* Update ordered products inventory allocation in InventoryList
+*
+*    @input LastProcessedFileTimestamp : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.catalog );
+importPackage( dw.util );
+importPackage( dw.value );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	
+	//get snap shot time from system object
+     var  snapShotDateTime:Date =null;
+	//query orders greater than last processed file time 
+	try{
+		/*
+		snapShotDateTime=ProductInventoryMgr.getInventoryList().custom.snapShotDateTime;
+		var query : String = "creationDate > {0}";
+		var orderIterator : SeekableIterator = OrderMgr.queryOrders(query, "orderNo asc", snapShotDateTime);
+		//Iterate all order product line items 
+		var orderHashMap : HashMap = new HashMap();
+		var order : Order = null;
+		var productLineItems : Iterator=null;
+		if (!empty(orderIterator))
+		{
+			while (orderIterator.hasNext())				
+			{
+				order = orderIterator.next();
+			    productLineItems = order.getAllProductLineItems().iterator();
+			 
+				while(productLineItems.hasNext())
+				{
+					//find quantity ordered
+					var productLineItem : ProductLineItem = productLineItems.next();					
+				    if(!productStockUpdate(productLineItem.getProduct(), productLineItem.getQuantity()))
+				    {
+				    	Logger.error("Something went wrong while updating inventory for product id: "+productLineItem.productID+" while executing order number: "+order.orderNo+" in "+Site.current.ID);
+				    }
+				}
+			}
+		}
+	  */
+	}catch(ex){
+		cvLogger.error( "Error in retriving order after import."+ ex.message );	
+	    cvLogger.error( "Please check order details after : "+ snapShotDateTime );	
+		return PIPELET_ERROR;
+	}
+ 
+    return PIPELET_NEXT;
+  }
+
+	//subtract quantity ordered from product quantity
+	//Update latest quantity in product 
+  	//update latest stock data in product
+   function  productStockUpdate(product:Product,productQuantity:Number) : Boolean{
+   	
+   		 if(product!=null && product.getAvailabilityModel()!=null && product.getAvailabilityModel().getInventoryRecord()!=null)
+   		{   		
+			 var availabilityModel:ProductAvailabilityModel= product.getAvailabilityModel();
+			 var invRecord:ProductInventoryRecord= availabilityModel.getInventoryRecord();
+			 //reduce preorder qunatity allocation
+			 if (availabilityModel.availabilityStatus.equals(ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER)) {
+			 	var preOrderQty:Quantity =invRecord.getPreorderBackorderAllocation();
+			 	if(preOrderQty!=null){
+				 	var newQty:Number = preOrderQty.getValue() - productQuantity;
+				 	if(newQty>=0){   
+					  invRecord.setPreorderBackorderAllocation(newQty);
+					}else{
+					  invRecord.setPreorderBackorderAllocation(0);
+				 	}
+			 	}
+			 } else {
+			 	//reduce allocation quantity
+				var quantity:Quantity =invRecord.getAllocation();
+			 	if(quantity!=null){
+			 	var allocationQuantity:Number=quantity.getValue();
+				var newQty:Number =allocationQuantity - productQuantity;
+					if(allocationQuantity>=0){   
+					  invRecord.setAllocation(newQty);
+					}else{
+					 invRecord.setAllocation(0);
+					}
+			 	}
+		  	}
+		  	return true;
+   		}
+   		else{
+   			return false;
+   			}
+   }
+
+
+ 

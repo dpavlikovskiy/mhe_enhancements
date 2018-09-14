@@ -1,0 +1,100 @@
+<certification>
+	<cartridgeInfo>
+		<name>PayPal</name>
+		<version>2.2.0</version>
+		<implementer>PDS</implementer>
+	</cartridgeInfo>
+	<certificationInfo>
+		<certificationID>145</certificationID>
+		<certifiedby>
+			Brian LeBlanc
+		</certifiedby>
+		<date>
+			10/29/2013
+		</date>
+		<platform>
+			<version>13.5</version>
+			<storefront>13.5</storefront>
+		</platform>
+		<usecases>
+			<usecase>
+				<description>
+					cart page checkout through paypal (not logged-in)
+				</description>
+				<steps>
+					1. add item to cart
+					2. go to cart page
+					3. click checkout by PayPal button
+					4. go through paypal checkout flow 
+					5. submit order 
+					6. verify payment method on the order confirmation page and the order confirmation email 
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					regular checkout flow (not logged in)
+				</description>
+				<steps>
+					1. add item to cart
+					2. go to cart page
+					3. click checkout 
+					4. enter shipping address
+					5. enter billing address
+					6. select payment method paypal click continue
+					7. go through paypal checkout flow 
+					8. submit order 
+					9. verify payment method on the order confirmation page and the order confirmation email 
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					cart page checkout through paypal (logged-in)
+				</description>
+				<steps>
+					1. add item to cart
+					2. go to cart page
+					3. log-in
+					4. enter shipping address
+					5. enter billing address
+					6. select payment method paypal click continue
+					7. go through paypal checkout flow 
+					8. submit order 
+					9. verify payment method on the order confirmation page and the order confirmation email 
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					check order history for payment details
+				</description>
+				<steps>
+					1. log-in
+					2. go to my orders
+					3. verify payment method 
+				</steps>
+			</usecase>	
+			<usecase>
+				<description>
+					edit payment method on place order page
+				</description>
+				<steps>
+					1. click edit payment
+					2. select payment method paypal click continue
+					3. go through paypal checkout flow 
+					4. submit order 
+					5. verify payment method on the order confirmation page and the order confirmation email 
+				</steps>
+			</usecase>
+			<usecase>
+				<description>Bill me later</description>
+				<steps>
+					1.  Add items to the cart
+					2.  Choose "bill me later" from the cart page
+					3.  You should be redirected to a page served by paypal
+					4.  Complete the steps on the paypal hosted page and return to the merchant's site
+					5.  Provide shipping information on the Demandware hosted page
+					6.  Click submit and the order should be created
+				</steps>
+			</usecase>
+		</usecases>
+	</certificationInfo>
+</certification>

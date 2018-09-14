@@ -1,0 +1,17 @@
+<isif condition="${!(pdict.errorFlag)}">
+	
+	<div>
+	<form id="ConfSubmit"  method="post">
+		<iscontentasset aid="ca_conf_registration_success_gb"/>
+		<div>
+		 <ul><li><a class="button" href="${URLUtils.https('Order-History')}">
+			 <span class="face becomeMemberbutton front">${Resource.msg('orderdetailsemail.viewaccount','components',null)}</span>
+			 <span class="face becomeMemberbutton back">${Resource.msg('orderdetailsemail.viewaccount','components',null)}</span>
+		 	</a>
+		 </li><ul>
+		</div>
+	</form>
+	</div>
+<iselse>
+		<iscontentasset aid="ca_conf_registration_failure_gb"/>
+</isif>

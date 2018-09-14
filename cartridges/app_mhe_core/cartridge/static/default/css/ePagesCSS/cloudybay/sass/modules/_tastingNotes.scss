@@ -1,0 +1,139 @@
+.pdp-section-tabs {
+	
+	.ui-tabs {
+		height : 600px;
+		.ui-tabs-nav {
+			padding-bottom : 55px;
+		}
+		
+		.ui-tabs-panel {
+			padding : 0px;
+		}
+	}
+	
+	.tab {
+		a {
+			color: $tastingNotesRollOverText;
+			font: $small_text $titleFont;
+			font-weight : $bold;
+			text-transform: none;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $brandcolor;
+				border-bottom: $brandcolor 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+		
+			.col-detail {
+				&.col {
+					margin-top:100px;
+					float: right;
+					margin-right: 100px;
+				}
+				p {
+					margin-bottom : 30px;
+					font-size :$small_text;
+					font-weight:$regular;
+					font-family:$titleHeadingFont;
+				}
+			}
+			
+			.col-hero {
+				&.col {
+					width : auto;
+				}
+				.col-inner {
+					min-width : 500px;
+					img {
+						margin: 0;
+						max-height: 500px;
+						max-width: 638px;
+						bottom: 0;
+						position: absolute;
+						left: 0;
+						min-width: 638px;
+					}
+					.credit {
+						padding:0 45px 20px 15px;
+					}
+				}
+			}
+		}
+		.col-hero {
+			margin : 0px;
+			.col-inner {
+				.credit {
+					padding:0 45px 20px 15px;
+				}
+			}
+		}
+		h2 {
+			color: $brandcolor;
+			font: $title_text $titleFont;
+			letter-spacing: 0px;
+			font-weight:$light;
+		}
+		h3 {
+			color: $brandcolor;
+			font: $very_small_text $titleFont;
+		}
+		.gamma-heading {
+			color: $brandBg;
+			font: $stand_first $titleFont;
+			text-transform: none;
+			padding-bottom:20px;
+		}
+		p {
+			color: $brandBg;
+			font: $small_text $regularFont;
+		}
+		&.characteristics {
+			.characteristic-list {
+				padding-top:10px;
+			}
+			
+			.cta-wrap {
+				.button {
+					background:$tastingNotesBg;
+					border : 0px solid $brandcolor;
+					font:$smaller_heading $regularFont;
+					.face {
+						color:$white;
+						border:none;
+						font-weight:normal;
+						font-size: $small_text;
+						font-family: $titleFont;
+						&.back {
+							color:$white;
+						}
+					}
+				}
+			}
+			p {
+				font: $small_text $titleHeadingFont;
+			}
+		}
+		&.award {
+			p {
+				font: Italic $small_text $regularFont;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $darkBrownText !important;
+			}
+			&:after {
+				color: $darkBrownText !important;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

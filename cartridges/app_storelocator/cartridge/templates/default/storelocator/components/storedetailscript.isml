@@ -1,0 +1,45 @@
+<!--- TEMPLATENAME: googlescript.isml --->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+	
+<script type="text/javascript"
+    src="http://maps.google.com/maps/api/js?sensor=false">
+</script>
+
+<script type="text/javascript"
+    src="${URLUtils.staticURL('/js/storedetails.js')}">
+</script>
+
+<iscomment>
+The script block below loads several server dependent variables
+and uses them to initialize the google map storelocator 
+</iscomment>
+
+<script language="Javascript" type="text/javascript">
+//<![CDATA[
+                      
+var zoomradius		= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorZoomRadius")}" encoding="off">';           
+var storeurl		= '<isprint value="${URLUtils.url("Stores-Details") + "?StoreID="}">';
+var lodgeurl 		= '<isprint value="${URLUtils.absStatic("images/lodge.png")}">';
+var barurl 			= '<isprint value="${URLUtils.absStatic("images/bar.png")}">';
+var resturl 		= '<isprint value="${URLUtils.absStatic("images/restaurant.png")}">';
+var shoprurl 		= '<isprint value="${URLUtils.absStatic("images/shop.png")}">';
+var queryurl 		= '<isprint value="${URLUtils.url("Stores-GetNearestStores")}">';
+var cookieurl		= '<isprint value="${URLUtils.url("Stores-SetGeoLocation")}">';
+var cookiename		= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorCookieName")}">';
+var defaultlocation	= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorDefaultCountry")}">';
+var maptype			= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorMapType").value}">';
+var serachrefineurl	= '<isprint value="${URLUtils.url("Stores-GetNearestStores")}">';
+var latitude		= '<isprint value="${pdict.Store.latitude}">';
+var longitude		= '<isprint value="${pdict.Store.longitude}">';
+var name			= '<isprint value="${pdict.Store.name}">';
+var address			= '<isprint value="${pdict.Store.address1}">';
+var city			= '<isprint value="${pdict.Store.city}">';
+var state			= '<isprint value="${pdict.Store.state}">';
+
+jQuery(document).ready(function(){
+	StoreDetail.init(zoomradius, storeurl, lodgeurl, queryurl, cookieurl, cookiename, defaultlocation, maptype,serachrefineurl,barurl,resturl,shoprurl,latitude,longitude,name,
+			address,city,state);
+});
+
+//]]>
+</script><!--- TEMPLATENAME: storedetailscript.isml --->

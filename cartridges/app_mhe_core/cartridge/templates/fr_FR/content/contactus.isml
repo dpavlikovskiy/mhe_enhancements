@@ -1,0 +1,96 @@
+<isdecorate template="content/pt_customerservice">
+
+<isinclude template="util/modules"/>
+
+<iscomment>Site Dev- To align the content assets as per the VD</iscomment>
+
+<iscontentasset aid="CA_ContactUsBg"/> 
+
+<div class="contact_container">
+
+	<div class="contact_top">
+		<iscontentasset aid="CA_ContactUsTop"/>
+		<span class="dot"></span>
+	</div>
+	
+	<div class="contact_section clearfix">
+		<div class="contact_details">
+			<iscontentasset aid="CA_ContactUs_section"/>
+			<iscontentasset aid="CA_ContactUsAddress"/>
+		</div>
+			
+		<isif condition="${!empty(pdict.ConfirmationMessage)}">
+			
+		<div class="confirmation-message">
+			<iscontentasset aid="CA_ContactUsThanks"/>
+		</div>
+			
+		<iselse>
+			
+		<div class="contact_form" id="js-contact-form">
+			<form action="${URLUtils.httpsContinue()}" method="post" id="ContactUsForm">
+			<h3 class="secondary"><isprint value="${Resource.msg('forms.contactus.header','forms',null)}" /></h3>
+				<fieldset>
+					<isscript>
+							importScript('checkout/Utils.ds');
+							var salutationMap : dw.util.Map = getSalutationMap();						
+					</isscript>
+					<div class="form-row required " data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+						<select id="${pdict.CurrentForms.contactus.salutation.htmlName}" name="${pdict.CurrentForms.contactus.salutation.htmlName}" class="input-text required">
+							<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+							<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.contactus.salutation.htmlValue.equals(salutationMap.get(key))}">							 
+						 			<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+								<iselse>
+									<option value="${key}">${salutationMap.get(key)}</option>
+								</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+					<isinputfield formfield="${pdict.CurrentForms.contactus.firstname}" type="input" attribute1="placeholder" value1="${Resource.msg('profile.firstname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}"/>
+					
+					<isinputfield formfield="${pdict.CurrentForms.contactus.lastname}" type="input" attribute1="placeholder" value1="${Resource.msg('profile.lastname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"/>
+					
+					<isinputfield formfield="${pdict.CurrentForms.contactus.email}"  xhtmlclass="email-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" />
+					
+					<iscomment>	<isinputfield formfield="${pdict.CurrentForms.contactus.phone}" type="input"/> </iscomment>
+					
+					<iscomment>	<isinputfield formfield="${pdict.CurrentForms.contactus.ordernumber}" type="input"/> </iscomment>
+					
+					<iscomment>Site Dev- To do the formatting of select options as per VD</iscomment>				
+					<div class="form-row  required " data-required-text="${Resource.msg('forms.contactus.query.missing-error','forms',null)}">
+					<label><isprint value="${Resource.msg('forms.contactus.enquiry','forms',null)}" /></label>
+						<select id="${pdict.CurrentForms.contactus.myquestion.htmlName}" name="${pdict.CurrentForms.contactus.myquestion.htmlName}" class="input-text required ">
+							<option value="" disabled selected><isprint value="${Resource.msg('forms.contactus.enquiry','forms',null)}" /></option>	
+							<isif condition="${!empty(pdict.CurrentForms.contactus.orderlist)}">
+								<option value=" " disabled><isprint value="${Resource.msg('forms.contactus.recentorder','forms',null)}" /></option>	
+							<isloop items="${pdict.CurrentForms.contactus.orderlist}" var="order" >
+								<option value="${Resource.msg('forms.contactus.order','forms',null)} ${order.object.orderNo}"><isprint value="${Resource.msg('forms.contactus.order','forms',null)}" />${order.object.orderNo} | <isprint value="${order.object.totalGrossPrice}"/></option>
+							</isloop>
+								<option value=" " disabled><isprint value="${Resource.msg('forms.contactus.somethingelse','forms',null)}" /></option>
+							</isif>	
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('contactusqueries')}" var="options" status="loopstatus">	
+								<option value="${options}">${options}</option>                     				
+							</isloop>
+						</select>
+					</div>
+				
+					<iscomment>Site Dev- To add the Javascript counter functionality</iscomment>
+					<isinputfield label="false" attribute1="rows" value1="10" attribute2="cols" value2="50" attribute3="placeholder" value3="${Resource.msg('forms.contactus.message.placeholder','forms',null)}" formfield="${pdict.CurrentForms.contactus.comment}" type="textarea" />
+					<span class="remaining"></span>
+					<div class="form-row form-row-button">
+						<button id="sendBtn" type="submit" class="button trans" value="${Resource.msg('global.send','locale',null)}" name="${pdict.CurrentForms.contactus.send.htmlName}">
+							<span class="face front">${Resource.msg('global.send','locale',null)}</span>
+							<span class="face back">${Resource.msg('global.send','locale',null)}</span>
+						</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+	
+</div>
+		
+</isif>
+
+</isdecorate>

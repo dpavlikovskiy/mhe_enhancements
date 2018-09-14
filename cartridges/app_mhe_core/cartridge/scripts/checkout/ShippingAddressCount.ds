@@ -1,0 +1,42 @@
+/**
+* Demandware Script File
+* To count shipping address
+*
+*    @input  CurrentCustomer : dw.customer.Customer
+*    @input  AddressType : String
+*    @output ShippingAddressList : dw.util.List
+*    @output BillingAddressCount : Number
+*    @output addressID : String
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage(dw.web);
+function execute( pdict : PipelineDictionary ) : Number
+{
+     var siteId : String = dw.system.Site.getCurrent().ID;
+     var addressID : String = null;
+     var billingAddressSize : Number = 0;
+	 if(dw.web.Resource.msg('global.fiscalCheckFlag','locale', null).equals("true")){
+		try{
+	      var deliveryAddressList:dw.util.ArrayList=new dw.util.ArrayList();
+		  var dlist : dw.util.List=pdict.CurrentCustomer.profile.addressBook.addresses;
+		  var addIterator:dw.util.Iterator =dlist.iterator();
+		    while(addIterator.hasNext()){
+			    var address:dw.customer.CustomerAddress =addIterator.next();
+			    if(pdict.AddressType=='shipping' && (empty(address.custom.addressType) || address.custom.addressType !="billing") ){
+			       deliveryAddressList.add(address);
+			    }else if(pdict.AddressType=='billing' && address.custom.addressType==pdict.AddressType){
+			    	billingAddressSize=billingAddressSize+1;
+			    	addressID=address.ID;
+			    	break;
+			    }
+		}
+	    pdict.ShippingAddressList=deliveryAddressList;
+	    pdict.BillingAddressCount=billingAddressSize;
+	    pdict.addressID=addressID;
+		}catch(e){
+		var e:String=e.message;
+		}
+	}
+   return PIPELET_NEXT;
+}

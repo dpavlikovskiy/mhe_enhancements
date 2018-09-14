@@ -1,0 +1,100 @@
+
+<isinclude template="util/modules"/>
+
+<iscomment>Report this checkout step</iscomment>
+
+
+<div class="confirmLogin">
+	<div class="cLogo"><img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" class="logo" /></div>
+	<div class="greet"><span>,</span> <iscontentasset aid="loginGreeting"/></div>
+	<div id="error" class="error-form error" style="display:none;">${Resource.msg('logininclude.loginerror','account',null)}</div>
+	<form action="${URLUtils.httpsContinue()}" method="post" id="loginformid"  class="clearfix" name="${pdict.CurrentForms.login.htmlName}">
+		<isinputfield formfield="${pdict.CurrentForms.login.username}"  type="input" xhtmlclass="email-input" p_dynamic="true" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhusername','forms',null)}" />
+		<isinputfield formfield="${pdict.CurrentForms.login.password}" type="password" xhtmlclass="input-text-pw" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+		<isinputfield formfield="${pdict.CurrentForms.login.birthday}" type="input" xhtmlclass="date-input of-legal-age" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.dateofbirth','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+		<iscontentasset aid="over18text"/>
+		<div class="form-row form-row-button">
+		<isinputfield formfield="${pdict.CurrentForms.login.rememberme}" type="checkbox" rowclass="label-inline wrapper-checkbox" />
+			<button id="loginsubmit" class="button" type="button" value="${Resource.msg('global.confirm','locale',null)}" name="${pdict.CurrentForms.login.login.htmlName}">
+				<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+			<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+			</button>
+		</div> 
+		<div class="form-caption box600">
+	 	<iscontentasset aid="termsAndConditions"/>
+		<p class="small_text trouble-shooter">
+			<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh'))}">
+				<a href="" class="ajaxData" data-href="${URLUtils.url('Account-PasswordReset')}">
+				<isprint value="${Resource.msg('loginpage.problem.message','account',null)}"/></a></p>
+			<iselse>
+				<a href="${URLUtils.url('Account-PasswordReset')}">
+				<isprint value="${Resource.msg('loginpage.problem.message','account',null)}"/></a></p>
+			</isif>			
+	</div>
+		<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+		<input type="hidden" name="validAge" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('validAge')}"/>
+	</form>
+</div>
+
+<script>
+$(document).ready(function(){
+	
+	var d = new Date();
+    var time = d.getHours();
+    var $greet = $(".greet");
+    if (time >= 0 && time <= 11){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.morning','account',null)}");
+    }
+    else if (time >= 12 && time <= 17){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+    }
+    else{
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.evening','account',null)}");
+    };
+    
+    $greet.addClass("greet-visible");
+      
+	var loginform = $("#loginformid");
+	//alert(loginform);
+	
+	    loginform.on("click", "#loginsubmit", function(e) {
+	    //alert('hiii');
+	    
+		var url = app.util.appendParamsToUrl(loginform.attr('action'),{format:"ajax"});
+		var applyName = loginform.find('#loginsubmit').attr('name');
+		var options = {
+			url: url,
+			data: loginform.serialize()+"&"+applyName+'=x',
+			type: "POST",
+			dataType:"json"
+		};
+		
+		var $thisFormError = loginform.find(".form-row-error");
+		
+		if($thisFormError.length === 0){
+	    	e.preventDefault();
+	    	
+	    	
+		 $.ajax( options ).done(function(data){
+
+			   if(data.success){
+				   if(data.redirect == "orderhistory"){
+					   app.page.redirect(app.urls.orderhistoryRedirect);
+				     }else if(data.redirect == "wallet"){
+					   app.page.redirect(app.urls.paymentInstRedirect);
+				     }else if(data.redirect == "addressbook"){
+					   app.page.redirect(app.urls.addressBookRedirect);
+				     }else if(data.redirect == "profile"){
+					   app.page.redirect(app.urls.profileRedirect);
+				     }else{
+					   app.page.redirect(app.urls.shippingAuthentication);
+				     }
+					
+			   }else{
+				  $("#error").show();
+			   }
+			});
+		}
+	});	
+});	
+</script>

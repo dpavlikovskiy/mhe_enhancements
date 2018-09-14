@@ -1,0 +1,33 @@
+/**
+ * @input Folder : String
+ * @input InFolders : Array
+ * @output OutFolders : Array
+ */
+
+importPackage( dw.io );
+importPackage( dw.system );
+importPackage( dw.util );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var folder : String = args.Folder;
+	var inFolders : Array = args.InFolders;
+	
+	var folderFile : File = new File( File.IMPEX + "/src/" + folder );
+	var subFolders : Collection = folderFile.listFiles();
+	
+	var outFolders : Array = [];
+	for each( var inFolder : String in inFolders ) {
+		outFolders.push( inFolder );
+	}
+	
+	for each( var subFolder : File in subFolders ) {
+		if( !subFolder.directory ) {
+			continue;
+		}
+		outFolders.push( folder + File.SEPARATOR + subFolder.name ); 		
+	}
+	
+	args.OutFolders = outFolders;
+	return PIPELET_NEXT;
+}

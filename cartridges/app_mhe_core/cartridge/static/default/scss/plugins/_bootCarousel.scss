@@ -1,0 +1,218 @@
+// =============================================================================
+// Standard Carousel
+// =============================================================================
+.bootCaro {
+	width:1280px;
+	overflow:hidden;
+	margin:auto;
+	height:550px;
+	position: relative;
+	.bootCaro-inner {
+		position: relative;
+		width: 100%;
+		overflow: hidden;
+		> {
+			.item {
+			    position: relative;
+			    display: none;
+			    @include transition(0.6s ease-in-out left);
+			    > img,
+				> a > img {
+				    display: block;
+				    height: auto;
+				    max-width: 100%;
+				    line-height: 1;
+				}
+			}
+			.active,
+			.next,
+			.prev {
+			  display: block;
+			}
+			.active,
+			.next.left,
+			.prev.right {
+			  left: 0;
+			}
+			.next,
+			.prev {
+			  position: absolute;
+			  top: 0;
+			  width: 100%;
+			}
+			.next,
+			.active.right {
+			  left: 100%;
+			}
+			.prev,
+			.active.left {
+			  left: -100%;
+			}
+		}
+	}
+	.bootCaro-caption {
+		position: absolute;
+		right: 20%;
+		top: 130px;
+		left: 20%;
+		z-index: 10;
+		h2, h3, p {
+			@extend %text-shadow;
+		}
+		h2{
+			font-size:44px;
+		}
+		h3 {
+		    font: bold 50px futura-pt;
+		    letter-spacing: 3px;
+		    text-transform: uppercase;
+		}
+		.desc{
+			margin:0 120px;
+			p{
+				text-shadow:1px 1px 1px #000;
+			}
+		}
+		.button {
+			margin-top: 20px;
+		}
+		&.center {
+			@include centered();
+			right: 30%;
+			left: 30%;
+		}
+	}
+	.carousel-control {
+		@include icon();
+		position: absolute;
+		top: 50%;
+		margin-top:-28px;
+		left:52px;
+		font-size: 54px;
+		color: $lightergrey;
+		@include transition(all 0.2s ease-out);
+		text-shadow: 1px 1px 1px $darkgrey;
+		&.left {
+			@extend .icon-cntr-left;
+		}
+		&.right{
+			@extend .icon-cntr-right;
+			right:50px;
+			left:auto;
+		}
+		&:hover {
+		  text-decoration: none;
+		  color: $white;
+		}
+	}
+	.carousel-indicators {
+		position: absolute;
+		bottom: 10px;
+		left: 50%;
+		z-index: 15;
+		width: 60%;
+		padding-left: 0;
+		margin-left: -30%;
+		text-align: center;
+		list-style: none;
+		li {
+			display: inline-block;
+			width: 12px;
+			height: 12px;
+			cursor: pointer;
+			background-color: #000;
+			margin-right: 3px;
+			border:2px solid $lightergrey;
+			@include border-radius(10px);
+			position:relative;
+			&.play, &.pause{
+				text-indent:-999em;
+				overflow:hidden;
+				border:0;
+				@include border-radius(0px);
+				background-color:transparent;
+				background-position:-68px -291px;
+				width: 14px;
+				&:hover {
+					background-color: transparent;
+				}
+			}
+			&.pause {
+				&:hover {
+					background-position:-68px -271px;
+				}
+			}
+			&.play{
+				background-position:-82px -291px;
+				display:none;
+				&:hover {
+					background-position:-82px -271px;
+				}
+			}
+			.hoverContent{
+				width:400px;
+				background:white;
+				padding:20px 20px 10px;
+				position:absolute;
+				left:-192px;
+				bottom:20px;
+				display:none;
+				h3{
+					color: #333333;
+				    line-height: 30px;
+				    margin: 0 0 10px;
+				    text-shadow: 0 0 0;
+				}
+				.img{
+					background:#f4f4f4;
+					height:auto;
+					max-width:180px;
+					margin:0 20px 10px 0;
+					float:left;
+				}
+			}
+			&:hover {
+				border-color: $white;
+			}
+		}
+		.active {
+			width: 12px;
+			height: 12px;
+			border-color: $white;
+		}
+	}
+}
+
+.ie8 {
+	.bootCaro {
+		.carousel-indicators li[data-target='#myCarousel'] {
+			background: transparent url('./img/ie/ie_carousel-pager.png') 0 -1px no-repeat;
+			width: 14px;
+			hright: 14px;
+			border: none;
+			padding: 0;
+			&:hover,
+			&.active {
+				background-position: 0 -18px;
+			}
+		}
+	}
+}
+
+// =============================================================================
+// Large Carousel - Used on Static Offer PLP
+// =============================================================================
+.bootCaro.large {
+	height:650px;
+	.bootCaro-caption {
+		top: 160px;
+		h2 {
+			margin-bottom: 5px;
+		}
+	}
+	.bootCaro-inner {
+		.item {
+			height:650px;
+		}
+	}
+}

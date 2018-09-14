@@ -1,0 +1,93 @@
+.pdp-section-tabs {
+	background: #000;
+	.tab {
+		a {
+			color: $white;
+			font: $very_small_text $titleFont;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $tastingNotesHeading;
+				border-bottom: $tastingNotesHeading 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+			.col-hero {
+				.col-inner {
+					img {
+						margin-bottom: 0;
+					}
+					p.credit {
+						padding-bottom:20px;
+					}
+				}
+			}
+		}
+		h2 {
+			color: $tastingNotesHeading;
+			font: $slightly_big_text $regularFont;
+			letter-spacing: 1px;
+			margin:40px 0;
+		}
+		h3 {
+			color: $tastingNotesHeading;
+			font: $very_small_text $titleFont;
+		}
+		.gamma-heading {
+			color: $tastingNotesHeading;
+			font: $very_small_text $titleFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:10px;
+		}
+		p {
+			color: $white;
+			font:Italic $small_text $style-georgia-font-family;
+		}
+		p.credit {
+			padding-bottom: 20px;
+		}
+		&.characteristics {
+			.cta-wrap {
+				.button {
+					background:$brandBg;
+					font:$smaller_heading $regularFont;
+					.face {
+						color:$white;
+						border:none;
+						font-weight:normal;
+						&.back {
+							color:$white;
+							background:$brandBg;
+						}
+					}
+				}
+			}
+			p {
+				color: $white;
+				font:Italic $small_text $style-georgia-font-family;
+			}
+		}
+		&.awards {
+			p {
+				color: $white;
+				font:Italic $small_text $style-georgia-font-family;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $white;
+			}
+			&:after {
+				color: $white;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

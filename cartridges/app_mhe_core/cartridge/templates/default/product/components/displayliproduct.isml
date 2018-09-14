@@ -1,0 +1,245 @@
+<iscomment>
+	Creates a div rendering a product and product line item information.
+	p_productli : the product line item to render
+	p_formli 	: the form line item
+	p_editable  : boolean indicating if the pli is editable or not
+	p_hideprice : boolean to hide price
+	p_hidepromo : boolean to hide promotional message(s)
+	p_hidesize  : boolean to hide size
+</iscomment>
+
+
+<iscomment>Create page variable representing the product line item</iscomment>
+<isset name="productLineItem" value="${pdict.p_productli}" scope="page"/>
+
+<isif condition="${empty(pdict.p_hidesize) || pdict.p_hidesize==null}" > 
+   <isset name="p_hidesize" value="${false}" scope="page"/>
+ <iselse>
+   <isset name="p_hidesize" value="${pdict.p_hidesize}" scope="page"/>
+ </isif>
+
+<iscomment>Create page variable representing the form line item</iscomment>
+
+<isset name="formLineItem" value="${pdict.p_formli}" scope="page"/>		
+<h3 class="sku">
+	<isset name="product" value="${productLineItem.getProduct()}" scope="page"  >
+	<isset name="prodId" value="${product.variant?product.masterProduct.ID:product.ID}" scope="page"  >
+  	<isif condition="${!product.isVariant()}" >
+    	<isprint value="${product.custom.mheBrand}" />	
+  	<iselse>
+	 	<isprint value="${product.masterProduct.custom.mheBrand}" />
+  	</isif>
+</h3>
+<iscomment>See if the items is part of the site catalog, and online prior to rendering link</iscomment>
+<isif condition="${productLineItem.product == null || (productLineItem.product != null && (!productLineItem.product.assignedToSiteCatalog || !productLineItem.product.online))}">
+	<span class="not-available">
+		<iscomment>${Resource.msg('cart.removeditem','checkout',null)}</iscomment>
+	</span>
+	<h4 class="name"><isprint value="${productLineItem.productName}"/></h4>
+<iselse>
+	<h4 class="name">
+		<iscomment>
+			Item has a category context, forward this category context
+			MUST use URLUtils.http as creates absolute url and URLUtils.url does not work in case of an email 
+			e.g. order confirmation email, links inside it are wrong i.e. host name is missing because 
+			URLUtils.url api returns relative url!!
+		</iscomment>
+	
+		<isif condition="${productLineItem.categoryID != null}">
+            <isif condition="${empty(productLineItem.custom.associatedParentPosition)}">
+		 	 	<a href="${URLUtils.http('Product-Show','pid', prodId, 'cgid', productLineItem.categoryID)}"><isprint value="${productLineItem.productName}"/></a>
+		   	<iselse>
+				<isprint value="${productLineItem.productName}"/> 
+		  	</isif>
+		<iselseif condition="${!empty(pdict.Basket) && ('staticOfferCategory' in pdict.Basket.custom)}">
+			<a href="${URLUtils.http('Product-StaticShow','pid', prodId,'cgid',pdict.Basket.custom.staticOfferCategory)}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselseif condition="${!empty(pdict.Order) && ('staticCategoryId' in pdict.Order.custom)}" >
+			<a href="${URLUtils.http('Product-StaticShow','pid', prodId,'cgid',pdict.Order.custom.staticCategoryId)}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselseif condition="${productLineItem.bonusProductLineItem}">
+			<a href="${URLUtils.http('Product-Show','pid', prodId,'productType','bonus')}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselse>
+		  	<isif condition="${empty(productLineItem.custom.associatedParentPosition)}">
+	    		<a href="${URLUtils.http('Product-Show','pid', prodId)}"><isprint value="${productLineItem.lineItemText}"/></a>
+		   	<iselse>
+				<isprint value="${productLineItem.productName}"/> 
+		  	</isif>
+		</isif>
+	</h4>
+</isif>
+
+<isif condition="${productLineItem.custom.chilledDeliveryService }">
+	<span class="mini-cart-label chilled">
+			
+</isif>
+<iscomment>Display the promotion name for each price adjustment.</iscomment>
+<isif condition="${empty(pdict.p_hidepromo) || !pdict.p_hidepromo}">
+<isloop	items="${productLineItem.priceAdjustments}" var="pa" status="prAdloopstatus">
+	<div class="promo-adjustment">
+		<isprint value="${pa.promotion.calloutMsg}" />
+	</div>
+</isloop>
+												
+</isif>												
+<iscomment>surcharge message</iscomment>
+<isif condition="${productLineItem.shippingLineItem != null}">
+	<isif condition="${productLineItem.shippingLineItem.surcharge}">
+		<div class="promo"><isprint value="${Resource.msg('displayliproduct.surcharge','product',null)}"/></div>
+	</isif>
+<iselse>
+	<isscript>
+		var defaultMethod : dw.order.ShippingMethod = dw.order.ShippingMgr.getDefaultShippingMethod();
+		var shippingModel : dw.order.ProductShippingModel = dw.order.ShippingMgr.getProductShippingModel(productLineItem.getProduct());
+		var shippingCost : dw.order.ProductShippingCost = shippingModel.getShippingCost(defaultMethod);
+	</isscript>		
+	<isif condition="${!empty(shippingCost) && shippingCost.surcharge}">
+		<div class="promo"><isprint value="${Resource.msg('displayliproduct.surcharge','product',null)}"/></div>
+	</isif>
+</isif>
+
+<iscomment>product attributes</iscomment>
+
+<iscomment>render pricing only for editable product line items</iscomment>
+<isif condition="${pdict.p_editable && !empty(productLineItem.product)}">
+	<isif condition="${empty(pdict.p_hideprice) || !pdict.p_hideprice}">
+		<div class="attribute">
+			<span class="label">${Resource.msg('global.price','locale',null)}:</span>
+			<isset name="Product" value="${productLineItem.product}" scope="pdict"/>
+			<isinclude template="product/components/pricing"/>				
+		</div>
+	</isif>
+</isif>
+
+
+   <iscomment>For testing 
+   Dkum37: hiding it for now, "To be removed later"
+   <div>For testing Parent Position :<isprint value="${productLineItem.custom.associatedParentPosition}" /> <br>
+       For testing  Child Id: <isprint value="${productLineItem.custom.associatedAccessoryId}" />
+       
+   </div>
+   </iscomment>
+	
+<iscomment>variations</iscomment>
+<isif condition="${!p_hidesize}" > 
+   <isdisplayvariationvalues product="${productLineItem.product}"/>
+ </isif>
+
+
+<iscomment>product list info</iscomment>
+<isif condition="${productLineItem.productListItem != null}">
+	<span class="item-links">
+		<isif condition="${productLineItem.productListItem.list.type == dw.customer.ProductList.TYPE_WISH_LIST}">
+			<a href="${URLUtils.url('Wishlist-ShowOther','WishListID', productLineItem.productListItem.list.ID)}">
+				${Resource.msg('displayliproduct.wishlistitem','product',null)}
+			</a>
+		<iselseif condition="${productLineItem.productListItem.list.type == dw.customer.ProductList.TYPE_GIFT_REGISTRY}">
+			<a href="${URLUtils.url('GiftRegistryCustomer-Show','ID', productLineItem.productListItem.list.ID)}">
+				${Resource.msg('displayliproduct.registryitem','product',null)}
+			</a>
+		</isif>
+	</span>
+	
+</isif>
+
+<iscomment>product options</iscomment>
+
+	<iscomment>
+	Edit Size 
+	Site Dev - Pass ProductLineItem UUID to js in editproductsize.isml and set edit size dropdown for each product line item in cart.
+</iscomment>
+<isif condition="${productLineItem.product != null && 
+		empty(productLineItem.custom.associatedParentPosition) && 
+			((pdict.p_editable && productLineItem.product.isVariant() && productLineItem.product.masterProduct.variants.size() > 1 && productLineItem.product.online  )  || productLineItem.optionProductLineItems.size() > 0)}">
+	
+	 
+		<isif condition="${empty(pdict.p_editable) || pdict.p_editable}">
+			<iscomment>if item has a category context, forward this category context</iscomment>
+							
+			<isscript>
+				var liUrl : String = "";
+				if (productLineItem.categoryID != null) {
+					liUrl = dw.web.URLUtils.url('Product-EditSize', 'pid', productLineItem.productID, 'Quantity', productLineItem.quantity.value.toFixed(), 'uuid', productLineItem.UUID, 'cgid', productLineItem.categoryID);
+				}
+				else {
+					liUrl = dw.web.URLUtils.url('Product-EditSize', 'pid', productLineItem.productID, 'Quantity', productLineItem.quantity.value.toFixed(), 'uuid', productLineItem.UUID);
+				}
+				
+				if (productLineItem.optionProductLineItems.size() > 0) {
+					var pom : dw.catalog.ProductOptionModel = productLineItem.optionModel;
+					var it : dw.util.Iterator = productLineItem.optionProductLineItems.iterator();
+					
+					while (it.hasNext()) {
+						var oli : dw.order.ProductLineItem = it.next();
+						var opt : dw.catalog.ProductOption = pom.getOption(oli.optionID);
+						
+						liUrl = pom.urlSelectOptionValue('Product-EditSize', opt, pom.getOptionValue(opt, oli.optionValueID));
+					}
+					// dw.web.URLUtils.url api always creates a new url and couldn't find append param api so ended up using string concat :(
+					// liUrl = dw.web.URLUtils.url(liUrl, 'Quantity', productLineItem.quantity);
+					liUrl += "&Quantity="+productLineItem.quantity.value.toFixed()+"&uuid="+productLineItem.UUID;
+				}
+			</isscript>
+			<isscript>
+				importScript("product/ProductUtils.ds");	
+				var variantCountWithPrice= ProductUtils.getVariantCountWithConcretePrice(productLineItem.product.masterProduct),
+				variantIDWithPrice= ProductUtils.getVariantIDWithConcretePrice(productLineItem.product.masterProduct);	
+			</isscript>
+			<isif condition="${product != null && !product.custom.discontinued && product.isVariant() && !product.masterProduct.custom.discontinued && !productLineItem.bonusProductLineItem && (variantCountWithPrice > 1 || variantCountWithPrice==-1)}">
+			<div class="item-edit-size">
+					<a href="${liUrl}&amp;source=cart" class="cButton" id="${productLineItem.UUID}">${Resource.msg('global.editdetails','locale',null)} ${Resource.msg('global.size','locale',null)}</a>
+					<div id="${productLineItem.UUID}" class="selectCont"> </div>
+			</div>
+			</isif>
+											
+			
+		</isif>	
+	    
+</isif>	
+<iscomment>Product Existence and Product Availability</iscomment>
+<iscomment>To show error in basket page </iscomment>
+<isif condition="${pdict.p_editable}">
+	<isif condition="${!productLineItem.bonusProductLineItem || productLineItem.getBonusDiscountLineItem() != null}">
+		<isif condition="${productLineItem.product == null}"> 
+			<span class="not-available">
+				${Resource.msg('cart.removeditem','checkout',null)}
+			</span>
+		<iselse>
+			<isset name="product" value="${productLineItem.product}" scope="page" />
+			<isif condition="${pdict.Basket != null}">   
+			<isset name="quantity"	value="${pdict.Basket.getAllProductQuantities().get(productLineItem.product).value}" scope="page" />
+			<iselse>
+	     	<isset name="quantity"	value="${null}" scope="page" />
+	        </isif>
+			<isinclude template="checkout/cart/cartavailability" />
+		</isif>
+	</isif>
+ <iselse>
+        <isif condition="${pdict.Basket != null}">  
+     	<isset name="quantity"	value="${pdict.Basket.getAllProductQuantities().get(productLineItem.product).value}" scope="page" />
+     	<iselse>
+     	<isset name="quantity"	value="${null}" scope="page" />
+        </isif>
+        <isif condition="${quantity != null}">
+		<isset name="levels" value="${product.availabilityModel.getAvailabilityLevels(quantity)}" scope="page"/>
+		<iselse>
+		<isset name="levels" value="${null}" scope="page"/>
+		</isif>
+		<isif condition="${levels != null}">
+			<isif condition="${levels.preorder.value > 0}">
+			<isset name="product" value="${productLineItem.product}" scope="page" /> 
+			<isif condition="${!product.isVariant()}"> 
+			<isset name="inStockDate" value="${product.custom.launchDate}" scope="page"/>
+			<iselseif condition="${product.isVariant() && product.custom.launchDate !=null }"> 
+				<isset name="inStockDate" value="${product.custom.launchDate}" scope="page"/>
+			<iselse> 
+				<isset name="inStockDate" value="${product.masterProduct.custom.launchDate}" scope="page"/>
+			</isif>
+			<isif condition="${inStockDate != null}">
+				<div class="promo-adjustment">${StringUtils.format(Resource.msg('global.allpreorder','locale',null)+' '+Resource.msg('product.date.launch','product',null))}</div>
+				<div class="promo-adjustment"><isprint value="${inStockDate}"/></div>
+				<iselse>
+			<div class="promo-adjustment">${StringUtils.format(Resource.msg('global.allpreorder','locale',null))}</div>
+			</isif>
+		    </isif>
+	    </isif>
+</isif>
+ 

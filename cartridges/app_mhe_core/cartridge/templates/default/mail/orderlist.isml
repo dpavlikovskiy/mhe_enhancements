@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- TemplateComment :  EMail Sending a Product List -->
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="util/modules"/>
+<isscript>
+importPackage( dw.system );
+importPackage( dw.util );
+var instanceName : String = !empty( System.getInstanceHostname() ) ? System.getInstanceHostname() : "(unknown)";
+var envName = instanceName.split(".");
+</isscript>
+<html>
+<subject>${dw.system.Site.getCurrent().ID}- <isprint value="${pdict.subject}" encoding="off"/> - ${envName[0]} </subject>
+
+<body>
+<isif condition="${!empty(pdict.ErrorMessage)}">
+  <h1><isprint value="${Resource.msg('checkout.orderlisterror','checkout',null)}"/></h1>
+  <isprint value="${pdict.ErrorMessage}" />
+<iselseif condition="${empty(pdict.FilteredOrderList)}">
+  <h1><isprint value="${Resource.msg('checkout.orderlistblank','checkout',null)}"/></h1>
+<iselse>
+	<isloop items="${pdict.FilteredOrderList}" var="FilteredOrderListObj" status="loopstate0">
+		<isif condition="${loopstate0.first}" >	
+			<isset name="paymentType" value="${FilteredOrderListObj.paymentInstrument.paymentMethod}" scope="page" />
+		</isif>		
+	</isloop>
+	<isif condition="${paymentType == 'ORDER_REPLACEMENT'}">	
+		<h1><isprint value="${Resource.msg('checkout.replacementorderlistheader','checkout',null)}" /> </h1>
+	<iselse>
+		<h1><isprint value="${Resource.msg('checkout.otherreasonorderlistheader','checkout',null)}"/> </h1>
+	</isif>
+	<h2><isprint value="${Resource.msg('checkout.replacementorderlistSubheader','checkout',null)}"/> </h2>
+	<table border="1">
+		<thead>
+			<tr>
+			 	  <th><isprint value="${Resource.msg('checkout.orderlisttableheader1','checkout',null)}" /></th>
+				  <isif condition="${paymentType == 'ORDER_REPLACEMENT'}">
+				  	<th><isprint value="${Resource.msg('checkout.orderlisttableheader2','checkout',null)}" /></th>
+				  </isif>
+				  <th><isprint value="${Resource.msg('checkout.orderlisttableheader3','checkout',null)}" /></th>
+				  <th><isprint value="${Resource.msg('checkout.orderlisttableheader4','checkout',null)}" /></th>
+				  <isif condition="${paymentType == 'ORDER_REPLACEMENT'}">
+				  	 <th><isprint value="${Resource.msg('checkout.orderlisttableheader5','checkout',null)}" /></th>
+				  <iselse>
+				  	<th><isprint value="${Resource.msg('checkout.othermeansorderlisttableheader5','checkout',null)}" /></th>
+				  </isif>
+				    <isif condition="${paymentType == 'ORDER_OTHER_MEANS'}">
+					   <th><isprint value="${Resource.msg('summary.ordertotal','checkout',null)}" /></th>
+					</isif>
+			</tr>
+		</thead>
+			<isloop items="${pdict.FilteredOrderList}" var="FilteredOrderListObj" status="loopstate0">
+				<tr> 
+				    <td> <isprint value="${FilteredOrderListObj.orderNo}" /> </td> 
+					<isif condition="${paymentType == 'ORDER_REPLACEMENT'}">
+					<td> <isprint value="${FilteredOrderListObj.custom.replacedOrderNumber}" /> </td> 
+					</isif>
+					<td> <isprint value="${FilteredOrderListObj.createdBy}" /> </td> 
+					<td> <isprint value="${FilteredOrderListObj.creationDate}" /> </td> 
+					<isif condition="${paymentType == 'ORDER_REPLACEMENT'}">
+					    <td> <isprint value="${FilteredOrderListObj.custom.reason}" /> </td> 
+					<iselse>
+						<td> <isprint value="${FilteredOrderListObj.custom.otherMeansPaymentType}" /> </td> 
+					</isif>
+					<isif condition="${paymentType == 'ORDER_OTHER_MEANS'}">
+					   <td> <isprint value="${FilteredOrderListObj.totalGrossPrice}" /> </td> 
+					</isif>
+					
+				</tr>
+			</isloop>
+	</table>	
+</isif>
+</body>
+</html>

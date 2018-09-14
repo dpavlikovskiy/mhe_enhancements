@@ -1,0 +1,105 @@
+body{
+	background:$white;
+	#wrapper {
+	    max-width: 1280px;
+	    margin:0 auto;
+	    background:white;
+	}
+	h1, h2, h3, h4, h5, h6, p, a {
+		letter-spacing: 0px !important;
+	}
+}
+.epages-body{
+.button{
+	.face{
+		border:1px solid $brandcolor;
+		color: $black;
+		font-weight:$bold;
+		background-color: $brandcolor;
+		letter-spacing: 0px;
+		font-family: $titleFont;
+		
+		&.back { 
+			background-color: $btnRollOver !important;
+	    	border: 0px solid $btnRollOver;
+	    	color: $black !important;
+		}
+	}
+	&.fill {
+    	.face {
+    		background-color: $brandcolor;
+    		color: $black;
+    		font-size: $small_text;
+			font-family: $titleFont;
+    	}
+    }
+    &.darkfill {
+    	.face {
+    		background-color: $black;
+    	}
+    }
+    &.grey {
+    	.face {
+    		border-color: $lightergrey;
+    		color: $lightergrey;
+    		&.back {
+    			background-color: $lightergrey;
+    			border-color: $lightergrey;
+    			color: $white;
+    		}
+    	}
+    }
+    &.trans {
+    	.face {
+    		background: $black;
+    		background: rgba(0,0,0,0.5);
+    	}
+    }
+    &.hero {
+    	.face {
+    		border-color: $white;
+    		color: $white;
+			&.front {
+				background: $blackgrey;
+    			background: rgba(22,21,28,0.2);
+			}
+			&.back {
+				background-color: $white;
+				border-color: $white;
+				color: $black;
+			}
+		}
+    }
+}
+}
+
+	blockquote {
+			display:block;
+			clear:both;
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $darkBrownText;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+.ePageModule{
+	margin:0 0 10px;
+}

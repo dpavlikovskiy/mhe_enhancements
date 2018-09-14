@@ -1,0 +1,259 @@
+/**
+ * ValidateCartForCheckout.ds
+ *
+ * This script implements a typical shopping cart checkout validation. 
+ * The script is provided with the Demandware reference application. Some 
+ * parts of the validation script are specific to the reference application
+ * logic and might not be applicable to our customer's storefront applications.
+ * However, the shopping cart validation script can be customized to meet 
+ * specific needs and requirements.
+ * 
+ * The script implements the validation of the shopping cart against specific
+ * conditions. This includes the following steps:
+ * - validate that total price is not N/A
+ * - validate that all products in the basket are still in site catalog and online
+ * - validate that all coupon codes in the basket are valid
+ * - validate that the taxes can be calculated for all products in the basket (if ValidateTax in put paramter is true)
+ *
+ * @input  Basket : dw.order.Basket
+ * @input  ValidateTax : Boolean
+ * @output BasketStatus : dw.system.Status
+ * @output EnableCheckout : Boolean
+ */
+
+importPackage( dw.campaign ); 
+importPackage( dw.catalog ); 
+importPackage( dw.order );
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.value );
+importPackage( dw.web );
+importScript("product/ProductUtils.ds"); 
+/**
+ * Function: execute
+ *
+ * Main function of the validation script. 
+ */
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // ===================================================
+	// =====     	PROCESS INPUT PARAMETERS 		 ===== 
+    // ===================================================
+	
+	var basket : Basket = pdict.Basket;
+	var validateTax : Boolean = pdict.ValidateTax;
+
+    // ===================================================
+	// =====   VALIDATE PRODUCT EXISTENCE            ===== 
+    // ===================================================
+	// Check if all products in basket can still be resolved
+	// and are online
+	
+	var productExistence = validateProductExistence(basket, pdict);
+	
+    // ===================================================
+	// =====             VALIDATE CONTENT            ===== 
+    // ===================================================
+	// Check if basket contains products or gift certificates
+	var hasContent = validateContent(basket);
+	
+    // ===================================================
+	// =====    CHECK MERCHANDIZE TOTAL NET PRICE   ====== 
+    // ===================================================
+
+	// Checks the availability of the basket's merchandize
+	// total price (net or gross depending on taxation policy)
+	var pricesAvailable = basket.merchandizeTotalPrice.available;
+	
+    // ===================================================
+	// =====             VALIDATE COUPONS           ====== 
+    // ===================================================	
+	var allCouponsValid = validateCoupons(basket, pdict);
+	
+	// ===================================================
+	// =====             VALIDATE TAXES             ====== 
+    // ===================================================	
+	var hasTotalTax : Boolean = true;
+	if (validateTax != null && validateTax == true)
+	{
+		hasTotalTax = basket.totalTax.available;
+	}
+	
+	
+    // ===================================================
+	// =====           EVALUATE CONDITIONS           =====
+    // ===================================================
+    
+	if(!pricesAvailable || !productExistence)
+	{
+		// there are either any product line items without existing 
+		// product or one or more line items has no price
+		pdict["BasketStatus"] = new Status(Status.ERROR);
+		return PIPELET_ERROR;
+	}
+	else if(!allCouponsValid)
+	{
+		// there are invalid coupon line items.
+		// exit with an error.
+		pdict["BasketStatus"] = new Status(Status.ERROR, "CouponError");
+		return PIPELET_ERROR;
+	}
+	else if(!hasContent)
+	{
+		// there are neither products nor gift certificates in the 
+		// basket; we exit with an error however the basket status is OK
+		pdict["BasketStatus"] = new Status(Status.OK);
+		return PIPELET_ERROR;
+	}
+	else if (!hasTotalTax)
+	{
+		pdict["BasketStatus"] = new Status(Status.ERROR, "TaxError");
+		return PIPELET_ERROR;
+	}
+
+
+    // ===================================================
+	// =====            DONE                         =====
+    // ===================================================
+	
+	pdict["BasketStatus"] = new Status(Status.OK);
+    return PIPELET_NEXT;
+}
+
+/**
+ * FUNCTION: validateProductExistence
+ */
+function validateProductExistence(basket : Basket, pdict : PipelineDictionary)
+{
+	
+	var quantityOverflow : Boolean = true;
+	var plis : Iterator = basket.getProductLineItems().iterator();
+	var accessoryplis : dw.util.Collection = null;
+    var productLineItems : Iterator = null;
+    var pliItem : dw.order.ProductLineItem = null;
+	var invFlag: Boolean=dw.catalog.ProductInventoryMgr.getInventoryList().getDefaultInStockFlag();
+	var hmap : Map = new HashMap();
+	
+	while(plis.hasNext())
+	{
+		var pli : ProductLineItem = plis.next();
+		if(pli.product == null || !pli.product.online)
+		{
+			return false;
+		}
+		
+		 //skip empty child
+		  var accessoryIDs : String = pli.custom.associatedAccessoryId;
+		 if(!empty(accessoryIDs)){
+		 	var accessoryAllowedLimit : Number = pli.quantity*3;
+	        var currentPLIAccessoryCount : Number = 0;
+	        var parentPosition : String = pli.custom.pliPosition;
+            
+		 	var accessories : dw.util.ArrayList = new dw.util.ArrayList(accessoryIDs.split(","));
+			var itrAccessories : dw.util.Iterator = accessories.iterator();
+			while(itrAccessories.hasNext())
+			{
+				accessoryplis = basket.getAllProductLineItems(itrAccessories.next().toString());
+		    	if (!empty(accessoryplis)) {
+		    		productLineItems = accessoryplis.iterator();
+		    		while(productLineItems.hasNext())
+					{
+						pliItem = productLineItems.next();
+						if (pliItem.custom.associatedParentPosition==parentPosition) {
+						    currentPLIAccessoryCount=currentPLIAccessoryCount+pliItem.quantity;
+						}
+					}
+		    	}
+		      if(currentPLIAccessoryCount>accessoryAllowedLimit){
+		 		pdict.EnableCheckout = false;
+		 		return true;
+		 	   }			
+			}		 	   
+		 }		 
+		
+		
+		// if product are discontinued disable checkout     
+		if( pli.product.custom.discontinued){
+			quantityOverflow=false;
+		}else{
+			 hmap = getCartUniqueProductQuantityMap(hmap, pli.product.ID, pli.quantityValue);
+		     var availableCount:Number =ProductUtils.getMaxOrderableQuantity(pli.product, invFlag);
+		     if( pli.product.bundle){
+			var levels: dw.catalog.ProductAvailabilityLevels = pli.product.availabilityModel.getAvailabilityLevels(pli.quantityValue);
+			var maxOrderablebundleQuantity : Number = levels.inStock.value;
+			if (!empty( pli.product.custom.maxOrderableQuantity)){
+				 maxOrderablebundleQuantity = (levels.inStock.value > pli.product.custom.maxOrderableQuantity) ? pli.product.custom.maxOrderableQuantity : levels.inStock.value;
+			}
+			
+			if(maxOrderablebundleQuantity<hmap.get(pli.product.ID)){
+			quantityOverflow=false;
+			}}
+		     if((!pli.product.bundle) && availableCount < hmap.get(pli.product.ID) ){
+		     	quantityOverflow=false;
+		     }
+		// RAP-116 : if atleast one of the products is out of stock, don't allow checkout 		
+		//var availabilityLevels : ProductAvailabilityLevels = pli.product.getAvailabilityModel().getAvailabilityLevels(pli.quantityValue);
+		//quantityOverflow = quantityOverflow && (availabilityLevels.getNotAvailable().value == 0);
+	  }
+	  
+	   //Check if Basket having both chilled and Non-Chilled product then return false. (excluding accessory)
+	   if(empty(pli.custom.pliPosition) && basket.custom.chilledDeliveryProductAvailability){
+		   if(!pli.custom.chilledDeliveryService){
+			   quantityOverflow=false;
+				}
+	  	}
+	}
+	
+	
+	
+	pdict.EnableCheckout = quantityOverflow;
+	
+	return quantityOverflow;
+}
+ 
+
+function getCartUniqueProductQuantityMap(hmap : Map, productId:String, qty: Number) : HashMap
+{
+    if(hmap.containsKey(productId)){
+    	hmap.put(productId, qty + hmap.get(productId));
+    }else{
+       hmap.put(productId, qty);
+    }
+
+   return hmap;
+}
+
+/**
+ * FUNCTION: validateContent
+ */
+function validateContent(basket : Basket)
+{
+	var plis : Collection = basket.getProductLineItems();
+	var gclis : Collection = basket.getGiftCertificateLineItems();
+	
+	if(plis.size() == 0 && gclis.size() == 0)
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+/**
+ * FUNCTION: validateCoupons
+ */
+function validateCoupons(basket : Basket, pdict : PipelineDictionary)
+{
+	var clis : Iterator = basket.getCouponLineItems().iterator();
+	
+	while (clis.hasNext())
+	{
+		var cli : CouponLineItem = clis.next();
+		if (! cli.isValid())
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}

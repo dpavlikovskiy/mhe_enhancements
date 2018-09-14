@@ -1,0 +1,31 @@
+/**
+*
+*  @input Location : String
+*  @input OriginalURL : String
+*  @output Location : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util);
+importPackage( dw.web);
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+ var originalURL:String = pdict.OriginalURL ; 
+ var modifiedURL:String = pdict.Location ;
+ var reqLocale : Locale = Locale.getLocale(request.locale);
+ var country :String = reqLocale.country;
+ var language:String =reqLocale.language ; 
+ 
+
+   if (pdict.Location != null && !(pdict.OriginalURL.indexOf(language+"-"+country)>-1) ){   
+		if (pdict.Location.indexOf("/404") != -1 ){
+				modifiedURL =  pdict.Location.replace("/404",pdict.OriginalURL) ;					
+	  	}  
+   }
+  
+   
+   pdict.Location = modifiedURL ; 
+
+   return PIPELET_NEXT;
+}

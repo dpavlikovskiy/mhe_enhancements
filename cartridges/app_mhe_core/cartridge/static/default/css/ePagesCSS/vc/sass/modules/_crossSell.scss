@@ -1,0 +1,88 @@
+.container-pdp {
+	.cross-sell {
+		background: url("images/divider_01.png") repeat-x left top;
+		width:auto;
+		margin: 0 80px;
+		position: relative;
+		h3 {
+			font: $small_text $titleFont;
+			text-align: center;
+			padding: 50px 0 0 0;
+			margin: 0;
+			color: $brandcolor;
+		}
+		.epageTT {
+		    float: right;
+		    height: 20px;
+		    position: relative;
+		    right: 375px;
+		    top: -17px;
+		    width: 20px;
+			span.ptIcon {
+				background: url(images/sprite_vc.png) no-repeat -20px -442px;
+				width:18px;
+				height: 20px;
+				position: absolute;
+				right: 0;
+				top: 0;
+				&:hover {
+					background-position: 0px -442px;
+				}
+			}
+			.tooltip-content {
+				display: none;
+				background: $accessoriesBg;
+				border: $brandcolor 1px solid;
+				max-width: 270px;
+				width: 270px;
+				padding: 15px;
+				position: absolute;
+				right: -126px;
+				top: 35px;
+				font:Italic $small_text $style-georgia-font-family;
+				color: $greyBorder;
+				&:before {
+					border: none;
+					border-top: $brandcolor 1px solid;
+					border-left: $brandcolor 1px solid;
+				}
+			}
+			&:hover {
+		    	.tooltip-content {
+		    		display: block;
+		    	}
+		    }
+		}
+		ul {
+			padding: 45px 0;
+			text-align: center;
+			li {
+				@include inline-block();
+				width:230px;
+				margin:0 60px;
+				text-align: center;
+				.product-tile {
+						.capture-product-id {
+							display: none;
+						}
+						.product-image {
+							img {
+								display: inline;
+							}
+						}
+						.product-name {
+							color: $white;
+							font: $very_small_text $titleFont;
+						}
+						.product-price {
+							color: $white;
+							font: $big_text $regularFont;
+						}
+						.showaccessory {
+							display: none;
+						}
+					}
+			}
+		}
+	}
+}

@@ -1,0 +1,526 @@
+<isinclude template="util/modules" />
+
+<iscomment> This template renders the shipping methods that
+a customer may choose from. It renders a form for the shipping method
+selection. This template is dynamically loaded using AJAX and may get
+reloaded as the customer enters shipping address information depending
+on the configured shipping method address exclusions. </iscomment>
+
+<isscript> var shipment : dw.order.Shipment =
+pdict.Basket.defaultShipment; var shippingModel :
+dw.order.ShipmentShippingModel =
+dw.order.ShippingMgr.getShipmentShippingModel( shipment ); </isscript>
+
+<isset name="DiscountPlan"
+	value="${dw.campaign.PromotionMgr.getDiscounts(pdict.Basket)}"
+	scope="page" />
+<h3>${Resource.msg('singleshipping.shippingmethodheader','checkout',null)}</h3>
+<p class="lowerCase">
+	${Resource.msg('singleshipping.shippingmethodnote','checkout',null)}
+	<isprint
+		value="${Resource.msg('singleshipping.shippingmethodsubheader','checkout',null)} "
+		encoding="off" />
+	<isprint
+		value="${Resource.msg('singleshipping.shippingmethodsubheader1','checkout','')}"
+		encoding="off" />
+	<isprint
+		value="${Resource.msg('singleshipping.shippingmethodsubheader2','checkout','')}"
+		encoding="off" />
+</p>
+<span id="js-dateselect-error" style="display: none">${Resource.msg('checkout.dateselecterror','checkout',null)}</span>
+<iscomment>render list of applicable shipping methods</iscomment>
+<isif
+	condition="${pdict.ApplicableShippingMethods.size() > 0 && pdict.Basket.custom.preOrderProductAvailability >=1} ">
+<isloop items="${pdict.ApplicableShippingMethods}" var="shippingMethod"
+	status="loopstate"> <isset name="shippingCost"
+	value="${pdict.ShippingCosts.get(shippingMethod.ID)}" scope="page" /> <isif
+	condition="${ shippingMethod.custom.preOrderShippingMethod && pdict.Basket.custom.preOrderProductAvailability >=1 } ">
+<div class="form-row form-indent radioBox">
+	<input class="input-radio" type="radio"
+		name="${pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.htmlName}"
+		id="shipping-method-${shippingMethod.ID}" value="${shippingMethod.ID}"
+		checked="checked" /> <label
+		for="shipping-method-${shippingMethod.ID}"> <span></span> <isprint
+			value="${shippingMethod.displayName}" />: <isif
+			condition="${shippingCost.shippingPriceAdjustmentsTotal != 0 && shippingCost.baseShipping!=0}">
+
+		<span class="standard-shipping"><s><isprint
+					value="${shippingCost.baseShipping}" /></s></span> <span
+			class="discount-shipping"><isprint
+				value="${shippingCost.baseShippingAdjusted}" /></span> <iselse> <span><isprint
+				value="${shippingCost.baseShipping}"></span></isif> <isif
+			condition="${shippingCost.surchargeAdjusted > 0}">
+		<span class="shippingsurcharge"> + <isprint
+				value="${shippingCost.surchargeAdjusted}" />
+			${Resource.msg('singleshipping.surcharge','checkout',null)}
+		</span></isif>
+	</label>
+	<isif condition="${!empty(shippingMethod.description)}">
+	<div class="form-caption">
+		<isprint value="${shippingMethod.description}" />
+		<isprint value="${pdict.Basket.custom.preOrderProductLaunchDate}" />
+	</div>
+	</isif>
+	<!---  Display approaching shipping promotional discounts. --->
+	<ul class="shipping-promos">
+		<isloop
+			items="${DiscountPlan.getApproachingShippingDiscounts(shipment, shippingMethod)}"
+			var="shippingDiscount">
+		<li>${Resource.msg('approachingpromo.purchase','checkout',null)}
+			<isprint
+				value="${shippingDiscount.getDistanceFromConditionThreshold()}" />
+			${Resource.msg('approachingpromo.more','checkout',null)}
+			${Resource.msg('approachingpromo.receive','checkout',null)}:
+			${shippingDiscount.getDiscount().getPromotion().getCalloutMsg()}<br />
+		</isloop>
+	</ul>
+</div>
+<isbreak></isif> </isloop> <iselseif
+	condition="${ pdict.ApplicableShippingMethods.size() > 0 && pdict.Basket.custom.chilledDeliveryProductAvailability } ">
+<isloop items="${pdict.ApplicableShippingMethods}" var="shippingMethod"
+	status="loopstate"> <isset name="shippingCost"
+	value="${pdict.ShippingCosts.get(shippingMethod.ID)}" scope="page" /> <isif
+	condition="${shippingMethod.custom.chilledDeliveryShippingMethod && pdict.Basket.custom.chilledDeliveryProductAvailability } ">
+<div class="form-row form-indent radioBox">
+	<input class="input-radio" type="radio"
+		name="${pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.htmlName}"
+		id="shipping-method-${shippingMethod.ID}" value="${shippingMethod.ID}"
+		checked="checked" /> <label
+		for="shipping-method-${shippingMethod.ID}"> <span></span> <isprint
+			value="${shippingMethod.displayName}" />: <isif
+			condition="${shippingCost.shippingPriceAdjustmentsTotal != 0 && shippingCost.baseShipping!=0}">
+
+		<span class="standard-shipping"><s><isprint
+					value="${shippingCost.baseShipping}" /></s></span> <span
+			class="discount-shipping"><isprint
+				value="${shippingCost.baseShippingAdjusted}" /></span> <iselse> <span><isprint
+				value="${shippingCost.baseShipping}"></span></isif> <isif
+			condition="${shippingCost.surchargeAdjusted > 0}">
+		<span class="shippingsurcharge"> + <isprint
+				value="${shippingCost.surchargeAdjusted}" />
+			${Resource.msg('singleshipping.surcharge','checkout',null)}
+		</span></isif>
+	</label>
+	<isif condition="${!empty(shippingMethod.description)}">
+	<div class="form-caption">
+		<isprint value="${shippingMethod.description}" />
+		<isprint value="${pdict.Basket.custom.preOrderProductLaunchDate}" />
+	</div>
+	<isif condition="${shippingMethod.custom.showCalendarAsDropdowns}">
+
+	<isscript>
+	 	importScript("util/DateUtil.ds"); 
+	 	var DateArr : ArrayList = DateLiesBetween(shippingMethod.custom.startDay,shippingMethod.custom.endDay);
+		var timeSlotMap : Array;
+
+		if(!empty(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot.value)){			
+			timeSlotMap=validHours(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.value,shippingMethod.ID);
+		} 
+		</isscript> 
+		<isset name="hlist" value="" scope="page" /> 
+		<isloop iterator="${shippingMethod.custom.holidaysList}" alias="holiday" status="loopstate">
+			<isscript>
+			
+					holiday=holiday.replace(new RegExp("-", "g"), "/");
+				
+			 </isscript> 
+			 <isset	name="hDate" value="${new Date(holiday)}" scope="page" />
+
+			<isif condition="${loopstate.last}"> 
+				<isset name="hlist" value="${hlist+hDate}" scope="page" /> 
+			<iselse> 
+				<isset name="hlist" value="${hlist+hDate+','}" scope="page" />
+			</isif>
+		</isloop>
+	<div class="chilled_delivery_wrap">
+		<div class="chill_day">
+			<div class="form-row required"
+				data-required-text="${Resource.msg('shippingmethod.deliverydayError','forms',null)}">
+				<label>DELIVERY DAY</label>
+				<div class="selector">
+				<isif condition="${!empty(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.value)}">
+					<span class="selectHolder" style="width: 55px;">${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.value}</span>
+				<iselse> 
+					<span class="selectHolder" style="width: 55px;">Select from choice of delivery days</span>
+				</isif>
+				<select id="shipment_calendar_day" class="input-text chill_fuel required">
+					<option value=""  class="chilled_time_slots" required="required" disabled selected >${Resource.msg('shippingmethod.deliverydate','forms',null)}</option>
+					<isloop items="${DateArr}" var="key" status="loopstatus">
+						<isscript>
+							importScript("util/DateUtil.ds"); 
+							var cdate:Date=new Date(key);
+							var tempDate = getDateFormattedwithoutYear(cdate);
+						</isscript>
+						<isif condition="${hlist.indexOf(key)>-1}">
+							<option value="${key}" class="chilled_time_slots" disabled="disabled">
+								<isprint value="${tempDate}" formatter="EE, MMMM d"> - not available
+							</option>
+	
+						<iselse> 
+							<isif condition="${!empty(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.value) && (pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.value).equals(key)}">
+								<option selected="selected" value="${key}" class="active">
+									<isprint value="${tempDate}" formatter="EE, MMMM d" >
+								</option>
+							<iselse>
+								<option value="${key}" class="active">
+									<isprint value="${tempDate}" formatter="EE, MMMM d" >
+								</option>
+							</isif>
+						</isif> 
+					</isloop>
+				</select>
+				</div>
+			</div>
+		</div>
+		<div class="chill_time">
+			<div class="form-row required"
+				data-required-text="${Resource.msg('shippingmethod.deliverytimeError','forms',null)}">
+				<label>DELIVERY TIME</label>
+				<div class="selector">
+					<isif condition="${!empty(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot.value)}">
+						<span class="selectHolder" style="width: 55px;">${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot.value}</span> 
+					<iselse>
+						<span class="selectHolder" style="width: 55px;">Select from choice of delivery times</span>
+					</isif>
+					
+					<select id="shipment_calendar_time"	name="${}" class="input-text chill_fuel_time" required <isif condition="${empty(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot.value)}"> disabled </isif> >
+						<option value=""  class="chilled_time_slots" disabled selected>${Resource.msg('shippingmethod.deliverytime','forms',null)}</option>
+					 	<isloop items="${timeSlotMap}" var="key" status="loopstatus"> 
+					 	
+					 		<isscript>
+				 				var time: String= key.substring(0, key.indexOf(","));
+				 			</isscript>${time})
+						  	<isif condition="${key.indexOf('enabled')>-1}" > <isif condition="${time.equals(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot.value)}">
+								<option selected="selected" value="${time}">${time}</option>
+							<iselse>
+								<option value="${time}">${time}</option></isif> <iselse>
+								<option value="${time}" class="chilled_time_slots" disabled>${time}	- not available</option>
+							</isif>
+						</isloop>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+	<isinputfield
+		formfield="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate}"
+		type="hidden" /> <isinputfield
+		formfield="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryTimeSlot}"
+		type="hidden" /> <input type="hidden" id="ship_method_custom"
+		value="${shippingMethod.ID}"> <input type="hidden"
+		id="ship_method_startHour" value="${shippingMethod.custom.startHour}">
+	<input type="hidden" id="ship_method_endHour"
+		value="${shippingMethod.custom.endHour}"> <input type="hidden"
+		id="ship_method_timeSlot"
+		value="${shippingMethod.custom.timeSlotDuration}"> </isif> </isif>
+	<!---  Display approaching shipping promotional discounts. --->
+	<ul class="shipping-promos">
+		<isloop
+			items="${DiscountPlan.getApproachingShippingDiscounts(shipment, shippingMethod)}"
+			var="shippingDiscount">
+		<li>${Resource.msg('approachingpromo.purchase','checkout',null)}
+			<isprint
+				value="${shippingDiscount.getDistanceFromConditionThreshold()}" />
+			${Resource.msg('approachingpromo.more','checkout',null)}
+			${Resource.msg('approachingpromo.receive','checkout',null)}:
+			${shippingDiscount.getDiscount().getPromotion().getCalloutMsg()}<br />
+		</isloop>
+	</ul>
+</div>
+<isbreak></isif> </isloop> <iselseif
+	condition="${ pdict.ApplicableShippingMethods.size() > 0 && pdict.Basket.custom.engravedProductAvailability } ">
+<isset name="setDefaultFirst" value="0" scope="page" /> <isinputfield
+	formfield="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate}"
+	type="hidden" /> <isloop items="${pdict.ApplicableShippingMethods}"
+	var="shippingMethod" status="loopstate"> <isset
+	name="shippingCost"
+	value="${pdict.ShippingCosts.get(shippingMethod.ID)}" scope="page" /> <isif
+	condition="${shippingMethod.custom.enableForPersonalisation}">
+<div class="form-row form-indent radioBox">
+	<input class="input-radio" type="radio"
+		name="${pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.htmlName}"
+		id="shipping-method-${shippingMethod.ID}" value="${shippingMethod.ID}"
+	<isif condition="${setDefaultFirst == 0}">checked="checked"</isif>
+	/>
+	<isset name="setDefaultFirst" value="1" scope="page" />
+	<label for="shipping-method-${shippingMethod.ID}"> <span></span>
+		<isprint value="${shippingMethod.displayName}" />: <isif
+			condition="${shippingCost.shippingPriceAdjustmentsTotal != 0  && shippingCost.baseShipping!=0}">
+
+		<span class="standard-shipping"><s><isprint
+					value="${shippingCost.baseShipping}" /></s></span> <span
+			class="discount-shipping"><isprint
+				value="${shippingCost.baseShippingAdjusted}" /></span> <iselse> <span><isprint
+				value="${shippingCost.baseShipping}"></span></isif> <isif
+			condition="${shippingCost.surchargeAdjusted > 0}">
+		<span class="shippingsurcharge"> + <isprint
+				value="${shippingCost.surchargeAdjusted}" />
+			${Resource.msg('singleshipping.surcharge','checkout',null)}
+		</span></isif>
+	</label>
+	<isif condition="${!empty(shippingMethod.description)}">
+	<div class="form-caption">
+		<isprint value="${shippingMethod.description}" />
+	</div>
+	<iscomment>Datepicker static markup - needs integrating
+	with BM</iscomment> <isif condition="${shippingMethod.custom.showCalendar==true}">
+	<isset name="hlist" value="" scope="page" /> <isloop
+		iterator="${shippingMethod.custom.holidaysList}" alias="holiday"
+		status="loopstate"> <isif condition="${loopstate.last}">
+	<isset name="hlist" value="${hlist+holiday}" scope="page" /> <iselse>
+	<isset name="hlist" value="${hlist+holiday+','}" scope="page" /></isif> </isloop> <isif
+		condition="${'personalizationstartday' in shippingMethod.custom }">
+	<isset name="start_Day"
+		value="${shippingMethod.custom.personalizationstartday}" scope="page" />
+	<iselse> <isset name="start_Day"
+		value="${shippingMethod.custom.startDay}" scope="page" /></isif> <isif
+		condition="${shippingMethod.custom.enableSaturday==true}"> <isset
+		name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle_sat','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy_sat','checkout',null,start_Day.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /> <iselse> <isset name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy','checkout',null,start_Day.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /></isif>
+
+
+
+
+	<div class="js-calendar datepicker-cnt">
+		<input class="datepicker" type="text" data-range-start="${start_Day}"
+			data-range-end="${shippingMethod.custom.endDay}"
+			data-cutoff-hours="23" data-cutoff-mins="59" data-days-off="${hlist}"
+			data-sat-enable="${shippingMethod.custom.enableSaturday}"
+			data-title="${data_title}" data-copy="${data_copy}"
+			data-change-date="${Resource.msg('singleshipping.datepickerchangedate','checkout',null)}" />
+
+		<label
+			for="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.htmlName}"><span
+			class="fName">${Resource.msg('checkout.deliverydate','checkout',null)}</span></label>
+		<input class="datepicker-display input-datepicker"
+			name="requestedDelivery" type="text"
+			value="${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}"
+			readonly /> <span class="datepicker-select">${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}</span><br>
+
+		<isif
+			condition="${!(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.valid)}">
+		<div class="form-caption error">
+			${Resource.msg('singleshipping.shipment.nominatedDeliveryDateNotSelected','checkout',null)}
+		</div>
+		</isif>
+	</div>
+
+	</isif> </isif>
+	<!---  Display approaching shipping promotional discounts. --->
+	<ul class="shipping-promos">
+		<isloop
+			items="${DiscountPlan.getApproachingShippingDiscounts(shipment, shippingMethod)}"
+			var="shippingDiscount">
+		<li>${Resource.msg('approachingpromo.purchase','checkout',null)}
+			<isprint
+				value="${shippingDiscount.getDistanceFromConditionThreshold()}" />
+			${Resource.msg('approachingpromo.more','checkout',null)}
+			${Resource.msg('approachingpromo.receive','checkout',null)}:
+			${shippingDiscount.getDiscount().getPromotion().getCalloutMsg()}<br />
+		</isloop>
+	</ul>
+</div>
+</isif> </isloop> <iselseif condition="${pdict.ApplicableShippingMethods.size() > 0 }">
+<isset name="defaultMethodId" value="" scope="page" /> <isinputfield
+	formfield="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate}"
+	type="hidden" /> <isloop items="${pdict.ApplicableShippingMethods}"
+	var="shippingMethod" status="loopstate"> <isset
+	name="shippingCost"
+	value="${pdict.ShippingCosts.get(shippingMethod.ID)}" scope="page" /> <isif
+	condition="${shippingMethod.defaultMethod && (shippingMethod.ID != 'PREORDER_DELIVERY' && !shippingMethod.custom.chilledDeliveryShippingMethod)}">
+<isset name="defaultMethodId" value="${shippingMethod.ID}" scope="page" />
+<div class="form-row form-indent radioBox">
+	<input class="input-radio" type="radio"
+		name="${pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.htmlName}"
+		id="shipping-method-${shippingMethod.ID}" value="${shippingMethod.ID}"
+	<isif
+		condition="${(empty(pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.value) && shippingMethod.defaultMethod) || (pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.value == shippingMethod.ID)}">checked="checked"</isif>
+	/> <label for="shipping-method-${shippingMethod.ID}"> <span></span>
+
+		<isprint value="${shippingMethod.displayName}" />: <isif
+			condition="${shippingCost.shippingPriceAdjustmentsTotal != 0  && shippingCost.baseShipping!=0}">
+
+		<span class="standard-shipping"><s><isprint
+					value="${shippingCost.baseShipping}" /></s></span> <span
+			class="discount-shipping"><isprint
+				value="${shippingCost.baseShippingAdjusted}" /></span> <iselse> <span><isprint
+				value="${shippingCost.baseShipping}"></span></isif> <isif
+			condition="${shippingCost.surchargeAdjusted > 0}">
+		<span class="shippingsurcharge"> + <isprint
+				value="${shippingCost.surchargeAdjusted}" />
+			${Resource.msg('singleshipping.surcharge','checkout',null)}
+		</span></isif>
+	</label>
+	<isif condition="${!empty(shippingMethod.description)}">
+	<div class="form-caption">
+		<isprint value="${shippingMethod.description}" />
+	</div>
+	<isif condition="${shippingMethod.custom.showCalendar==true}">
+	<iscomment>Datepicker static markup - needs integrating
+	with BM</iscomment> <isset name="hlist" value="" scope="page" /> <iscomment>
+	<isloop
+		items="${dw.system.Site.getCurrent().getCustomPreferenceValue('holidaysList')}"
+		var="holidaysList" status="loopstate"> <isif
+		condition="${loopstate.last}"> <isset name="hlist"
+		value="${hlist+holidaysList}" scope="page" /> <iselse> <isset
+		name="hlist" value="${hlist+holidaysList+','}" scope="page" /></isif> </isloop> </iscomment> <isloop
+		iterator="${shippingMethod.custom.holidaysList}" alias="holiday"
+		status="loopstate"> <isif condition="${loopstate.last}">
+	<isset name="hlist" value="${hlist+holiday}" scope="page" /> <iselse>
+	<isset name="hlist" value="${hlist+holiday+','}" scope="page" /></isif> </isloop> <isif
+		condition="${shippingMethod.custom.enableSaturday==true}"> <isset
+		name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle_sat','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy_sat','checkout',null,shippingMethod.custom.startDay.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /> <iselse> <isset name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy','checkout',null,shippingMethod.custom.startDay.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /></isif>
+	<div class="js-calendar datepicker-cnt">
+		<input class="datepicker" type="text"
+			data-range-start="${shippingMethod.custom.startDay}"
+			data-range-end="${shippingMethod.custom.endDay}"
+			data-cutoff-hours="23" data-cutoff-mins="59" data-days-off="${hlist}"
+			data-sat-enable="${shippingMethod.custom.enableSaturday}"
+			data-title="${data_title}" data-copy="${data_copy}"
+			data-change-date="${Resource.msg('singleshipping.datepickerchangedate','checkout',null)}" />
+		<label
+			for="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.htmlName}"><span
+			class="fName">${Resource.msg('checkout.deliverydate','checkout',null)}</span></label>
+		<input class="datepicker-display input-datepicker"
+			name="requestedDelivery" type="text"
+			value="${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}"
+			readonly /> <span class="datepicker-select">${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}</span><br>
+		<isif
+			condition="${!(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.valid)}">
+		<div class="form-caption error">
+			${Resource.msg('singleshipping.shipment.nominatedDeliveryDateNotSelected','checkout',null)}
+		</div>
+		</isif>
+	</div>
+	</isif> </isif>
+	<!---  Display approaching shipping promotional discounts. --->
+	<ul class="shipping-promos">
+		<isloop
+			items="${DiscountPlan.getApproachingShippingDiscounts(shipment, shippingMethod)}"
+			var="shippingDiscount">
+		<li>${Resource.msg('approachingpromo.purchase','checkout',null)}
+			<isprint
+				value="${shippingDiscount.getDistanceFromConditionThreshold()}" />
+			${Resource.msg('approachingpromo.more','checkout',null)}
+			${Resource.msg('approachingpromo.receive','checkout',null)}:
+			${shippingDiscount.getDiscount().getPromotion().getCalloutMsg()}<br />
+		</isloop>
+	</ul>
+</div>
+<isbreak></isif> </isloop> <isloop items="${pdict.ApplicableShippingMethods}"
+	var="shippingMethod" status="loopstate"> <isset
+	name="shippingCost"
+	value="${pdict.ShippingCosts.get(shippingMethod.ID)}" scope="page" /> <isif
+	condition="${(shippingMethod.ID != defaultMethodId) && (shippingMethod.ID != 'PREORDER_DELIVERY' && !shippingMethod.custom.chilledDeliveryShippingMethod) && !(pdict.CurrentSession.userName.equalsIgnoreCase('storefront') && shippingMethod.custom.CustomerServiceOnlyShippingMethod)}">
+<div class="form-row form-indent radioBox">
+	<input class="input-radio" type="radio"
+		name="${pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.htmlName}"
+		id="shipping-method-${shippingMethod.ID}" value="${shippingMethod.ID}"
+	<isif
+		condition="${(empty(pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.value) && shippingMethod.defaultMethod) || (pdict.CurrentForms.singleshipping.shippingAddress.shippingMethodID.value == shippingMethod.ID)}">checked="checked"</isif>
+	/> <label for="shipping-method-${shippingMethod.ID}"> <span></span>
+		<isprint value="${shippingMethod.displayName}" />: <isif
+			condition="${shippingCost.shippingPriceAdjustmentsTotal != 0  && shippingCost.baseShipping!=0}">
+
+		<span class="standard-shipping"><s><isprint
+					value="${shippingCost.baseShipping}" /></s></span> <span
+			class="discount-shipping"><isprint
+				value="${shippingCost.baseShippingAdjusted}" /></span> <iselse> <span><isprint
+				value="${shippingCost.baseShipping}"></span></isif> <isif
+			condition="${shippingCost.surchargeAdjusted > 0}">
+		<span class="shippingsurcharge"> + <isprint
+				value="${shippingCost.surchargeAdjusted}" />
+			${Resource.msg('singleshipping.surcharge','checkout',null)}
+		</span></isif>
+	</label>
+	<isif condition="${!empty(shippingMethod.description)}">
+	<div class="form-caption">
+		<isprint value="${shippingMethod.description}" />
+	</div>
+	<isif condition="${shippingMethod.custom.showCalendar==true}">
+	<iscomment>Datepicker static markup - needs integrating
+	with BM</iscomment> <isset name="hlist" value="" scope="page" /> <iscomment>
+	<isloop
+		items="${dw.system.Site.getCurrent().getCustomPreferenceValue('holidaysList')}"
+		var="holidaysList" status="loopstate"> <isif
+		condition="${loopstate.last}"> <isset name="hlist"
+		value="${hlist+holidaysList}" scope="page" /> <iselse> <isset
+		name="hlist" value="${hlist+holidaysList+','}" scope="page" /></isif> </isloop> </iscomment> <isloop
+		iterator="${shippingMethod.custom.holidaysList}" alias="holiday"
+		status="loopstate"> <isif condition="${loopstate.last}">
+	<isset name="hlist" value="${hlist+holiday}" scope="page" /> <iselse>
+	<isset name="hlist" value="${hlist+holiday+','}" scope="page" /></isif> </isloop> <isif
+		condition="${shippingMethod.custom.enableSaturday==true}"> <isset
+		name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle_sat','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy_sat','checkout',null,shippingMethod.custom.startDay.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /> <iselse> <isset name="data_title"
+		value="${Resource.msg('singleshipping.datepickertitle','checkout',null)}"
+		scope="page" /> <isset name="data_copy"
+		value="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy','checkout',null,shippingMethod.custom.startDay.toString(),shippingMethod.custom.endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+		scope="page" /></isif>
+	<div class="js-calendar datepicker-cnt">
+		<input class="datepicker" type="text"
+			data-range-start="${shippingMethod.custom.startDay}"
+			data-range-end="${shippingMethod.custom.endDay}"
+			data-cutoff-hours="23" data-cutoff-mins="59" data-days-off="${hlist}"
+			data-sat-enable="${shippingMethod.custom.enableSaturday}"
+			data-title="${data_title}" data-copy="${data_copy}"
+			data-change-date="${Resource.msg('singleshipping.datepickerchangedate','checkout',null)}" />
+
+
+		<label
+			for="${pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.htmlName}"><span
+			class="fName">${Resource.msg('checkout.deliverydate','checkout',null)}</span></label>
+		<input class="datepicker-display input-datepicker"
+			name="requestedDelivery" type="text"
+			value="${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}"
+			readonly /> <span class="datepicker-select">${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}</span><br>
+
+		<isif
+			condition="${!(pdict.CurrentForms.singleshipping.shippingAddress.requestedDeliveryDate.valid)}">
+		<div class="form-caption error">
+			${Resource.msg('singleshipping.shipment.nominatedDeliveryDateNotSelected','checkout',null)}
+		</div>
+		</isif>
+
+	</div>
+
+
+
+
+	</isif> </isif>
+	<!---  Display approaching shipping promotional discounts. --->
+	<ul class="shipping-promos">
+		<isloop
+			items="${DiscountPlan.getApproachingShippingDiscounts(shipment, shippingMethod)}"
+			var="shippingDiscount">
+		<li>${Resource.msg('approachingpromo.purchase','checkout',null)}
+			<isprint
+				value="${shippingDiscount.getDistanceFromConditionThreshold()}" />
+			${Resource.msg('approachingpromo.more','checkout',null)}
+			${Resource.msg('approachingpromo.receive','checkout',null)}:
+			${shippingDiscount.getDiscount().getPromotion().getCalloutMsg()}<br />
+		</isloop>
+	</ul>
+</div>
+
+</isif> </isloop> <iselse>
+<div class="no-shipping-methods">${Resource.msg('singleshipping.noshippingmethods','checkout',null)}</div>
+<!-- END: noshippingmethods --></isif>

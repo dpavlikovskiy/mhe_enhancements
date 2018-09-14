@@ -1,0 +1,115 @@
+.picnicEvents{
+	width:1280px;
+	background:$eModulesBg;
+	margin:0 auto 10px;
+	position:relative;
+	#hoverContent{
+	min-height:310px;
+		}
+	.picnicProducts{
+		background: $eModulesBg;
+		text-align:center;
+		min-height:340px;
+		li{
+			display:inline-block;
+			width:310px;
+			height:320px;
+			vertical-align:top;
+			border-bottom: 5px solid $brandBorder;
+			height:337px;
+			a{
+				color:$brandColor;
+			}
+			h3.secondary{
+				font:$standardFontSize $regularFont;
+				color:$brandColor;
+				margin:0;
+			}
+			.price{
+				display:block;
+				font:$largeFontSize $titleFont;
+				margin:0 0 10px;
+				color: $white;
+			}
+			.pImage{
+				height:190px;
+				margin:20px 0 10px;
+				border-right:1px solid $brandBorder;
+			}
+			&:last-child{
+				.pImage{
+					border-right:0;
+				}
+			}
+			&:hover{
+				.hiddenContent{
+					@include opacity(1);
+					visibility:visible;
+				}
+				&:before{
+					@include opacity(1);
+				}
+			}
+			&:before{
+				content:" ";
+				width:28px;
+				height:14px;
+				background:url(images/event-arrow.png);
+				top:296px;
+				margin-left:-10px;
+				position:absolute;
+				z-index:99;
+				@include transition-property(opacity);
+				@include transition-duration(.5s);
+				@include opacity(0);
+			}
+		}
+	}
+	.content{
+		position:absolute;
+		left:200px;
+		right:200px;
+		top:60px;
+		text-align: center;
+		p, h4{
+			font:$standardFontSize $regularFont;
+			color: $brandColor;
+			line-height: 18px;
+		}
+		p.bold{
+			font-weight:normal;
+		}
+		h2{
+			font:$secondHeading $titleFont;
+			color:$brandColor;
+			text-transform: none;
+			text-shadow:1px 1px 1px $black;
+		}
+		h3{
+			font:$largeFontSize $titleFont;
+			color:$brandColor;
+			text-transform: none;
+			font-weight: bold;
+		}
+	}
+	.hiddenContent{
+		position:absolute;
+		left:0;
+		top:0;
+		@include transition-property(opacity);
+		@include transition-duration(.5s);
+		@include opacity(0);
+		visibility:hidden;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,558 @@
+/**
+* This script provides the infrastructure necessary to run chained job executions (tasks). It does also keep 
+* the state of processing and exposes it via Custom Objects to any individual that monitors the progress.
+* There can only be one instance at a time.
+*/
+
+importPackage( dw.io );
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.util );
+importScript( 'job/tasks/libTasks.ds' );
+importScript( 'util/LogToFileLib.ds' );
+importScript( 'util/libInheritance.ds' );
+
+/** JobInfo Singleton */
+var jobMonitor = null;
+var cvLogger : Logger = Logger.getLogger( 'JobInfo' );
+
+/** Log Levels */
+var LogLevel_FATAL 	: Number = 0;
+var LogLevel_ERROR 	: Number = 1;
+var LogLevel_WARN 	: Number = 2;
+var LogLevel_INFO 	: Number = 3;
+var LogLevel_DEBUG 	: Number = 4;
+var LogLevel_TRACE 	: Number = 5;
+
+/**
+* Cleans the JobMonitor object and set it to null.
+* 
+*/
+function cleanUpJobMonitor() {
+  	jobMonitor = null; 
+};
+
+//Hack, because vars are cannot be imported in DW, only functions
+/**
+* Gets the request based JobInfo singleton.
+* 
+* @param config JSON string that holds job and task configuration.
+* 
+* return JobMonitor
+*/
+function getJobMonitor( config : String ) : JobMonitor {
+	if ( jobMonitor == null && config ) {
+		jobMonitor = new JobMonitor(config); 
+	}
+	return jobMonitor;
+};
+
+/**
+* If there currently is a job monitor initialized and has a current task, this one will be returned. 
+* Otherwise the DW system Logger will be returned.
+*
+* @param category the category to get the logger for
+* @return Logger
+*/
+function getCurrentJobLogger( fileNamePrefix : String, category : String ) : Logger {
+	if ( jobMonitor && jobMonitor.getCurrentTask() ) {
+		return jobMonitor.getCurrentTask();
+	} else  if ( fileNamePrefix && category ) {
+		return Logger.getLogger( fileNamePrefix, category );
+	} else  if ( fileNamePrefix ) {
+		return Logger.getLogger( fileNamePrefix );
+	}  	
+	return Logger; 
+};
+
+
+/**
+* JobMonitor implementation.
+*/
+var JobMonitor = Class.extend ( 
+/** @lends JobMonitor.prototype */
+{
+	/**
+	* Initialises the object
+	* @constructs
+	*/
+	init : function( configID : String ) {
+		
+		//save config string for
+		this._configID  = configID;
+		this.statusObjectID = null;
+		this.currentTask = null;
+		this.runtimeExceededAfter = 0;
+		this.setStatus('INIT', 'Job execution is initializing');
+		//defines if a job is executable based on the jobconfiguration.
+		this.executable = false;
+		
+		//check if job config ID was passed
+		if ( empty( configID ) ) {
+			this.setErrorStatusMessage("No job configuration ID passed.");
+			return;
+		}
+		
+		//check if job config object is available
+		var jobConfiguration : CustomObject = CustomObjectMgr.getCustomObject('JobConfiguration', configID);
+		if ( empty( jobConfiguration ) ) {
+			this.setErrorStatusMessage("No job configuration available.");
+			return;
+		}
+
+		//locally cache all required values
+		this.config = {}
+		var attributeIDs : Array = ['ID', 'name', 'fileLogging', 'logLevel', 'processSites', 'successEmail', 'errorEmail', 'onTemporaryError', 'tasks', 'followUpJob', 'maxRuntime', 'lastProcessedFileTimestamp'];
+		for each ( var attributeID : String in attributeIDs ) {
+			if ( attributeID in jobConfiguration.custom ) {
+				this.config[attributeID] = jobConfiguration.custom[attributeID];
+			}
+		}
+		//set name of the job
+		var temporaryStatusObject : CustomObject =  this.getStatusObject();
+		if ( this.config && this.config.ID ) {
+			temporaryStatusObject.custom.ID = this.config.ID + temporaryStatusObject.custom.ID;
+			this.statusObjectID = temporaryStatusObject.custom.ID;
+			temporaryStatusObject.custom.name =  this.config.name;
+		}
+		
+		//determine log level number
+		this.logLevel = {"fatal":LogLevel_FATAL, "error":LogLevel_ERROR, "warn":LogLevel_WARN, "info":LogLevel_INFO, "debug":LogLevel_DEBUG, "trace":LogLevel_TRACE }[this.config['logLevel']];		
+
+		//A job has to have a ID that can be used for tracking and logging
+		if ( empty( this.config.ID ) ){
+			this.setErrorStatusMessage("Job configuration lacks of an ID.");
+			return;
+		}
+
+		//A job has to have at leat one task, otherwise there won't be something to execute
+		if ( empty( this.config.tasks ) ){
+			this.setErrorStatusMessage("Job configuration lacks of task definitions.");
+			return;
+		}
+
+		//Create task object array
+		this.tasks = [];
+		//if any of the tasks isn't executable, decline job execution
+		for each (var taskConfigString : Object in this.config.tasks) {
+			//parse JSON config
+			var taskConfig = {};
+			try {
+				taskConfig = JSON.parse(taskConfigString);
+			} catch( ex ) {
+				var exception : Object = ex;
+				this.setErrorStatusMessage("Task configuration couldn't be parsed: " + taskConfigString);
+				return;
+			}
+			var task : Object = initTask( taskConfig, this );
+			if ( !task.isExecutable() ) {
+				this.setErrorStatusMessage("Task is not executable: " + task.initErrorMessage + '\n' + taskConfigString);
+				return;
+			} 
+			this.tasks.push(task);
+		}
+		
+		//initialize the log file
+		if ( this.config.fileLogging != 'None' ) { 				
+			var logFileName : String = this.config.ID; 
+			logFileName = logFileName.toLowerCase().replace(/[^a-z0-9]/g, '');
+			this.logFile = new File(dw.io.File.IMPEX +'/customLogs/' + logFileName + '_' + StringUtils.formatCalendar(dw.system.System.getCalendar(), 'yyyyMMdd_HHmmssSSS') + '.log');
+			this.fileLogger = new LogToFileLib(this.logFile);
+			temporaryStatusObject.custom.logFilePath = this.logFile.fullPath;
+		} else {
+			this.fileLogger = null;
+		}
+		//job can be executed
+		this.executable = true;
+		
+		//removing preliminary status object		
+		CustomObjectMgr.remove(temporaryStatusObject);
+		this.statusObjectID = null;
+		
+		return;
+	},
+
+	/**
+	* Tells if a followup job is configured and the execution for all sites the current job has to run for 
+	* did already finish (uses SiteJobStatus Custom Object as sync point).
+	* 
+	* @return true if there is a job to be triggered, otherwise false
+	*/
+	getFollowUpJob : function() : String {
+		//return false if no followup job is configured
+		if ( empty( this.config.followUpJob ) ) {
+			return null;
+		}
+		//check if the job has to run for multiple sites
+		if ( !empty( this.config.processSites ) ) {
+			if( -1 == this.config.processSites.indexOf( Site.current.ID ) ) {
+				cvLogger.error("Job ran on Site ID {0}, but is not configured to run there!", Site.current.ID );
+				return null; // this site is not expected to run
+			}
+			
+			var siteJobStatus : CustomObject = CustomObjectMgr.getCustomObject("SiteJobStatus", this.config.ID);
+			if ( empty(siteJobStatus) ) {
+				siteJobStatus = CustomObjectMgr.createCustomObject("SiteJobStatus", this.config.ID);
+			}
+			
+			//set status
+			var finishedSites : Array = siteJobStatus.custom.finishedSites;
+			var finishedSitesList : ArrayList = new ArrayList();
+			for (var i = 0; i < finishedSites.length; i++) {
+				finishedSitesList.add(finishedSites[i]);
+			}
+			finishedSitesList.add(dw.system.Site.getCurrent().ID);
+			siteJobStatus.custom.finishedSites = finishedSitesList;
+			
+			//check status 
+			for (var i = 0; i < this.config.processSites.length; i++) {
+				//return null, if any of the sites wasn't processed
+				if (!finishedSitesList.contains(this.config.processSites[i])) {
+					return null;				
+				}
+			}
+
+			//remove the object, so the status is resetted			
+			CustomObjectMgr.remove( siteJobStatus );
+		}
+		//set triggered job name
+		var statusObject : CustomObject = this.getStatusObject();
+		statusObject.custom.triggeredAction = this.config.followUpJob; 
+		return this.config.followUpJob;
+	},
+	
+	/**
+	* Returns the configured ID for the job
+	* 
+	* @return job identifier
+	*/
+	getID : function() : String {
+		return this.config.ID;
+	},
+	
+	getLastProcessedFileTimestamp : function() : String {
+	  return this.config.lastProcessedFileTimestamp;
+	},
+	
+	/**
+	* Tells if there is anything that can be executed.
+	* 
+	* @return true if it is executable, otherwise false
+	*/
+	isExecutable : function() : Boolean {
+		return this.executable;
+	},
+	
+	/**
+	* Tells if there is anything that can be executed.
+	* 
+	* @return true if it is executable, otherwise false
+	*/
+	start : function() : void {
+		this.statusObjectID = null;
+		if ( this.config.maxRuntime ) {
+			this.runtimeExceededAfter = new Date().getTime() + this.config.maxRuntime * 1000; 
+		}
+		this.setStatus('RUNNING', 'Job execution started');
+	},
+
+	/**
+	* This tells if the configured maximum runtime has exceeded since the job execution started. 
+	* Jobs which are using the framework need to query and react on it as needed.
+	*
+	* @return false if there is no maximum runtime configured or the time isn't exceeded, otherwise true
+	*/
+	maxRuntimeExceeded : function() : boolean {
+		return ( this.runtimeExceededAfter > 0 ) && ( this.runtimeExceededAfter < (new Date()).getTime() );
+	},
+
+	/**
+	* Gets all configured tasks.
+	* 
+	* @return Array of tasks.
+	*/
+	getTasks : function() : Array {
+		return this.tasks;
+	},
+	
+	/**
+	* Sets the current task.
+	* 
+	* @param task Task that is about to start.
+	*/
+	startTask : function( task : Task ) {
+		if ( task ) {
+			this.currentTask = task;
+			this.setStatus('RUNNING', 'Task ' + task.getName() + ' started.');
+		}
+		return;
+	},
+
+	/**
+	* Used to specify that the current task was successfully completed. Thereafter the reference is being removed (current task dosn't exist any longer). 
+	*
+	* @param task Task that finished.
+	*/
+	taskFinished : function( task : Task ) {
+		if ( task ) {
+			this.setStatus('RUNNING', 'Task ' + task.getName() + ' successfully completed.');
+			this.currentTask = null;
+		}
+		return;
+	},
+
+	/**
+	* Used to specify that the current task has failed. Thereafter the reference is being removed (current task dosn't exist any longer). 
+	*
+	* @param task Task that failed.
+	*/
+	taskFailed : function( task : Task ) {
+		if ( task ) {
+			this.setStatus('RUNNING', 'Task ' + task.getName() + ' failed.');
+			this.currentTask = null;
+		}
+		return;
+	},
+	
+	/**
+	* Gets the current task.
+	*
+	* @return current task
+	*/
+	getCurrentTask : function( task : Task ) {
+		return this.currentTask; 
+	},
+	
+	/**
+	* Set status message of the job.
+	*
+ 	* @param message 		A message which will be set at the status object.
+	*/
+	setErrorStatusMessage : function( message : String ) {
+		if ( message ) {
+			this.error( message );
+			var statusObject : CustomObject = this.getStatusObject();
+			//set new values
+			statusObject.custom.errorMessage = message;
+		}
+	},
+
+	/**
+	* Set status of the job execution.
+	*
+	* @param state 			The state of the status which should be updated. The following values are valid:
+ 	*                       	"RUNNING" : The job is running.
+ 	*							"FINISHED": The job finished with no errors.
+ 	*							"FAILED"  : The job finished with errors.
+ 	* @param message 		An optional message which will be set at the status object.
+ 	* @param errorMessage 	An optional error message which will be set at the status object.
+	*/
+	setStatus : function( state : String, message : String, errorMessage : String ) {
+		if ( empty(state) ) {
+			cvLogger.debug('setStatus: Input parameter "state" missing.');
+			return;
+		}
+		if ( state != 'INIT'
+			&& state != 'RUNNING'
+			&& state != 'FINISHED'
+			&& state != 'FAILED') {
+			Logger.warn('setStatus: The input parameter "state" has an invalid value: "' + state + '".');
+			return;
+		}
+		if ( message ) {
+			this.logMessage( message );
+		} else {
+			this.logMessage('Job ' + state);
+		}
+		if ( errorMessage ) {
+			this.logMessage( errorMessage );
+		} 
+		
+		//retrieve the status object
+		var statusObject : CustomObject = this.getStatusObject();
+
+		//set new values
+		statusObject.custom.message = message;
+		if ( errorMessage ) {
+			statusObject.custom.errorMessage = errorMessage;
+		}
+		statusObject.custom.state = state;
+		if ( state == 'FINISHED' || state == 'FAILED' ) {
+			statusObject.custom.endDate = System.getCalendar().getTime();
+		}
+	},
+
+	/**
+	* Gets the current status object. If that isn't avaliable, it will be created.
+	*
+	* @return StatusObject
+	*/
+	getStatusObject : function () : CustomObject {
+		//retrieve the status object
+		if ( empty( this.statusObjectID ) ) {
+			if ( !this.config || !this.config.ID ) {
+				this.statusObjectID = UUIDUtils.createUUID();
+			} else {
+				this.statusObjectID = this.config.ID + UUIDUtils.createUUID();
+			}
+		}		
+		var statusObject : CustomObject = CustomObjectMgr.getCustomObject('JobStatus', this.statusObjectID);
+		if ( empty(statusObject) ) {
+			statusObject = CustomObjectMgr.createCustomObject('JobStatus', this.statusObjectID );
+			statusObject.custom.name = this.config && this.config.name ? this.config.name : 'Unknown';
+			statusObject.custom.type = 'job';
+			statusObject.custom.siteId = Site.getCurrent().ID;
+			if ( !empty(this.logFile) ) {
+				statusObject.custom.logFilePath = this.logFile.fullPath;
+			}
+		}
+		return statusObject;
+	},
+		
+	/**
+	* Logs a message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	logMessage : function( message : String ) {
+		if ( !empty(message) ) {
+			if ( !empty(this.fileLogger) ) {
+				this.fileLogger.log(message);
+			} else {
+				cvLogger.debug(message);
+			}
+		}
+	},
+	
+	/**
+	* Gets the current log level number:
+	*
+    * fatal - 0
+    * error - 1
+    * warn	- 2
+    * info 	- 3
+    * debug - 4
+	* trace - 5
+	* 
+	* @return 
+	*/
+	getLogLevel : function( ) : Number {
+		return this.logLevel;
+	},
+	
+	/**
+	* This method returns true if error logging is enabled
+	*/
+	isErrorEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_ERROR;
+	},	
+	
+	/**
+	* Logs an error message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	error : function( message : String ) {
+		if ( !empty(message) && this.isErrorEnabled() ) {
+			this.logMessage('(error) ' + message );
+		}
+		return;
+	},
+	
+	/**
+	* This method returns true if warn logging is enabled
+	*/
+	isWarnEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_WARN;
+	},	
+	
+	/**
+	* Logs an warn message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	warn : function( message : String ) {
+		if ( !empty(message) && this.isWarnEnabled() ) {
+			this.logMessage('(warn) ' + message );
+		}
+		return;
+	},
+
+	/**
+	* This method returns true if info logging is enabled
+	*/
+	isInfoEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_INFO;
+	},	
+	
+	/**
+	* Logs an warn message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	info : function( message : String ) {
+		if ( !empty(message) && this.isInfoEnabled() ) {
+			this.logMessage('(info) ' + message );
+		}
+		return;
+	},
+
+	/**
+	* This method returns true if debug logging is enabled
+	*/
+	isDebugEnabled : function() : Boolean {
+		return this.logLevel >= LogLevel_DEBUG;
+	},	
+	
+	/**
+	* Logs an debug message to the log file.
+	* 
+	* @param message string that should be logged.
+	*/
+	debug : function( message : String ) {
+		if ( !empty(message) && this.isDebugEnabled() ) {
+			this.logMessage('(debug) ' + message );
+		}
+		return;
+	},
+	
+	/**
+	* Specifies how the job should react on temporary errors. Values can be FAIL, ERROR and CONTINUE
+	*
+	* @return reaction directive defined at the job configuration
+	*/
+	onTemporaryError : function () {
+		if (this.config.onTemporaryError) {
+			return this.config.onTemporaryError;
+		}
+		return 'FAIL';
+	},
+	
+	/**
+	* Get the configured error email address.
+	*
+	* @return email address
+	*/	
+	getErrorMailAddress : function () {
+		return this.config.errorEmail ? this.config.errorEmail : null;
+	},
+	
+	/**
+	* Get the configured error email address.
+	*
+	* @return email address
+	*/	
+	getSuccessMailAddress : function () {
+		return this.config.successEmail ? this.config.successEmail : null;
+	},
+
+	/**
+	 * Get the log-file for sending per mail
+	 * @return the log file
+	 */
+	 getLogFile : function() {
+	 	return this.logFile;
+	 }
+
+
+} );

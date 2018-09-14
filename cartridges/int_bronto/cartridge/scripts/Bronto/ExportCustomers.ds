@@ -1,0 +1,50 @@
+/**
+* Demandware Script File
+* This process creates a customer export for Bronto for each customer being exported individually.
+*
+*	Based on SiteGenesis version 2.10.0.2
+*	Created By: Precision Design Studios
+*   Modified By: Astound Commerce
+*
+* @input Customers : dw.util.Iterator
+* @input custCount : Number
+* @output IdMap : dw.util.HashMap The hash with Bronto fields id's
+* @output CacheTheHash : Number
+*/
+
+importPackage (dw.net);
+importPackage (dw.rpc);
+importPackage (dw.util);
+importPackage (dw.system);
+importPackage (dw.web);
+
+importScript ('Bronto/API.ds');
+
+function execute (args : PipelineDictionary) : Number {
+
+	// Step1 : Autorize API
+	var map = authorizeAPI();
+	
+	// Step 2: Customers export 
+	try	{
+				
+		var fieldsIdMap : HashMap = getFieldList(map);
+		// Collect all of the fields id's into one hash map
+		args.IdMap = fieldsIdMap;
+		args.CacheTheHash = map.CacheTheHash; // this flag is nececcery for cashing switch		
+		 
+		 var customer : dw.customer.Profile = null;
+		 var customers : Iterator = args.Customers;
+		Logger.error("Customers count from Demandware -" + args.custCount);
+		var transactionResponse = updateCustomersJob(customers, fieldsIdMap, map, null);
+		if ( transactionResponse==undefined || transactionResponse._return.errors) {
+			Logger.debug("Responce has errors.");
+			return PIPELET_ERROR;
+		}
+	// End of Step 2
+	} catch (e) {
+		handleError(e, "Export Customers");
+		var ee=e.message;
+	}
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,11 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	importPackage(dw.customer);
+	importPackage(dw.util);
+	var content = pdict.Content;
+	var body = content.custom.body;
+	
+</isscript>
+
+<isprint value="${body}" encoding="off">

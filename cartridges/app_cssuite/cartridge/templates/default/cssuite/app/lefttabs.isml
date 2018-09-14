@@ -1,0 +1,32 @@
+<div id="lefttabs" class="tabs">
+    <ul>
+        <li class="ui-tabs-nav-item"><a href="#lefttab_orders">Orders</a></li>
+        <li class="ui-tabs-nav-item"><a href="#lefttab_customers" id="lefttab_customers_tab">Customers</a></li>
+        <li class="ui-tabs-nav-item"><a href="#lefttab_products">Products</a></li>
+        <!--<li class="ui-tabs-nav-item"><a href="#scripts">Scripts</a></li>-->
+    </ul>
+     <div class="corner_topright">&nbsp;</div>
+     <div id="lefttab_orders">
+        <isinclude template="cssuite/search/ordersearchform">
+        <isinclude template="cssuite/order/infopanel">
+    </div><!-- END: lefttab_orders -->
+
+
+    <div id="lefttab_customers">
+        <div id="customer_container">
+            <isinclude template="cssuite/search/customersearchform">
+        </div><!-- END: customer_container -->
+    </div><!-- END: lefttab_customers -->
+
+
+
+    <div id="lefttab_products">
+        <div id="product_container">
+        	<isinclude template="cssuite/search/productsearchform">
+        </div><!-- END: product_container -->
+    </div><!-- END: lefttab_products -->
+
+
+</div><!-- END: lefttabs -->
+
+<div class="selectioninfo"><!-- CONTAINER SELECTION INFO GOES HERE --></div><!-- END: selectioninfo -->

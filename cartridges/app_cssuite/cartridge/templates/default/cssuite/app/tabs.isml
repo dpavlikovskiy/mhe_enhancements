@@ -1,0 +1,45 @@
+<div id="tabs" class="tabs">
+	<ul class="tabs_container">
+		<li class="ui-tabs-nav-item lineitems_details"><a href="#lineitems_details" class="lineitems_details"><span>Order</span></a></li>
+		<li class="ui-tabs-nav-item notes_details"><a href="#notes_details" class="notes_details"><span>Notes</span></a></li>
+		<li class="ui-tabs-nav-item history_details"><a href="#history_details" class="history_details"><span>History</span></a></li>
+	</ul>
+	<div class="orderactions-container">
+		<iscomment><input class="buttons_toprow addshipment" name="Add Shipment" onclick="Dialog.createShipment();"/></iscomment>
+		<input class="buttons_toprow saveorder" name="Save Order" onclick="Dialog.saveOrder();"/>
+		<input class="buttons_toprow cancelorder" name="Discard Changes" onclick="Order.discardChanges();"/>
+	</div> <!-- END: orderactions-container -->
+	<div class="clear"></div>
+    <div id="round-container">
+        <div class="top"><span></span></div>
+        <div id="content">
+        	<div id="order_header">
+        		<span class="order_status">Status: <span id="order_status">Open</span></span>
+                <span class="customer">Customer: <span id="header_customer"></span></span>
+            	<span class="order_number">Order: <span id="order_number"></span></span>
+    		</div> <!-- END: order_header -->
+            <div id="lineitems_details">
+                &nbsp;
+            </div> <!-- END: lineitems_details -->
+            <div id="notes_details">
+                <img src="${URLUtils.staticURL('/cssuite/images/loading.gif')}" border="0" style="float:left;margin:0px 10px 0px 10px;"/>Working...
+            </div> <!-- END: notes_details -->
+            <div id="history_details">
+                <table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tbody>
+                        <tr class="listTableHeader">
+                        	<td colspan="4">Order History</td>
+                        </tr>
+                        <tr class="listTableHeaderLight">
+                            <td>Created by</td>
+                            <td>Creation Date</td>
+                            <td>Event</td>
+                            <td>Notes</td>
+                        </tr>
+                    </tbody>
+				</table>
+            </div> <!-- END: history_details -->
+        </div> <!-- END: content -->
+        <div class="bottom"><span></span></div>
+	</div> <!-- END: round-container -->
+</div> <!-- END: tabs -->

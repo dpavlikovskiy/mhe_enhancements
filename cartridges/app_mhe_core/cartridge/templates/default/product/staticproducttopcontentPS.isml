@@ -1,0 +1,324 @@
+<iscomment>In the product pipeline, if a product was not found for the selected attributes, we need to refresh the ProductVariationModel using the default selected variant</iscomment>
+<isinclude template="util/modules"/>
+<isset name="isQuickView" value="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist'}" scope="page"/>	
+<isset name="OrigProduct" value="${pdict.Product}" scope="page"/>
+<isset name="ProductSet" value="${pdict.Product}" scope="pdict"/>
+<isset name="ProductSetList" value="${new dw.util.ArrayList()}" scope="pdict" />
+<isset name="isBundle" value="${pdict.Product.bundle}" scope="pdict"/>
+<isset name="isSet" value="${pdict.Product.productSet}" scope="pdict"/>
+
+<isloop items="${pdict.Product.productSet ? pdict.ProductSet.getProductSetProducts() : pdict.ProductSet.getBundledProducts()}" var="SetProduct" status="productSetLoop">	
+	<isif condition="${SetProduct.online}">	
+		<isscript>
+			if( SetProduct.master ) {
+				var _variants = SetProduct.getVariants();
+				if(_variants != null) {
+					if(_variants.length > 0) {
+						for each(var _p : dw.product.Product in _variants) {
+							if(_p.onlineFlag == true) {
+								SetProduct = _p;
+								break;
+							}
+						}
+					} 
+				} 
+			}
+			
+			pdict.ProductSetList.add(SetProduct);
+		</isscript>
+	</isif>
+</isloop>
+<!-- dwMarker="product" dwContentID="${pdict.Product.UUID}" -->
+<iscomment>
+	the category context is determined based on the product search
+	which was triggered or through the products primary category
+</iscomment>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<isscript>
+	importScript("product/ProductUtils.ds");
+
+	var category : dw.catalog.Category =null;
+		if('catID' in pdict.CurrentSession.custom){ 
+		 category =dw.catalog.CatalogMgr.getCategory(pdict.CurrentSession.custom.catID);	
+	}else{
+		 category  = ProductUtils.getProductCategoryForStaticPDP(pdict.ProductSearchResult, pdict.Product);
+	}		
+	var assignments : Collection = pdict.Product.getCategoryAssignments();
+	
+</isscript>
+<isscript>  
+/** Set
+if the badge needs to be displayed or not */ displayBadge =
+ProductUtils.displayBadge(pdict.Product); 
+</isscript>
+
+<isset name="classNameForKeyline" value="" scope="page" >
+<isif condition="${!empty(pdict.Product.getImages('hi-res')) && pdict.Product.getImages('hi-res').length>1}">
+	<isset name="classNameForKeyline" value="multiple-views" scope="page" >
+</isif>
+				
+
+<div class="pdp-section pdp-section-hero pdp-section-bundle">
+	<div id="pdp-image-switcher" class="pdp-section-row js-sup-scroller js-image-switcher" 
+	data-sup-scroller='{"heroColumn" : "column-hero", "detailsColumn" : "column-details", "scrollPanelWrap" : "col-inner", "offsetY" : "120px"}'
+	data-image-switch-config='{"thumbContainerSelector":".thumb", "thumbnailImageSelector":".productthumbnail", "mainImageSelector" : ".img-hero", "activeClass" : "selected"}'>
+		
+		<div class="column column-details product-detail ${classNameForKeyline}">
+			<div class="col-inner">
+				<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+				<isif condition="${'brandlogo' in pdict.Product.custom}" >
+				<div class="product-logo" itemprop="name">
+					<img src="${pdict.Product.custom.brandlogo.absURL}" alt="${category.displayName}" class="logo" />
+				</div>
+				<iselse>
+				<div class="product-logo" itemprop="name">
+					<img src="${category.thumbnail.URL}" alt="${category.displayName}" class="logo" />
+				</div>
+				</isif>
+				
+				</isif>
+				<h1 class="alpha-heading" itemprop="name"><isprint value="${pdict.Product.name}"/></h1>
+				
+		<iscomment>Box Description </iscomment>
+		<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+		<isif condition="${!empty(pdict.Product.custom.boxDescription)}"> 
+			<div class="boxDescription">
+				<isprint value="${pdict.Product.custom.boxDescription}" />
+			</div>
+		</isif>
+
+		
+				
+				<iscomment>Fix for Error Log - : Cannot read property "markup" from null</iscomment>
+				<isif condition="${pdict.Product.longDescription!=null && !empty(pdict.Product.longDescription)}" >
+					<p class="lead-copy<isif condition="${pdict.Product.longDescription.markup.length > 169}"> limited-para</isif>" itemprop="name">
+						<isif condition="${pdict.Product.longDescription.markup.length > 169}">
+							<span class="limitedpara"><isprint value="${dw.util.StringUtils.truncate(pdict.Product.longDescription.markup,169,dw.util.StringUtils.TRUNCATE_WORD,'')}" encoding="off"/></span>
+							<span class="limit-para-trigger">${Resource.msg('product.longdescription.more','product',null)}</span>
+							<span class="limit-para-extra limit-para-hidden"><isprint value="${pdict.Product.longDescription.markup}" encoding="off"/></span>
+						<iselse>
+							<isprint value="${pdict.Product.longDescription}"  encoding="off"/>
+						</isif>
+					</p>
+				</isif>
+				
+				<iscomment>Two Hour Delivery Message </iscomment>
+				<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+				<isif condition="${pdict.Product.custom.twoHourDeliveryEligibility}"> 
+					<div>
+						<iscontentasset aid="two-hour-delivery-message"/>
+					</div>
+				</isif>
+			
+				<div id="product-content" class="product-shop-module">
+					<isinclude template="product/productcontent" />
+				</div>
+			
+				<isinclude template="product/components/productimages"/>
+				
+				<isif condition="${pdict.Product.custom.enjoyAt}">
+					<div class="product-store-locator">
+						<h3 class="gamma-heading">${Resource.msg('product.enjoyat.title','product',null)}</h3>
+						<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+						<p class="strapline"><isprint value="${Resource.msgf('product.enjoyat.content', 'product', null, dw.system.Site.getCurrent().getCustomPreferenceValue('brand').displayValue)}" encoding="off"></p>
+						<iselse>
+						<p class="strapline"><isprint value="${Resource.msgf('product.enjoyat.content', 'product', null, pdict.Product.primaryCategory.displayName)}" encoding="off"></p>
+						</isif>
+						<p class="cta-wrap cta-store-locator">
+							<a href="${URLUtils.url('Stores-Find')}"><span class="icon-locator_01"></span>${Resource.msg('product.enjoyat.link','product',null)}</a>
+						</p>
+					</div>
+				</isif>
+			 <isif condition="${pdict.CurrentHttpParameterMap.pagetype.stringValue==Resource.msg('pagename.heroPage','components',null)  || (dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')||dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')||dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')||dw.system.Site.getCurrent().getCustomPreferenceValue('twitter'))}"> 
+					<div class="product-store-social">
+						<h3 class="gamma-heading">Share the love</h3>
+						
+						<iscomment>
+						<ul class="social-icons">
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+							<li><a class="ajaxData icon email" href=""  data-href="${URLUtils.https('SendToFriend-Start')}" id="sendtoFriendClicked"></a></li>
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}"> 
+							<li><a id="facebook" class="icon facebook"  target="_blank" href="" title="facebook"></a></li>
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}"> 
+							<li><a id="pintrest"  class="icon pintrest"  target="_blank" href="" title="pintrest"></a></li>
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}"> 					
+							<li><a id="twitter"  class="icon twitter"  target="_blank" href=""  title="twitter"></a></li>
+						</isif>
+						</ul>
+						</iscomment>
+						
+						<ul class="social-icons">
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+							<li><a title="email" href="" data-href="${URLUtils.https('SendToFriend-Start')}" class="icon email ajaxData" id="sendtoFriendClicked"></a>
+</li>
+
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}"> 
+							<li class = "fb-share-pdp"><span id="facebook" class="icon facebook"></span></li>
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}"> 
+							<li class = "pinterest-share-pdp"><span id="pintrest"  class="icon pintrest"></span></li>
+						</isif>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}"> 					
+							<li class = "twitter-share-pdp"><span id="twitter" class="icon twitter"></span></li>
+						</isif>
+						</ul>
+												
+					</div>
+				</isif>		
+			</div>	
+		 </div>
+		 
+		
+		
+		<div class="column column-hero product-image-container">
+			<div class="col-inner">			
+				<div id="primary-product-image" class="product-primary-image">
+					<h2 class="visually-hidden">Images</h2>			
+					<isif condition="${!empty(imageProduct.getImages('hi-res')) && imageProduct.getImages('hi-res').length>0}">
+						<iscomment>
+						<isset name="hi_res" scope="page" value="${imageProduct.getImages('hi-res')[0].getURL().toString()}" />
+						</iscomment>
+						<isset name="hi_res" scope="page" value="${new ProductImage('pdp-producttopcontent', imageProduct,0).getURL().toString()}" />
+						<isset name="href" scope="page" value="${'href='+hi_res+' target=_blank'}" />
+					<iselse>
+						<isset name="hi_res" scope="page" value="${''}" />
+						<isset name="href" scope="page" value="${'name=product_detail_image'}" />
+					</isif>
+					<a ${href} class="product-image main-image image-zoom">
+						<img itemprop="image" class="img-hero primary-image" src="${imageUrl}" alt="${imageAlt}" />
+					</a>
+					<isif condition="${displayBadge}"> 
+						<img class="product-image-badge" src="${ProductUtils.getBadgeImage(pdict.Product.custom.badge)}" />
+					</isif>
+				<iscomment>
+					<div class="moetCaro slideOne" data-mcaro="{ &quot;slideProduct&quot; :1, &quot;productShow&quot;: 1, &quot;speed&quot;: 300 }">
+						<div class="box" data-toggled="on">
+						<ul class="slider">
+						    <li class="active"><img src="${imageUrl}" alt="" /></li>
+						    <li><img src="${imageUrl}"  alt="" />
+						    </li>
+						    <li><img src="${imageUrl}"  alt="" />
+						    </li>
+						</ul>
+						
+						</div>
+						
+						<div class="controls">
+						
+						<span class="prev">&lt;</span><span class="showCurrent">1</span><span class="next">&gt;</span></div>
+					</div>
+				</iscomment>
+				
+				</div>
+			</div>
+			
+				
+		</div>
+	</div>
+	
+	<div id="product-set-list" class="productBunle clearfix">		
+		<h2 class="beta-heading"><isprint value="${Resource.msg('product.bundle.casetext','product',null)}" /></h2>
+		<isset name="isUnavailable" value="${false}" scope="page"/>
+		<isloop items="${pdict.ProductSetList}" var="SetProduct" status="productSetLoop">
+			<isset name="subProduct" value="${SetProduct}" scope="pdict"/>
+			<isset name="isUnavailable" value="${isUnavailable || (pdict.Product.availabilityModel.availabilityStatus==dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE)}" scope="page"/>				
+			<isobject object="${pdict.subProduct}" view="setproduct">
+			<isif condition="${pdict.subProduct.custom.isGift}">
+				<div class="productItem productItemGift" id="item-${pdict.subProduct.ID}">
+					<div class="item">
+					<div class="products-tile-bg"></div>
+				<iselse>
+				<div class="productItem" id="item-${pdict.subProduct.ID}">
+					<div class="item">
+					<div class="products-tile-bg"></div>
+				</isif>
+					<isinclude template="product/components/staticproductsetproduct"/>
+				</div>
+				</div>
+			</isobject>
+		</isloop>		
+	</div><!-- END id=productSetScroller -->
+
+	<div class="pdp-section-row bundle-accessories">
+		<isif condition="${!isQuickView && !pdict.isDiscontinued && !pdict.isComingSoon}">
+			<iscomment>Check if the personalization section is required</iscomment>
+			<isif condition="${pdict.Product.product}">
+				<isif condition="${pdict.Product.optionProduct}">
+					<isif condition="${pdict.CurrentOptionModel != null}">
+						<isset name="POM" value="${pdict.CurrentOptionModel}" scope="page"/>
+					<iselse>
+						<isset name="POM" value="${pdict.Product.getOptionModel()}" scope="page"/>
+					</isif>
+				<iselse>
+					<isset name="POM" value="" scope="page"/>
+				</isif>
+			</isif>
+			<iscomment>Personalization Section</iscomment>
+			<isif condition="${!empty(POM.options)}">		
+				<div class="column column-personalisation">
+					<div class="col-inner">
+						<iscomment>=====Personalization Section=====</iscomment>
+					
+					</div>
+				</div>
+			<iselse>
+				<div  class="column column-personalisation column-empty">
+					<div class="col-inner">
+					</div>
+				</div>
+			</isif>
+			
+			<isscript>
+				// get all orderable accessories (3 = Others)
+				var accessories : dw.util.Iterator = pdict.Product.getOrderableRecommendations(3).iterator();			
+			</isscript>
+			<isif condition="${accessories.hasNext()}" >
+				<div class="column column-accessories accessories-section">
+					<div class="col-inner">
+						<h2 class="beta-heading">
+							${Resource.msg('accessory.title','product',null)}
+						</h2>
+						<iscomment>=====Accessory Section=====</iscomment>	
+						<isinclude template="product/components/accessories"/>
+					</div>
+				</div>
+			<iselse>
+				<div  style="display: none;" class="column column-accessories accessories-section column-empty">
+					<div class="col-inner">
+					</div>
+				</div>			
+			</isif>
+		</isif>
+	</div>
+	
+	<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+	<isif condition="${!isQuickView}">
+			<isinclude template="brand/product/components/recommendations"/>
+	</isif>
+	</isif>
+</div>
+ 
+<iscomment> ####### VIdeo URLs ####### </iscomment>
+	<isset name="url"  value="${pdict.Product.custom.videoURL}" scope="page" />
+	
+	<iscomment>	
+		<div class="pdp-section pdp-section-video">
+			<a href="${url}">
+				<img src="${URLUtils.staticURL('/css/img/placeholders/vid_koons_01.jpg')}" alt="" />
+			</a>
+		</div>
+	</iscomment>
+	
+
+	
+	<div id="deliveryDetailContent" style="display: none"><iscontentasset aid="pdpDeliveryDetails" /></div>
+	<isif condition="${'sizeChartID' in pdict.Product.primaryCategory.custom}"> 
+			<div id="sizeGuideContent" style="display: none"><iscontentasset aid="${pdict.Product.primaryCategory.custom.sizeChartID}" /></div>
+	<iselseif condition="${'sizeChartID' in pdict.Product.primaryCategory.parent.custom}">
+			<div id="sizeGuideContent" style="display: none"><iscontentasset aid="${pdict.Product.primaryCategory.parent.custom.sizeChartID}" /></div>
+	</isif>
+	

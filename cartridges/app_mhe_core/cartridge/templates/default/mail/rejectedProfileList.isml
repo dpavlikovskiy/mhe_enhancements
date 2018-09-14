@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- TemplateComment :  EMail Sending a Product List -->
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="util/modules"/>
+<isscript>
+importPackage( dw.system );
+importPackage( dw.util );
+var instanceName : String = !empty( System.getInstanceHostname() ) ? System.getInstanceHostname() : "(unknown)";
+var envName = instanceName.split(".");
+</isscript>
+<html>
+<subject>${dw.system.Site.getCurrent().ID}- <isprint value="${pdict.subject}" encoding="off"/> - ${envName[0]} </subject>
+
+<body>
+<isif condition="${!empty(pdict.ErrorMessage)}">
+  <h1><isprint value="${Resource.msg('export.profilelisterror','forms',null)}"/></h1>
+  <isprint value="${pdict.ErrorMessage}" />
+<iselseif condition="${empty(pdict.rejectedCustList)}">
+  <h1><isprint value="${Resource.msg('export.profilelistblank','forms',null)}"/></h1>
+<iselse>
+	
+	
+	<h2><isprint value="${Resource.msg('export.failedProfilelistSubheader','forms',null)}"/> </h2>
+	<table border="1">
+		
+		</thead>
+			<isloop items="${pdict.rejectedCustList}" var="FilteredOrderListObj" status="loopstate0">
+			<isscript>
+			 var sizeArr:Array=FilteredOrderListObj.split(":"); 
+		           errorCode=sizeArr[1];
+		           emailID=sizeArr[0];
+			 </isscript>
+				<tr> 
+				    <td> <isprint value="${emailID}" /> </td> 
+					
+					<td> <isprint value="${errorCode}" /> </td> 
+					
+				</tr>
+			</isloop>
+	</table>	
+</isif>
+</body>
+</html>

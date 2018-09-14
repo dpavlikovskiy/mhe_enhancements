@@ -1,0 +1,65 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<!-- Page Navigator -->
+<isset name="TOP_URL"   value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="PAGE">
+<ISBreadcrumb name1="${pdict.CurrentHttpParameterMap.mainmenuname}" url1="${TOP_URL}" name2="Browse Remote - Http">
+<!-- EO Page Navigator -->
+<h1 class="overview_title">Browse Remote - Http(s)</h1>
+<h2 class="table_title_description">
+	This Business Manager Module gives you the possibility to access remote http and https URLs from this instance to check if a connection between the systems can be established, to circumvent firewall issues and to check what specific responses a request produces, etc.
+	<br/>
+	<br/>In cases where the response potentially returns style information or might lead to situations where malicious code can be executed, you better use the encoding to make sure nothing disturbs the functionality here.
+</h2>
+
+<table style="width:90%" class="n w e s aldi">
+	<tr style="vertical-align: top;">
+		<th class="table_title aldi left">Enter your URL you want to be loaded</th>
+	</tr>
+	<tr>
+		<td class="infobox" style="vertical-align: top;">
+			<form action="${URLUtils.continueURL()}" method="post">
+				<table>
+					<tr>
+						<isinputfield formfield="${pdict.CurrentForms.browseremote.http.url}" type="input" attribute1="style" value1="width:400px;"/>
+						<isinputfield formfield="${pdict.CurrentForms.browseremote.http.encode}" type="checkbox">
+						<td class="left">
+							<input id="send" name="send" type="submit" value="Load" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+	<isif condition="${pdict.Status && pdict.Status.error}">
+		<tr>
+			<td colspan="5"> <div class="error">${pdict.Status.message}</div></td>
+		</tr>
+	</isif>
+</table>
+
+
+
+<isif condition="${!empty(pdict.ResponseHeaders)}">
+	<hr/>
+	<h1>Response Headers</h1>
+	<ol>
+		<isloop iterator="${pdict.ResponseHeaders.keySet()}" alias="key">
+			<li><b>${key}</b>: ${pdict.ResponseHeaders.get(key)}</li>
+		</isloop>
+	</ol>
+
+	<isif condition="${!empty(pdict.RawData)}">
+		<div style="overflow: scroll; max-width: 800px;">
+			<pre>
+				<isif condition="${pdict.CurrentForms.browseremote.http.encode.value}">
+					<isprint value="${StringUtils.encodeString(pdict.RawData, StringUtils.ENCODE_TYPE_HTML)}" encoding="off">
+				<iselse>
+					<isprint value="${pdict.RawData}" encoding="off">
+				</isif>
+			</pre>
+		</div>
+	</isif>
+</isif>
+</isdecorate>

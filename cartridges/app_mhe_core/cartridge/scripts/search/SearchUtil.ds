@@ -1,0 +1,22 @@
+/**
+Script used for Search Functions
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.content )
+/*
+ * Function  returns back an array of strings, by splitting a content asset with "{&}"
+ */
+function splitContentAssetWithInput(contentAsset : String) : Array
+{    
+	var contentArray : Array = null;
+	var regExp : RegExp = new RegExp("{&}");
+    //get the content asset body
+	var bodyContent : Content = ContentMgr.getContent(contentAsset);
+    if (!empty(bodyContent) && bodyContent.online && !empty(bodyContent.custom.body))
+    {
+    	contentArray = StringUtils.decodeString(bodyContent.custom.body.toString(), StringUtils.ENCODE_TYPE_HTML).split(regExp);
+    }
+    return contentArray;
+}
+

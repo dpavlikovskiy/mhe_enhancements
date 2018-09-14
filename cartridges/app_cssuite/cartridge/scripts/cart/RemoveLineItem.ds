@@ -1,0 +1,40 @@
+/**
+* This script removes a line item.
+*
+* @input basket : dw.order.Basket
+* @input lineItemID : String
+* @output tmp : Object
+*
+*/
+importPackage( dw.system );
+importPackage(dw.util);
+importPackage(dw.order);
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+
+	var basket = pdict.basket;
+	var lineItemID = pdict.lineItemID;
+	
+	var t;
+	//get all the product line items
+	var lineItems = basket.getProductLineItems();
+	for each (item in lineItems)
+	{
+		//map the passed lineItem ID then remove it from basket
+		if(item.UUID == lineItemID)
+		{
+			
+			//t = item;
+			basket.removeProductLineItem(item);
+			break;
+		}
+	}
+	
+
+	pdict.tmp = basket;
+	
+	
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,351 @@
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<isloop items="${slotcontent.content}" var="product" begin="0" end="1">
+<isinclude template="util/modules" />
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<iscomment> This template renders a product in the search
+result using a ProductSearchHit object. </iscomment>
+
+<isscript>
+	importScript('product/ProductUtils.ds'); 
+</isscript> 
+<iscomment>Set the product of the product search hit locally for reuse</iscomment> 
+<isset name="Product" value="${product}" scope="page" /> 
+<isset name="OrgProduct" value="${null}" scope="page" /> 
+
+<iscomment>Get the sizes selectable from the current product master or variant range if we need to determine them based on a search result. </iscomment> 
+<isscript>
+	var selectableSize : dw.util.Collection = new dw.util.ArrayList(); 
+	var varAttrSize : dw.catalog.ProductVariationAttribute = null; 
+	var onlyMagnum : Boolean = false; 
+	var isGift : Boolean = false;
+	var isFeaturedProduct: Boolean = false;
+	var displayBadge : Boolean = false; 
+	if(Product.master){ 
+		var varModel : dw.catalog.ProductVariationModel = Product.variationModel; 
+		//varAttrSize = varModel.getProductVariationAttribute("color"); 
+		/** This is to create swatches as per the the size attribute -- Naveen Kumar */ 
+		varAttrSize = varModel.getProductVariationAttribute("size"); 
+		if( varAttrSize != null ){ 
+			selectableSize = Product.variationModel.getFilteredValues(varAttrSize); 
+		} 
+		/** Check if packery is enabled/disabled for Content Editing **/
+		if (!('enableCEOnPLP' in dw.system.Site.current.preferences.custom) || !dw.system.Site.current.preferences.custom.enableCEOnPLP){
+			/** check if only magnum size is available */ 
+			if (selectableSize.size() == 1 && (selectableSize.get(0).value == 150 || selectableSize.get(0).value == 175)){
+				onlyMagnum = true; 
+			} 
+			if ('isGift' in Product.custom && Product.custom.isGift) {
+			isGift = true;
+		}
+		if (Product.custom.isFeaturedProduct) {
+			isFeaturedProduct = true;
+		}
+		}
+		
+	} else if (!Product.master && !Product.variant){
+		if ('size' in Product.custom && (Product.custom.size == 150 || Product.custom.size == 175)) {
+			onlyMagnum = true;
+		}
+		if ('isGift' in Product.custom && Product.custom.isGift) {
+			isGift = true;
+		}
+		if (Product.custom.isFeaturedProduct) {
+			isFeaturedProduct = true;
+		}
+	}
+		
+	/** Set if the badge needs to be displayed or not */ 
+	displayBadge = ProductUtils.displayBadge(Product); 
+</isscript> 
+<iscomment> Generate link to product detail page: by default it's just the product of the product search hit. 
+	If a size variation is available, the first size is used as link URL. 
+</iscomment> 
+
+<isif condition="${!isFeaturedProduct}"> 
+<isset name="productUrl"
+	value="${URLUtils.http('Product-Show', 'pid', Product.ID)}"
+	scope="page" /> <isif
+	condition="${!empty(selectableSize) && selectableSize.size() > 0 && !empty(varAttrSize)}">
+
+<iscomment>if we have a selected size, this size is highlighted otherwise the first selectable size is hightlighted</iscomment> 
+</isif> 
+
+<isif condition="${onlyMagnum}">
+	<div class="products-tile-inner products-tile-inner-magnum" id="${Product.UUID}" data-itemid="${Product.ID}">
+<iselseif condition="${isGift}" >
+     <div class="products-tile-inner products-tile-inner-gift" id="${Product.UUID}" data-itemid="${Product.ID}">
+<iselse>
+	<div class="products-tile-inner" id="${Product.UUID}" data-itemid="${Product.ID}">
+</isif>
+	<div class="products-tile-inner-cont">
+	<div class="product-image">
+		<!-- dwMarker="product" dwContentID="${Product.UUID}" -->
+		<iscomment>Image ++++ Modified to get the Badge Image</iscomment>
+		<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+		<isif condition="${displayBadge}"> <img class="product-image-badge"
+			src="${ProductUtils.getBadgeImage(Product.custom.badge)}" /> </isif>
+		<iscomment>Display Promotional Text if Only Magnum Size is
+		Available</iscomment>
+
+		<isif condition="${onlyMagnum}"> <iscontentasset
+			aid="magnum_promo_text" /> </isif>
+
+		<iscomment>Render the thumbnail</iscomment>
+	
+		<isset name="image" value="${null}" scope="page" />
+					
+		<iscomment>Determine the correct image, either first
+		displayed size variation or default product thumbnail</iscomment>		
+		<isif condition="${Product.getImage('hi-res',0) != null}"> 
+			<isif condition="${onlyMagnum}">
+				<isset name="image" value="${ new ProductImage('magnum', Product, 0 ) }" scope="page" /> 
+			<iselse>
+				<isset name="image" value="${ new ProductImage('plpBrand', Product, 0 ) }" scope="page" /> 
+			</isif>
+		</isif>	
+		
+
+		<iscomment>If image couldn't be determined, display a "no
+		image" medium</iscomment>
+		<iscomment>Fix for Error Log - "image" is not defined. </iscomment>
+		<isif condition="${image!=null && !empty(image)}"> <isset name="thumbnailUrl"
+			value="${image.getURL()}" scope="page" /> <isset name="thumbnailAlt"
+			value="${Product.name}" scope="page" /> <isset name="thumbnailTitle"
+			value="${Product.name}" scope="page" /> <iselse> <isset
+			name="thumbnailUrl"
+			value="${URLUtils.staticURL('/images/noimagemedium.png')}"
+			scope="page" /> <isset name="thumbnailAlt" value="${Product.name}"
+			scope="page" /> <isset name="thumbnailTitle" value="${Product.name}"
+			scope="page" /></isif>
+
+		<a class="thumb-link" href="${productUrl}">
+			<img src="${thumbnailUrl}" alt="${thumbnailAlt}" />
+		</a>
+
+	</div>
+
+	
+
+	<iscomment>Product Name</iscomment>
+	<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	<div class="product-name">
+		<h2>
+			<a class="name-link" href="${productUrl}">
+				<isprint value="${Product.name}" /> </a>
+		</h2>
+	</div>
+	<iscomment>Box Description </iscomment>
+	<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	<div class="productBoxDescription">
+		<isif condition="${!empty(Product.custom.boxDescription)}">
+			<isprint value="${Product.custom.boxDescription}" />
+		</isif>
+	</div></iscomment>
+	
+	<iscomment>Pricing</iscomment>
+	<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	
+	<iscomment>Added for promotional pricing </iscomment>
+	<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(Product)}" scope="page"/>
+	<isset name="PromotionalPrice" value="${dw.value.Money.NOT_AVAILABLE}" scope="page"/>
+	<isset name="isPromoPrice" value="${false}" scope="page"/>
+	<isif condition="${! empty(promos)}">
+		<isloop items="${promos}" var="promo">
+			<isif condition="${promo.getPromotionClass() != null && promo.getPromotionClass().equals(dw.campaign.Promotion.PROMOTION_CLASS_PRODUCT)}">
+				<isif condition="${Product.optionProduct}">
+					<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(Product, Product.getOptionModel())}" scope="page"/>
+				<iselse>
+					<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(Product)}" scope="page"/>
+				</isif>
+			</isif>
+			<isbreak/>
+		</isloop>	
+	</isif>
+	
+
+	<div class="product-pricing">
+
+		<iscomment>Renders pricing information depending on the
+		option or variation model, as well as scaled prices and so on.</iscomment>
+		<isset name="currencyCode"	value="${dw.system.Site.getCurrent().getDefaultCurrency()}" scope="page" />
+		<isif condition="${Product.productSet}"> 
+			<iscomment>Product	set pricing</iscomment> 
+			<span class="product-set-price">${Resource.msg('global.buyall','locale',null)}</span>
+		<iselseif	condition="${Product.master && Product.priceModel.isPriceRange()}">
+			<iscomment>Product master price range depending on the	represented variants</iscomment> 
+			<h3 class="product-sales-price">
+			<isprint value="${Product.priceModel.minPrice}" /> - <isprint value="${Product.priceModel.maxPrice}" />
+		     <iscomment>
+			<isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(Product.priceModel.minPrice, currencyCode))}" />
+				- <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(Product.priceModel.maxPrice, currencyCode))}" />
+			</iscomment>
+			</h3> 
+		<iselse> 
+			<iscomment> Regular pricing through price model of the
+			product. If the product is an option product, we have to initialize
+			the product price model with the option model. </iscomment>
+			<isif condition="${Product.optionProduct}"> <isset
+				name="PriceModel"
+				value="${Product.getPriceModel(Product.getOptionModel())}"
+				scope="page" /> <iselse> <isset name="PriceModel"
+				value="${Product.getPriceModel()}" scope="page" /></isif>
+	
+			<iscomment> Check whether the product has price in the
+			sale pricebook. If so, then display two prices: crossed-out standard
+			price and sales price. </iscomment>
+			<isinclude template="product/components/standardprice" />
+			<isset name="SalesPrice" value="${PriceModel.getPrice()}" scope="page" />
+			<isset name="ShowStandardPrice"
+				value="${StandardPrice.available && SalesPrice.available && StandardPrice.compareTo(SalesPrice) == 1}"
+				scope="page" />
+	
+			<iscomment>Added for promotional pricing </iscomment>		
+			<isif condition="${PromotionalPrice.available && SalesPrice.compareTo(PromotionalPrice) != 0}">
+				<isset name="ShowStandardPrice" value="${true}" scope="page"/>
+				<isset name="StandardPrice" value="${SalesPrice}" scope="page"/>
+				<isset name="SalesPrice" value="${PromotionalPrice}" scope="page"/>
+				<isset name="isPromoPrice" value="${true}" scope="page"/>
+			</isif>
+				
+	
+			<isif condition="${ShowStandardPrice}">
+			<div class="product-discounted-price">
+				<h3 class="product-standard-price">
+					<isprint value="${StandardPrice}" />
+				</h3>
+				
+					<iscomment>Added for promotional pricing </iscomment>
+					<h3 class="product-sales-price"><isif condition="${(SalesPrice.valueOrNull != null && SalesPrice.valueOrNull > 0) || isPromoPrice}"><isprint value="${SalesPrice}"/><iselse>${Resource.msg('pricing.noprice','product',null)}</isif></h3>
+					<iscomment><h3 class="product-sales-price"><isprint value="${SalesPrice}"/></h3></iscomment>
+			
+			</div>
+			<iselse>
+			<h3 class="product-sales-price">
+				<isprint value="${SalesPrice}" />
+			</h3></isif>
+	
+			<isif condition="${!empty(OrgProduct)}"> <iscomment>Restore
+			current product instance</iscomment> <isset name="Product" value="${OrgProduct}"
+				scope="page" /> <isset name="OrgProduct" value="${null}" scope="page" />
+			</isif>
+		</isif>
+
+</div>
+
+<iscomment>Promotion</iscomment>
+<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+
+<iscomment>Render information on active product promotions </iscomment>
+<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(Product)}"	scope="page"/>
+<isif condition="${!empty(promos)}">
+	<div class="product-promo">
+		<isloop items="${promos}" var="promo" status="promoloopstate">
+			<a href="${productUrl}" class="promo-msg">
+				<isprint value="${promo.calloutMsg}" encoding="off" />
+			</a>
+			<isbreak/>
+		</isloop>
+	</div>
+</isif> 
+
+
+<iscomment> Render the size swatch secion for a product
+search hit. The swatches depend on the products the search hit actually
+represents. Doesn't necessarily equal all variants of a product master,
+since only a sub set of variants could be represented by the search hit
+(a variant group). We show size swatches only for variant groups
+represented by a product search hit. </iscomment>
+
+<isif condition="${(!empty(selectableSize) && selectableSize.size() > 1 && !empty(varAttrSize)) || onlyMagnum}">
+
+<isscript> 
+/* Get Top Level category, to create the key for
+getting Serving and Volume Info */ 
+var rootCategory = Product.primaryCategory;
+while( !empty(rootCategory) && rootCategory.parent.ID != "root") {
+rootCategory = rootCategory.parent; 
+} 
+</isscript>
+
+<div class="product-swatches">
+	<iscomment>render the palette, the first swatch is always preselected</iscomment>
+	<ul class="swatch-list">
+<isloop items="${selectableSize}" var="sizeValue" status="varloop">
+<iscomment>Creating the Key for getting Serving and Volume
+Info from SitePref</iscomment> <isset name="key"
+	value="${rootCategory.ID + '-' + sizeValue.value}" scope="page" /> <iscomment>Determine
+the swatch and the thumbnail for this size</iscomment> <isset name="sizeSwatch"
+	value="${sizeValue.getImage('swatch')}" scope="page" /> <isset
+	name="sizeThumbnail" value="${sizeValue.getImage('medium')}"
+	scope="page" /> <iscomment>If images couldn't be
+determined, display a "no image" thumbnail</iscomment> <isif
+	condition="${!empty(sizeSwatch)}"> <isset name="swatchUrl"
+	value="${sizeSwatch.getURL()}" scope="page" /> <isset name="swatchAlt"
+	value="${sizeSwatch.alt}" scope="page" /> <isset name="swatchTitle"
+	value="${sizeSwatch.title}" scope="page" /> <iselse> <isset
+	name="swatchUrl"
+	value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page" />
+<isset name="swatchAlt" value="${sizeValue.displayValue}" scope="page" />
+<isset name="swatchTitle" value="${sizeValue.displayValue}" scope="page" /></isif>
+<isif condition="${!empty(sizeThumbnail)}"> <isset
+	name="thumbnailUrl" value="${sizeThumbnail.getURL()}" scope="page" /> <isset
+	name="thumbnailAlt" value="${Product.name}" scope="page" /> <isset
+	name="thumbnailTitle" value="${Product.name}" scope="page" /> <iselse>
+<isset name="thumbnailUrl"
+	value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page" />
+<isset name="thumbnailAlt" value="${Product.name}"
+	scope="page" /> <isset name="thumbnailTitle"
+	value="${Product.name}" scope="page" /></isif> 
+	<isset name="preselectCurrentSwatch" value="${varloop.first}" scope="page" />
+	<iscomment>build the proper URL and append the search query parameters</iscomment> 
+	<isset name="swatchproductUrl"	value="${Product.variationModel.url('Product-Show', varAttrSize, sizeValue.value)}"	scope="page" /> 
+	<isset name="serving"	value="${ProductUtils.getValueFromSitePrefEnum('stdBottleEquivalent', key)}" scope="page" /> 
+	<isset name="volume"
+	value="${ProductUtils.getValueFromSitePrefEnum('sizeVolume', key)}"
+	scope="page" /> <iscomment>render a single swatch, the url
+to the proper product detail page is contained in the href of the swatch
+link</iscomment>
+<li><a href="${productUrl}" class="swatch ${ProductUtils.getClassNameForSize(sizeValue.value)} ${(preselectCurrentSwatch) ? 'selected' : ''}"> 
+	<div class="tooltip-content">
+        <p>${sizeValue.displayValue}</p>
+        <p>${serving}</p>
+        
+    </div>
+	</a></li>
+
+</isloop>
+
+</ul>
+
+</div>
+
+</isif>
+<isset value="${false}" name="chilledDelivery" scope="page">
+<isset name="POM" value="${Product.getOptionModel()}" scope="page"/>
+<isloop items="${POM.options}" var="Option">
+	<isset value="${POM.getOptionValues(Option)[1]}" name="OptionValue" scope="page">
+	<isif condition="${OptionValue.ID =='chilleddelivery'}" > 
+	  <isset name="chilledDelivery"   value="${true}" scope="page">
+  	</isif>
+</isloop>
+<isif condition="${chilledDelivery}" >
+	<div class="shop-now" >
+		<a class="button fill"  href="${productUrl}">
+		   <span class="face front"  style="background-color: white;color: black;" ><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+		   <span class="face back"  style="background-color: white;color: black;" ><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+		</a>
+	</div>
+<iselse> 
+	<div class="shop-now">
+	  <a class="button fill" href="${productUrl}">
+		 <span class="face front"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+		 <span class="face back"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+	  </a>
+	</div>
+</isif>
+</div>
+</div>
+</isif>
+
+</isloop>

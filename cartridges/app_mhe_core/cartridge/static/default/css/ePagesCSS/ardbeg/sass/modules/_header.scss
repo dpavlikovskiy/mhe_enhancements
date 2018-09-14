@@ -1,0 +1,130 @@
+.ePageNav{
+	text-align:center;
+	font-family:$titleFont;
+	font-size:$smallFontSize;
+	text-transform:uppercase;
+	font-weight:normal;
+	line-height:30px;
+	min-height:33px; 
+	li{
+		@include inline-block;
+		margin:0 15px;
+		a{
+			color:$black;
+			display:block;
+			border-bottom:3px solid $white;
+			font-family: $regularFont;
+			font-size: 11px;
+			:hover, :focus{
+				color:$brandColor;
+			}
+		}
+		&.active{
+			a{
+				color:$brandColor;
+				border-bottom:3px solid $brandColor;
+			}
+		}
+	}
+}
+
+	.bmValue{
+		display:none;
+	}
+
+.static-offer{
+	.header{
+		background:$white;
+		@include box-shadow(0 0 0);
+		position:fixed;
+		width:100%;
+		header{
+			padding:10px 0 0;
+			height:93px;
+			.header_right {
+				top: 77px;
+				right: -50px;
+				.mini-cart-total {
+					.mini-cart-label {
+						color: $brandColor;
+					}
+					.mini-cart-link {
+						color: $brandColor;
+						font-family: $regularFont;
+						&:hover {
+							color: $black;
+						}
+						span {
+							&:hover {
+								color: $black;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+}
+
+
+
+
+	.epages-product-store-social {
+    	background: none;
+    	margin-top: 0;
+    	padding-top: 0;
+    	position: relative;
+    	.social-icons {
+    		text-align: center;
+    		li {
+    			border-right: 1px solid $brandColor;
+    			display: inline-block;
+    			height: 12px;
+    			padding: 0 7px 0 4px;
+			}
+			li:last-child {
+			border: medium none;
+			}
+			.icon{
+			background: url("images/pdp-social.png") no-repeat;
+			display:block;
+			margin-top: -2px;
+			}
+			.email {
+   				 background-position: -2px -53px;
+    			 height: 16px;
+    			 width: 22px;
+			}
+			.instagram {
+    		background-position: -2px 0;
+    		height: 16px;
+    		width: 17px;
+			}
+			.facebook {
+    		background-position: -2px -26px;
+    		height: 16px;
+    		width: 12px;
+			}
+			.pintrest {
+    		background-position: -2px -80px;
+    		height: 16px;
+    		width: 20px;
+			}
+			.twitter {
+    		background-position: -2px -107px;
+    		height: 16px;
+    		width: 19px;
+			}
+		}
+    .gamma-heading {
+    	color: $brandColor;
+    	font-family: $titleFont;
+    	font-size: 18px;
+    	font-weight: 400;
+    	letter-spacing: 0;
+    	text-align: center;
+    	text-transform: uppercase;
+		}
+    
+	} 

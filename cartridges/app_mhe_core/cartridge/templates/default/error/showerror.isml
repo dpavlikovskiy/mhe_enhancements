@@ -1,0 +1,6 @@
+<!--- TEMPLATENAME: showerror.isml --->
+<iscache type="relative" hour="24"/>
+<isinclude 	template="util/modules" />
+<div class="error-page-message page-404">
+	<iscontentasset aid="error-callout" />
+</div>

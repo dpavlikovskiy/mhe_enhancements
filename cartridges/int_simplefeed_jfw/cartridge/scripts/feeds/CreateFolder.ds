@@ -1,0 +1,299 @@
+/**
+ * @input RemoteFolderURL : String  mandatory, URL to WebDAV or SFTP folder, e.g. "https://www.myserver.com/folder/", "sftp://sftp.myserver.com:22/folder/"
+ * @input RemoteLogin : String  optional, login for WebDAV Basic Authentication or Digest Autentication or SFTP
+ * @input RemotePassword : String  optional, password for WebDAV Basic Authentication or Digest Autentication or SFTP
+ * @input Folder : String  mandatory, e.g. "catalog", folder is underneath Impex share, src folder
+ *
+ * If pipelet finishes with PIPELET_ERROR:
+ * @output TechnicalError : String  "TRUE" technical error occured, "FALSE" there are no more matching files
+ */
+
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.system );
+importPackage( dw.util );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// indicate technical error as default, in case we error during processing
+	args.TechnicalError = "TRUE";
+	// read parameters
+	var remoteFolderURL : String = args.RemoteFolderURL;
+ 	var remoteLogin : String = args.RemoteLogin;
+ 	var remotePassword : String = args.RemotePassword;
+    var folder : String = args.Folder;
+
+    // check parameters
+    if ( empty( remoteFolderURL ) )
+    {
+    	cvLogger.error( "CreateFolder: Parameter RemoteFolderURL empty" );
+    	return PIPELET_ERROR;
+    }
+
+    cvLogger.debug( "CreateFolder: " +
+    	"RemoteFolderURL: " + remoteFolderURL + ", " +
+    	"RemoteLogin: " + ( !empty( remoteLogin ) ? remoteLogin : "(empty)" ) + ", " +
+    	"RemotePassword: " + ( !empty( remotePassword ) ? "(provided)" : "(empty)" ) + ", " +
+    	"Folder: " + folder );
+
+	var success : Boolean = false;
+	if ( remoteFolderURL.indexOf( "sftp://" ) == 0 )
+	{
+		success = createFolderSFTP( remoteFolderURL, remoteLogin, remotePassword, folder );
+	} 
+	else if ( remoteFolderURL.indexOf( "ftp://" ) == 0 ) 
+	{
+		success = createFolderFTP( remoteFolderURL, remoteLogin, remotePassword, folder );
+	}
+	else
+	{
+		success = createFolderWebDAV( remoteFolderURL, remoteLogin, remotePassword, folder );
+	}
+
+	if( success ) {
+		// creation was successful
+		args.TechnicalError = "FALSE";
+	    return PIPELET_NEXT;
+	}
+
+	return PIPELET_ERROR;
+}
+
+function createFolderWebDAV( remoteFolderURL : String, remoteLogin : String, remotePassword : String, folder : String )
+{
+	var webDAVClient : WebDAVClient;
+	
+	if ( !empty( remoteLogin ) && !empty( remotePassword ) )
+	{
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, remoteLogin, remotePassword );
+	}
+	else
+	{
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	try
+	{
+		webDAVClient.mkcol( folder );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "CreateFolder: Error while creating " + remoteFolderURL + ": " + ex );		
+		return null;
+	}
+	
+	if ( !webDAVClient.succeeded() )
+	{
+		cvLogger.error( "CreateFolder: Error while creating " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+		return null;
+	}
+
+	webDAVClient.close();
+	return true;
+}
+
+function createFolderFTP( remoteFolderURL : String, remoteLogin : String, remotePassword : String, folder : String )
+{
+	// connect to server
+	var ftpClient : FTPClient = connectFTP( remoteFolderURL, remoteLogin, remotePassword );
+	
+	if ( ftpClient == null )
+	{
+		return null;
+	}
+
+    // parse URL, e.g. "sftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "CreateFolder: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var path : String = params[3];	
+
+	try
+	{
+		ftpClient.mkdir( path + '/' + folder );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "CreateFolder: Error while creating " + path + ": " + ex );		
+		return null;
+	}
+
+	ftpClient.disconnect();
+	return true;
+}
+
+function createFolderSFTP( remoteFolderURL : String, remoteLogin : String, remotePassword : String, folder : String )
+{
+	// connect to server
+	var sftpClient : SFTPClient = connectSFTP( remoteFolderURL, remoteLogin, remotePassword );
+	
+	if ( sftpClient == null )
+	{
+		return null;
+	}
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "CreateFolder: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var path : String = params[3];	
+
+	// list files
+	var files : Array;
+	
+	try
+	{
+		sftpClient.mkdir( path + folder );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "CreateFolder: Error while creating " + path + ": " + ex );		
+		return null;
+	}
+	
+	sftpClient.disconnect();
+	return true;
+}
+
+function connectSFTP( remoteFolderURL : String, remoteLogin : String, remotePassword : String ) : SFTPClient
+{
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "DownloadFeed: Parameter RemoteLogin empty (required for SFTP)" );
+    	return null;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "DownloadFeed: Parameter RemotePassword empty (required for SFTP)" );
+    	return null;
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "DownloadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	
+	var sftpClient : SFTPClient = new SFTPClient();
+	var result : boolean;
+	
+	try
+	{
+		if ( port != null )
+		{
+			result = sftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = sftpClient.connect( host, remoteLogin, remotePassword );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DownloadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return null;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "DownloadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + sftpClient.errorMessage );		
+		return null;
+	}
+
+	return sftpClient;
+}
+
+function connectFTP( remoteFolderURL : String, remoteLogin : String, remotePassword : String ) : FTPClient
+{
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "DownloadFeed: Parameter RemoteLogin empty (required for FTP)" );
+    	return null;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "DownloadFeed: Parameter RemotePassword empty (required for FTP)" );
+    	return null;
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "DownloadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	
+	var ftpClient : FTPClient = new FTPClient();
+	var result : boolean;
+	
+	try
+	{
+		if ( port != null )
+		{
+			result = ftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = ftpClient.connect( host, remoteLogin, remotePassword );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DownloadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return null;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "DownloadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ftpClient.replyMessage );		
+		return null;
+	}
+
+	return ftpClient;
+}

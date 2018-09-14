@@ -1,0 +1,59 @@
+<iscomment>
+	Creates a mini credit card display.
+	If p_card is given the second parameter is ignored.
+	Only shown if Owner, Type and Number are not empty (p_card is a credit card).
+	
+	Parameter:
+	p_card	       : the PaymentInstrument object to display
+	p_cc_formfield : a credit card formfield element
+</iscomment>
+<isscript>
+	var ccType   : String;
+	var ccNumber : String;
+	var ccMonth  : Integer;
+	var ccYear   : Integer;
+	var ccOwner  : String;
+	var ccName	 : String;
+
+	if( pdict.p_card != null )
+	{
+		ccType   = pdict.p_card.creditCardType;
+		ccNumber = pdict.p_card.creditCardNumberLastDigits
+		ccMonth  = pdict.p_card.creditCardExpirationMonth;
+		ccYear   = pdict.p_card.creditCardExpirationYear;
+		ccOwner  = pdict.p_card.creditCardHolder;
+		if("creditCardName" in pdict.p_card.custom ){
+		ccName=pdict.p_card.custom.creditCardName
+		}
+	}
+	else
+	{
+		ccType   = pdict.p_cc_formfield.type.htmlValue;
+		ccNumber = pdict.p_cc_formfield.number.htmlValue;
+		ccMonth  = pdict.p_cc_formfield.month.value;
+		ccYear   = pdict.p_cc_formfield.year.value;
+		ccOwner  = pdict.p_cc_formfield.owner.htmlValue;
+		ccName  =  pdict.p_cc_formfield.name.htmlValue;
+	}
+</isscript>
+
+<isif condition="${!empty(ccName)}">
+	
+		<isprint value="${ccName}"/>
+</isif>
+<isif condition="${!empty(ccOwner) && !empty(ccType) && !empty(ccNumber)}">
+	<br/><span class="card-ending">
+     	<isif condition="${!empty(dw.order.PaymentMgr.getPaymentCard(ccType)) && dw.order.PaymentMgr.getPaymentCard(ccType)!=null}">
+		<isprint value="${dw.order.PaymentMgr.getPaymentCard(ccType).name}"/> ${Resource.msg('orderdetailsemail.cardending','components',null)} 
+		<isprint value="${ccNumber}"/>
+		</isif>
+	</span>
+	<br>
+	<span class="card-expires">
+		${Resource.msg('minicreditcard.expires','account',null)} <isprint value="${ccMonth}" formatter="00"/>/<isprint value="${ccYear}" formatter="0000"/><br>
+	</span>
+	
+	<isif condition="${!empty(dw.order.PaymentMgr.getPaymentCard(ccType)) && dw.order.PaymentMgr.getPaymentCard(ccType)!=null}">
+	<img class="card-logo" src="${(dw.order.PaymentMgr.getPaymentCard(ccType)).getImage().getHttpURL()}" />
+	</isif>	
+</isif>

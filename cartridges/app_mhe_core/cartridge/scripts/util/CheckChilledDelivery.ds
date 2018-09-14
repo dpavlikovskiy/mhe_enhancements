@@ -1,0 +1,74 @@
+/**
+* Demandware Script File
+* To apply server side validation for chilled delivery  
+* 
+*
+*   @input Basket : dw.order.Basket
+*	@output ChilledDeliveryFlag : Boolean
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.web );
+importPackage( dw.catalog );
+
+function execute( pdict : PipelineDictionary ) : Number{
+      var chilledDeliveryStatus : Boolean = false;
+      var categoryID: String=null;
+	  var category:Category=null;
+	  var basket : dw.order.Basket =pdict.Basket; 
+      var size:Number=0;
+	
+		 if('catID' in session.custom){
+			categoryID = session.custom.catID;		
+		}
+		if(categoryID != null && categoryID.length>1){
+			category=CatalogMgr.getCategory(categoryID);
+			if ("enableChilledDelivery" in category.custom && category.custom.enableChilledDelivery){
+			 chilledDeliveryStatus=true;
+			  return PIPELET_NEXT;
+			}
+		}
+	
+	  if(!empty(pdict.Basket)){
+	    var pliList : dw.util.List = new dw.util.ArrayList(pdict.Basket.getProductLineItems());
+	        size=pliList.size();
+		var listItr : Iterator = pliList.iterator();
+		while (listItr.hasNext()){
+		  var pli: dw.order.ProductLineItem = listItr.next();
+		  if(pli.custom.chilledDeliveryService == true){
+		      chilledDeliveryStatus=true;
+		      break;
+		  }
+	    }
+	   }
+	   
+	  	
+		var chilled=isValidOptionSelected(pdict.CurrentHttpParameterMap);		
+	    pdict.ChilledDeliveryFlag=chilled;  
+	    if(size > 0){ 
+	    	if( (chilled && chilledDeliveryStatus) || (!chilled && !chilledDeliveryStatus)){
+			  return PIPELET_NEXT;
+			}else{
+			  return PIPELET_ERROR;
+			}  
+	    }else{
+	       return PIPELET_NEXT;
+	    }
+	 	
+}
+
+function isValidOptionSelected (paramMap : HttpParameterMap) : Boolean {
+	var optionParamMap : HttpParameterMap = paramMap.getParameterMap("chilledCheck");
+	if (optionParamMap != null && optionParamMap.parameterCount > 0) {
+		/*var hashset:Set=optionParamMap.getParameterNames();
+		var hashsetItr : Iterator = hashset.iterator();while (hashsetItr.hasNext()){
+		 if(hashsetItr.next().toString().indexOf("_width")>-1){
+		 	return true;
+		}*/
+		return true;
+	}
+	
+	return false;
+	
+	 
+}

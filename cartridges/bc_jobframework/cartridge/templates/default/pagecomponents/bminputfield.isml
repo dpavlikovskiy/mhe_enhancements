@@ -1,0 +1,125 @@
+<isif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_STRING || pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_PASSWORD}">
+	
+	<isscript>
+		var isForeignKey = false;
+		foreignKeyConfiguration = null;
+		if ( pdict.Config ) {
+			for each (var foreignKeyProperty in pdict.Config.custom.foreignKeyProperties) {
+				var foreignKeyConfig = JSON.parse(foreignKeyProperty);
+				if (foreignKeyConfig.propertyID == pdict.fieldname) {
+					foreignKeyConfiguration = foreignKeyConfig;	
+					isForeignKey = true;
+					break;
+				} 
+			}
+		}		 		
+	</isscript>
+	<isif condition="${isForeignKey}">
+	    <select id="${pdict.fieldname}" name="${pdict.fieldname}" size="1">
+			<isscript>
+				var customObjects = dw.object.CustomObjectMgr.getAllCustomObjects(foreignKeyConfiguration.objectType);
+			</isscript>
+			<isloop iterator="${customObjects}" alias="option" status="loopstate">
+			
+				<isif condition="${pdict.fieldvalue == option.custom.ID}">
+					<option selected value="${option.custom.ID}">${option.custom.ID}</option>
+				<iselse>
+					<option value="${option.custom.ID}">${option.custom.ID}</option>
+				</isif>
+			</isloop>
+	    </select>
+	    
+	    <a href="${URLUtils.url('CustomObjectExtensions-EditWebserviceCredentials','action','edit','oid',pdict.fieldvalue)}" onclick="window.location.href='${URLUtils.url('CustomObjectExtensions-EditWebserviceCredentials','action','edit')}&oid=' + $('${pdict.fieldname}').value; return false;">[Change]</a> 
+	    <a href="${URLUtils.url('CustomObjectExtensions-CreateWebserviceCredentials','action','create', 'back','Services-Overview')}" >[Add new]</a> 
+	<iselse>
+		<input size="100" id="<isprint value="${pdict.fieldname}">" name="<isprint value="${pdict.fieldname}">" value="<isprint value="${pdict.fieldvalue}">" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>>
+	</isif>
+	
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_NUMBER}">
+	<input name="<isprint value="${pdict.fieldname}">" value="<isprint value="${pdict.fieldvalue}">" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>>
+
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_DATETIME}">
+	<isscript>
+		if (!empty(pdict.fieldvalue)) {
+			var cal = dw.system.Site.getCurrent().getCalendar();
+			cal.setTime(pdict.fieldvalue);
+		}
+	</isscript>
+	<input id="<isprint value="${pdict.fieldname}">" name="<isprint value="${pdict.fieldname}">" value="<isprint value="${!empty(pdict.fieldvalue)? dw.util.StringUtils.formatCalendar(cal, dw.system.Site.getCurrent().getDefaultLocale(), dw.util.Calendar.INPUT_DATE_PATTERN) : ''}">" onfocus="this.blur()" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;"</isif>>
+	<input type="button" class="button" value="..." id="<isprint value="${pdict.fieldname}">_button"/>
+	<input id="<isprint value="${pdict.fieldname}">2" name="<isprint value="${pdict.fieldname}">2" value="<isprint value="${!empty(pdict.fieldvalue)? dw.util.StringUtils.formatCalendar(cal, dw.system.Site.getCurrent().getDefaultLocale(), dw.util.Calendar.INPUT_TIME_PATTERN) : ''}">">
+	<script type="text/javascript">
+	Calendar.setup(
+		{
+			inputField : "<isprint value="${pdict.fieldname}">", // ID of the input field
+			ifFormat : "%d.%m.%Y",
+			button : "<isprint value="${pdict.fieldname}">_button" // ID of the button
+		}
+	);
+	</script>	
+	</td>
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_INT}">
+	<input name="<isprint value="${pdict.fieldname}">" value="<isprint value="${pdict.fieldvalue}">" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>>
+
+
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_BOOLEAN}">
+	<input type="checkbox" value="true" name="<isprint value="${pdict.fieldname}">" <isif condition="${pdict.fieldvalue == true}">checked="checked" rel="true" <iselse> rel="false"</isif> <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onclick="this.checked = ${pdict.fieldvalue};"</isif>>
+	
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_SET_OF_STRING || pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_SET_OF_INT || pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_SET_OF_NUMBER}">
+	<script type="text/javascript">
+		function addField(fieldName, index) {
+			var newElement = "<input size=\"100\" name=\"" + fieldName + "_" + index + "\" value=\"\" type=\"text\"/><br />";
+			new Insertion.Before('a_' + fieldName, newElement);
+		} 
+	</script>
+	<isif condition="${empty(pdict.fieldvalue)}">
+		<input size="100" name="<isprint value="${pdict.fieldname + '_0'}">" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>><br>
+		<script type="text/javascript">
+			var nextIndex = 1;
+		</script>
+	<iselse>
+		<script type="text/javascript">
+			var nextIndex = 0;
+		</script>
+		<isloop iterator="${pdict.fieldvalue}" alias="singleValue" status="loopstate">
+			<input size="100" name="<isprint value="${pdict.fieldname + '_' + loopstate.index}">" value="${singleValue}" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>><br>
+			<script type="text/javascript">
+				nextIndex = ${loopstate.index} + 1;
+			</script>
+		</isloop>
+	</isif>	
+	<isif condition="${pdict.readonly == 'false'}">
+		<a id="a_${pdict.fieldname}" href="" onclick="addField('${pdict.fieldname}', nextIndex); nextIndex++; return false;">Add another value</a>
+	</isif>
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_ENUM_OF_STRING || pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_ENUM_OF_INT}">
+    <select name="${pdict.fieldname}" size="1" <isif condition="${pdict.readonly == 'true'}">style="background-color: #CCCCCC;" onfocus="this.blur()"</isif>>
+		<option value=""> - NONE - </option>
+		<isloop iterator="${pdict.enumvalues}" alias="option" status="loopstate">
+			<isif condition="${pdict.fieldvalue == option.value}">
+				<option selected value="${option.value}">${option.displayValue?option.displayValue:option.value}</option>
+			<iselse>
+				<option value="${option.value}">${option.displayValue?option.displayValue:option.value}</option>
+			</isif>
+		</isloop>
+    </select>
+		
+<iselseif condition="${pdict.fieldtype == dw.object.ObjectAttributeDefinition.VALUE_TYPE_TEXT}">
+	<textarea cols="50" rows="10" id="<isprint value="${pdict.fieldname}">" name="<isprint value="${pdict.fieldname}">"> <isprint value="${pdict.fieldvalue}"></textarea>
+	<isscript>
+		/*importScript( "bc_utils:util/libUtils.ds" );*/
+	</isscript>
+	<isif condition="${!empty(pdict.Config.custom.jsonProperties) && arrayContains(pdict.Config.custom.jsonProperties, pdict.fieldname)}">
+		<isscript>
+			var value = pdict.fieldvalue; (!empty(value) && value[0] == '(' &&  value[value.length - 1] == ')')?value.substring(1, value.length - 1), value;
+			var object = JSON.parse(value);
+			var json = encodeURIComponent(JSON.stringify(object));
+			if (empty(json) || json == "null") {
+			  json = '';
+			}
+			
+		</isscript>
+		<a href="#" onclick="window.open('${URLUtils.url('CustomObjectExtensions-JSONEditor', 'formid', pdict.fieldname, 'value', json)}', 'jsonEditor', 'width=420,height=420,scrollbars=auto,toolbar=no,location=no,left=150,top=150,status=no,resizable=yes,menubar=no');">Edit</a>
+	</isif>
+<iselse>
+ Datatype not implemented
+</isif>

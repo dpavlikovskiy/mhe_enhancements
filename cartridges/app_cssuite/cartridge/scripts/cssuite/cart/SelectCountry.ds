@@ -1,0 +1,27 @@
+/**
+* Demandware Script File to set default country from site prefrence and seleted from form.
+
+* To define input and output parameters, create entries of the form:
+*  @input  FormCountry:String 
+*  @output Country:String 
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var outCountry:String=null;
+	var frmCountry:String=args.FormCountry;
+    var alist:ArrayList=dw.system.Site.getCurrent().getCustomPreferenceValue('country');
+    if(frmCountry != null){
+    	outCountry=frmCountry;
+    }else if(alist.length == 1) {
+    	outCountry=alist[0].getValue();
+    }else if(alist.length > 1) {
+        outCountry=alist[0].getValue();
+    }
+   args.Country=outCountry;
+	   
+   return PIPELET_NEXT;
+}

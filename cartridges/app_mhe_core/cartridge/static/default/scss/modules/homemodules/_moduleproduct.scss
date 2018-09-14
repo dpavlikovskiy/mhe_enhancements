@@ -1,0 +1,51 @@
+// =============================================================================
+// Home Parallax Product Link Module
+// =============================================================================
+
+.module.product {
+	padding: 15px 0;
+	.overlay {
+		.details {
+			position: absolute;
+			top: 225px;
+			text-align: center;
+			padding: 0 75px;
+			width: 100%;
+			.shop {
+				font-size: $small_heading;
+				letter-spacing: 2px;
+				text-transform: uppercase;
+				display: block;
+				margin-bottom: 5px;
+			}
+			h3 {
+				font-size: $small_heading;
+				font-weight: $bold;
+				letter-spacing: 2px;
+				margin-bottom: 5px;
+			}
+			h4 {
+				font-size: $small_text;
+				font-family: $fixed-font-family, $base-font-family;
+				text-transform: uppercase;
+				letter-spacing: 2px;
+			}
+			.price {
+				display: block;
+				margin-top: 15px;
+				font-size: 20px;
+				.price-standard.strike {
+					display: inline-block;
+					color: $lightergrey;
+					margin-bottom: 6px;
+				}
+				.price-sales.item-detail {
+					display: block;
+				}
+			}
+		}
+	}
+	> img {
+		margin: 0 auto;
+	}
+}

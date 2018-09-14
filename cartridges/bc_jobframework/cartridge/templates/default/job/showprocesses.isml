@@ -1,0 +1,222 @@
+<isdecorate template="application/MenuFrame">
+	<!-- start: importprocess/showimportprocesses.isml -->
+	
+	<iscontent type="text/html" charset="UTF-8" compact="true">
+	
+	<script type="text/javascript">
+		//<!--
+		/* <![CDATA[ */
+		var ViewConfig = {
+			jobConfigCount : 0,
+			jobConfigRows : 5,
+			currentColumn : ''
+		}
+		
+		function toggleVisibility(link, id, currentDate, index, display, groupByProcess) {
+			var element = $(id);
+			if (element) {
+				if (element.visible()) {
+					element.hide();
+				} else {
+					element.show();
+					refreshView(link, id, currentDate, index, display, groupByProcess);
+				}
+			}
+		}
+
+		function toggleTaskVisibility(link, jobid) {
+			var element = $(jobid);
+			if (element) {
+				if (element.visible()) {
+					element.hide();
+					$('tgl_' + jobid).innerHTML = 'show';
+				} else {
+					element.show();
+					refreshTaskView( link, jobid );
+				}
+			}
+		}
+
+		function refreshTaskView( link, jobid ) {
+			$('tgl_' + jobid).innerHTML = 'hide';
+			link.disabled = "disabled";
+			link.innerHTML = '<img style="border:none;" src="${URLUtils.staticURL('images/ext-demandware/grid/loading.gif')}">';
+
+			//$(jobid).innerHTML = '<td class="table_detail w e s" colspan="10" style="background-color:#666FFF;">Loading, please wait...</td>';
+			
+			new Ajax.Updater( jobid, '${URLUtils.url('JobStatus-GetTaskEntries')}?JobID=' + jobid, {
+				onComplete: function ( test ) {
+					$(jobid).show();
+				},
+				evalScripts: true
+			});
+		}
+
+
+		function markJobTerminated( link, jobid ) {
+			if ( !confirm('Do you really want to to mark the job as abnormally terminated?') ) {
+				return;
+			}
+			new Ajax.Updater( jobid, '${URLUtils.url('JobStatus-MarkJobAsTerminated')}?JobID=' + jobid, {
+				onComplete: function ( test ) {
+					history.go(0);
+				},
+				evalScripts: false
+			});
+		}
+
+		function removeJobStatus( link, jobid ) {
+			if ( !confirm('Do you really want to to remove the job status from the system?') ) {
+				return;
+			}
+			new Ajax.Updater( jobid, '${URLUtils.url('JobStatus-RemoveJobStatus')}?JobID=' + jobid, {
+				onComplete: function ( test ) {
+					history.go(0);
+				},
+				evalScripts: false
+			});
+			history.go(0);
+		}
+		
+		
+		function refreshView(link, id, currentDate, index, display, groupByProcess) {
+			link.disabled = "disabled";
+			link.innerHTML = '<img style="border:none;" src="${URLUtils.staticURL('images/ext-demandware/grid/loading.gif')}">';
+				
+			new Ajax.Updater(id, '${URLUtils.url('JobStatus-GetJobEntriesForDate')}?CurrentDate=' + currentDate + '&LoopIndex=' + index + '&Display=' + display + (groupByProcess ? '&GroupByProcess=true' : ''), {
+				onComplete: function () {
+					try {
+					$('filterTd').getElementsBySelector('input').each(function(element) {
+						if (!element.checked) {
+							$('processTable').getElementsBySelector('#' + id + ' .' + element.classNames().toArray()[0]).invoke('toggle');
+						}
+					});
+					} catch(e) {alert(e);}
+					
+					$(id).show();
+				},
+				evalScripts: true
+			});
+		}
+		/* ]]> */
+		// -->
+	</script>
+	
+	<!-- head section -->
+	<table cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td class="breadcrumb">Show processes</td>
+			</tr>
+			<tr>
+				<td>
+					<img width="1" height="6" border="0" alt="" src="${URLUtils.staticURL('/images/space.gif')}"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<!-- description -->
+	<table width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td width="100%" class="table_title aldi">Show processes</td>
+			</tr>
+			<tr>
+				<td class="table_title_description w e">
+					<p>Here you can see all processes that are running or ran in the past. Click on a date to toggle visibility.</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<isscript>
+		importPackage(dw.system);
+		importPackage(dw.util);
+		
+		var descendingComparator = function(var1, var2) {
+			if (var1.getTime() > var2.getTime()) {
+				return -1;
+			}
+			if (var1.getTime() < var2.getTime()) {
+				return 1;
+			}
+			return 0;
+		};
+		
+		var daysMap = new SortedMap(descendingComparator);
+		if (pdict.CurrentHttpParameterMap.GroupByProcess.empty) {
+			daysMap.put(pdict.CurrentDate, pdict.StatusObjects);
+		} else {
+			daysMap.put(pdict.CurrentDate, pdict.ProcessNameMap);
+		}
+		var maxJobStatusObjectAge : Number = 'maxJobStatusObjectAge' in System.getPreferences().custom ? System.getPreferences().custom.maxJobStatusObjectAge : 20;
+		for each (var i=1; i<=maxJobStatusObjectAge; i++) {
+			daysMap.put(new Date(pdict.CurrentDate.getFullYear(), pdict.CurrentDate.getMonth(), pdict.CurrentDate.getDate() - i), null);
+		}
+	</isscript>
+	
+	<table width="100%" cellspacing="0" cellpadding="4" class="infobox w e s">
+		<tbody>
+			<tr>
+				<td nowrap="nowrap" colspan="3" class="infobox_title_search">
+					<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+						Process filter
+					<iselse>
+						&nbsp;
+					</isif>
+				</td>
+				<td nowrap="nowrap" align="right" class="infobox_item_search">
+					<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+						<span class="switch_link">Group by date</span>&nbsp;
+						<a class="switch_link" href="${URLUtils.url('JobStatus-Show', 'GroupByProcess', 'true')}">Group by date and process</a>
+					<iselse>
+						<a class="switch_link" href="${URLUtils.url('JobStatus-Show')}">Group by date</a>
+						<span class="switch_link">Group by date and process</span>&nbsp;
+					</isif>
+				</td>
+			</tr>
+			<tr>
+				<td class="infobox_item_search" colspan="4">
+					<img width="1" height="1" alt="" src="${URLUtils.imageURL('images/space.gif', null)}">
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="table_detail infobox" width="100%" colspan="4" id="filterTd">
+					
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<!-- spacer table -->
+	<table width="100%" cellspacing="0" cellpadding="0" border="0" class="n" id="processTable">
+		<isloop items="${daysMap.keySet()}" var="Day" status="DayStatus">
+			<isset name="Entries" value="${daysMap.get(Day)}" scope="pdict">
+			<isset name="ProcessNameMap" value="${daysMap.get(Day)}" scope="pdict">
+			<isset name="LoopIndex" value="${DayStatus.index}" scope="pdict">
+			<isset name="Display" value="${DayStatus.first}" scope="pdict">
+			
+			<tbody>
+				<tr>
+					<td class="table_detail" colspan="6">
+						<a class="leftmenuactive" href="javascript:toggleVisibility(this, 'a${DayStatus.index}', '<isprint value="${Day.getTime()}" formatter="#">', '${DayStatus.index}', 'true', ${pdict.CurrentHttpParameterMap.GroupByProcess.booleanValue});">
+							Date: <isprint value="${Day}">
+						</a>
+						
+						<a href="javascript:refreshView(this,'a${DayStatus.index}', '<isprint value="${Day.getTime()}" formatter="#">', '${DayStatus.index}', 'true', ${pdict.CurrentHttpParameterMap.GroupByProcess.booleanValue});">
+							Refresh View
+						</a>
+					</td>
+				</tr>
+			</tbody>
+			
+			<tbody id="a${pdict.LoopIndex}" style="${pdict.Display ? '' : 'display: none;'}">
+				<isinclude template="job/jobDayEntry">
+			</tbody>
+		</isloop>
+	</table>
+	
+	<!-- end: importprocess/showimportprocesses.isml  -->
+</isdecorate>

@@ -1,0 +1,51 @@
+/**
+ *	This library provides common functions to look up certain payment methods.
+ *
+ */
+
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.customer );
+
+var TD_RETAIL_CARD_TYPE = "TD Retail Card";
+
+/**
+* This function returns the credit cards filtered from a given payment instrument collection.
+*/
+function filterCreditCards( paymentInstruments : Collection ) : Collection
+{
+	if ( !empty(paymentInstruments) )
+	{
+		var creditCards : ArrayList = new ArrayList();
+		for each (var paymentInstrument : PaymentInstrument in paymentInstruments)
+		{
+			if (paymentInstrument.creditCardType != TD_RETAIL_CARD_TYPE)
+			{
+				creditCards.add( paymentInstrument );
+ 			}
+		}
+		return creditCards;
+	}
+	return new ArrayList();
+}
+
+/**
+* This function returns the retail cards filtered from a given payment instrument collection.
+*/
+function filterRetailCards( paymentInstruments : Collection ) : Collection
+{
+	if ( !empty(paymentInstruments) )
+	{
+		var retailCards : ArrayList = new ArrayList();
+		for each (var paymentInstrument : PaymentInstrument in paymentInstruments)
+		{
+			if (paymentInstrument.creditCardType == TD_RETAIL_CARD_TYPE)
+			{
+				retailCards.add( paymentInstrument );
+ 			}
+		}
+		return retailCards;
+	}
+	return new ArrayList();
+}

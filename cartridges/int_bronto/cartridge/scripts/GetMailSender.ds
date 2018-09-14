@@ -1,0 +1,33 @@
+/**
+*	This script returns MailSender for some MailTemplate
+*	Created by: Astound Commerce
+*   @input MailTemplate : String
+*   @output MailSender : String - service provider used for sending email
+*   @output TemplatePath : String  
+*   @output Log : String - error logger
+*
+*/
+importPackage (dw.system);
+importPackage (dw.util);
+importPackage (dw.web);
+
+importScript ("libCustomMailSender.ds");
+
+function execute (args : PipelineDictionary) : Number {
+
+	var mailSender : String = getMailSenderByTemplate( args.MailTemplate );
+	var templatePath : String = getMailTemplatePath( args.MailTemplate );
+	
+	if (empty(mailSender)) {
+		args.Log = Resource.msgf('error.logtext', 'error', null, args.MailTemplate);
+		return PIPELET_ERROR;
+	} else if (empty(templatePath)) {
+		args.Log = Resource.msgf('error.logtext', 'error', null, args.TemplatePath);
+		return PIPELET_ERROR;
+	}
+	
+	args.MailSender = mailSender;
+	args.TemplatePath = templatePath;
+   
+   return PIPELET_NEXT;
+}

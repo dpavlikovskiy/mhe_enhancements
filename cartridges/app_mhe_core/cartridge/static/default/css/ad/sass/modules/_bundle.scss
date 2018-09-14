@@ -1,0 +1,57 @@
+.productBunle{
+	border-top:1px solid $bundleborder;
+	padding:36px 0;
+	.beta-heading{
+		color:$brandcolor;
+		font-family:$base-font-family;
+	}
+	.productItem{
+		color:$greyText;
+		background:url(../img/bg/products-grid_gold_01.png) repeat-x 0 380px;
+		p{
+			line-height:16px;
+			font-family:$base-font-family;
+			text-transform:none;
+		}
+		.products-tile-bg {
+	    	background-image: url("../img/common/radial-gradient.png");
+		    height: 130px;
+		    position: absolute;
+		    transition: opacity 0.5s ease 0s;
+		    width: 300px;
+		    z-index:-1;
+		    opacity:0;
+    	}
+    	.item{
+    		&:hover .products-tile-bg{
+				opacity:1;
+			}
+    	}
+    	&:hover .item{
+    		color:$white;
+    		}
+    	&:hover .item h2{
+    		color:$white;
+    		}
+    	&:hover .item h3{
+    		color:$white;
+    		}
+    	&:hover .item h4{
+    		color:$white;
+    		}
+    	&:hover .item p a{
+    		color:$white;
+    		}    	
+	}
+	h2, h3, h4{
+		color:$brandcolor;
+	    font-family:$heading-font-family;
+	    font-size: $very_small_text;
+	    font-weight:$bold;
+	    letter-spacing: 1px;
+	    text-transform: uppercase;
+	}
+	h3, h4{
+		font-weight:$regular;
+	}
+}

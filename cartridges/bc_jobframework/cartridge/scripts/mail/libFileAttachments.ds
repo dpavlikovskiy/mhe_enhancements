@@ -1,0 +1,66 @@
+/**
+* @output PDFMapBase64 : dw.util.Map
+*/
+importPackage( dw.system );
+importPackage( dw.io );
+importPackage( dw.util );
+
+/**
+* Gets existing base64 encoded files that can be attached at the email.
+*
+* Please note: Since encoding is all done in memory, the size of attached files should be limited to the absolute minimum
+*
+* @param fileList ArrayList the list of files --> '/LIBRARIES/DE/default/test.txt'
+* @return Map with file name / base64 encoded content pairs
+*/
+function getBase64EncodedAttachments( fileList : ArrayList ) : Map {
+	if ( empty(fileList) ) {
+		return null;
+	}
+	var pdfMapBase64 : HashMap = new HashMap();
+	for each ( var filePath : String in fileList ) {
+		var fileName : Set = filePath.substr( filePath.lastIndexOf('/') + 1 );
+		if ( !pdfMapBase64.containsKey(fileName) ) {
+		 	try {
+				var fileReader : FileReader = new FileReader( new File(filePath),  'ISO-8859-1' );
+				var pdf : String = fileReader.string;
+				var pdfBase64 : String = encodeBase64ForEmail( pdf, 'ISO-8859-1' );
+				pdfMapBase64.put( fileName, pdfBase64 );
+		 	}  catch (e) {}
+		}
+	}
+	return pdfMapBase64;
+}
+
+/**
+* Encodes a string into a base64 string with an email-safe line width
+*
+* @param str String the string to encode
+* @param characterEncoding String the character encoding (i.e. 'ISO-8859-1')
+*/
+function encodeBase64ForEmail(str : String, characterEncoding : String) : String {
+	var strBase64 : String = StringUtils.encodeBase64(str, characterEncoding);
+	var strBase64LB : String = new String();
+    var stringWriter : StringWriter = new StringWriter();
+	
+	var offset = 0;
+	var length = 76;
+	
+	while (offset < strBase64.length) {
+		var maxOffset = offset + length;
+		if (strBase64.length >= maxOffset) {
+			stringWriter.write(strBase64, offset, length);
+			stringWriter.write("\n");
+		}
+		else {
+			stringWriter.write(strBase64, offset, length - (maxOffset - strBase64.length));
+		}
+		offset += length;
+	}
+	
+	stringWriter.flush();
+    strBase64LB = stringWriter.toString();
+    stringWriter.close();
+
+	return strBase64LB;
+}

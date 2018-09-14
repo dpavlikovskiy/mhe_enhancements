@@ -1,0 +1,26 @@
+/**
+* Checks if a payment instrument can be removed or not.
+* The rules are: PPGC can always be removed, other payment instruments only if the have no transaction id assigned.
+*
+*   @input PaymentInstrument : dw.order.OrderPaymentInstrument The payment instrument to remove
+*-   @output ExampleOut : Number
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var pi : OrderPaymentInstrument = pdict.PaymentInstrument;
+	
+	if (pi == null)
+		return PIPELET_ERROR;
+		
+	if (pi.paymentMethod == "METHOD_PPGC")
+		return PIPELET_NEXT;
+		
+	if (empty(pi.paymentTransaction.transactionID))
+		return PIPELET_NEXT;
+    
+    return PIPELET_ERROR;
+}

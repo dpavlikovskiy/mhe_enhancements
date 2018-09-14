@@ -1,0 +1,82 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	var _add = pdict.orderaddress;
+	var _addressType = pdict.addresstype;
+	var _typeId = pdict.typeid;
+	var formId = dw.util.UUIDUtils.createUUID();
+</isscript>
+
+<isif condition="${empty(_addressType)}">
+<h1>Error: Address Type cannot be null</h1>
+</isif>
+
+<div class="address-isml_form">
+<form id="${formId}" action="" >
+<input type="hidden" id="_addressType" value="${_addressType}">
+<input type="hidden" id="_typeId" value="${_typeId}">
+<table class="listTable" cellpadding="0" cellspacing="0" border="0">
+<tbody>
+	<tr class="listTableHeader">
+		<td colspan="2" class="listTableHeaderCell">Address (${_add.class})</td>
+	</tr>
+
+	<tr>
+		<td class="label" nowrap>First Name: </td>
+		<td class="value"><input class="input" id='firstName' type='text' value='${_add.firstName}' title="The Customer's first name."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Last Name: </td>
+		<td class="value"><input class="input" id='lastName' type='text' value='${_add.lastName}' title="The customer's last name."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Company Name: </td>
+		<td class="value"><input class="input" id='address1' type='text' value='${_add.companyName}' title="The customer's first address."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Address 1: </td>
+		<td class="value"><input class="input" id='address1' type='text' value='${_add.address1}' title="The customer's first address."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Address 2:</td>
+		<td class="value"><input class="input" id='address2' type='text' value='${_add.address2}' title="The customer's second address."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">City:</td>
+		<td class="value"><input class="input" id='city' type='text' value='${_add.city}' title="The Customer's City."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">State:</td>
+		<td class="value"><input class="input state" id='stateCode' type='text' value='${_add.stateCode}' title="The customer's state."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Zip Code:</td>
+		<td class="value"><input class="input zipcode" id='postalCode' type='text' value='${_add.postalCode}' title="The customer's postal code."/></td>
+	</tr>
+
+	<tr>
+		<td class="label">Phone:</td>
+		<td class="value"><input class="input phone" id='phone' type='text' value='${_add.phone}' title="The customer's phone number."/></td>
+	</tr>
+
+
+
+	<tr>
+		<td class="button saveaddress" colspan="2">
+		<input id="${formId}_btn" type="button" value="Save Address" onclick="Order.saveAddress('${formId}');">
+		</td>
+	</tr>
+
+</tbody>
+</table>
+</div><!--::END:: CLASS=address-isml_form -->
+
+</form>
+
+

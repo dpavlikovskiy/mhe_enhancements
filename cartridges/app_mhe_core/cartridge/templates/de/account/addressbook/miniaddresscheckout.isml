@@ -1,0 +1,109 @@
+<iscomment>
+	Creates a miniaddress display.
+
+	Parameter:
+	p_address	 	: the address object to display
+    p_productlist   : the product list the address represents. can be empty
+</iscomment>
+
+
+<iscomment>
+	There are some addresses without an ID, catch this here and make this include
+    more universal usable therefore.
+</iscomment>
+
+ 
+
+<div class="ocMContent clearfix">
+<isscript>
+	  var pmethod:String=pdict.p_order.paymentInstruments[0].paymentMethod;
+	  var list:dw.util.List=new dw.util.ArrayList();
+	      list.add("ORDER_REPLACEMENT");
+	      list.add("ORDER_COMPLIMENTARY");
+	    
+	</isscript>
+	<div class="ocLeft">
+		<div class="dMethod">
+			<h3><isprint value="${Resource.msg('orderdetails.amountpaid','components',null)}" /></h3>		
+   			<p><isprint value="${orderTotalValue}" /></p>
+		</div>
+		<isif condition="${!list.contains(pmethod)}">
+		<div class="dMethod">
+			<h3>${Resource.msg('orderdetails.paymentmethod','components',null)}</h3>
+		    <isloop items="${pdict.p_order.getPaymentInstruments()}" var="paymentInstr" status="piloopstate">		
+	    		<isif condition="${paymentInstr.paymentMethod.equalsIgnoreCase('PAYPAL')}">
+					<div>${dw.order.PaymentMgr.getPaymentMethod(paymentInstr.paymentMethod).name}</div>
+				<iselseif condition="${paymentInstr.paymentMethod.equalsIgnoreCase('ORDER_OTHER_MEANS')}">
+				 <div>${pdict.p_order.custom.otherMeansPaymentType} <br>
+				 </div>	
+				<iselse>			
+					<p>
+			 	 		<isprint value="${Resource.msgf('checkout.cardending','checkout',null,paymentInstr.creditCardType)}" />
+						<isprint value="${paymentInstr.creditCardNumberLastDigits}" /> 
+						<iscomment>Order detail Page Content</iscomment>
+						<iscomment><isprint value="${dw.order.PaymentMgr.getPaymentMethod(paymentInstr.paymentMethod).name}" /> 
+						${Resource.msg('orderdetails.paymentcard','components',null)}
+						<isprint value="${paymentInstr.maskedCreditCardNumber}" /></iscomment>
+					 </p>
+				 </isif>
+			</isloop>
+		</div>
+		</isif>
+	</div>
+	
+	<div class="ocRight">
+		<div class="dMethod">
+			<h3><isprint value="${Resource.msg('orderdetails.billingaddress','components',null)}" /></h3>		
+   			<p>
+   				<isif condition="${!empty(pdict.p_address.custom.addressName)}">
+   		    		"<isprint value="${pdict.p_address.custom.addressName}"/>"<br />
+   		    	</isif>
+   				<isprint value="${pdict.p_address.salutation}"/>
+   				<isprint value="${pdict.p_address.title}"/>
+				<isprint value="${pdict.p_address.firstName}"/>
+				<isprint value="${pdict.p_address.lastName}"/><br />
+				<isif condition="${!empty(pdict.p_address.companyName)}">
+					<isprint value="${pdict.p_address.companyName}"/> <br/>
+				</isif>
+				<isif condition="${!empty(pdict.p_address.address1)}">
+					<isprint value="${pdict.p_address.address1}"/> 
+				</isif>
+					
+				<isif condition="${!empty(pdict.p_address.address2)}">
+					,<isprint value="${pdict.p_address.address2}"/> 
+				</isif>
+				
+				<isif condition="${!empty(pdict.p_address.postalCode)}">
+					,<isprint value="${pdict.p_address.postalCode}"/><br/> 
+				</isif>
+					
+				<isif condition="${pdict.p_address.city != null}">
+					<isprint value="${pdict.p_address.city}"/>,
+				</isif>
+				
+						 
+				  <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==pdict.p_address.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+          		    </isloop><br />
+					
+				<isif condition="${!empty(pdict.p_address.phone)}">
+					 <isprint value="${pdict.p_address.phone}"/> 
+				</isif>
+   			</p>
+		</div>
+	</div>
+</div>
+<isif condition="${'ID' in pdict.p_address && !empty(pdict.p_address.ID)}">
+	<div class="mini-address-title">
+		<label style="display:none;">${Resource.msg('minishipments.deliverto','checkout',null)}</label>
+		<h2><isprint value="${pdict.p_address.ID}"/></h2>
+	<iscomment>	
+	<isif condition="${!empty(pdict.p_productlist)}">
+			<div class="mini-address-product-list">${Resource.msg('miniaddress.registrywishlist','account',null)}</div>
+		</isif> 
+	 </iscomment>
+	</div>
+</isif>

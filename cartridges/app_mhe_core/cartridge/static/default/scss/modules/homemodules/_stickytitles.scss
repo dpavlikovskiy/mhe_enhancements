@@ -1,0 +1,14 @@
+// =============================================================================
+// Parallax Sticky Title Headers
+// =============================================================================
+
+.stickyHeader {
+	padding: 17px;
+	text-align: center;
+	width: 400px;
+	z-index: 5;
+	h3 {
+		font-size: 12px;
+		margin-bottom: 0;
+	}
+}

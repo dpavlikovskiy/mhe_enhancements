@@ -1,0 +1,52 @@
+// =============================================================================
+// Typography mixins
+// =============================================================================
+
+@mixin font-size($sizeValue: 1.6) {
+	font-size: ($sizeValue * 10) + px;
+	font-size: $sizeValue + rem;
+}
+
+
+@mixin price {
+	display:inline-block;
+}
+
+@mixin price2 {
+	
+}
+
+@mixin blockquote01 {
+	position: relative;
+	text-align: center;
+	&:before,
+	&:after {
+		@include icon;
+		color: $violet02;
+		position: absolute;
+	}
+	&:before {
+		content: "\e60d";
+	}
+	&:after {
+		content: "\e60c";
+	}
+}
+
+@mixin dividingDot( $dotColor:$violet01, $height: 5px, $width: 5px ) {
+	position: relative;
+	&:before {
+		content: '';
+		display: block;
+		border-radius: 100%;
+		height: $height;
+		width: $width;
+		position: absolute;
+	}
+}
+
+@mixin strikethrough {
+	background-image:url(img/bg/strikethrough.png);
+	background-position: 50% 0;
+	background-repeat:no-repeat;
+}

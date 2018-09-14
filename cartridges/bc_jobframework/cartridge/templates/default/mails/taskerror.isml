@@ -1,0 +1,22 @@
+<iscontent type="multipart/mixed; boundary=------------000001030701020908040900" compact="false" >
+<isscript>
+	importPackage( dw.util );
+	importScript( 'mail/libFileAttachments.ds' );
+	var base64FileMap : Map = getBase64EncodedAttachments( pdict.logFiles ); 
+</isscript>
+This is a multi-part message in MIME format.
+--------------000001030701020908040900
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+One of the tasks didn't finish successfully. Please have a look at the attached log files for details or check the status online.
+
+<isif condition="${ !empty(base64FileMap) }">
+<isloop items="${ base64FileMap.keySet() }" var="key">
+<isset name="fileContent" value="${ base64FileMap.get(key) }" scope="page"/>--------------000001030701020908040900
+Content-Description: ${key}
+Content-Disposition: attachment; filename="${key}"; size=${fileContent.length}; creation-date="${(new Date()).toISOString()}"; modification-date="${(new Date()).toISOString()}"
+Content-Transfer-Encoding: base64
+
+${fileContent}</isloop>
+</isif>--------------000001030701020908040900--

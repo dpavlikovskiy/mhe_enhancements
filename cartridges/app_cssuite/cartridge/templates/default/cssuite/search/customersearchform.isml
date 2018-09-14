@@ -1,0 +1,78 @@
+<!--- TODO: this form --->
+<div id="customer_searchform" class="order_searchform">
+	<div class="order_searchform_top">
+	</div>
+	<div class="search_order_attributes">
+			<h3>Customer Attributes</h3>
+        		<table class="searchtable">
+        			<tbody>
+        			<!--tr>
+        				<td class="label">Phone No:</td>
+        				<td class="value"><input id="CustomerSearchForm_PhoneNo" value="" type="text" class="search_input"></td>
+        			</tr-->
+               		<tr>
+        				<td class="label searchtable_row_left">Customer No:</td>
+        				<td class="value searchtable_row_right"><input class="OrderSearchForm" id="CustomerSearchForm_CustomerNo" onkeypress="if (event.keyCode == 13) CSSuite.searchCustomer();" value="" type="text"></td>
+        			</tr>
+        			<tr>
+        				<td class="label searchtable_row_left">First Name:</td>
+        				<td class="value searchtable_row_right"><input class="OrderSearchForm" id="CustomerSearchForm_FirstName" onkeypress="if (event.keyCode == 13) CSSuite.searchCustomer();" value="" type="text"></td>
+        			</tr>
+                	<tr>
+        				<td class="label searchtable_row_left">Last Name:</td>
+        				<td class="value searchtable_row_right"><input class="OrderSearchForm" id="CustomerSearchForm_LastName" onkeypress="if (event.keyCode == 13) CSSuite.searchCustomer();" value="" type="text"></td>
+        			</tr>
+                	<tr>
+        				<td class="label searchtable_row_left">Email:</td>
+        				<td class="value searchtable_row_right"><input class="OrderSearchForm" id="CustomerSearchForm_CustomerEmail" onkeypress="if (event.keyCode == 13) CSSuite.searchCustomer();" value="" type="text"></td>
+        			</tr>
+        			<tr>
+                    <td class="label searchtable_row_left">Maximum Results:</td>
+					<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown MAXresults" id="CustomerSearchForm_ResultSet" >
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50" selected="selected">50</option>
+							<option value="100">100</option>
+							<option value="500">500</option>
+						</select>
+					</td>
+				</tr> 
+            	</tbody>
+            </table>
+	</div>
+
+
+    <!--div class="search_order_attributes">
+               		<h3>Search Results</h3>
+        <table class="searchtable">
+        	<tbody>
+            <tr>
+                    <td class="label searchtable_row_left">Maximum Results:</td>
+					<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown MAXresults" id="CustomerSearchForm_ResultSet" >
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50" selected="selected">50</option>
+							<option value="100">100</option>
+							<option value="500">500</option>
+						</select>
+					</td>
+				</tr>                
+			</tbody>
+		</table>
+	</div-->	
+	<div class="lefttab_searchbutton_container">
+    	<input class="lefttab_button search" name="searchCustomers" value="" onclick="CSSuite.searchCustomer();">
+	</div>
+	<div class="onbehalf unregistered_user">
+		<ul>
+		    <isif condition="${dw.web.Resource.msg('order.behalf', 'cssuite', null) == 'true'}">
+			<li onclick='Order.createBasket();'>Order for Unregistered User</li>
+			
+			<li onclick='create_orderonbehalf("${URLUtils.https('CSOrderOnBehalf-Unregistered')}","${pdict.CurrentSession.userName}")'>Access Storefront as Unregistered User</li> 
+			</isif>           
+		</ul>            
+	</div>
+	<div id="customer_searchresults_container"></div>
+</div>

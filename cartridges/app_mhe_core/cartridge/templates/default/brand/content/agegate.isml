@@ -1,0 +1,89 @@
+<!--- TEMPLATENAME: agegate.isml --->
+<isinclude template="util/modules"/>
+<isdecorate template="util/pt_empty">
+<div class="agegate_message">
+	
+		<img class="small-logo" src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" />
+	
+	<iscontentasset aid="ca_agegate_message_brand"/>
+
+	 <isscript>
+			 	importScript('account/Utils.ds');
+			 	var countryAgeMap : dw.util.Map = getCountryAgeMap();					
+	</isscript>
+	
+   <form action="${URLUtils.httpContinue()}" method="post" id="agegate-form" name="${pdict.CurrentForms.agegate.htmlName}"> 
+	
+	
+	   <div class="form-row form-row-leftalign country-header required" data-required-text="${Resource.msg('profile.originCountry.missing-error','forms',null)}">
+					<div class="section-header">${Resource.msg('agegate.Country','common',null)}</div>	 		
+			 		<select id="${pdict.CurrentForms.agegate.country.htmlName}" name="${pdict.CurrentForms.agegate.country.htmlName}" class="input-text required ">
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('ageGateCountryNames')}" var="country" status="loopstatus">	
+								
+									<option value="${country.getValue()}" ${country.getValue() == pdict.CurrentForms.agegate.country.value ? "selected='selected'" : ""} data-validage="${countryAgeMap.get(country.getValue())}">${country.getDisplayValue()}</option>
+										                            				
+							</isloop>
+						</select>
+		
+			
+	 </div>
+        	 <div class="form-row date-header">
+	 	 	<div class="section-header">${Resource.msg('agegate.DOB','common',null)}</div>
+        	<div class="append-error-div"><isinputfield formfield="${pdict.CurrentForms.agegate.birthday}"  xhtmlclass="date-input of-legal-age" type="input" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.agegatedateofbirth','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+        	</div>
+		   <button type="submit" id="validageTest" class="button fr validageTest" value="login" name="login" >
+						<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+			</button>
+		</div>
+		 
+		 
+	 </form> 
+	 
+	 
+</div>
+<iscontentasset aid="ca_agegate_message_footer_brand"/>
+
+<script type="text/javascript">
+ /*$(document).ready(function(){
+	 app.validator.init();
+		
+	var cartformBtn = $("#validageTest");
+	var cartForm = $("#agegate-form");
+	cartformBtn.on("click", function(e) {
+		
+		app.validator.init();
+		
+		var $this = $(this),
+  		$thisForm = $this.parents("form"),
+			$thisFormError = $thisForm.find(".form-row-error"),
+			thisFormURL= $this.parents("form").attr("action"),
+			getFormURL = app.util.appendParamsToUrl(thisFormURL,{format:"ajax"});
+
+		if($thisFormError.length === 0){
+	    	e.preventDefault();
+	    	var options = {
+    			url: getFormURL,
+    			data: cartForm.serialize(),
+    			type: "POST"
+    			
+    		};
+	    	
+			$.ajax(options).done(function(data){
+			   if (data.success) {
+				   	app.dialog.close();
+					app.page.redirect(data.redirect);
+				} else  {		
+					return false;
+				}
+			});
+		}
+
+	});
+ });*/	
+
+</script>
+</isdecorate>
+
+
+

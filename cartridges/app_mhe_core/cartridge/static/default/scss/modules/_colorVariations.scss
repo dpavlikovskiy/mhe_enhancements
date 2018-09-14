@@ -1,0 +1,55 @@
+//Black text for modules where the class is assigned "blackText"
+body{
+	.blackText{
+		h1, h2, h3, h4, h5, h6, p, a, span, label{
+			color:$black;
+			text-shadow:none !important; 
+		}
+		h1, h2, h3, h4, h5, h6{
+			text-shadow:1px 1px 1px $white !important;
+		}
+		.button .face{
+			border:1px solid $black;
+			color:$black;
+		}
+		.circle{
+			background:$black;
+		}
+		.greet{
+			color:$black;
+		}
+		.showPass{
+			span{
+				color:$lightergrey;
+			}
+		}
+	}
+	.loginAreaCont{
+		.blackText{
+			.button .face{
+				border:1px solid $lightpurple;
+				color:$lightpurple;
+			}
+			.errors-total{
+				.error{
+					color:$red;
+				}
+				.error-field{
+					color:$white;
+				}
+			}
+			p{
+				text-shadow:none !important;
+			}
+		}
+	}
+	.bootCaro{
+		.blackText{
+			.bootCaro-caption{
+				.desc p{
+					text-shadow:0 0 0 #000;
+				}
+			}
+		}
+	}
+}

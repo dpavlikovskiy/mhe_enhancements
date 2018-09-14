@@ -1,0 +1,29 @@
+// =============================================================================
+// Static Offer - Age Consent Modal
+// =============================================================================
+
+.agegate_message {
+	
+	.logo_header {
+		margin-bottom: 32px;
+	}
+	button.agegate {
+		margin: 20px auto 18px;
+		display: inline-block;
+		/*width: 290px;*/
+	}
+	.no-confirm {
+		@include transition(all 0.2s ease-out);
+		display: inline-block;
+		font-style: italic;
+		font-size: $small_text;
+	}
+}
+
+.static-offer {
+	.ui-dialog.agegate {
+		.ui-dialog-titlebar-close {
+			display: none;
+		}
+	}
+}

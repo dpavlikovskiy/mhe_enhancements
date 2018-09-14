@@ -1,0 +1,28 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+	<isscript>var pageContext={title:'Page Overlay', type:'customerservice',ns:'account'};</isscript>
+	<isinclude template="util/modules"/>
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<isinclude template="components/header/htmlhead"/>
+</head>
+
+<body>
+
+	<div id="wrapper" class="pt_customer-service">
+		<div id="main" role="main" class="page-content main clearfix">
+			<div id="primary" class="primary-content">
+				<section>
+					<isinclude template="components/browsertoolscheck"/>
+					<isreplace/>
+				</section>
+			</div>
+		</div><!-- /main -->
+	</div><!--  /wrapper -->
+	
+</body>
+</html>

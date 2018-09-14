@@ -1,0 +1,232 @@
+// =============================================================================
+// PDP personalisation module
+// =============================================================================
+
+.personalise-dialog {
+
+	.section {
+		&.step-02 {
+			position: relative;
+			overflow: hidden;
+		}
+		&.js-active {
+			.personalise-veil {
+				-webkit-animation: sectionReveal;
+				-webkit-animation-duration: 0.6s;
+				-webkit-animation-delay: 0s;
+				-webkit-animation-fill-mode: forwards;
+				-moz-animation: sectionReveal;
+				-moz-animation-duration: 0.6s;
+				-moz-animation-delay: 0s;
+				-moz-animation-fill-mode: forwards;
+				-o-animation: sectionReveal;
+				-o-animation-duration: 0.6s;
+				-o-animation-delay: 0s;
+				-o-animation-fill-mode: forwards;
+				animation: sectionReveal;
+				animation-duration: 0.6s;
+				animation-delay: 0s;
+				animation-fill-mode: forwards;
+			}
+		}
+		.branding-image {
+			position: absolute;
+			top: 0;
+			right: 0;
+			img {
+				width: 300px;
+				height: 308px;
+			}
+		}
+		.personalise-veil {
+			@include opacity(0.8);
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-color: $black;
+		}
+		&.footer {
+			padding-top: 24px;
+			padding-bottom: 24px;
+			border-bottom: none;
+			text-align: center;
+			p {
+				margin: 0;
+				padding: 0;
+				color: $lightergrey;
+				font-size: 15px;
+			}
+		}
+	}
+	.beta-heading {
+		letter-spacing: 1px;
+		strong {
+			color: $white;
+		}
+	}
+	.options-list {
+		@include clearfix();
+		> li {
+			float: left;
+			margin: 0;
+			padding: 0 15px;
+			background-image: url(img/sprites/divider_02.png);
+			background-repeat: repeat-y;
+			background-position: right 0;
+			&:first-child {
+				padding-left: 0;
+			}
+			&.cta-personalise {
+				background-image: none;
+			}
+		}
+	}
+	.item-n-price-wrap {
+		.item-detail {
+			font-size: 40px;
+		}
+		.product-price {
+			&:before {
+				font-size: 35px;
+			}
+		}
+	}
+	textarea,
+	input {
+		text-transform: none;
+		&:focus {
+			color: $white;
+		}
+	}
+	.button.secondary {
+		background-color: $background_color;
+	}
+	.variations-list {
+		.attribute {
+			.label {
+				display: none;
+			}
+		}
+	}
+	.input-list {
+		li {
+			width: 380px;
+		}
+		.char-count {
+			margin: 14px 0 0 0;
+			text-align: right;
+			font-size: 16px;
+			text-transform: uppercase;
+			color: $lightergrey;
+			.char-remain-count {
+				color: $white;
+			}
+		}
+		&.form-row {
+			position: relative;
+		}
+		.error {
+			position: relative;
+			bottom: -15px;
+			left: 0;
+			display: block;
+			overflow: hidden;
+			width: 406px;
+			&.error-hidden {
+				display: none;
+			}
+			&:before {
+				top: -8px;
+				left: 16px;
+			}
+		}
+	}
+	.availability {
+		display: none;
+	}
+	.cta-wrap {
+		text-align: center;
+		.button-buy-me {
+			.face.front {
+				background-color: #000;
+			}
+
+		}
+	}
+	.quantity {
+		@include clearfix;
+	}
+}
+
+@-webkit-keyframes sectionReveal {
+	0% {
+		opacity: 0.8;
+	}
+	99% {
+		height: 100%;
+	}
+	100% {
+		opacity: 0;
+		height: 0;
+	}
+}
+@-moz-keyframes sectionReveal {
+	0% {
+		opacity: 0.8;
+	}
+	99% {
+		height: 100%;
+	}
+	100% {
+		opacity: 0;
+		height: 0;
+	}
+}
+@-o-keyframes sectionReveal {
+	0% {
+		opacity: 0.8;
+	}
+	99% {
+		height: 100%;
+	}
+	100% {
+		opacity: 0;
+		height: 0;
+	}
+}
+@keyframes sectionReveal {
+	0% {
+		opacity: 0.8;
+	}
+	99% {
+		height: 100%;
+	}
+	100% {
+		opacity: 0;
+		height: 0;
+	}
+}
+
+.ie8,
+.ie9 {
+	.personalise-dialog {
+		.section {
+			&.js-active {
+				.personalise-veil {
+					display: none;
+				}
+			}
+		}
+	}
+
+}
+.product-options-dialog{
+	.input-list{
+		.error{
+			width:450px;
+			&.error-hidden{display:none;}
+		}
+	}
+}

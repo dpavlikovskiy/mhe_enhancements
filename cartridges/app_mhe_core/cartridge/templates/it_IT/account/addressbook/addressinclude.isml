@@ -1,0 +1,72 @@
+<isinclude template="util/modules.isml"/>
+
+<isif condition="${!empty(pdict.CurrentCustomer.profile.addressBook.addresses)}">
+	
+	<iscomment>addresses are sorted, preferred first, than alphabetic </iscomment>
+	
+	<isif condition="${pdict.Status != null && pdict.Status.isError()}">				 
+	 	<!--- Use the error code value to build an appropriate error message --->
+		<span class="form-error">
+			<isprint value="${Resource.msg('addressdetails.' + pdict.Status.code, 'account',null)}"/>
+		</span>
+	</isif>
+	
+	<ul class="address-list" id="addresses">
+		<isloop items="${pdict.CurrentCustomer.profile.addressBook.addresses}" var="address" status="loopstate">
+			<isscript>
+				var isDefault = !empty(pdict.CurrentCustomer.profile.addressBook.preferredAddress) && (pdict.CurrentCustomer.profile.addressBook.preferredAddress.ID == address.ID);
+				var cssClass = "";
+				if (loopstate.first) { cssClass = "first"; } 
+				else if (loopstate.last) { cssClass = "last"; }
+				if (isDefault) { cssClass+=" default"; }
+			</isscript>
+			<isif condition="${!('addressType' in address.custom && address.custom.addressType.value.equalsIgnoreCase('billing'))}">
+			<li class="address ${cssClass}">
+				
+				<isminiaddress p_address="${address}"/>
+				
+				<iscomment>
+					<isif condition="${!isDefault}">
+						<a href="${URLUtils.url('Address-SetDefault','AddressID', encodeURIComponent(address.ID))}" class="address-make-default"> 
+							${Resource.msg('editaddress.makedefaultaddress','account',null)} 
+						</a> |
+					</isif>
+				 </iscomment>
+				
+				<p class="address-default">
+					<isif condition="${!isDefault}">
+						<input type="radio"  name="defaultCheck" value="${address.ID}"><label>${Resource.msg('addresslist.makedefaultaddress','account',null)}</label>
+					<iselse>
+						<input type="radio" name="defaultCheck" value="${address.ID}" checked><label>${Resource.msg('addresslist.defaultaddress','account',null)}</label>
+					</isif>
+				</p>
+				
+				<p class="address-modify">
+					<a href="${URLUtils.url('Address-Edit','AddressID', encodeURIComponent(address.ID))}" class="address-edit" data-address-name="">
+						${Resource.msg('addresslist.editaddress','account',null)}
+					</a>
+					
+					<a href="${URLUtils.url('Address-Delete','AddressID', encodeURIComponent(address.ID))}" class="address-delete delete">
+						${Resource.msg('addresslist.removeaddress','account',null)}
+					</a>
+				</p>
+			</li>
+			</isif>
+		</isloop>
+	</ul>
+	<div id="js-remove-address" class="remove" style="display:none">
+		<h2>${Resource.msg('addressremove.removethisaddress','account',null)}</h2>
+		<p>${Resource.msg('addressremove.areyousure','account',null)}</p>
+		<address></address>
+		<button class="button clear secondary plain cancel">
+			<span class="face front">${Resource.msg('global.cancel','locale',null)}</span>
+			<span class="face back">${Resource.msg('global.cancel','locale',null)}</span>
+		</button>
+		<button class="button clear secondary remove">
+			<span class="face front">${Resource.msg('addresslist.removeaddress','account',null)}</span>
+			<span class="face back">${Resource.msg('addresslist.removeaddress','account',null)}</span>
+		</button>
+	</div>
+</isif>
+
+

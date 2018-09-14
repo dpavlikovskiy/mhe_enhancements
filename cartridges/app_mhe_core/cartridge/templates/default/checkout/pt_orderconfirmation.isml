@@ -1,0 +1,131 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isinclude template="util/modules"/>
+	
+	<iscomment>Include all important information globally , e.g. meta-data, link information, and javascript.</iscomment>
+	<isscript>var pageContext={title:'Order Confirmation', type:'orderconfirmation', ns:'orderconfirmation'};</isscript>
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="checkout/pt_orderconfirmation_UI"/>
+	
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<iscontentasset aid="order-confirmation-background-image"/>
+</head>
+
+<body>
+	<div id="wrapper" class="pt_checkout pt_order-confirmation">
+	<isif condition="${!(pdict.CurrentCustomer.authenticated) && !empty(pdict.Order.custom.staticCategoryId)}">
+		<isscript>
+		var category=dw.catalog.CatalogMgr.getCategory(pdict.Order.custom.staticCategoryId);
+		</isscript>
+		<div class="staticCheckoutHeader">
+			<div class="header static-logo" id="headerlogo">
+				<h1 class="title-wrap">
+					<a href="${URLUtils.url('Search-Show','cgid',category.ID)}">
+						<img src="${category.thumbnail.URL}" alt="${category.displayName}" class="logo" />
+					</a>
+				</h1>
+			</div>	
+		</div>	
+		<iselse>
+		
+		<div class="logo_header" id="headerLogo" data-main-logo-anim='{"hideClass":"js-hide","showClass":"js-show","targetElement":"js-hide-target","scrollSwitchPoint":200}'>
+			<h1 class="title-wrap">
+				<a href="${URLUtils.url('Home-Show')}">
+				<isif condition="${(pdict.CurrentSession.custom.brand.equals('mh'))}">
+			<span class="main-title">
+						${Resource.msg('global.selection','locale',null)}
+					</span>
+			<iselse>
+			<img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" />
+			</isif>
+				</a>
+			</h1>
+		</div>
+	
+	
+		</isif>
+	<isif condition="${!pdict.CurrentForms.multishipping.entered.value}">
+    	<ischeckoutprogressindicator step="4" multishipping="false" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	<iselse>
+		<ischeckoutprogressindicator step="4" multishipping="true" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	</isif>
+	
+	
+		
+		<div id="main" role="main" class="clearfix main primary-focus">
+		
+			<div id="primary" class="primary-content">
+				<isreplace/>
+			</div>
+			
+			
+			
+		</div>
+		<isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM}">
+			<script type="text/javascript">
+	
+			 dataLayer = []; 
+			 var cartProducts = [];
+			 
+			 <isloop items="${pdict.Order.getAllProductLineItems()}" var="productLineItem">
+				 <isscript>
+			 		if(!empty(productLineItem.optionProductLineItems)){
+			 			var optionModel : dw.catalog.ProductOptionModel = productLineItem.optionModel;
+						var productOption : dw.catalog.ProductOption = optionModel.getOption(productLineItem.optionProductLineItems[0].optionID);
+			 			var optionValue : dw.catalog.ProductOptionValue = optionModel.getSelectedOptionValue(productOption);
+			 			var optionPrice = optionModel.getPrice(optionValue).value;
+			 			var brand : String = productLineItem.product.variant?productLineItem.product.masterProduct.custom.mheBrand:productLineItem.product.custom.mheBrand;
+			 		}
+			 		var brand : String = productLineItem.product.variant?productLineItem.product.masterProduct.custom.mheBrand:productLineItem.product.custom.mheBrand;
+			 		var prodName : String = !empty(productLineItem.product.name) ? (!empty(optionValue) ? (brand+ " - " +productLineItem.product.name + " - " + optionValue.displayValue) : brand+ " - " +productLineItem.product.name ): (!empty(optionValue) ? optionValue.displayValue : null)
+			 		var productName : String = StringUtils.decodeString(prodName, StringUtils.ENCODE_TYPE_HTML);	
+			 		var categoryName : String = !productLineItem.product.variant?productLineItem.product.custom.mheBrand:productLineItem.product.masterProduct.custom.mheBrand;
+			 		var categoryNameEncode : String = StringUtils.decodeString(categoryName, StringUtils.ENCODE_TYPE_HTML);			
+			 		</isscript>
+			 	if(${!productLineItem.optionProductLineItem && !productLineItem.bundledProductLineItem}){
+				 	cartProducts.push({
+				 		"transactionId" : "${pdict.Order.currentOrderNo}",
+				 		"name": "<isprint value="${productName}" encoding="off">",
+				 		"sku": "${!empty(productLineItem.product.ID) ? productLineItem.product.ID : null}",
+				 		"category": "<isprint value="${categoryNameEncode}" encoding="off">",
+				 		"price": "${!empty(productLineItem.adjustedPrice.value) ? (!empty(optionPrice) ? (productLineItem.adjustedPrice.divide(productLineItem.getQuantityValue()).value + optionPrice) : productLineItem.adjustedPrice.divide(productLineItem.getQuantityValue()).value) : null}",
+				 		"quantity": "${!empty(productLineItem.getQuantityValue()) ? productLineItem.getQuantityValue() : null}",
+				 		"currency": "${!empty(productLineItem.adjustedPrice.currencyCode) ? productLineItem.adjustedPrice.currencyCode : null}"
+				 	});
+			 	}
+			 				
+			 </isloop>
+			 			
+			 dataLayer.push({
+			 	"transactionId" : "${pdict.Order.currentOrderNo}",
+			 	"transactionAffiliation": "${pdict.Order.custom.orderSource}",
+			 	"transactionTotal": "${!empty(pdict.Order.totalGrossPrice.value) ? pdict.Order.totalGrossPrice.value : null}",            
+			 	"transactionShipping": "${!empty(pdict.Order.getShippingTotalPrice().value) ? pdict.Order.getShippingTotalPrice().value : null}",
+			 	"transactionTax": "${!empty(pdict.Order.totalTax.value) ? pdict.Order.totalTax.value : null}",
+			 	"transactionProducts": cartProducts,
+			 	"currency": "${pdict.Order.getCurrencyCode()}",
+			 	"staticCategoryID": "${!empty(pdict.Order.custom.staticCategoryId) ? pdict.Order.custom.staticCategoryId : ''}"
+			 });
+		
+			</script>
+		</isif>
+		
+	<isif condition="${!pdict.CurrentCustomer.registered && pdict.CurrentSession.custom.brand.equals('mh')}">
+	
+		<isinclude template="components/footer/footer-staticoffer"/>
+		<iselse>
+		<isinclude template="components/footer/footer"/>
+		</isif>
+	
+		<isinclude template="checkout/pt_orderconfirmation_VARS"/>
+		
+	</div>
+</body>
+</html>

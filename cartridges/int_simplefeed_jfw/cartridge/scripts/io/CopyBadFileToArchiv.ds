@@ -1,0 +1,69 @@
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.net );
+importPackage( dw.io );
+ 
+/**
+ * CopyFileToArchiv.ds
+ * This script copies imported file to archiv directory.
+ *
+ * @input srcPath : String source directory
+ * @input moveFile : String file name of to move file in archiv
+ */ 
+
+/**
+ * Function: execute
+ *
+ * Main function of script. 
+ */
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // ===================================================
+	// =====     	PROCESS INPUT PARAMETERS 		 ===== 
+    // ===================================================
+	var srcPath : String = pdict.srcPath;
+	var moveFile : String = pdict.moveFile;
+	
+    // ===================================================
+	// =====            DONE                         =====
+    // ===================================================
+	// check input parameter
+	if(srcPath == null)
+	{
+		Logger.debug("Missing source path.");		
+		return PIPELET_ERROR;
+		
+	}
+	// checks correctness of target path
+	var targetDirectory : File = new File(File.IMPEX);
+	var srcDirectory : File = new File(targetDirectory, "src");
+	srcDirectory = new File(srcDirectory, srcPath);
+	if(!srcDirectory.isDirectory()) 
+	{
+		Logger.debug("Error by access of sourcet path " + srcPath + ".");		
+		return PIPELET_ERROR;
+	}
+	targetDirectory = new File(targetDirectory, "archive_bad");
+	if(!targetDirectory.exists())
+	{
+		if(!targetDirectory.mkdir())
+		{
+			Logger.debug("Error by create archive_bad directory.");
+			return PIPELET_ERROR;
+		}
+	}
+	targetDirectory = new File(targetDirectory, srcPath);
+	if(!targetDirectory.exists())
+	{
+		if(!targetDirectory.mkdir())
+		{
+			Logger.debug("Error by create " + srcPath + " directory.");
+			return PIPELET_ERROR;
+		}
+	}
+	var srcFile : File = new File(srcDirectory, moveFile);
+	var targetFile : File = new File(targetDirectory, moveFile);
+	srcFile.renameTo(targetFile);
+	return PIPELET_NEXT;
+}

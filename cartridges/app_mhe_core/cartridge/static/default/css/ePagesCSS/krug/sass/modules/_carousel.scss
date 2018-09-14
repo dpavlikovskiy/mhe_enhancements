@@ -1,0 +1,55 @@
+.carouselEpages {
+	.bootCaro {
+		height:650px;
+		.bootCaro-caption{
+			top: 204px;
+			p.title {
+				font: $largeFontSize $titleFont;
+				color: $white;
+				text-align:center;
+			}
+			h2 {
+				font: $firstHeading $titleFont;
+				color: $brandColor;
+				text-align:center;
+			}
+			p {
+				font: $largeFontSize $regularFont italic;
+				text-align: center;	
+			}
+			.buttonEpages {
+				text-align:center;
+			}
+		}
+		.carousel-indicators { 
+			bottom: 30px;
+			li {
+				background-color: $brandColor;
+				border: none;
+				width:10px;
+				height:10px;
+				.hoverContent {
+					h3 {
+						font:$standardFontSize $titleFont;
+						color: $brandColor;
+					}
+				}
+			}
+			.active {
+				background-color: $brandBg;
+				border: none;
+				width:16px;
+				height:16px;
+				top:2px;
+			}
+		}
+		.carousel-control {
+			color: $white;
+			left:20px;
+			&.right {
+				right:22px;
+				left:auto;
+			}
+		}
+	}
+}

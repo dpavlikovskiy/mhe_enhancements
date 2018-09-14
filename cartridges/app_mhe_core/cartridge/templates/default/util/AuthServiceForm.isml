@@ -1,0 +1,13 @@
+<!--- TEMPLATENAME: AuthServiceForm.isml --->
+<isinclude template="util/modules"/>
+<form action="${URLUtils.httpsContinue()}" method="post" class="clearfix" id="" autocomplete="on">
+	<a href=""></a>
+<label>Login ID</label>	<input name="username"  id="username" type="input"  label="Name" /><br/>
+<label>Password</label>	<input name="password" id="password"  type="input" label="Password"/><br/>
+	<br/>
+	
+	<button type="submit"  value="${Resource.msg('global.login','locale',null)}" >
+			<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+			
+		</button>
+</form>

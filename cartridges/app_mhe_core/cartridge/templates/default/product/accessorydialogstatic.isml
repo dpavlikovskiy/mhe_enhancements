@@ -1,0 +1,63 @@
+	<iscomment>
+		Renders Accessory product page.	
+	</iscomment>
+	<isinclude template="util/modules"/>
+	<isset name="dialogType" value="${dw.web.Resource.msg('product.dialog.addaccessory','product','accessory')}" scope="pdict">
+	<isset name="currentQuantity" value="${pdict.CurrentHttpParameterMap.mainProdQty}" scope="pdict">
+	
+	<form action="href" method="post" id="accessory-form" class="accessory-form">
+		<fieldset>
+			<isif condition="${!pdict.CurrentHttpParameterMap.productAdded.booleanValue}" >				
+				<div class="section first-section">
+					<h2 class="beta-heading instruction">${dw.web.Resource.msg('accessorystatic.dialog.step1','product','Step 1')}</h2>
+					<div id="dialogvariant">
+						<isinclude template="product/components/productcontentfordialogstatic"/>
+					</div>
+				</div>
+				<input type="hidden" name="addedFrom" id="addedFrom" value="${pdict.dialogType}"/>								
+			<iselse>
+				<isinclude template="product/components/accessorymainproducttopstatic"/>
+			</isif>
+			<iscomment>FIx for Error Log - Cannot read property "productID" from null </iscomment>
+			<input type="hidden" name="parentProdId" id="parentProdId" value="${pdict.productLineItem != null ? pdict.productLineItem.productID : ''}"/>
+			<input type="hidden" name="parentProdPos" id="parentProdPos" value="${pdict.productLineItem != null ? pdict.productLineItem.custom.pliPosition : ''}"/>
+			<input type="hidden" name="accessoryPids" id="accessoryPids" />
+			<input type="hidden" name="accessoryQtys" id="accessoryQtys" />
+			
+			<div class="section accessories-section">
+					<p class="extras-count"><isprint value="${Resource.msgf('accessory.dialog.info','product',null,pdict.currentQuantity*3)}" encoding="off" />
+						<div class="column-wrap">	
+	
+					<div class="column column-item-selection ${pdict.CurrentHttpParameterMap.productAdded.booleanValue ? '': 'js-disabled'}">
+						<isinclude template="product/components/accessoriesstatic"/>
+						<!-- TODO TEMP WHILE DOING JS-->
+							
+							 
+						 <div class="js-veil"></div>
+					</div>
+					
+
+				</div>
+				
+				<br/><br/>
+				<ul class="cta-list">
+					<li>
+						<isset name="wholePackage" value="${dw.web.Resource.msg('accessory.buy.whole','product','The whole package')}" scope="page" >
+						<button class="button secondary button-fancy-large add-to-cart whole-package" id="whole-package-dialog" type="submit" value="${wholePackage}">
+							<span class="face front">${wholePackage}</span>
+							<span class="face back">${wholePackage}</span>
+						</button>						
+					</li>
+				</ul>
+				
+				<br/><br/>
+				<a class="button mini-cart-link" href="${URLUtils.http('Cart-Show')}">
+				<span class="face front">${Resource.msg('minicart.directcheckout','checkout',null)}</span>
+				<span class="face back">${Resource.msg('minicart.directcheckout','checkout',null)}</span>
+				</a>
+								
+			</div>
+			 
+		</fieldset>
+	</form>
+		

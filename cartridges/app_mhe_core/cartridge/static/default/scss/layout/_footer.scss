@@ -1,0 +1,100 @@
+// =============================================================================
+// Footer
+// =============================================================================
+
+footer {
+	// Added relative positioning so footer displays in front of full page background images
+	position: relative;
+}
+.footer {
+	.footer-first {
+		margin-top: 100px;
+		.menu-footer {
+			margin: 0 auto;
+			width: $max-container;
+			padding: 12px 0 0 0;
+			text-align: center;
+			li {
+				display: inline;
+				margin: 0 0 12px 0;
+				a {
+					display: inline-block;
+					padding: 0 13px;
+					margin:0 0 12px 0;
+					@include transition(all 0.2s ease-out);
+				}
+				&:first-child a {
+					border-left: none;
+				}
+				&.drink_aware {
+					margin-left: 10px;
+					width: 184px;
+					height: 18px;
+					margin-top: -3px;
+					@include opacity(0.4);
+					background: url('./img/sprites/sprite_main.png') -64px -211px no-repeat;
+					@include transition(all 0.2s ease-out);
+					&:hover {
+						@include opacity(1);
+					}
+					a {
+						width: 184px;
+						height: 18px;
+						text-indent: -9000px;
+						border-right: none;
+					}
+				}
+				&.footerUrl {
+					a {
+						border-left: none;
+						font-weight:bold;
+						text-transform:none;
+					}
+				}
+			}
+		}
+	}
+	.footer-second {
+		p.copyright {
+			font-size: $small_heading;
+			text-align: center;
+			margin: 0 auto;
+			width: $max-container;
+			padding: 10px 40px;
+			span {
+				color: $darkpurple;
+				display: inline-block;
+				margin: 0 6px;
+			}
+		}
+	}
+}
+
+.nonLoggedIn {
+	position: relative;
+	background-color: $bgbody;
+	height: 40px;
+	padding: 0 40px;
+	.menu-footer {
+		padding: 14px 0 15px;
+		float: left;
+		li {
+			float: left;
+			border-right: 1px solid $border_color;
+			line-height: 11px;
+			padding:0 12px;	
+		}
+		.first {
+			padding-left: 0;
+		}
+		.last {
+			border: 0;
+		}
+	}
+	.copyright {
+		float: right;
+		line-height: 11px;
+		padding: 14px 0 15px;
+		margin: 0;
+	}
+}

@@ -1,0 +1,134 @@
+/**
+* Demandware Script File
+* This process creates a customer export for Bronto for each customer being exported individually.
+*
+*	Based on SiteGenesis version 2.10.0.2
+*	Created By: Precision Design Studios
+*   Modified By: Astound Commerce
+*
+* @input Customers : dw.util.Iterator
+* @input custCount : Number
+* @output rejectedCustList : dw.util.ArrayList
+*
+*/
+
+importPackage (dw.net);
+importPackage (dw.rpc);
+importPackage (dw.util);
+importPackage (dw.system);
+importPackage (dw.web);
+
+function execute (args : PipelineDictionary) : Number {
+	
+	
+		var customer : dw.customer.Profile = null;
+		var customers : Iterator = args.Customers;
+		var _httpClient : HTTPClient = new HTTPClient();
+   		var httpService :HTTPClient =new HTTPClient();
+  		var authUrl: String = dw.system.Site.getCurrent().getCustomPreferenceValue("salesforceAuthURL");
+  		var rejectedProfileList : dw.util.ArrayList = new ArrayList();
+  		var postValues : String = "";
+			postValues = "grant_type= password";
+			postValues += "&client_id="+Site.getCurrent().getCustomPreferenceValue("salesforceClientID");
+			postValues += "&client_secret="+Site.getCurrent().getCustomPreferenceValue("salesforceClientSecret");
+			postValues += "&username="+ Site.getCurrent().getCustomPreferenceValue("salesforceUsername");
+			postValues += "&password="+ Site.getCurrent().getCustomPreferenceValue("salesforcePassword");
+		
+			_httpClient.setTimeout(50000);
+			_httpClient.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  			_httpClient.open('Post', authUrl);
+	try	{
+		Logger.error("Customers count from Demandware -" + args.custCount);
+		_httpClient.send(postValues);
+		if (_httpClient.statusCode == 200)
+		{	var response: object= JSON.parse(_httpClient.text);
+			var reqURL : String=response.instance_url+ "/services/apexrest/WS_Newsletter/addSubscription";
+			var tokenValue : String= "Bearer "+response.access_token;
+		 while(customers.hasNext())
+		{
+			var customer : dw.customer.Profile = customers.next();
+			httpService.setRequestHeader("Content-Type", "application/json");
+			httpService.setRequestHeader("Authorization", tokenValue);
+			httpService.setRequestHeader("Char-Set", "UTF-8");
+			httpService.setTimeout(30000);
+			httpService.open('Post', reqURL);
+  			try	{
+  				httpService.send(JSON.stringify(createProfileData(customer)));
+  				
+  				if(httpService.statusCode == 200){
+  					var statusObj :Object=	JSON.parse(httpService.text);
+  					if(statusObj.status=="error"){
+  						Logger.error("[ExportCustomersToSalesForce.ds] Error while adding the customer in Salesforce",statusObj.message);
+  						rejectedProfileList.add(customer.email+":"+statusObj.errorCode);
+  					}
+  				}else if(httpService.statusCode == 500){
+  					Logger.error("[ExportCustomersToSalesForce.ds] Error while adding the customer in Salesforce",statusObj.message);
+  					rejectedProfileList.add(customer.email+": Error 500");
+  				}
+  				}catch (e) {
+					Logger.error("[ExportCustomersToSalesForce.ds] Error while adding the customer in Salesforce",e.message);
+					rejectedProfileList.add(customer.email+": Exception while sending the data");
+				}
+		}
+		
+	} }catch (e) {
+		Logger.error("[ExportCustomersToSalesForce.ds] Unable to retrieve Salesforce token",e.message);
+	}
+	if(rejectedProfileList.size() > 0)
+	{
+		args.rejectedCustList = rejectedProfileList;
+	}
+   return PIPELET_NEXT;
+}
+function createProfileData(customerProfile: dw.customer.Profile){
+	 		var siteId : String = dw.system.Site.getCurrent().ID;
+			var emailData: Object = new Object();
+			emailData.firstName=!empty(customerProfile.firstName)?customerProfile.firstName:".";
+  			emailData.lastName=!empty(customerProfile.lastName)?customerProfile.lastName:".";
+  			emailData.email=customerProfile.email;
+  			emailData.market=Site.getCurrent().getCustomPreferenceValue("salesforceMarket");
+  			emailData.country=Site.getCurrent().getCustomPreferenceValue("salesforceCountry");
+  			emailData.maison=Site.getCurrent().getCustomPreferenceValue("salesforceMaison");
+  			emailData.optinEmailChannel =customerProfile.custom.isNewsLetterSubscribed ? true : false; 
+  			if(siteId.indexOf("UK")>-1 && !empty(customerProfile.title)){
+  			
+  				if(!dw.web.Resource.msg("title.dWValue."+customerProfile.title,'forms',null).equalsIgnoreCase("title.dWValue."+customerProfile.title))
+				emailData.title=dw.web.Resource.msg("title.dWValue."+customerProfile.title,'forms',null);
+			
+				if(!dw.web.Resource.msg("salutation.dWValue."+customerProfile.title,'forms',null).equalsIgnoreCase("salutation.dWValue."+customerProfile.title))
+				emailData.salutation=dw.web.Resource.msg("salutation.dWValue."+customerProfile.title,'forms',null);
+				
+				if(!dw.web.Resource.msg("gender.dWValue."+customerProfile.title,'forms',null).equalsIgnoreCase("gender.dWValue."+customerProfile.title)){
+				emailData.gender=dw.web.Resource.msg("gender.dWValue."+customerProfile.title,'forms',null);
+				}
+			}else if(customerProfile.salutation){
+			
+				if(!dw.web.Resource.msg("gender.dWValue."+customerProfile.salutation,'forms',null).equalsIgnoreCase("gender.dWValue."+customerProfile.salutation))
+  				emailData.gender=dw.web.Resource.msg("gender.dWValue."+customerProfile.salutation,'forms',null);
+  				
+  				emailData.salutation=dw.web.Resource.msg("salutation.dWValue."+customerProfile.salutation,'forms',customerProfile.salutation);
+  				
+  				if(customerProfile.title){
+				emailData.title=dw.web.Resource.msg("title.dWValue."+customerProfile.title,'forms',customerProfile.title);
+  				
+  				}
+  			}
+			if(customerProfile.birthday){
+				emailData.birthDay	=customerProfile.birthday.getDate().toString();
+				emailData.birthMonth =customerProfile.birthday.getMonth()+1;
+				emailData.birthYear=customerProfile.birthday.getFullYear().toString();
+			}
+			
+			if ("magentoJoinedDate" in customerProfile.custom){
+				emailData.joinedDate =customerProfile.custom.magentoJoinedDate;
+			}else{
+				emailData.joinedDate =StringUtils.formatCalendar(new Calendar(customerProfile.getCreationDate()), "yyyy-MM-dd");
+			}
+			
+			if(("registrationChannel" in customerProfile.custom &&( customerProfile.custom.registrationChannel.equalsIgnoreCase("partner")||customerProfile.custom.registrationChannel.equalsIgnoreCase("lead")||customerProfile.custom.registrationChannel.equalsIgnoreCase("referafriend"))) || ( "source" in customerProfile.custom && customerProfile.custom.source.equalsIgnoreCase("magento")) ){
+			emailData.contactCreationSource ="eCommerce";
+			}else{
+			emailData.contactCreationSource ="Customer Care";
+			}
+			return emailData;
+}

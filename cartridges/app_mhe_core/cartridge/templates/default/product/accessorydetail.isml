@@ -1,0 +1,77 @@
+<isscript>
+	importScript("util/ProductImageSO.ds"); 
+	importScript("product/ProductUtils.ds");
+	var category : dw.catalog.Category = ProductUtils.getProductCategoryForPDP(pdict.ProductSearchResult, pdict.MainProduct);		
+</isscript>
+
+
+<iscomment>
+<h1 class="product-name" itemprop="name"><img src="${category.thumbnail.URL}" width="100px" height="50px"/></h1>
+<h1 class="product-name" itemprop="name"><isprint value="${pdict.Product.name}"/></h1>
+<h2 class="product-name" itemprop="name"><isprint value="${pdict.Product.longDescription}" encoding="off"/></h2>
+</iscomment>
+<div id="accessory-image-switcher" class="accessory-overlay-inner js-image-switcher" 
+data-image-switch-config='{"thumbContainerSelector":".thumb", "thumbnailImageSelector":".productthumbnail", "mainImageSelector" : ".img-hero", "activeClass" : "selected"}'>
+
+	<div class="product-col-1 product-image-container column">
+	
+		<isset name="imageProduct" value="${pdict.Product}" scope="page"/>
+		 
+		<isif condition="${!empty(imageProduct.getImage('hi-res', 0))}">
+			<isset name="image" value="${ new ProductImage('pdp-main', imageProduct, 0 ) }" scope="page" />	
+			<isset name="imageUrl" value="${image.getURL()}" scope="page"/>
+			<isset name="imageAlt" value="${imageProduct.name}" scope="page"/>
+			<isset name="imageTitle" value="${imageProduct.name}" scope="page"/>
+		<iselse>
+			<isset name="imageUrl" value="${URLUtils.staticURL('/images/noimagelarge.png')}" scope="page"/>
+			<isset name="imageAlt" value="${pdict.Product.name}" scope="page"/>
+			<isset name="imageTitle" value="${pdict.Product.name}" scope="page"/>
+		</isif>
+		
+		<div class="product-primary-image">
+			<h2 class="visually-hidden">Images</h2>			
+			<isif condition="${!empty(imageProduct.getImages('hi-res')) && imageProduct.getImages('hi-res').length>0}">
+				<isset name="hi_res" scope="page" value="${imageProduct.getImages('hi-res')[0].getURL().toString()}" />
+				<isset name="href" scope="page" value="${'href='+hi_res+' target=_blank'}" />
+			<iselse>
+				<isset name="hi_res" scope="page" value="${''}" />
+				<isset name="href" scope="page" value="${'name=product_detail_image'}" />
+			</isif>
+			<a ${href} class="product-image main-image">
+				<img itemprop="image" class="img-hero primary-image" src="${imageUrl}" alt="${imageAlt}" />
+			</a>
+			<isif condition="${displayBadge}"> 
+				<img class="product-image-badge" src="${ProductUtils.getBadgeImage(pdict.Product.custom.badge)}" />
+			</isif>
+		</div>
+		
+		<isinclude template="product/components/productimages"/>
+		
+	</div>
+	
+	<div class="column product-col-2 column-hero product-image-container">
+		<div class="col-inner">
+			
+			<h1 class="product-name" itemprop="name"><img src="${category.thumbnail.URL}" /></h1>
+			<h2 class="product-name" itemprop="name"><isprint value="${pdict.Product.name}"/></h2>
+			
+			<p><isprint value="${pdict.Product.longDescription}"  encoding="off"/></p>
+			
+			<isset name="showTieredPrice" value="${true}" scope="page"/>
+			<isinclude template="product/components/pricing"/>
+			<isif condition="${pdict.CurrentHttpParameterMap.csOnly.value && pdict.CurrentSession.userName.equalsIgnoreCase('storefront')}">
+			<ul class="cta-list cta-list-accessory">
+				<li>
+					<a id="addAccessoryOnOverlay" class="button secondary button-accessory accessory" href="${URLUtils.url('Product-ShowAccessories', 'pid', pdict.Product.ID, 'source', 'dialog')}">
+			 				<span class="face front">${Resource.msg('accessory.add','product',null)}</span>
+			 				<span class="face back">${Resource.msg('accessory.add','product',null)}</span>
+			   		</a>
+				</li>
+			</ul>
+			</isif>
+		</div>	
+	</div>
+</div>
+
+		
+

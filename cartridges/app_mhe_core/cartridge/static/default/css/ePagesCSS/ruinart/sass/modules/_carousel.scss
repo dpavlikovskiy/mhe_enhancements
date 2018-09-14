@@ -1,0 +1,64 @@
+.carouselEpages {
+	.bootCaro {
+		height:650px;
+		.bootCaro-caption{
+			top: 204px;
+			p.title {
+				font: $stand_first $regularFont;
+				color: $darkBrownText;
+				text-align:center;
+				text-shadow: none;
+			}
+			h2 {
+				font: $big_heading_text $titleFont;
+				color: $brandcolor;
+				text-align:center;
+				text-shadow: none;
+			}
+			p {
+				font: $stand_first $regularFont;
+				text-align: center;	
+				color: $darkBrownText;
+				text-shadow: none;
+			}
+			.buttonEpages {
+				text-align:center;
+				.button {
+					.face {
+						border:none;
+					}
+				}
+			}
+		}
+		.carousel-indicators { 
+			bottom: 30px;
+			li {
+				background-color: $greyBorder;
+				border: none;
+				width:10px;
+				height:10px;
+				.hoverContent {
+					h3 {
+						font:$normal-font-size $titleFont;
+						color: $brandcolor;
+					}
+				}
+			}
+			.active {
+				background-color: $brandBg;
+				border: none;
+				width:16px;
+				height:16px;
+				top:2px;
+			}
+		}
+		.carousel-control {
+			color: $brandcolor;
+			left:20px;
+			&.right {
+				right:22px;
+				left:auto;
+			}
+		}
+	}
+}

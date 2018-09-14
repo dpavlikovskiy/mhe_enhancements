@@ -1,0 +1,338 @@
+<iscomment> Displays order details, such as order number,
+creation date, payment information, order totals and information for
+each contained shipment. This template module can be used in order
+confirmation pages as well as in the order history to render the details
+of a given order. Depending on the context being used in, one might omit
+rendering certain information. Parameters: order : the order whose
+details to render orderstatus : if set to true, the order status will be
+rendered if set to false or not existing, the order status will not be
+rendered </iscomment>
+<isscript>
+       importScript("util/ProductImageSO.ds");
+</isscript>
+<isinclude template="util/modules" />
+	
+<isset name="Order" value="${pdict.order}" scope="page" />
+<isset name="currencyCode" value="${dw.system.Site.getCurrent().getDefaultCurrency()}" scope="page"/>	
+
+<div class="order-details clearfix">
+       
+              <isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+                     <div class="ocModule">
+                           <h3>${Resource.msg('orderdetails.deliverydetails2','components',null)}</h3>
+                           <isminishippingaddresscheckout p_shipment="${shipment}" p_editable="${false}" p_showmethod="${false}" p_showpromos="${false}" />
+                     </div>
+                     
+                     <div class="ocModule">
+                            <h3>${Resource.msg('orderdetails.billingandpaymentdetails','components',null)}</h3>
+                           <isminiaddresscheckout  p_order="${Order}" p_address="${Order.billingAddress}"/>
+                     </div>
+                     
+                     
+
+                     <isif condition="${!empty(shipment.trackingNumber) && !empty(shipment.custom.carrierurl)}">
+                           <isif condition="${!pdict.ifConfirmationPage}">
+                                  <iscomment>Not required on Confirmation Page</iscomment>
+                                  <h2 class="content-header">
+                                         <isprint value="${Resource.msg('orderDetails.title','checkout',null)}" />
+                                  </h2>
+                           </isif>
+                           <div class="track-ingnumber">
+                             
+                                         <span class="label">${Resource.msg('orderdetails.tracking','components',null)
+                                                + ' #'}</span>
+                                         <span class="value"> <isprint
+                                                       value="${shipment.trackingNumber}" />
+                                         </span>
+                                         <br>
+                                         <a class="button secondary plain clear track-order" target="_blank"
+                                                href="${shipment.custom.carrierurl}"> <span class="face front">${Resource.msg('orderdetails.trackingbutton','components',null)}</span>
+                                                <span class="face back">${Resource.msg('orderdetails.trackingbutton','components',null)}</span>
+                                         </a>
+                           
+                           </div>
+                     </isif>
+                           <iscomment>required on Confirmation Page</iscomment>
+                           <isif condition="${pdict.ifConfirmationPage}">
+                                  <div class="section-header"></div>
+                           <iselse>
+                                  <iscomment>Not required on Confirmation Page</iscomment>
+                                  <div class="section-header section-header-col1"><h2>${Resource.msg('orderdetails.shippingaddress','components',null)}</h2>
+                                  <</div>
+                                  <div class="section-header section-header-col2"><h2>${Resource.msg('orderdetails.billingaddress','components',null)}</h2>
+                                  </div>
+                           </isif>
+              <isbreak />
+              </isloop>
+
+       
+
+       <iscomment>render a box for each shipment</iscomment>
+
+	  
+       <isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+       
+	<div class="ocLeft">
+		<div class="ocModule itemsOrdered">
+			<h3><isprint value="${Resource.msg('orderdetails.itemsordered','components',null)}" /></h3>
+        	<div class="ocMContent clearfix">
+        		<div class="checkoutTable">
+					<div class="basketContent">
+        				<isif condition="${shipment.productLineItems.size() > 0}">
+						<iscomment>Shipment items table</iscomment>
+							<isset name="firstAcc" value="0" scope="page" />
+										
+              					<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+									
+
+              					       <isif condition="${productLineItem.custom.associatedParentPosition == null }"> 
+              					       <isset name="firstAcc" value="0" scope="page" />
+										</isif>
+										
+										<isif condition="${productLineItem.custom.associatedParentPosition != null }">
+									
+											<isif condition="${firstAcc==0}">
+											   <isset name="firstAcc" value="1" scope="page" />
+											<iselse>										
+											   <isset name="firstAcc" value="2" scope="page" />	
+											</isif>
+									   </isif>
+              					
+    							 <div class="divRow<isif condition="${productLineItem.custom.associatedParentPosition != null}"> accRow</isif><isif condition="${productLineItem.custom.associatedParentPosition != null && firstAcc==1}"> ocGift</isif>">
+	              								<div class="ocBImg">	              								
+	              									<isif condition="${!empty(productLineItem.product.getImage('hi-res',0))}">
+			                           					<isset name="image" value="${new ProductImage('order-detail', productLineItem.product, 0 )}" scope="page" />
+			                           				<iselse>
+			                           					<isset name="image" value="" scope="page"/>
+			                           				</isif>      
+						                            <isif condition="${!empty(image)}"> 
+						                            	<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" /> 
+						                            <iselse> 
+						                            	<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page" /> 
+						                            </isif>
+													<img class="product-thumb" src="${thumbnailUrl}" alt="${productLineItem.productName}" />
+	              								</div>
+	              								<div class="ocBContent">
+	              									<iscomment>Display product line and product using module</iscomment>
+							                        <iscomment>Site Dev - show different classes as per classification </iscomment> 
+							                        <isif condition="${productLineItem.custom.associatedParentPosition != null }">
+							                        	<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}" p_hidesize="${true}" p_hidepromo="${true}" />
+							                        <iselseif condition="${productLineItem.optionProductLineItems.size() > 0}">
+							                        	<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}" p_hidesize="${true}" p_hidepromo="${true}"/>
+													<iselseif condition="${productLineItem.custom.engravingMessageLine1 !=null}">
+							                        	<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}"  p_hidesize="${true}" p_hidepromo="${true}"/>										
+													<iselse>
+														<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}" p_hidesize="${true}" p_hidepromo="${true}" />
+													</isif>
+													
+													<div class="clearfix">
+													     <isif condition="${productLineItem.product != null && productLineItem.product.isVariant()}">
+														 <isloop items="${productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+															<isset name="SelectedVariationValue" value="${productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>															
+															<isif condition="${SelectedVariationValue != null}">
+																<div class="ocBSize">
+																	<isprint value="${SelectedVariationValue.displayValue}"/>
+																</div>			
+															</isif>															
+														 </isloop>
+													     </isif>
+									<iscomment>	    <div class="ocBSize"><isdisplayvariationvalues product="${productLineItem.product}"/></div>  </iscomment>
+														<div class="ocBQty"><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" /> : <isprint value="${productLineItem.quantity}" /></div>
+														<isif condition="${productLineItem.bonusProductLineItem}">
+														  <div class="ocBprice">${Resource.msg('global.bonus','locale',null)}</div>
+													    <iselse>
+													    	<div class="ocBprice">
+													    	    <isset name="chilledprice" value="" scope="page" />				
+																<isset name="chilledbaseprice" value="" scope="page" />				
+																<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.chilledDeliveryService }">
+																		<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+																			<isif condition="${oli.price > 0}"> 
+																				<isif condition="${oli.price > oli.adjustedPrice}">
+																				<isset name="chilledprice" value="${oli.adjustedPrice}" scope="page" />	
+																				<isset name="chilledbaseprice" value="${oli.basePrice}" scope="page" />	
+																				<iselse>
+																				<isset name="chilledprice" value="${oli.price}" scope="page" />				
+																				<isset name="chilledbaseprice" value="${oli.basePrice}" scope="page" />	
+																				</isif>
+																			</isif>
+																		</isloop>
+																</isif>
+													    	  <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(chilledprice+productLineItem.adjustedPrice, currencyCode))}" />
+													    	</div>
+													    </isif>
+													</div>
+													
+
+	              								</div>
+													<isif condition="${(!(pdict.CurrentSession.custom.brand.equals('mh'))) && (dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')||dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')|| dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')  ||dw.system.Site.getCurrent().getCustomPreferenceValue('twitter'))}">
+													<div class="social-share">
+													<span class="visually-hidden"><a href="" data-href="coshippingstart=true" id="registerClicked"></a></span>
+													
+	              										<div class = "social-share-icons">
+	              											<ul>
+																<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+																	<li><a title="email" data-href="${URLUtils.https('SendToFriend-Start')}" class="icon-mail icon email ajaxData" id="sendtoFriendClicked"></a>
+</li>
+																	<iscomment> <li class="mail-share icon-mail"></li> </iscomment>
+																</isif>
+																<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}" >
+																	<li class="fb-share icon-facebook"> </li>
+																</isif>
+																<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}" >
+					              									<li class="twitter-share icon-twitter"> </li>
+					              								</isif>
+					              								<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}" >
+					              									<li class="pinterest-share icon-pinterest"></li>
+																</isif>
+																<!-- <li class="clearfix"></li> -->
+															</ul>	
+															<!-- <div class="arrow-down"></div>	 -->
+															</div>	
+				              								<p>${Resource.msg('checkout.socialshare','checkout',null)}</p>	
+			              								</div>				
+																				
+													</isif>	               								
+	              								<iscomment>
+	              								<div class="social-share">
+	              									<div class = "social-share-icons">
+			              								<ul>
+			              									<li class="mail-share icon-mail"></li>
+			              									<li class="fb-share icon-facebook"> </li>
+			              									<li class="twitter-share icon-twitter"> </li>
+			              									<li class="pinterest-share icon-pinterest"></li>
+			            
+			              									<li class = "clearfix"></li>
+			              								</ul>
+  														<div class="arrow-down"></div>
+  														
+			              							</div>	
+		              								<p>Share</p>	
+	              								</div>
+	              								</iscomment>
+	              								<div class="clearfix"></div>
+	              								
+             								</div>
+                	
+                			 	<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.engravingMessageLine1 !=null }">
+							
+                					<div class="divRow accRow ocGift gift-extra">
+           								<div class="ocBContent">
+           									 <h3 class="sku">${Resource.msg('global.personaliselabel','locale',null)}</h3>
+           									 <div class="clearfix">
+												<div class="ocBSize"><h4 class="name">${Resource.msg('global.personalisesublabel','locale',null)}</h4></div>
+												<div class="ocBprice">
+													<isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+														<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+															<isif condition="${oli.price > 0}"> 
+																<isif condition="${oli.price > oli.adjustedPrice}">
+																	<div class="price-option">
+																		<span class="price-sales">
+																			<isprint value="${oli.adjustedPrice}" />
+																		</span>
+																	</div>
+																<iselse>
+																	<div class="price-option">
+																		<span class="value">
+																			    <isprint value="${oli.adjustedPrice}" />
+																		</span>
+																	</div>
+																</isif>
+															</isif>
+														</isloop>
+													</isif>
+												</div>
+											 </div>
+							 				 <p class="msg"><isprint value="${productLineItem.custom.engravingMessageLine1}" /></p>
+            							</div>
+           							</div>
+                	       </isif>  			
+                		   				
+                  </isloop>
+              </div></div>
+
+       </isif>
+       
+       
+       <div class="order-detail-summary">
+           <isif condition="${Order.shipments.length > 1}"> <isordertotals
+                 p_lineitemctnr="${Order}" p_showshipmentinfo="${true}"
+                 p_shipmenteditable="${false}"
+                 p_totallabel="${Resource.msg('global.ordertotal','locale',null)}" />
+           <iselse> <isordertotals p_lineitemctnr="${Order}"
+                 p_showshipmentinfo="${false}" p_shipmenteditable="${false}"
+                 p_totallabel="${Resource.msg('global.ordertotal','locale',null)}" /></isif>
+           
+        	<isif condition="${Order.totalGrossPrice.available}">
+				<isset name="orderTotalValue" value="${Order.totalGrossPrice}" scope="page" />
+			<iselse>
+				<isset name="orderTotalValue" value="${Order.getAdjustedMerchandizeTotalPrice(true).add(Order.giftCertificateTotalPrice)}" scope="page" />
+			</isif>
+                       
+         </div>
+       
+        	</div>
+		</div>
+	</div>
+
+		<isscript>
+				var category = null;
+	if ('staticCategoryId' in pdict.Order.custom){
+		category=dw.catalog.CatalogMgr.getCategory(pdict.Order.custom.staticCategoryId);
+	}
+
+		</isscript>
+<div class="ocRight">
+		<isif condition="${'staticCategoryId' in pdict.Order.custom && 'needHelpText' in category.custom}">
+			<isprint value="${category.custom.needHelpText}" encoding ="off"/>
+		<iselse>
+			<iscontentasset aid="cs-contact-number"/>
+		</isif>
+	</div>	
+
+
+       </isloop>
+</div>
+<isinclude template="checkout/confirmation/orderjson.isml" />
+
+<script type="text/javascript">
+	
+	var orderStr = $('#orderjsonDiv').html();
+	var orderjsonObj = window.JSON.parse(orderStr);	
+	var items = orderjsonObj.items;
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', '${dw.system.Site.getCurrent().preferences.custom.trackingIdGoogleAnalytics}']);
+	_gaq.push(['_setDomainName', '${dw.system.Site.getCurrent().preferences.custom.domainNameForGoogleAnalytics}']);
+
+	_gaq.push(['_addTrans',
+	           orderjsonObj.id,           // transaction ID - required
+	      	    '',  // affiliation or store name
+	      	 	orderjsonObj.totalValue,          // total - required
+	      	 	orderjsonObj.totalTax,           // tax
+	      	 	orderjsonObj.shippingPrice,              // shipping
+	      	 	orderjsonObj.city,       // city
+	      	 	'',     // state or province
+	      	 	orderjsonObj.country             // country
+	   	]);
+
+	for(var index in items)
+	{
+		_gaq.push(['_addItem',	
+		    orderjsonObj.id,         // transaction ID - necessary to associate item with transaction
+			items[index].prodId,         // SKU/code - required
+			items[index].prodName,      // product name - necessary to associate revenue with product
+			items[index].category, // category or variation
+			items[index].price,        // unit price - required
+			items[index].qty           // quantity - required
+    	]);
+	}
+	
+
+	  _gaq.push(['_trackTrans']); //submits transaction to the Analytics servers
+	
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+</script>

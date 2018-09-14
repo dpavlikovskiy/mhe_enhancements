@@ -1,0 +1,65 @@
+/**
+*  	 ValidateCountry.ds
+*   This script takes  country_Agegate and decides the country to which user must be routed.
+*	@input birthdayField : dw.web.FormField
+*	@input country_Agegate : String
+*	@output Location : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+importPackage( dw.util );
+importScript('account/Utils.ds');
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{ 
+	if(empty(pdict.birthdayField.htmlValue))
+		{	pdict.birthdayField.invalidateFormElement(dw.web.Resource.msg('login.dob.missing-error','forms',null));
+			return PIPELET_ERROR;
+		}
+	else{
+		//Validate AGE
+		var birthday:FormField = pdict.birthdayField;	
+		// get the currendt date 
+		var currentDate:Calendar=new Calendar();
+		// get the valid age from the sitepreference
+		var countryAgeMap : dw.util.Map = getCountryAgeMap();
+		var country_Agegate:String=pdict.country_Agegate;		
+		var validage=countryAgeMap.get(country_Agegate);
+			
+		var calendar:Calendar=new Calendar();
+		calendar.setTime(new Date(birthday.value));
+		// add the valid age years to the user entered date
+		calendar.add(Calendar.YEAR,validage );
+		
+		// check for Age less than the valid age mentioned in site prefrence
+		if(currentDate.compareTo(calendar)<=0){
+			pdict.birthdayField.invalidateFormElement();
+			return PIPELET_ERROR;
+		}	
+	
+	    var reqLocale : Locale = Locale.getLocale(request.locale);
+	 	var country :String=reqLocale.country;
+		
+		var location=request.httpReferer;
+		if(!country.equalsIgnoreCase(country_Agegate))
+		{ //redirect to new country--if country changes
+			var alist:Array =dw.system.Site.getCurrent().getCustomPreferenceValue('countryHomePage');//ageGateCountry
+			var findKey = session.custom.brand+""+country_Agegate;
+			if (dw.system.System.getInstanceType()==dw.system.System.PRODUCTION_SYSTEM) {
+				findKey = "PROD-"+""+session.custom.brand+""+country_Agegate;
+			}
+			for (var i=0; i < alist.length; i++) { 
+				if (findKey.equalsIgnoreCase(alist[i].getValue())){
+				 	location=alist[i].getDisplayValue();
+				 	break;
+				}
+			}
+		
+		}
+		pdict.Location=location;
+	}
+    return PIPELET_NEXT;
+	
+}

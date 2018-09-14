@@ -1,0 +1,51 @@
+/**
+ * Deletes old custom objects.
+ * 
+ * @input CustomObjectIds : dw.util.List A list of IDs for the custom objects which should be deleted.
+ */
+
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.io);
+importPackage(dw.object);
+
+importScript('job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+/**
+ * The main function.
+ * 
+ * @param pdict : PipelineDictionary The pipeline dictionary.
+ * 
+ * @returns Number Returns PIPELET_NEXT. Only in case of an exception PIPELET_ERROR will be returned.
+ */
+function execute(pdict : PipelineDictionary) : Number {
+	var customObjectIds : ArrayList = pdict.CustomObjectIds;
+	
+	if (empty(customObjectIds)) {
+		return PIPELET_NEXT;
+	}
+	
+	var maxObjectAge : Number = getJobMonitor().getCurrentTask().getParameter('maxObjectAge');
+	if ( empty(maxObjectAge) ) {
+		maxObjectAge = 20;
+	}
+	var currentCalendar : Calendar = System.getCalendar();
+	var oldCalendar : Calendar = System.getCalendar();
+	oldCalendar.setTime(currentCalendar.getTime());
+	oldCalendar.add(Calendar.DAY_OF_YEAR, -1 * maxObjectAge);
+	oldCalendar.add(Calendar.MINUTE, -10);
+	
+	for each (var customObjectId : String in customObjectIds) {
+		cvLogger.debug('Time: ' + oldCalendar.getTime() + ' objectID: ' + customObjectId);
+		var customObjects : SeekableIterator = dw.object.CustomObjectMgr.queryCustomObjects(customObjectId, 'lastModified < {0}', null, oldCalendar.getTime());
+		var i : Number = 0;
+		while (customObjects.hasNext()) {
+			CustomObjectMgr.remove(customObjects.next());
+			i++;
+		}
+		cvLogger.debug('DeleteOldCustomOjects.ds: Deleted "' + i + '" custom objects of type "' + customObjectId + '".');
+	}
+
+	return PIPELET_NEXT;
+}

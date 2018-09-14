@@ -1,0 +1,42 @@
+/**
+*  	 ValidateAge.ds
+*   This script takes birthday formfield and verifies the age of the user is above than the validage mentioned in the site preference.
+* 	if user is not of validate age it will invalidate the form field and display the appropriate error message. 
+*	@input birthdayField : dw.web.FormField
+* 
+*
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+importPackage( dw.util );
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{	if(empty(pdict.birthdayField.htmlValue))
+		{	pdict.birthdayField.invalidateFormElement(dw.web.Resource.msg('login.dob.missing-error','forms',null));
+			return PIPELET_ERROR;
+		}
+	else{
+	
+		var birthday:FormField = pdict.birthdayField;
+		// get the currendt date 
+		var currentDate:Calendar=new Calendar();
+		// get the valid age from the sitepreference
+		var validage=dw.system.Site.getCurrent().getCustomPreferenceValue('validAge');
+		// get the user entered date
+		var calendar:Calendar=new Calendar();
+		calendar.setTime(new Date(birthday.value));
+		// add the valid age years to the user entered date
+		calendar.add(Calendar.YEAR,validage );
+		var newDate:Date= calendar.getTime();
+		
+		
+		// check for Age less than the valid age mentioned in site prefrence
+		if(currentDate.compareTo(calendar)<=0){
+			pdict.birthdayField.invalidateFormElement();
+			return PIPELET_ERROR;
+		}
+	}
+    return PIPELET_NEXT;
+	
+}

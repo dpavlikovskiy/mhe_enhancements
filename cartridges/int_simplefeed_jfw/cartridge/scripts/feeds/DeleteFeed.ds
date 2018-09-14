@@ -1,0 +1,284 @@
+/**
+ * Delete a remote file on a WebDAV or SFTP server.
+ *
+ * To delete or archive a local file see pipelet ArchiveFeed.
+ *
+ * @input RemoteFolderURL : String  mandatory, URL to WebDAV or SFTP folder, e.g. "https://www.myserver.com/folder/", "sftp://sftp.myserver.com:22/folder/"
+ * @input RemoteFile : String  mandatory, file inside RemoteFolderURL, e.g. "feed.xml"
+ * @input RemoteLogin : String  optional, login for Basic Authentication or Digest Autentication
+ * @input RemotePassword : String  optional, password for Basic Authentication or Digest Autentication
+ */
+
+importPackage( dw.net );
+importPackage( dw.system );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// read parameters
+	var remoteFolderURL : String = args.RemoteFolderURL;
+	var remoteFile : String = args.RemoteFile;
+ 	var remoteLogin : String = args.RemoteLogin;
+ 	var remotePassword : String = args.RemotePassword;
+
+    // check parameters
+    if ( empty( remoteFolderURL ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemoteFolderURL empty" );
+    	return PIPELET_ERROR;
+    }
+
+    if ( empty( remoteFile ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemoteFile empty" );
+    	return PIPELET_ERROR;
+    }
+
+    cvLogger.debug( "DeleteFeed: " +
+    	"RemoteFolderURL: " + remoteFolderURL + ", " +
+    	"RemoteFile: " + remoteFile + ", " +
+    	"RemoteLogin: " + ( !empty( remoteLogin ) ? remoteLogin : "(empty)" ) + ", " +
+    	"RemotePassword: " + ( !empty( remotePassword ) ? "(provided)" : "(empty)" ) );
+
+	var result : boolean;
+
+	if ( remoteFolderURL.indexOf( "sftp://" ) == 0 )
+	{
+		result = deleteRemoteFileSFTP( remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}
+	
+	/*else if ( remoteFolderURL.indexOf( "ftp://" ) == 0 ) 
+	{
+		//result = deleteRemoteFileFTP( remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}
+	else
+	{
+		//result = deleteRemoteFileWebDAV( remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}*/
+	
+	if ( !result )
+	{
+		return PIPELET_ERROR;
+	}
+	
+	return PIPELET_NEXT;
+}	
+/*
+function deleteRemoteFileWebDAV( remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{	
+	var webDAVClient : WebDAVClient;
+	
+	if ( !empty( remoteLogin ) && !empty( remotePassword ) )
+	{
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, remoteLogin, remotePassword );
+	}
+	else
+	{
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	try
+	{
+		webDAVClient.del( remoteFile );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + remoteFolderURL + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !webDAVClient.succeeded() )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + remoteFolderURL + remoteFile + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+		return false;
+	}
+	
+	webDAVClient.close();
+	
+    return true;
+}
+*/
+function deleteRemoteFileSFTP( remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{	
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemoteLogin empty (required for SFTP)" );
+    	return false;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemotePassword empty (required for SFTP)" );
+    	return false;
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "DeleteFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = params[3];
+	
+	var sftpClient : SFTPClient = new SFTPClient();
+	var result : boolean;
+    var reattempt:Number;
+    reattempt=0;
+    
+    do{  	
+	try
+	{
+		if ( port != null )
+		{
+			result = sftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = sftpClient.connect( host, remoteLogin, remotePassword );
+		}
+		
+		if(result){
+		 break;	
+		}else{
+		  
+		   reattempt=reattempt+1;
+	
+		}
+		
+	}
+	catch ( ex )
+	{
+		reattempt=reattempt+1;
+		cvLogger.error( "DeleteFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return false;
+	}
+
+    }while(reattempt<=1);
+
+	if ( !result )
+	{
+		cvLogger.error( "DeleteFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + sftpClient.errorMessage );		
+		return false;
+	}
+
+	try
+	{
+		result = sftpClient.del( path + remoteFile );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + path + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + path + remoteFile + ": " + sftpClient.errorMessage );		
+		return false;
+	}
+	
+	sftpClient.disconnect();
+	
+    return true;
+}
+/*
+function deleteRemoteFileFTP( remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{	
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemoteLogin empty (required for FTP)" );
+    	return false;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "DeleteFeed: Parameter RemotePassword empty (required for FTP)" );
+    	return false;
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "DeleteFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = params[3];
+	
+	var ftpClient : FTPClient = new FTPClient();
+	var result : boolean;
+	
+	try
+	{
+		if ( port != null )
+		{
+			result = ftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = ftpClient.connect( host, remoteLogin, remotePassword );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DeleteFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "DeleteFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ftpClient.replyMessage );		
+		return false;
+	}
+
+	try
+	{
+		result = ftpClient.del( path + remoteFile );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + path + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "DeleteFeed: Error while deleting " + path + remoteFile + ": " + ftpClient.replyMessage );		
+		return false;
+	}
+	
+	ftpClient.disconnect();
+	
+    return true;
+}*/

@@ -1,0 +1,74 @@
+// =============================================================================
+// Homepage Parallax Hero Module
+// =============================================================================
+
+.hero_banner {
+	width: 100%;
+	height: 450px;
+	position: relative;
+	.banner {
+		width: 300%;
+		display: block;
+		position: absolute;
+		z-index: 1;
+	}
+	.hero_promo {
+		width: 100%;
+		position: absolute;
+		z-index: 2;
+		left: 100%;
+		top: 60px;
+		text-align: center;
+		h1 {
+			font-size: 80px;
+			@extend %text-shadow;
+			line-height: 0.9;
+			margin-bottom: 0;
+		}
+		.dot {
+			@extend .sprite_divider_dot;
+			width: 7px;
+			height: 7px;
+			display: block;
+			margin:0 auto 20px;
+		}
+		h2 {
+			font-size: $small_text;
+			font-weight: $bold;
+			line-height: 1.5;
+			@extend %text-shadow;
+			width: 70%;
+			margin: 0 auto 10px auto;
+		}
+		.button {
+			width: 310px;
+		}
+	}
+	&.cloned {
+		.button {
+			.face.front {
+				@include transform(translate3d(0, 0, 0) rotate3d(1, 0, 0, 90deg));
+			    @include opacity(0);
+			}
+			.face.back {
+				@include transform(rotate3d(1, 0, 0, 0deg));
+		    	@include opacity(1);
+		    }
+		}
+	}
+}
+.col-01 {
+	.hero_banner {
+		margin-left: 0;
+	}
+}
+.col-02 {
+	.hero_banner {
+		margin-left: -100%;
+	}
+}
+.col-03 {
+	.hero_banner {
+		margin-left: -200%;
+	}
+}

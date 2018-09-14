@@ -1,0 +1,65 @@
+<isinclude template="util/modules"/>
+<isinclude template="util/functions"/>
+
+<iscomment>Added to access unsanitizeOR()</iscomment>
+<isscript>
+	importScript('product/ProductUtils.ds');
+</isscript>
+
+<iscomment>NOTE: Removes Refinements if NO Products are found</iscomment>
+<isif condition="${pdict.ProductSearchResult}">
+
+<iscomment>Fetches refinement options for easier handling in the template</iscomment>
+<isset name="Refinements" value="${pdict.ProductSearchResult.refinements}" scope="page"/>
+
+<iscomment>Process refinement options based on configured refinement definitions</iscomment>
+<isif condition="${Refinements != null && Refinements.refinementDefinitions.size() > 0}">
+	
+<h2 class="visually-hidden">${Resource.msg('searchrefinebar.refineresults','search',null)}</h2>
+
+	<iscomment>If we have a category context, we build a path from the root to the category</iscomment>
+	<isscript>
+		var cat = pdict.ProductSearchResult.category;
+		var path = new dw.util.ArrayList();
+		while( cat != null && cat.parent != null )
+		{
+			if( !cat.online )
+			{
+				cat = cat.parent;
+				continue;
+			}
+			path.addAt( 0, cat );
+			cat = cat.parent;
+		}
+	</isscript>
+		
+		
+		<isloop items="${Refinements.refinementDefinitions}" var="RefinementDefinition" status="refinementsLoopState">
+					
+			<div class="refinement ${RefinementDefinition.displayName}<isif condition="${RefinementDefinition.isCategoryRefinement()}"> category-refinement</isif>">
+			
+			<iscomment>CATEGORY REFINEMENTS</iscomment>
+			<isif condition="${RefinementDefinition.isCategoryRefinement()}">
+				<iscomment>render the category refinement label, display the top level category and a relax link in case we refined to a category already</iscomment>
+				<isif condition="${path.size() > 0}">
+				<span class="showAll"><a href="${pdict.ProductSearchResult.urlRelaxCategory('Search-Show')}">${Resource.msg('search.showall','search',null)}</a></span>
+					<iscomment>display the top level label only for keyword searches</iscomment>
+							
+					<iscategoryrefinementvalues searchmodel="${pdict.ProductSearchResult}" category="${path.get(0)}" categorypath="${path.get(0)}" categorylevel="1"/>
+				
+				<iselse>
+					<span class="showAll selected"><a href="${pdict.ProductSearchResult.urlRelaxCategory('Search-Show')}">${Resource.msg('search.showall','search',null)}</a></span>
+					<iscategoryrefinementvalues searchmodel="${pdict.ProductSearchResult}" categorylevel="1"/>
+				
+				</isif>
+	
+			</isif>
+		
+	</div>
+</isloop>
+
+	
+	<iselseif condition="${pdict.ProductSearchResult.count == 0}">
+		<isinclude template="search/components/categoryrefinebar"/>
+	</isif>
+</isif>

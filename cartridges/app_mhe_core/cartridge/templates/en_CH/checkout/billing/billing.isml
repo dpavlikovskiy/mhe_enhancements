@@ -1,0 +1,347 @@
+<isdecorate template="checkout/pt_checkout"/>
+	<isinclude template="util/modules"/>
+	
+	<iscomment>
+		This template visualizes the billing step of both checkout scenarios.
+		It provides selecting a payment method, entering gift certificates and
+		specifying a separate billing address.
+		Depending on the checkout scenario (single or multi shipping) it is
+		either the second or third checkout step.
+	</iscomment>
+	
+	<iscomment>Report this checkout step</iscomment>
+	<isreportcheckout checkoutstep="4" checkoutname="${'Billing'}"/>
+
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		checkout progress indicator
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+ 
+    <isif condition="${!pdict.CurrentForms.multishipping.entered.value}">
+    	<ischeckoutprogressindicator step="2" multishipping="false" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	<iselse>
+		<ischeckoutprogressindicator step="3" multishipping="true" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	</isif>
+	
+    <isif condition="${pdict.PlaceOrderErrorCode != null}">
+		<div class="serverError">
+			<span class="error">${Resource.msg('error_message','forms',null)}</span><br/>
+			${Resource.msg(pdict.PlaceOrderErrorCode,'checkout',null)}
+		</div>
+	</isif>
+	
+	
+  <div class="leftSide">
+  
+  <div class="checkHeader">
+	<h1>${Resource.msg('pt_checkout.breadcrumb','checkout',null)}</h1>
+	<h3>${Resource.msg('checkoutprogressindicator.step2','checkout',null)} ${Resource.msg('checkoutprogressindicator.billing','checkout',null)}</h3>
+	<p class="normal">${Resource.msg('enter_payment_details','checkout',null)}</p>
+</div>
+
+	<div class="errors-total">
+		<div class="errors-total-inner">
+			<iscomment>All validation errors listed at the top of the form</iscomment>
+		</div>
+	</div>
+
+  <form action="${URLUtils.continueURL()}" method="post" id="${pdict.CurrentForms.billing.htmlName}" class="checkout-billing address">
+  <div class="commonBg deliveryDetails clearfix" id="billingDetails">	
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		billing address
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	 <iscomment>billing address area</iscomment>
+
+		<iscomment>hidden input with action to trigger for the address form</iscomment>
+		<input type="hidden" name="${pdict.CurrentForms.billing.save.htmlName}" value="true" />
+
+		<h3>
+			${Resource.msg('billing.addressheader','checkout',null)}
+			 
+		</h3>
+	 
+	   <div id="billing-address-form" style="display: none;"  >
+	 
+	  
+	 	     <isif condition="${pdict.CurrentCustomer.authenticated}">
+	 	    <isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName}" type="input"  />
+    		      
+    		<iscomment>Add address to Address Book</iscomment>
+		  
+		    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addToAddressBook}" type="checkbox" rowclass="form-indent label-inline checkBox"/>
+		    </isif>
+    		       
+    		<isscript>
+			  importScript('checkout/Utils.ds');
+			  var salutationMap : dw.util.Map = getSalutationMap();					
+			 </isscript>
+			 <div class="form-row required" data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}">
+			 	<label>${Resource.msg('profile.salutation2','forms',null)}</label>
+			 	<select id="${pdict.CurrentForms.billing.billingAddress.addressFields.salutation.htmlName}"   name="${pdict.CurrentForms.billing.billingAddress.addressFields.salutation.htmlName}" class="input-text required"   >
+				 	<option  value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+				      <isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+					  	 <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.salutation.value)&&(pdict.CurrentForms.billing.billingAddress.addressFields.salutation.value).equals(salutationMap.get(key))}">							 
+						   <option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+						 <iselse>
+					 	  <option  value="${key}">${salutationMap.get(key)}</option>
+					  </isif>	                            				
+				    </isloop>
+				</select>
+			 </div>
+		     
+			  
+	  
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.firstname.missing','forms',null)}" />
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.lastname.missing','forms',null)}" />
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName}" type="input" />
+
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.address1}" type="input" requiredtext="${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.address2}" rowclass="hideOptionalText" type="input"/>
+    	
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.zip}" type="input" xhtmlclass="postcode-input" requiredtext="${Resource.msg('forms.errorzip','forms',null)}" />
+
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.city}" type="input" requiredtext="${Resource.msg('forms.address.city.missing','forms',null)}"/>
+    	
+        	<div class="form-row plainText">
+	    	<label>${Resource.msg('forms.country','forms',null)}</label> 
+	     	 <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+			 	 <isprint value="${country.getDisplayValue()}"/> 
+                 <isbreak />	  
+          	 </isloop>
+		</div>
+		<div class="form-field-tooltip">
+		     <span class="tooltip left">
+		     	<span class="ptIcon"></span>
+		     	<div class="tooltip-content">${Resource.msg('tooltip.country','forms',null)}</div>
+		     </span>
+	    </div>
+  
+    	<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.phone}" type="input" xhtmlclass="phone-input" requiredtext="${Resource.msg('forms.address.phone.missing','forms',null)}" />
+    	<div class="form-field-tooltip">
+		     <span class="tooltip left">
+		     	<span class="ptIcon"></span>
+		     	<div class="tooltip-content">${Resource.msg('tooltip.phone','forms',null)}</div>
+		     </span>
+	    </div>
+ 
+	 </div>
+	<div id="emailaddressField" style="display:none" class="clearfix">
+		<isif condition="${!pdict.CurrentCustomer.authenticated }">	
+			<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.email.emailAddress}" type="input" xhtmlclass="email-input" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" />
+		</isif>
+	</div>
+	 
+	 <isif condition="${pdict.validationFail}">
+	   <script>$("#billing-address-form").show();</script>
+	 <iselseif   condition="${empty(pdict.CurrentCustomer.profile) || pdict.CurrentCustomer.profile.addressBook.addresses.size() <= 0}">			
+	   <isif condition="${pdict.CurrentForms.singleshipping.shippingAddress.useAsBillingAddress.value == true}" >
+	   <div id="preview-billing-address"  class="mini-address-location">
+			<ul class="address-list">
+        		<li>
+        			<div class="mini-address-location">
+						<address>
+						    <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName.value}"/>
+						    <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.salutation.value}"/>
+						    <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName.value}"/>
+							<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName.value}"/></br>
+						
+						    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.companyName.value)}">
+							<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName.value}"/> <br>
+							</isif>
+
+						    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.address1.value)}">
+							<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.address1.value}"/> <br>
+							</isif>
+							
+							<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.address2.value)}">
+								<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.address2.value}"/> <br>
+							</isif>
+						
+							<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.zip.value)}">
+							<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.zip.value}"/> <br>
+							</isif>
+							
+							<isif condition="${pdict.CurrentForms.billing.billingAddress.addressFields.city.value != null}">
+								<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.city.value}"/> <br>
+							</isif>
+							   
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+							 	      <isif condition="${country.getValue()==pdict.CurrentForms.billing.billingAddress.addressFields.country.value}">
+							 	      <isprint value="${country.getDisplayValue()}"/> 
+				                      <isbreak />
+				                      </isif>	  
+                            </isloop> 
+							 <br> 
+							 
+							<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.phone.value)}">
+							<iscomment>	<br/>${Resource.msg('miniaddress.phone','account',null)}   </iscomment>
+								 <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.phone.value}"/> 
+							</isif>
+						  <script>$("#emailaddressField").show();</script>
+						</address>
+					</div>
+				</li>
+			</ul>
+
+			<div class="form-row radioBox">
+				<button class="button secondary plain" id="new-billing-address-button" name="newAddress"  formaction="${URLUtils.https('COBilling-NewBillingAddressForm')}">
+					<span class="face front">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+					<span class="face back">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+				</button>
+			</div>
+		  </div>
+		 <iselse>
+	         <script>$("#billing-address-form").show();</script>
+	         <script>$("#emailaddressField").show();</script>
+	   </isif>  
+	    
+	   
+	 <iselseif condition="${ pdict.Basket.billingAddress!=null && pdict.CurrentCustomer.authenticated && pdict.CurrentCustomer.profile.addressBook.addresses.size() >= 1 }">
+	       <script>$("#billing-address-form").show();</script>
+	          <iscomment>display select box with stored addresses if customer is authenticated and there are saved addresses</iscomment>
+			<div class="select-address clearfix">	
+				<div class="form-row">				
+					<label for="${pdict.CurrentForms.billing.addressList.htmlName}">
+						${Resource.msg('global.chooseAddress','locale',null)}
+					</label>
+					<isscript>
+						importScript("cart/CartUtils.ds");	
+						var customerAddresses = CartUtils.getAddressList(pdict.Basket, pdict.CurrentCustomer, false);		
+					</isscript>
+					<isaddressselectlist p_listId="${pdict.CurrentForms.billing.addressList.htmlName}" p_listaddresses="${customerAddresses}" />					
+				</div>
+				<div class="form-row radioBox">
+					<button class="button secondary plain" type="button" id="new-billing-address-button" name="newAddress" formaction="${URLUtils.https('COBilling-NewBillingAddressForm')}">
+						<span class="face front">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+						<span class="face back">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+					</button>
+				</div>
+	 	    </div>
+	 
+	 <iselseif condition="${ pdict.Basket.billingAddress!=null }">
+          <script>$("#billing-address-form").show();</script>
+	  <iselseif condition="${pdict.CurrentCustomer.authenticated && pdict.CurrentCustomer.profile.addressBook.addresses.size() >= 1}">
+ 	        <div id="preview-billing-address" class="mini-address-location">
+ 	        	<ul class="address-list">
+ 	        		<li>
+ 	        			<div class="mini-address-title">
+			                <label>${Resource.msg('minibillinginfo.billingaddress','checkout',null)}</label>
+			                <div class="mini-address-location">
+			                    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.addressName.value)}" > 
+								  <strong class="placeName"><isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.addressName.value}"/></strong>
+								</isif>
+								<address>
+								    <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.salutation.value}"/>
+								    <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.firstName.value}"/>
+									<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.lastName.value}"/></br>
+								
+								    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.companyName.value)}">
+									<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.companyName.value}"/> <br>
+									</isif>
+
+								    <isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.address1.value)}">
+									<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.address1.value}"/> <br>
+									</isif>
+									
+									<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.address2.value)}">
+										<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.address2.value}"/> <br>
+									</isif>
+								
+									<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.zip.value)}">
+									<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.zip.value}"/> <br>
+									</isif>
+									
+									<isif condition="${pdict.CurrentForms.billing.billingAddress.addressFields.city.value != null}">
+										<isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.city.value}"/> <br>
+									</isif>
+									   
+									<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+							 	      <isif condition="${country.getValue()==pdict.CurrentForms.billing.billingAddress.addressFields.country.value}">
+							 	      <isprint value="${country.getDisplayValue()}"/> 
+				                      <isbreak />
+				                      </isif>	  
+                                    </isloop> 
+							       <br> 
+									
+									<isif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.phone.value)}">
+									<iscomment>	<br/>${Resource.msg('miniaddress.phone','account',null)}   </iscomment>
+										 <isprint value="${pdict.CurrentForms.billing.billingAddress.addressFields.phone.value}"/> 
+									</isif>
+								</address>
+							</div>
+			 	        </div>
+ 	        		</li>
+				</ul>
+		   </div>
+            <iscomment>display select box with stored addresses if customer is authenticated and there are saved addresses</iscomment>
+			<div class="select-address">		
+				<div class="form-row">				
+					<label for="${pdict.CurrentForms.billing.addressList.htmlName}">
+						 ${Resource.msg('global.chooseAddress','locale',null)}
+					</label>
+					<isscript>
+						importScript("cart/CartUtils.ds");	
+						var customerAddresses = CartUtils.getAddressList(pdict.Basket, pdict.CurrentCustomer, false);		
+					</isscript>
+					<isaddressselectlist p_listId="${pdict.CurrentForms.billing.addressList.htmlName}" p_listaddresses="${customerAddresses}" />					
+				</div>
+	 	    </div>
+	 	 <div class="form-row radioBox">
+         	<button id="new-billing-address-button" class="button secondary plain" name="newAddress"  formaction="${URLUtils.https('COBilling-NewBillingAddressForm')}"  type="button">
+         		<span class="face front">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+         		<span class="face back">${Resource.msg('singleshipping.useNewAddress','checkout',null)}</span>
+         	</button>
+         </div>
+	   </isif>
+	   
+ 	    
+   
+  </div>
+  
+	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		coupon / discount codes
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	
+        <input type="hidden" name="${pdict.CurrentForms.billing.secureKeyHtmlName}" value="${pdict.CurrentForms.billing.secureKeyValue}"/>	
+		<isset name="OrderTotal" value="${pdict.Basket.totalGrossPrice.value}" scope="pdict"/>
+		  
+			 
+      
+ 	<iscomment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		payment methods
+	 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+
+	<iscomment>payment method area</iscomment>
+	<isinclude template="checkout/billing/paymentmethods"/>
+	<input type="hidden" name="${pdict.CurrentForms.billing.paymentMethods.selectedPaymentMethodID.htmlName}" />
+	<isbonusdiscountlineitem p_alert_text="${Resource.msg('billing.bonusproductalert','checkout',null)}" p_discount_line_item="${pdict.BonusDiscountLineItem}"/>
+	
+	<div class="checkActions clearfix">
+		<div class="checkBack">
+			<a id="BackToBasketGA" href="${URLUtils.https('COShipping-Start')}" ><isprint value="${Resource.msg('checkout.backtoshipping','checkout',null)}"/></a>
+		</div>
+		<div class="checkForward">
+			<button id="BillingNextGA" class="button-fancy-large button" type="submit" name="${pdict.CurrentForms.billing.save.htmlName}" value="${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}">
+				<span class="face front">${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}</span>
+				<span class="face back">${Resource.msg('checkout.nextstep','checkout',null)} : ${Resource.msg('checkout.nextorderreview','checkout',null)}</span>
+			</button>
+		</div>
+	</div>
+</form>
+</div>
+<isinclude template="checkout/minisummary"/>
+<isinclude url="${URLUtils.url('Cybersource-IncludeDigitalFingerprint')}" />
+
+<isscript>
+	importScript("util/ViewHelpers.ds");
+	var stateForm = pdict.CurrentForms.billing.billingAddress.addressFields.states;
+	var countryField = pdict.CurrentForms.billing.billingAddress.addressFields.country; 
+	var countries = ViewHelpers.getCountriesAndRegions(countryField, stateForm, "forms");	
+	var json = JSON.stringify(countries);	
+</isscript>
+<script>if (window.app) {app.countries = <isprint value="${json}" encoding="off"/>;}</script>	
+
+ 
+</isdecorate>

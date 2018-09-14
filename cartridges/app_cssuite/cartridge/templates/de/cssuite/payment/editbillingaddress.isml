@@ -1,0 +1,112 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<isinclude template="cssuite/utils/modules">
+
+<style>
+	.rowPad{
+		height:20px;
+		background: #eeeeee;
+	}
+</style>
+	
+<!--- <form id="${formId}" action="" onsubmit="return false;"> --->
+<form action="${URLUtils.httpsContinue()}" id="editBillingAddress" onsubmit="return false;">
+	<div id="notice">
+		Please update the details below.
+	</div>
+	<table cellpadding="0" cellspacing="0" border="0" width="100%">
+		<tr>
+		
+       	<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.salutation}" type="select" >
+       	</tr>
+
+		<tr>
+		
+       	<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.title}" type="select" >
+       	</tr>
+		<!--- first name --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.firstname}" type="input" >
+       	</tr>
+       	<!--- last name --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.lastname}" type="input" >
+       	</tr>
+		<!--- companyName --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.companyName}" type="input" >
+       	</tr>
+		<!--- address1 --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.address1}" type="input" >
+       	</tr>
+       	<!--- address2 --->
+       	<tr>
+       	<td class="key">
+       	</td>
+       	
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.address2}" type="input" label="false">
+       	
+       	</tr>
+       	<!--- zip --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.zip}" type="input" >
+       	</tr>
+       	<!--- city --->
+       	<tr>
+       		<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.city}" type="input" >
+       	</tr>
+       	<!--- country --->
+       	<tr>
+		<td class="key"><label><isprint value="${Resource.msg('forms.country','forms',null)}" /></label> </td>
+		<td class="value">					
+		<select id="${pdict.CurrentForms.cssorderaddress.country.htmlName}" name="${pdict.CurrentForms.cssorderaddress.country.htmlName}" class="input-text required ">								
+			<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">
+				<isif condition="${!empty(pdict.Basket.billingAddress.countryCode.value) && pdict.Basket.billingAddress.countryCode.value == country.getValue()}">							 
+					<option selected="selected" value="${country.getValue()}">${country.getDisplayValue()}</option>
+				<iselse>
+					<option value="${country.getValue()}">${country.getDisplayValue()}</option>
+				</isif>		                            				
+			</isloop>
+		</select>
+		</td>
+	</tr>
+       	<!--- phone (exception, because mandatory!) --->
+		<tr>
+			<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.phone}" type="input" >
+		</tr>
+		
+		<tr class="rowPad"><td colspan="2">&nbsp;</td></tr>
+	</table>
+	<isinputfield formfield="${pdict.CurrentForms.cssorderaddress.country}" type="hidden"  />
+</form>
+
+<isif condition="${!empty(pdict.SuccessJSAction)}">
+<script type="text/javascript">
+<!--
+${pdict.SuccessJSAction}
+//-->
+</script>
+</isif>
+
+<script type="text/javascript">
+<!--
+	<isif condition="${pdict.EditBillingReady}">
+		Order.getBillingAddress();
+		Order.getGeneralInfo();
+	<iselse>
+		Dialog.formDialog("Edit Billing Address", 
+			{
+				"Save": function() { 
+					$(this).dialog("destroy");
+					Order.saveBillingAddress('${pdict.CurrentForms.cssorderaddress.confirm.htmlName}');
+				},
+				"Cancel": function() { 
+					$(this).dialog("destroy");}
+			},
+			false, 'auto', 'auto'
+		);
+		CSSuite.toggleStateCodes('Id_${pdict.CurrentForms.cssorderaddress.country.htmlName}', 'Id_${pdict.CurrentForms.cssorderaddress.state.htmlName}');
+	</isif>
+//-->
+</script>

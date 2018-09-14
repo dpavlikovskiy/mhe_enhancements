@@ -1,0 +1,106 @@
+<iscache type="relative" hour="24"/>
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isinclude template="util/modules"/>
+<div class="store-details">
+	<span class="closeThis">Close</span>
+	<div class="store-images">
+		<isif condition="${pdict.Store.image != null}">
+	 		<img src="${pdict.Store.image.url}" alt="${pdict.Store.name}" class="store-visual" />
+		</isif>
+	</div>
+	<div class="storeBody clearfix">
+		<div class="storeContent">
+			<isif condition="${pdict.Store.storeEvents != null}">
+			     <isprint value="${pdict.Store.storeEvents}" encoding="off"/>
+			</isif>
+		</div>
+		<div class="store-info">
+			<div class="infoBox">
+				<h4><isprint value="${pdict.Store.name}"/></h4>
+				<p><isprint value="${pdict.Store.address1}"/><br/>
+				<isprint value="${pdict.Store.city}"/><isif condition="${pdict.Store.city != null && pdict.Store.stateCode != null}">,</isif> <isprint value="${pdict.Store.stateCode}"/><br/>
+				<isprint value="${pdict.Store.postalCode}"/><br/>
+				<isprint value="${pdict.Store.countryCode}"/></p>
+				<p><isprint value="${pdict.Store.phone}"/></p>
+				<p><isprint value="${pdict.Store.email}"/><br />
+				<isprint value="${pdict.Store.custom.webSite}"/></p>
+			</div>
+			<div class="infoBox">
+				<isif condition="${pdict.Store.storeHours != null}">
+					<isprint value="${pdict.Store.storeHours}" encoding="off"/>
+			 	</isif>
+			</div>
+			<isif condition="${'champagne' in pdict.Store.custom || 'wine' in  pdict.Store.custom || 'spirits' in pdict.Store.custom}">
+			<div class="infoBox">
+				<h4><isprint value="${Resource.msg('storelocator.venueserve','storelocator',null)}" /></h4>
+				<ul class="serves">
+					<isif condition="${pdict.Store.custom.champagne != null && pdict.Store.custom.champagne.length >0}">
+						<li class="head"><isprint value="${Resource.msg('storelocator.champagne','storelocator',null)}" /></li>
+						<isloop iterator="${pdict.Store.custom.champagne}" alias="Store" status="loopstate">
+						<isif condition="${!empty(dw.catalog.CatalogMgr.getCategory(Store))}"> 
+				  			<li><a class="" href="${URLUtils.http('Search-Show', 'cgid', Store)}"><isprint value="${dw.catalog.CatalogMgr.getCategory(Store).displayName}" /></a></li>
+				 		</isif>
+				 		</isloop>
+				 	</isif>
+					<isif condition="${pdict.Store.custom.wine != null && pdict.Store.custom.wine.length >0}">
+						<li class="head"><isprint value="${Resource.msg('storelocator.wine','storelocator',null)}" /></li>
+						<isloop iterator="${pdict.Store.custom.wine}" alias="Store" status="loopstate">
+						<isif condition="${!empty(dw.catalog.CatalogMgr.getCategory(Store))}">
+					  		<li><a class="" href="${URLUtils.http('Search-Show', 'cgid', Store)}"><isprint value="${dw.catalog.CatalogMgr.getCategory(Store).displayName}" /></a></li>
+					 	</isif>
+					 	</isloop>
+				 	</isif>
+					<isif condition="${pdict.Store.custom.spirits != null && pdict.Store.custom.spirits.length >0}">
+						<li class="head"><isprint value="${Resource.msg('storelocator.spirit','storelocator',null)}" /></li>
+						<isloop iterator="${pdict.Store.custom.spirits}" alias="Store" status="loopstate">
+						<isif condition="${!empty(dw.catalog.CatalogMgr.getCategory(Store))}">
+					  		<li><a class="" href="${URLUtils.http('Search-Show', 'cgid', Store)}"><isprint value="${dw.catalog.CatalogMgr.getCategory(Store).displayName}" /></a></li>
+					 	</isif>
+					 	</isloop>
+				 	</isif>
+				</ul>
+			</div>
+			</isif>
+		</div>
+			
+	</div>
+	<isif condition="${(!(pdict.CurrentSession.custom.brand.equals('mh'))) && (dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')||dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')||dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')||dw.system.Site.getCurrent().getCustomPreferenceValue('twitter'))}">
+			<div class="product-store-social">
+				<h3 class="gamma-heading">${Resource.msg('product.pdp.sharelove','product',null)}</h3>
+				
+				<iscomment>
+				<ul class="social-icons">
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+						<li><a class="ajaxData icon email" href="" target="_blank" data-href="${URLUtils.https('SendToFriend-Start')}" id="sendtoFriendClicked"></a></li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}" >
+						<li><a id="facebook" class="icon facebook" target="_blank" href="" title="facebook"></a></li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}" >
+						<li><a id="pintrest"  class="icon pintrest" target="_blank" href="" title="pintrest"></a></li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}" >					
+						<li><a id="twitter"  class="icon twitter" target="_blank" href=""  title="twitter"></a></li>
+					</isif>
+				</ul>
+				</iscomment>
+				
+				<ul class="social-icons">
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+						<li><a title="email" href="" data-href="${URLUtils.https('SendToFriend-Start')}" class="icon email ajaxData" id="sendtoFriendClicked"></a>
+</li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}" >
+						<li><a id="facebook" class="icon facebook" target="_blank" href="" title="facebook"></a></li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}" >
+						<li><a id="pintrest"  class="icon pintrest" target="_blank" href="" title="pintrest"></a></li>
+					</isif>
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}" >					
+						<li class="twitter-share-pdp"><span id="twitter"  class="icon twitter"></span></li>
+					</isif>
+				</ul>						
+			</div>
+	</isif>	
+</div>

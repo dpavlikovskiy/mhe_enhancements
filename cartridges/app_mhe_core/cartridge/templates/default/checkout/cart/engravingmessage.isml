@@ -1,0 +1,66 @@
+<isinclude template="util/modules"/>
+<!--- TEMPLATENAME: engravingmessage.isml --->
+<iscomment>Create form for Engraving text and prepoulate value</iscomment>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<form method="post" action="${URLUtils.url('Cart-UpdateEngraving')}" id="edit-engraving-text" name="${pdict.CurrentForms.engraving.htmlName}">
+	<h3>${Resource.msg('global.yourpersonalisedmsg','locale',null)}</h3>
+	<fieldset>	
+		<input name="pliPosition"  type="hidden" value="${pdict.pliPosition}" id="pliPosition" />
+		<input name="pid"  type="hidden" value="${pdict.pid}" id="pid" />
+		<isset name="personalizeProductObj" value="${dw.catalog.ProductMgr.getProduct(pdict.pid)}" scope="page"/>
+			<isif condition="${!empty(personalizeProductObj.getImage('personalize',0))}">
+				<isset name="personalizeImageUrl" value="${ (new ProductImage('personalizeOverlay',personalizeProductObj, 0 )).getURL() }" scope="page" />
+			<iselse>
+				<isset name="personalizeImageUrl" value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page"/>
+			</isif>
+			<div class="section step-02 product-options-dialog">
+				<div class="branding-image">
+					<iscomment>
+						For UI Team -- Personalize Image URL is setup to be used 
+						How to use ${personalizeImageUrl} whereever the url is required
+					</iscomment>
+				</div>
+		<isif condition="${'custom' in personalizeProductObj && !empty(personalizeProductObj.custom) && 'engravingmessagemaxlength' in personalizeProductObj.custom && !empty(personalizeProductObj.custom.engravingmessagemaxlength)}"> 
+		<textarea class="input-textarea" rows="15" name="engravingText" value="${pdict.engravingText}" id="engravingText" data-character-limit="${personalizeProductObj.custom.engravingmessagemaxlength}"><isprint value="${dw.crypto.Encoding.fromURI(pdict.engravingText,'UTF-8')}"/></textarea>
+			<iselse>
+			<textarea class="input-textarea" rows="15" name="engravingText" value="${pdict.engravingText}" id="engravingText" data-character-limit="${dw.web.Resource.msg('product.personalize.charlimit','product','')}"><isprint value="${dw.crypto.Encoding.fromURI(pdict.engravingText,'UTF-8')}"/></textarea>
+      </isif>
+			<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('Regex')!=null}"> 
+			<ul class="input-list">
+				<li class="form-row">
+					<div class="error empty error-hidden">
+						<isprint value="${dw.web.Resource.msg('product.personalize.nomsg','product','')}" />
+					</div>		 
+					<div class="error char-check error-hidden">
+						<isprint value="${Resource.msgf('product.personalize.specialCharPresent','product',null,dw.system.Site.getCurrent().getCustomPreferenceValue('Regex').toString())}" encoding="off"/></h2>	
+					</div>
+					<div class="error char-check error-hidden profinity-error"></div>
+				</li>	
+			</ul>
+			</isif>
+			<p id="remaining" class="remaining">
+			    <span>254</span> ${Resource.msg('global.charleft','locale',null)}
+			</p>
+		 <div class="form-row form-row-button">								
+			 <button  id="save"  class="apply-button button" type="button"  name="${pdict.CurrentForms.engraving.htmlName}"  value="${Resource.msg('global.apply','locale',null)}">
+					<span class="face front">${Resource.msg('global.savemessage','locale',null)}</span>
+					<span class="face back">${Resource.msg('global.savemessage','locale',null)}</span>
+			 </button>
+			<iscomment>Dkum37: cancel button not required.
+				<button  id="calcel"  class="cancel-button button" type="button" name="${pdict.CurrentForms.engraving.htmlName}"  value="${Resource.msg('global.cancel','locale',null)}">
+						<span class="face front">${Resource.msg('global.cancel','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.cancel','locale',null)}</span>
+				 </button>
+			 </iscomment>
+		 </div>
+		 <div class="messageFooter">
+		 	<div class="msgFooterText">
+		 		<div class="msgFooterTextImg"><img src="${personalizeImageUrl}" alt=""  /></div>
+		 		<iscontentasset aid="engraving-footer-text"/>
+		 	</div>
+		 </div>
+ </fieldset>
+ </form>
+ 
+ 
+ 

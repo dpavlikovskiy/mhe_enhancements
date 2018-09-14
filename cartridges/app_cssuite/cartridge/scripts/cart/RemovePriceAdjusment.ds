@@ -1,0 +1,30 @@
+/**
+* This script removes a price adjustment from the basket.
+* @input Basket : dw.order.Basket : The basket.
+* @input PriceAdjustmentID : String The price adjustment UUID.
+* @output ErrorMessage : String error message in case of error.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var priceAdjustmentID : String = pdict.PriceAdjustmentID;
+	if (empty(priceAdjustmentID)) {
+		pdict.ErrorMessage = "The price adjustment ID must be given.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;		
+	}
+	for (var it : Iterator = basket.getPriceAdjustments().iterator(); it.hasNext();) {
+		var priceAdjustment : PriceAdjustment = it.next();
+		if (priceAdjustment.UUID == priceAdjustmentID) {
+			if (Logger.isDebugEnabled()) {
+				Logger.debug("Removing price adjustment [{0}]", priceAdjustment);
+			}
+			basket.removePriceAdjustment(priceAdjustment);			
+		}
+	}
+    return PIPELET_NEXT;
+}

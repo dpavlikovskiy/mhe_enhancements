@@ -1,0 +1,110 @@
+.static-offer {
+	.quickview {
+		background:$eModulesBg;
+		border: $brandcolor 2px solid;
+	}
+	.popUpForms, .accessory-dialog-wrap{
+		background:$eModulesBg;
+		border: $brandcolor 2px solid;
+		padding:0;
+		text-align:center;
+		.logo_header {
+			img.logo {
+				width:170px;
+			}
+		}
+		a {
+			&:hover{
+				color: $brandBg;
+			}
+		}
+		.agegate_message {
+			p {
+				color: $packerygreyText;
+				font: $small_text $regularFont;
+				margin:0 auto 20px;
+				width:300px;
+			}
+			.no-confirm, .section-header {
+				color: $darkBrownText;
+			}
+		}
+		.section-header {
+			color:$brandBg;
+			font:$normal-font-size $titleFont;
+			margin:0 0 10px 0;
+		}
+		input[type="text"], input[type="password"] {
+			border:$greyBorder 1px solid;
+			background: $white;
+			&:focus {
+				background: $white;
+			}
+		}
+		.form-row {
+			width:300px;
+			margin:0 auto 20px;
+			.form-row-error input[type="text"], .form-row-error input[type="password"] {
+				 border:$errorBorder 1px solid;
+				 background:#fff;
+			}
+			&.form-row-valid {
+		        &:after {
+		        	content:url(images/form-valid.png);
+		        }
+			}
+		}
+		.button {
+			background:$brandBg;
+			font:$smaller_heading $regularFont;
+			.face {
+				color:$white;
+				border:none;
+				font-weight:normal;
+				&.back {
+					color:$white;
+				}
+			}
+		}
+		.form-row {
+			.error {
+				background:#f4f4f4;
+				border:$greyBorder 1px solid;
+				&:before {
+					background:#f4f4f4;
+					border-left: 1px solid $greyBorder;
+			    	border-top: 1px solid $greyBorder;
+				}
+			}
+		}
+	}
+	.newsletter-signup {
+		h2 {
+			color:$brandcolor;
+		}
+		p {
+			color: $darkBrownText;
+		}
+	}
+	.newsletter-heading {
+		 margin-top: -40px;
+		 padding-top: 30px;
+		 h3 {
+		 	color:$brandcolor;
+			font:$big_text $titleFont;
+		 }
+		 p {
+		 	font:$small_heading $regularFont;
+		 	line-height: 18px;
+		 	margin: 0 auto 20px;
+		 	width: 80%;
+		 	color: $darkBrownText;
+		 }
+	}
+}
+
+.customeQuickview{
+	#update-main-img{
+		display:none;
+	}
+}

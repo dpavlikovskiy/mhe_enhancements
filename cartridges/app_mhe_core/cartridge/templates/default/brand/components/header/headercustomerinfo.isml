@@ -1,0 +1,69 @@
+<isinclude template="util/modules"/>
+
+<isif condition="${!(pdict.CurrentCustomer.registered)}">
+  					 <a href="" data-href="${URLUtils.https('Login-Show')}" class="ajaxData" id="loginClicked">${Resource.msg('epage.login','locale',null)}</a> /
+                    <isif condition="${pdict.CurrentSession.custom.brand.equals('ad')}">
+	    				<a href="${URLUtils.https('Account-EstoreRegister')}"  ><isprint value="${Resource.msg('epage.register','locale',null)}" encoding="off"  /></a>
+		    		<iselse>
+		    			<a href="" data-href="${URLUtils.url('Account-EstoreRegister')}" class="ajaxData" id="registerClicked"><isprint value="${Resource.msg('epage.register','locale',null)}" encoding="off"  /></a>
+		    	
+		    		</isif>
+		    		
+		    		<iselse>
+		    		
+<ul class="menu-utility-user">
+	<li class="user_trigger">
+		<span class="highlighted"></span>
+		 <span class="arrow"> <isinclude template="components/header/nameinheader" />
+		</span>
+		<iscomment>Hidden Links - My Account, Customer service and Signout</iscomment>
+     	<ul class="hidden-sub">
+     	 <isif condition="${pdict.CurrentSession.userName.equalsIgnoreCase('storefront') || !dw.system.Site.getCurrent().getCustomPreferenceValue('hideSavePaymentForCSSUITE')}" > 
+	 	    <li><a href="${URLUtils.https('Order-History')}">${Resource.msg('header.myaccount','components',null)}</a></li>	
+	 	    </isif>
+	 		<li><a href="${URLUtils.https('CustomerService-ContactUs')}" >${Resource.msg('header.customerservice','components',null)}</a></li>	
+	  		<li><a href="${URLUtils.https('Login-Logout')}">${Resource.msg('header.signout','components',null)}</a></li>
+     	</ul>
+     </li>
+</ul>
+</isif>
+
+<p class="small_text trouble-shooter" style="display:none;">
+	<a href="" class="ajaxData" data-href="${URLUtils.url('Account-PasswordReset','isTokenValid','false')}">test</a>
+</p>
+
+<script type="text/javascript">
+	
+	$( document ).ready(function() {
+		
+			
+
+		
+		// Hidden Account Submenu.
+		$('ul.hidden-sub li:last-child').addClass('logout');
+		
+		$('.user_trigger').on('hover', function(e){
+			$('ul.hidden-sub').stop( true, true ).fadeToggle('slow');
+		});
+		
+		// Greetings Message.
+		var d = new Date();
+	    var time = d.getHours();
+	    var $greet = $(".highlighted");
+	    if (time >= 0 && time <= 11){
+	    	$greet.text("${Resource.msg('loginpage.greeting.morning','account',null)}");
+	    }
+	    else if (time >= 12 && time <= 17){
+	    	$greet.text("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+	    }
+	    else{
+	    	$greet.text("${Resource.msg('loginpage.greeting.evening','account',null)}");
+	    };
+	    
+	    $greet.parent().addClass("greet-visible");
+		
+	});
+	
+	
+	
+</script>

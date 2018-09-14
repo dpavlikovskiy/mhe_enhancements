@@ -1,0 +1,111 @@
+/**
+* GoogleGeolocator.ds
+*
+* The script takes a collection of stores and performs google
+* geocoding http calls to retrieve their LatLng co-ordinates
+* for storage in the system.  
+*
+* A Demandware xml file is written for import as these attributes 
+* are read only.  The file name is then passed out of the script 
+* so the import can be triggered.
+*
+*   @input Stores : dw.util.Iterator This is a sample comment.
+*   @output FileName : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage(dw.crypto);
+
+function execute( args : PipelineDictionary ) : Number
+{
+	
+	var stores : Iterator = args.Stores;
+	var key:String  = dw.system.Site.getCurrent().getCustomPreferenceValue('googleAPIKey');// this needs to be site pref driven
+	var channel:String  = dw.system.Site.getCurrent().getCustomPreferenceValue('channel');// this needs to be site pref driven
+	var clientID:String  = dw.system.Site.getCurrent().getCustomPreferenceValue('googleAPIClientID');// this needs to be site pref driven
+	//var keyString:Bytes = getKeyString(key);
+	var hostName:String="https://maps.googleapis.com" ;
+	var signedUrl:String = null ;	
+	
+	if(!empty(stores)) {
+		
+    	// Build query URL
+    	var URL : String = "http://maps.google.com/maps/api/geocode/json?address={0}&sensor=true";
+    	// Initialize StreamWriter and httpClient
+    	var filename : String = '/marketing/stores_' + new Date().getTime() + '.xml';
+    	
+    	var writer : FileWriter = new FileWriter(new File(File.IMPEX+'/src'+filename),'UTF-8');
+    
+    	var xmlwriter : XMLStreamWriter = new XMLStreamWriter(writer);
+    
+    	xmlwriter.writeRaw('<?xml version="1.0" encoding="UTF-8"?><stores xmlns="http://www.demandware.com/xml/impex/store/2007-04-30">');
+		
+		var client : HTTPClient = new HTTPClient();
+		
+		// Perform query for stores in collection
+		while(stores.hasNext()) {
+			
+			var store : dw.catalog.Store = stores.next();
+			
+			var address : String = (!empty(store.address1) ? '+' + store.address1.replace(' ','+','g') : '') + ',';
+			address += (!empty(store.address2) ? '+' + store.address2.replace(' ','+','g') : '') + ',';
+			address += (!empty(store.city) ? '+' + store.city.replace(' ','+','g') : '') + ',';
+			address += (!empty(store.postalCode) ? '+' + store.postalCode.replace(' ','+','g') : '') + ',';
+			address += (!empty(store.stateCode) ? '+' + store.stateCode.replace(' ','+','g') : '') + ',';
+			address += (!empty(store.countryCode) ? '+' + store.countryCode.value.replace(' ','+','g') : '') + ',';
+			
+			
+			client.open('GET', encodeURI(StringUtils.format(URL,address)));
+			client.send();
+			
+			var response : Object = JSON.parse(client.getText());	
+			
+			var response : Object = JSON.parse(client.getText());	
+			
+			if(!empty(response["results"][0]["geometry"]["location"])) {
+				xmlwriter.writeRaw('<store store-id="' + store.ID + '"><latitude>' + response["results"][0]["geometry"]["location"]["lat"] + '</latitude><longitude>' + response["results"][0]["geometry"]["location"]["lng"] + '</longitude></store>');
+		
+			}
+		}
+		
+		xmlwriter.writeRaw('</stores>');
+		
+		xmlwriter.close();
+		
+		args.FileName = filename;
+		
+		return PIPELET_NEXT;
+		
+	}else{
+	    
+		return PIPELET_NEXT;
+		
+	}
+}
+
+function getKeyString(keyString : String):Bytes
+{
+	keyString = keyString.replace('-', '+');
+    keyString = keyString.replace('_', '/');
+	var byte1:Bytes = Encoding.fromBase64(keyString) ; 
+    
+	return byte1;
+}
+
+function signRequest(resource:String,keyBytes:Bytes ):String 
+{
+	
+	var mac: Mac = new Mac(Mac.HMAC_SHA_1); 
+	var signature:Bytes = mac.digest(resource,keyBytes) ;
+	var encodedSignature:String = Encoding.toBase64(signature) ;
+    encodedSignature = encodedSignature.replace('+', '-');
+    encodedSignature = encodedSignature.replace('/', '_');
+    	 
+	return resource.concat("&signature=",encodedSignature) ; 
+}
+
+  
+

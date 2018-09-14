@@ -1,0 +1,65 @@
+<isinclude template="util/modules"/>
+<iscomment>Site DEV to add seacrh icon</iscomment>
+<div class="searchBox">
+	<div class="boxBorder">
+		<div class="searchOptions">
+			<form role="search" action="${URLUtils.url('Search-Show')}" method="get" name="specificSearch" id="specificSearch">
+				<isscript>
+					importScript("search/SearchUtil.ds");
+				    var arrayOfStrings : Array=splitContentAssetWithInput("CA_MHE_SEARCH_LANDING");
+				</isscript>
+				<isif condition="${!empty(arrayOfStrings) && arrayOfStrings.length.toString != 4}" > 
+					<div class="selectionBox">
+						<isprint value="${arrayOfStrings[0]}" />
+						<select name="sp1" id="sp1">
+						  <options>
+						    <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('searchphrase1')}" var="category">	
+								<option value="${category.getDisplayValue()}">${category.getDisplayValue()}</option>                         				
+						  	</isloop>
+						  <options>		
+						</select>
+						<isprint value="${arrayOfStrings[1]}" />
+						<select name="sp2" id="sp2" >
+							<options>
+								<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('searchphrase2')}" var="occasion">	
+									<option value="${occasion.getDisplayValue()}">${occasion.getDisplayValue()}</option>                             				
+						   		</isloop>
+						   <options>
+						</select>
+						<isprint value="${arrayOfStrings[2]}" />
+						<select name="sp3" id="sp3">
+							<options>
+								<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('searchphrase3')}" var="serve" >		
+									<option value="${serve.getDisplayValue()}">${serve.getDisplayValue()}</option>                             				
+						   		</isloop>
+							</options>	
+						</select>
+						<isprint value="${arrayOfStrings[3]}" />
+					</div>
+					<button class="button" type="submit">
+						<span class="face front">${Resource.msg('search.surprise','search',null)}</span>
+						<span class="face back">${Resource.msg('search.surprise','search',null)}</span>
+					</button>
+				</isif>
+			</form>
+		</div>
+		<span class="circle">&nbsp;</span>
+		<div class="textSearch" id="header-search">
+			<script>
+				function pushQuery() {
+					dataLayer.push({'query' : $('#q').val()});
+				}
+			</script>
+			<form role="search" action="${URLUtils.url('Search-Show')}" method="get" name="simpleSearch" id="simpleSearch">
+				<fieldset>
+					<p><isprint value="${Resource.msg('search.manually','search',null)}"/></p>
+					<label class="visually-hidden" for="q">${Resource.msg('simplesearch.searchlabel','search',null)}</label>
+					<input type="text" id="q" name="q" value="" /><input type="submit" value="go" class="sIcon" <isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM}">onclick="pushQuery()"</isif>/>
+				</fieldset>
+			</form>
+			<div class="suggestions">
+			</div>
+		</div>
+	</div>
+</div>
+<iscomment>Site DEV to hide and show this isml on click of the seacrh icon</iscomment>

@@ -1,0 +1,70 @@
+<isinclude template="util/modules"/>
+<iscomment>
+	This template renders the summary of the current basket at the right hand side
+	of all checkout pages. It includes an order summary including order totals,
+	a list of all included shipments as well as the payment methods used to pay
+	the basket.
+</iscomment>
+
+<isscript>
+ 	var cartQty : Number = 0;
+	var pliIt : dw.util.Iterator = pdict.Basket.productLineItems.iterator();
+	while (pliIt.hasNext()) { 
+		var pli : dw.order.ProductLineItem = pliIt.next(); 
+		cartQty += pli.quantity; 
+	}
+	// add the gift certificates to cart quantity
+	cartQty += pdict.Basket.giftCertificateLineItems.size();
+	var category=null;
+if ('staticOfferCategory' in pdict.Basket.custom){
+	category=dw.catalog.CatalogMgr.getCategory(pdict.Basket.custom.staticOfferCategory);
+}
+
+</isscript>
+
+
+<isif condition="${!empty(pdict.checkoutstep)}">
+	<isset name="checkoutstep" value="${pdict.checkoutstep}" scope="page"/>
+</isif>
+
+<isif condition="${!empty(checkoutstep) && (checkoutstep >= 2)}">
+
+<div id="miniSummary" class="rightSide summary">
+<isif condition="${'staticOfferCategory' in pdict.Basket.custom && 'needHelpText' in category.custom}">
+<isprint value="${category.custom.needHelpText}" encoding ="off"/>
+<iselse>
+<iscontentasset aid="cs-contact-number"/>
+</isif>
+<div class="checkModule mSummaryCont">
+
+    <isif condition="${cartQty > 1}">
+		<isset name="item_word" value="${Resource.msg('minicart.items','checkout',null)}" scope="page"/>
+	<iselse>
+		<isset name="item_word" value="${Resource.msg('minicart.item','checkout',null)}" scope="page"/>
+	</isif>
+	
+	<h3><isprint value="${Resource.msg('checkout.yourorderdetails','checkout',null)}"/></h3>
+	<h4 class="showMini">
+	<span><isprint value="${Resource.msg('checkout.view','checkout',null)}"/> <isprint value="${cartQty}" formatter="##" /> <isprint value="${item_word}"/></span>
+	</h4>
+	<isif condition="${checkoutstep <= 5}">
+		<div class="miniSummary">
+			<div class="nano">
+				<div class="content">
+					<ul class="mini-cart-products">
+						<isif condition="${checkoutstep  != 5}">
+				       		<isminilineitems p_lineitemctnr="${pdict.Basket}"/>
+						</isif>
+					</ul>
+				</div>
+			</div>
+			<div class="summaryTotals">
+				<isordertotals p_lineitemctnr="${pdict.Basket}" p_showshipmentinfo="${false}" p_shipmenteditable="${false}" p_totallabel="${Resource.msg('summary.ordertotal','checkout',null)}"/>
+			</div>
+		</div>
+	</isif>
+</div>
+
+</div>
+	
+</isif>

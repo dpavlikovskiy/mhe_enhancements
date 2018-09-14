@@ -1,0 +1,56 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:'World Of MH', type:'customerservice',ns:'account'};</isscript>
+	<isinclude template="util/modules"/>
+	
+	<iscomment>This page must be cachable. It inherits the caching attributes by the decorated template.</iscomment>
+
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="content/pt_customerservice_UI"/>
+	<isif condition="${!empty(pdict.Content)}">
+	
+	<meta property="og:description" content="${pdict.Content.description}" />
+	<isif condition="${'lifestyleImage' in pdict.Content.custom && !empty(pdict.Content.custom.lifestyleImage)}">
+	<meta property="og:image" content="${pdict.Content.custom.lifestyleImage.getURL()}" />
+<iselse>
+	<meta property="og:image" content="${URLUtils.staticURL('/images/noimagelarge.png')}" />
+	</isif>
+</isif>
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+
+<body>
+	<div id="wrapper" class="articlePages">
+	
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+	
+		<div id="main" role="main" class="page-content main clearfix">
+			<iscomment>Display content name upto 25 characters followed by ...</iscomment>
+			<isset name="contentname" value="${ empty(pdict.Content) ? null :( pdict.Content.name.length > 25 ? pdict.Content.name.substring(0,25).concat('...') : pdict.Content.name)}" scope="page" />
+			<isbreadcrumbs bcurl1="${URLUtils.url('Search-ShowContent','fdid',pdict.ContentSearchResult.folder.parent.ID)}" bctext1="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.parent.ID).displayName}" bctext2="${contentname}" />
+			<div class="articleContentArea clearfix">
+				<div class="sectionHeader">
+				<isprint value="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.ID).description}" encoding="off" />
+				</div>
+				<div id="primary" class="primary-content">
+					<section>
+						<isinclude template="components/browsertoolscheck"/>
+						<isreplace/>
+					</section>
+				</div>
+			</div>		
+		</div><!-- /main -->
+		<isinclude template="components/footer/footer"/>
+		<isinclude template="content/pt_customerservice_VARS"/>
+	</div><!--  /wrapper -->
+</body>
+</html>

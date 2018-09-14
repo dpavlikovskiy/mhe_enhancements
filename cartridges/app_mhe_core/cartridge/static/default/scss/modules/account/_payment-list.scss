@@ -1,0 +1,37 @@
+// =============================================================================
+// Payment list
+// =============================================================================
+
+.payment-list {
+	margin-top:-20px;
+	.payment-list-card {
+		width:260px;
+		height:164px;
+		float:left;
+		margin:40px 40px 0 0;
+		padding:24px 26px;
+		border-radius:10px;
+		position:relative;
+		.card-ending, .card-expires {
+			font-size:12px;
+			text-transform:uppercase;
+		}
+		.card-logo, .card-remove {
+			position:absolute;
+			bottom:24px;
+		}
+		.card-remove {
+			background:none;
+			border:none;
+			right:26px;
+			font-style:italic;
+			padding:0;
+			font-size:12px;
+			padding-right:10px;
+			margin-right:-10px;
+			font-family: $fixed-font-family;
+			line-height:0.9em;
+		}
+	}
+}
+

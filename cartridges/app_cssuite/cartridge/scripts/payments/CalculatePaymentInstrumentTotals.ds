@@ -1,0 +1,104 @@
+/**
+* This script calculates the total amount of an order
+* that will be paid for by Gift Certificate Payment Instruments
+* and the remaininig amount that will be applied to
+* the remaining Payment Instrument (such as a Credit Card).
+*
+* As input, this script requires the Basket. As output,
+* this script creates GiftCertificateTotal, OtherPaymentTotal, and
+* OtherPaymentType dictionary entries. Note that this script also modifies
+* the amount associated with a Payment Instrument if
+* necessary.
+*
+* @input Basket : Object
+* @output GiftCertificateTotal : dw.value.Money The total of the payment method that is a gift certificate.
+* @output OtherPaymentTotal : dw.value.Money The total of the payment method that is not a gift certificate.
+* @output OtherPaymentType : String The type of the payment method that is not a gift certificate.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.value );
+importPackage( dw.util );
+importScript( 'cssuite/payment/libPayments.ds' );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	// get the basket
+    var basket : Basket = pdict.Basket;
+
+    // get the total amount of gift certificates
+    var totalPrice : Money = basket.getTotalGrossPrice();
+    var giftCerts : Money = new Money(0.0, basket.getCurrencyCode());
+
+    var paymentInstrument : OrderPaymentInstrument = null;
+    var nonGiftCertPaymentInstrument : OrderPaymentInstrument = null;
+
+	var creditCards : Collection = null;
+	var retailCards : Collection = null;
+	var cardCollection : Collection = basket.getPaymentInstruments(PaymentInstrument.METHOD_CREDIT_CARD);
+
+	if (!empty(cardCollection))
+	{
+		creditCards = filterCreditCards(cardCollection);
+		retailCards = filterRetailCards(cardCollection);
+	}
+
+    for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments()) {
+    	if ((pi.paymentMethod == "METHOD_PPGC" && !pi.custom.toRemove) || pi.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE) {
+    		giftCerts = giftCerts.add(pi.paymentTransaction.amount);
+    	}
+    }
+
+	// assuming we can have maximum 2 primary payment instruments (one the order had before, one that is new) we loop
+	// threw all payments and pick up the one with no transaction assigned
+	if ( !empty(creditCards) ) {
+		for each (var pi : OrderPaymentInstrument in creditCards) {
+			if (empty(pi.paymentTransaction.transactionID)) {
+				nonGiftCertPaymentInstrument = pi;
+				pdict.OtherPaymentType = "Credit Card";
+				break;
+			}
+		}
+	}
+	if (!empty(basket.getPaymentInstruments(PaymentInstrument.METHOD_BML))) {
+		for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments(PaymentInstrument.METHOD_BML)) {
+			if (empty(pi.paymentTransaction.transactionID)) {
+				nonGiftCertPaymentInstrument = pi;
+		   		pdict.OtherPaymentType = "Bill Me Later";
+				break;
+			}
+		}
+	}
+	if ( !empty(retailCards) ) {
+		for each (var pi : OrderPaymentInstrument in retailCards) {
+			if (empty(pi.paymentTransaction.transactionID)) {
+				nonGiftCertPaymentInstrument = pi;
+		   		pdict.OtherPaymentType = "TD Retail Card";
+				break;
+			}
+		}
+	}
+
+	// now set the gift certificate total, the other payment instrument total,
+    // and the other payment instrument type in the dictionary.
+    if (giftCerts.getValue() >= totalPrice.getValue()) {
+    	pdict.GiftCertificateTotal = totalPrice;
+    	pdict.OtherPaymentTotal = new Money(0, totalPrice.getCurrencyCode());
+    	if (nonGiftCertPaymentInstrument != null) {
+	    	nonGiftCertPaymentInstrument.getPaymentTransaction().setAmount(new Money(0, totalPrice.getCurrencyCode()));
+	    }
+    } else {
+    	pdict.GiftCertificateTotal = giftCerts;
+    	pdict.OtherPaymentTotal = totalPrice.subtract(giftCerts);
+    	if (nonGiftCertPaymentInstrument != null) {
+	    	nonGiftCertPaymentInstrument.getPaymentTransaction().setAmount(totalPrice.subtract(giftCerts));
+    	}
+    }
+
+	// process the type
+	if (nonGiftCertPaymentInstrument == null) {
+		pdict.OtherPaymentType = "none";
+	}
+
+    return PIPELET_NEXT;
+}

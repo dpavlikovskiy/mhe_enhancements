@@ -1,0 +1,41 @@
+.footer{
+	.footer-first{ 
+		.menu-footer{
+			li.resDrinking{
+				font-family: $fixed-font-family;
+		 		font-size: $default_text;
+		 		font-weight: $bold;
+    			text-transform: none;
+			} 
+		}
+		.footerText{
+			margin: 0 auto;
+		    padding:3px 15px 15px;
+		    width: 1200px;
+		    overflow:hidden;
+		    p{
+		    	font-family: $fixed-font-family;
+		 		font-size: $default_text;
+		 		color: $footerText;
+		 		letter-spacing: 0.2px;
+		 		margin:0px;
+		 		&.left{ float:left;}
+		 		&.right{ float:right;}
+		    }
+		}
+	}
+}
+.small_text{
+	color:$white;
+	a{
+		color:$white;
+	}
+}
+.loginRegister .main .loginAreaCont .lRBox .actions{border-bottom:1px solid #fff;}
+.loginRegister .main .loginAreaCont .lRBox .noPosition label{color:#fff;}
+
+.frAgeGate{
+	margin: auto;
+    padding: 25px 0 0;
+    width: 300px;
+}

@@ -1,0 +1,119 @@
+<!--- TEMPLATENAME: characteristics-spirit.isml --->
+
+	<ul class="characteristic-list">
+		<isif condition="${!empty(pdict.Product.custom.type)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.spirit','product',null)}</h3>
+				<p><isprint value="${pdict.Product.custom.type}" encoding="off"/></p>
+			</li>
+		</isif>
+		<isif condition="${!empty(pdict.Product.custom.age)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.age','product',null)}</h3>
+				<p><isprint value="${pdict.Product.custom.age}" encoding="off"/></p>
+			</li>
+		</isif>
+		<isif condition="${!empty(pdict.Product.custom.alcohol)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.alcohol','product',null)}</h3>
+				<p><isprint value="${pdict.Product.custom.alcohol}" encoding="off"/></p>
+			</li>
+		</isif>
+		<isif condition="${!empty(pdict.Product.custom.blend)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.blend','product',null)}</h3>
+				<p>
+				<isloop iterator="${pdict.Product.custom.blend}" alias="blend" status="loopstate">
+				<isprint value="${blend}" encoding="off"/>
+				<isif condition="${!loopstate.last}" ><isprint value="${Resource.msg('search.comma','search',null)}" encoding="off"/> </isif>
+				</isloop>
+				</p>
+			</li>
+		</isif> 
+		<isif condition="${!empty(pdict.Product.custom.region) || !empty(pdict.Product.custom.country)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.region','product',null)}</h3>
+				<p>
+					<isprint value="${pdict.Product.custom.region}" encoding="off"/>
+					<isif condition="${!empty(pdict.Product.custom.country)}" > 
+						, <isprint value="${pdict.Product.custom.country}" encoding="off"/>
+					</isif>
+				</p>
+			</li>
+		</isif>
+		<isif condition="${!empty(pdict.Product.custom.agingPotential)}" > 
+			<li>
+				<h3 class="gamma-heading">${Resource.msg('product.characteristics.agingpotential','product',null)}</h3>
+				<p><isprint value="${pdict.Product.custom.agingPotential}" encoding="off"/></p>
+			</li>
+		</isif>
+	</ul>
+	
+	<iscomment> #### Setting flag to display the "Show More" button #### </iscomment>
+	<isset name="displayExtraAttributes" value="${new Boolean(0)}" scope="page" >
+	<isif condition="${!empty(pdict.Product.custom.servingInformation)}" >		
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	<iselseif condition="${!empty(pdict.Product.custom.dietaryInfo)}" >
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	<iselseif condition="${!empty(pdict.Product.custom.packaging)}" >
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	<iselseif condition="${!empty(pdict.Product.custom.howToServe)}" >
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	<iselseif condition="${!empty(pdict.Product.custom.bottlePreserve)}" >
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	<iselseif condition="${!empty(pdict.Product.custom.closureType)}" >
+		<isset name="displayExtraAttributes" value="${new Boolean(1)}" scope="page" >
+	</isif>
+
+	<isif condition="${displayExtraAttributes}">
+		<div class="extra-detail">
+			<ul class="characteristic-list">
+				<isif condition="${!empty(pdict.Product.custom.servingInformation)}" >
+					<li>
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.servings','product',null)}</h3>
+						<p>	<isprint value="${pdict.Product.custom.servingInformation}" encoding="off"/></p>
+					</li>
+				</isif>
+				<isif condition="${!empty(pdict.Product.custom.dietaryInfo)}" >
+					<li>
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.dietaryinfo','product',null)}</h3>
+						<p><isprint value="${pdict.Product.custom.dietaryInfo}" encoding="off"/></p>
+					</li>
+				</isif>
+				<isif condition="${!empty(pdict.Product.custom.packaging)}" >
+					<li>
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.packaging','product',null)}</h3>
+						<p><isprint value="${pdict.Product.custom.packaging}" encoding="off"/></p>
+					</li>
+				</isif>
+				<isif condition="${!empty(pdict.Product.custom.howToServe)}" >
+					<li>
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.howtoserve','product',null)}</h3>
+						<p><isprint value="${pdict.Product.custom.howToServe}" encoding="off"/></p>
+					</li>
+				</isif>
+				<isif condition="${!empty(pdict.Product.custom.bottlePreserve)}" >
+					<li>
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.keepyourbottle','product',null)}</h3>
+						<p><isprint value="${pdict.Product.custom.bottlePreserve}" encoding="off"/></p>
+					</li>
+				</isif>
+				<isif condition="${!empty(pdict.Product.custom.closureType)}" >
+					<li class="full-width">
+						<h3 class="gamma-heading">${Resource.msg('product.characteristics.closuretype','product',null)}</h3>
+						<p><isprint value="${pdict.Product.custom.closureType}" encoding="off"/></p>
+					</li>
+				</isif>
+			</ul>
+		</div>
+	
+		<div class="cta-wrap">
+			<a href="" class="button plain js-detail-trigger">
+				<span class="face front js-cta">${Resource.msg('product.characteristics.button.more','product',null)}</span>
+				<span class="face back js-cta">${Resource.msg('product.characteristics.button.more','product',null)}</span>
+			</a>
+		</div>
+	</isif>
+	
+	<iscomment> <p>${Resource.msg('product.characteristics.licenseinformation','product',null)}</p>  </iscomment>
+		

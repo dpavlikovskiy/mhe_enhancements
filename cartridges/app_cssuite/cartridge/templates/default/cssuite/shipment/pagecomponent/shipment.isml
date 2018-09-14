@@ -1,0 +1,200 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude template="cssuite/utils/modules">
+
+<isscript>
+	var _shipment = pdict.shipment;
+	var defaultShipment = _shipment.isDefault();
+</isscript>
+
+
+<div class="shipment-isml_container">
+<table class="listTable" cellpadding="0" cellspacing="0" border="0">
+	<tbody>
+<!--::START:: INLINE SHIPMENT INFO -->
+		<tr class="listTableHeaderLight">
+			<td class="listTableHeaderCell" colspan="6">
+				<div class="pointer" onclick="showShipmentHeader('${_shipment.UUID}_shipment');">
+					Shipment: <isshipmentid p_shipment="${_shipment}">
+					<isif condition="${defaultShipment}">(Default)</isif>
+					<span>Show/Edit</span>
+					<img class="img expand_cell_shipping" id="${_shipment.UUID}_shipment_show" src="${URLUtils.staticURL('/cssuite/images/fam/control_eject_blue_180.png')}" alt="Show more info...">
+					<img class="img expand_cell_shipping" id="${_shipment.UUID}_shipment_hide" src="${URLUtils.staticURL('/cssuite/images/fam/control_eject_blue.png')}" style="display:none;" alt="Hide more info...">
+				</div>
+			</td>
+		</tr>
+
+		<tr>
+			<td class="shippment-isml inline cell" colspan="6" style="height: 0px">
+				<div id="${_shipment.UUID}_shipment" style="display:none;">
+					<table class="shippment-isml inline table">
+						<tr valign="top">
+							<td class="shippment-isml inline left">
+								<span class="label">Shipping Status:</span>
+								<span class="value"><isprint value="${_shipment.getShippingStatus()}"></span><br />
+								<span class="label">Gift:</span>
+								<span class="value"><isprint value="${_shipment.isGift()}"></span><br />
+								<span class="label">Gift Message:</span>
+								<span class="value">
+									<isif condition="${empty(_shipment.getGiftMessage())}">
+										(no gift message entered)
+									<iselse>
+										<isprint value="${_shipment.getGiftMessage()}">
+									</isif>
+								</span><br />
+																<span class="label">Delivery Instruction:</span>
+								<span class="value">
+									<isif condition="${empty(_shipment.custom.deliveryInstructions)}">
+										(no delivery instructions entered)
+									<iselse>
+										<isprint value="${_shipment.custom.deliveryInstructions}">
+									</isif>
+								</span><br/>
+								<span class="label">Requested Delivery Date:</span>
+								<span class="value">
+									<isif condition="${!empty(_shipment.custom.requestedDeliveryDate)}" > 
+           								<isprint value="${_shipment.custom.requestedDeliveryDate}"  formatter="dd MMM YYYY"  />
+       							    </isif>
+								</span><br/>
+
+							</td>
+							<td class="shippment-isml inline right">
+								<span class="label">Ship to:</span><br />
+								<isminiaddress p_address="${_shipment.shippingAddress}">
+							</td>
+						</tr>
+						<tr>
+							<td class="shippment-isml inline editshipment" colspan="2">
+								<input class="button editshipment" name="editShipment" onclick="Dialog.editShipment('${_shipment.getID()}');">
+							</td>
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+<!--::END:: INLINE SHIPMENT INFO -->
+
+<!--::START:: ORDER DETAILS HEADER -->
+		<tr class="listTableHeader">
+			<td class="column-icon-bullet">&nbsp;</td>
+			<td class="ordercolumns product">Product</td>
+			<td class="ordercolumns details">Order Details</td>
+			<td class="ordercolumns discounts">Price &amp; Discounts</td>
+			<td class="ordercolumns qty">Qty.</td>
+			<td class="ordercolumns total">Item Total</td>
+		</tr>
+<!--::END:: ORDER DETAILS HEADER -->
+
+<isloop iterator="${_shipment.getProductLineItems()}" alias="spli" status="loopstatus">
+
+<!--::START:: PRODUCT DETAILS -->
+		<isscript>
+			//is the line item an option?
+			isOption = false;
+			if(spli.parent != null) {
+				isOption = true;
+			}
+			var qty = StringUtils.formatNumber(spli.getQuantity().value,"#");
+		</isscript>
+
+		<tr class="lic_lineItems_${loopstatus.even?'even':'odd'}">
+			<td class="column-icon-bullet"><!--::COLUMN:: ICON-->
+				<isif condition="${!isOption}">
+					<input type="image" src="${URLUtils.staticURL('/cssuite/images/fam/cross.png')}" name="removeLineItem" value="Remove" title="Remove" alt="Remove line item" onclick="Order.removeLineItem_dlg('${spli.UUID}');">
+				</isif>
+			</td>
+			<td class="ordercolumns product" ondblclick="Dialog.showProduct('${spli.getProduct().getID()}');"><!--::COLUMN:: PRODUCT-->
+				<table>
+					<tr>
+						<isif condition="${spli.product && spli.product.getImage('small',0)}">
+							<td style="border-right:none">
+								<img src="${spli.product.getImage('small',0).URL}"/>
+							</td>
+						</isif>
+						<td style="border-right:none; width:100%;">
+							<strong>${spli.productName}</strong><br/>
+							<em>${spli.productID}</em>
+							<isif condition="${spli.product}">
+								<!---<isif condition="${spli.product.shortDescription}">
+									<p>${spli.product.shortDescription}</p>
+								</isif>--->
+
+								<iscomment>variations</iscomment>
+								<isdisplayvariationvalues product="${spli.product}">
+
+					            <isif condition="${spli.optionProductLineItems.size() > 0}">
+									<isloop items="${spli.optionProductLineItems}" var="optionLI">
+										<p><span class="label"><isprint value="${optionLI.productName}"/></span> (<isprint value="${optionLI.adjustedPrice}"/>)</p>
+									</isloop>
+								</isif>
+
+								<isdisplayproductavailability  p_productli="${spli}">
+
+							</isif>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="ordercolumns details"><!--::COLUMN:: DETAILS-->
+				<!--- order detail --->
+			</td>
+
+			<td class="ordercolumns price"><!--::COLUMN:: PRICE -->
+				<isprint value="${spli.getBasePrice()}">
+			</td>
+
+			<td class="ordercolumns qty"><!--::COLUMN:: QTY-->
+				<input type="text" value="${qty}" disabled id="${spli.UUID}" class="qyt_input" />
+				<input id="${spli.UUID}_edit" type="image" value="Edit" onclick="_editfield('${spli.UUID}');" src="${URLUtils.staticURL('/cssuite/images/icon_plus_minus.png')}" />
+				<span id="${spli.UUID}_span" style="display:none;">
+				<input type="image" value="Apply" onclick="_savefield('${spli.UUID}');" src="${URLUtils.staticURL('/cssuite/images/fam/accept.png')}" />
+				<input type="image" value="Cancel" onclick="_hidefield('${spli.UUID}');document.getElementById('${spli.UUID}').value = ${spli.getQuantity().value};" src="${URLUtils.staticURL('/cssuite/images/fam/delete.png')}"/>
+				</span>
+			</td>
+
+			<td class="ordercolumns total"><!--::COLUMN:: PRICE TOTAL-->
+				<isprint value="${spli.getPrice()}">
+	            <isif condition="${spli.optionProductLineItems.size() > 0}">
+					<isloop items="${spli.optionProductLineItems}" var="optionLI">
+						<p>+ <isprint value="${optionLI.adjustedPrice}"/></p>
+					</isloop>
+				</isif>
+			</td>
+		</tr>
+		<!--- rendering price adjustments --->
+		<isif condition="${!empty(spli.priceAdjustments)}">
+			<tr ondblclick="Dialog.showProduct('${spli.getProduct().getID()}');">
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td class="ordercolumns discounts"><!--::COLUMN:: DISCOUNTS-->
+					<isloop iterator="${spli.priceAdjustments}" alias="pa">
+						<p class="bonus"><isprint value="${pa.lineItemText}"></p>
+					</isloop>
+				</td>
+				<td>&nbsp;</td>
+				<td class="ordercolumns total"><!--::COLUMN:: DISCOUNTS-->
+					<isloop iterator="${spli.priceAdjustments}" alias="pa">
+						<p class="bonus"><isprint value="${pa.price}"></p>
+					</isloop>
+				</td>
+			</tr>
+		</isif>
+	</isloop>
+<!--::END:: ORDER DETAILS -->
+
+<!--::START:: SHIPPING AND TOTALS  (INCLUDE FILE **shipment/isshipmenttotals.isml**)-->
+	<div class="orderdetails_shipping_totals">
+		<isshipmenttotals shipment="${_shipment}">
+	</div>
+<!--::END:: SHIPPING AND TOTALS -->
+
+
+
+</tbody>
+</table>
+
+</div>
+
+
+
+
+

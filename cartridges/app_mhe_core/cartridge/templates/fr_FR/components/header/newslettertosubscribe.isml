@@ -1,0 +1,51 @@
+<iscomment>Creative - Replace below ajax call with JQuery AJAX</iscomment>
+ 
+	<div class="newsletter-signup">
+		
+		<h2><p><isprint value="${Resource.msg('newsletter.title','components',null)}"/> 
+	
+		<isprint value="${StringUtils.format(Resource.msg('newsletter.email','components',null),pdict.CurrentCustomer.profile.lastName)}"/>
+		</p></h2>
+		<p><isprint value="${Resource.msg('newsletter.subscription1','components',null)}"/></br>
+		<iscomment>
+		<isprint value="${Resource.msg('newsletter.subscription2','components',null)}"/>
+		</iscomment>
+		
+	<iscomment>		<br><span class="email"><isprint value="${StringUtils.format(Resource.msg('newsletter.email','components',null),pdict.CurrentCustomer.profile.email)}"/></span>
+		</iscomment>
+		</p>
+	
+		<iscomment>Run time error message display if failed to update the newsletter subscription covered in EDM Integration story by DEV Team</iscomment>
+		<iscomment>Creative - close pop-up if newsletterstatus returned as empty in this div </iscomment>
+		<div id="newsublinkerror" class="error" style="display:none"><isprint value="${Resource.msg('newsletter.subscribe.error','components',null)}" /></div>
+		
+		<iscomment>already subscribe message</iscomment>
+		<p>
+			<isif condition="${pdict.CurrentCustomer.profile.custom.isNewsLetterSubscribed}">
+				<isprint value="${Resource.msg('newsletter.alreadysubscribed','components',null)}"/><br>
+				<button class="button secondary clear inspire" name="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('newsletter.sendinformation','components',null)}" disabled="true">
+					<span class="face front"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+					<span class="face back"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+		
+				</button>
+			<iselse>
+				<button id="js-subscribe" class="button secondary clear inspire" name="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('newsletter.sendinformation','components',null)}">
+					<span class="face front"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+					<span class="face back"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+			
+				</button>
+			</isif>
+			
+			<br>
+			<iscomment> 
+			<a id="js-close-newsletter" class="no-subscribe"><isprint value="${Resource.msg('newsletter.dontsendinformation','components',null)}"/></a>
+			</iscomment>
+			<p class="small_text" style="text-align:justify;">
+				En cliquant sur “Oui, je souhaite recevoir les offres spéciales du site et les actualités sur les marques”,  MHD peut partager mes données avec 
+				<a href="${URLUtils.https('Page-Overlay','secid','affiliates-partners')}" target="_blank">les sociétés affiliées de Moët Hennessy</a>
+				pour qu’elles puissent m’envoyer des informations personnalisées concernant les produits, nouveautés et services par e-mail (je consens à l’utilisation de balises web pour mesurer mon interaction avec les contenus),
+				<br />
+				Vous pouvez revenir à tout moment sur vos consentements en nous envoyant un e-mail à <a href="mailto:mhselection@mhdfrance.fr">mhselection@mhdfrance.fr</a> ou en utilisant le mécanisme de désinscription présent dans les communications envoyées.
+			</p>
+		</p>
+	</div>

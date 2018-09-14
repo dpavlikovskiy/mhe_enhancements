@@ -1,0 +1,161 @@
+<isdecorate template="search/pt_productsearchresult_content">
+	<isscript>
+		importScript("product/ProductUtils.ds");
+		var compareEnabled = false;
+		if (!empty(pdict.CurrentHttpParameterMap.cgid.value)) {
+			compareEnabled = ProductUtils.isCompareEnabled(pdict.CurrentHttpParameterMap.cgid.value);
+		} 
+	</isscript>
+	
+	<iscomment>
+		Use the decorator template based on the requested output. If
+		a partial page was requested an empty decorator is used.
+		The default decorator for the product hits page is
+		search/pt_productsearchresult.
+	</iscomment>
+	
+	<iscache type="relative" minute="30" varyby="price_promotion"/>
+	
+	<isinclude template="util/modules"/>
+	
+	<iscomment>
+		Configured as default template for the product search results.
+		Displays a global slot with static html and the product search
+		result grid.
+	</iscomment>
+	
+	<iscomment>create reporting event</iscomment>
+	<isinclude template="util/reporting/ReportSearch.isml"/>
+	
+	<iscomment>suggest similar search phrase below the breadcrumb</iscomment>
+	<isif condition="${!empty(pdict.ProductSearchResult.getSuggestedSearchPhrase())}">
+		<p class="did-you-mean">
+			${Resource.msg('search.nohits.didyoumeanex','search',null)}
+			<a href="<isprint value="${URLUtils.http('Search-Show','q',pdict.ProductSearchResult.suggestedSearchPhrase)}"/>"><isprint value="${pdict.ProductSearchResult.suggestedSearchPhrase}"/></a>
+		</p>
+	</isif>
+	<isset name="plpPageName" value="${Resource.msg('pagename.plp','components',null)}" scope="page" />
+	<iscomment>
+		Render promotional content at the top of search results as global slot.
+		This content is only displayed if the search result is refined by a category.
+		If the search result is not refined by a category a global default is displayed.
+	</iscomment>
+		
+	<div class="content-slot slot-grid-header">
+		<isif condition="${!empty(pdict.ProductSearchResult.category)}">
+			<isslot id="cat-banner" context="category" description="Category Banner" context-object="${pdict.ProductSearchResult.category}"/>
+		<iselse>
+			<isslot id="search-result-banner" description="Promotional Search Result Banner" context="global"/>
+		</isif>
+	</div>
+	
+	<iscomment>
+		Render the filters beneath the header image
+	</iscomment>
+	
+	<button id="js-show-filters" class="button secondary show-filters">
+       	<span class="face front">${Resource.msg('plp.filter.button','search',null)}</span>
+       	<span class="face back">${Resource.msg('plp.filter.button','search',null)}</span>
+    </button>
+    
+    <div class="search-result-options" id="js-sort-options">
+     
+		<iscomment>sort by</iscomment>
+		<isproductsortingoptions productsearchmodel="${pdict.ProductSearchResult}" pagingmodel="${pdict.ProductPagingModel}" uniqueid="grid-sort" pagetype="${plpPageName}" />
+			
+	</div>
+	
+	<div class="filters refinements" id="js-product-filters">
+		<isinclude template="search/components/productsearchrefinebar"/>
+		<div class="filters-buttons">
+			<button class="button secondary plain clear">
+	        	<span class="face front">${Resource.msg('productcomparewidget.clearall','search',null)}</span>
+	        	<span class="face back">${Resource.msg('productcomparewidget.clearall','search',null)}</span>
+	    	</button>
+	    	<button class="button secondary close">
+	        	<span class="face front">${Resource.msg('productcomparewidget.filterresults','search',null)}</span>
+	        	<span class="face back">${Resource.msg('productcomparewidget.filterresults','search',null)}</span>
+	    	</button>
+    	</div>
+	</div>
+	
+	<isif condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+
+		<div class="search-result-options">
+			
+			<iscomment>pagination</iscomment>
+			<ispaginginformation pagingmodel="${pdict.ProductPagingModel}" pageurl="${pdict.ProductSearchResult.url('Search-Show')}" uniqueid="grid-paging-footer"/>
+			<ispagingbar pageurl="${pdict.ProductSearchResult.url('Search-Show')}" pagingmodel="${pdict.ProductPagingModel}"/>
+			
+		</div>
+	</isif>
+		
+	<isif condition="${!pdict.ProductSearchResult.refinedSearch && !empty(pdict.ContentSearchResult) && pdict.ContentSearchResult.count > 0}">
+		
+		<div class="search-result-bookmarks">
+			${Resource.msg('topcontenthits.yoursearch','search',null)}
+			<a href="${'#results-products'}" class="first">${Resource.msg('search.producthits.006','search',null)}</a>
+			<a href="${'#results-content'}">${Resource.msg('topcontenthits.goto','search',null)}</a>
+		</div>
+		
+		<h1 class="content-header" id="results-products">${Resource.msgf('search.producthitscount','search',null,pdict.ProductSearchResult.count)}</h1>
+		
+	</isif>
+	
+	<isscript>
+		var selectedString = 'selected="selected"';
+	</isscript>
+
+	<isif condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+		
+		<div class="search-result-content">
+			<iscomment>Slots appearing between the product tiles</iscomment>
+			<div class="content-slot">
+				<isslot id="PLP_Promo1" context="category" description="Category Promo One Slot" context-object="${pdict.ProductSearchResult.category}"/>
+			</div>
+			<div class="content-slot">
+				<isslot id="PLP_Promo2" context="category" description="Category Promo Two Slot" context-object="${pdict.ProductSearchResult.category}"/>
+			</div>
+			<div class="content-slot">
+				<isslot id="PLP_Promo3" context="category" description="Category Promo Three Slot" context-object="${pdict.ProductSearchResult.category}"/>
+			</div>
+			<div class="content-slot">
+				<isslot id="PLP_Promo4" context="category" description="Category Promo Four Slot" context-object="${pdict.ProductSearchResult.category}"/>
+			</div>
+			<div class="content-slot">
+				<isslot id="PLP_Promo5" context="category" description="Category Promo Five Slot" context-object="${pdict.ProductSearchResult.category}"/>
+			</div>
+			<isproductgrid pagingmodel="${pdict.ProductPagingModel}" category="${pdict.ProductSearchResult.category}" pagetype="${plpPageName}" />
+		</div>
+
+		<iscomment>show top content hits</iscomment>
+		<isif condition="${!pdict.ProductSearchResult.refinedSearch && !empty(pdict.ContentSearchResult) && pdict.ContentSearchResult.count > 0}">
+			
+			<h1 class="content-header" id="results-content">${Resource.msgf('topcontenthits.articlesfound','search',null,pdict.ContentSearchResult.count)}</h1>
+			
+			<div class="search-results-content">
+				<isinclude template="search/topcontenthits"/>
+			</div>
+			
+		</isif>
+						        
+	<iselse>
+
+		<iscomment>display no results</iscomment>
+		<div class="no-results">
+			${Resource.msg('productresultarea.noresults','search',null)}
+		</div>
+
+	</isif>
+	
+  	<iscomment> 
+		################################ FOR UI Developers ################################
+		# Use this attribute (enableParallyax) to enable/disable Packery on the page #
+		################################ FOR UI Developers ################################
+	</iscomment>
+	<isset name="enablePackery" value="${!('enableCEOnPLP' in dw.system.Site.current.preferences.custom) || !dw.system.Site.current.preferences.custom.enableCEOnPLP}" scope="page" />
+	<iscomment>FOR ID team : An Example to show how to use the attribute in data
+	<div class="back-top" data-back-to-top='{"particleClass":${enablePackery}}'></div>
+	</iscomment>
+
+</isdecorate>

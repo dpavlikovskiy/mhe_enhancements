@@ -1,0 +1,331 @@
+/**
+* This script performes a file operation for a given file. 
+* If the file doesn't exist or the operation failed, it takes the error exit.
+*
+* @input URL : String URL of remote location
+* @input PATH : String PATH of remote location
+* @input User : String Name of the user
+* @input Password : String Password
+* @input Action : String The operation that should be performed on the file - DELETE, ZIP, UNZIP
+*
+* @output Status : Object Status of the response
+*/
+importPackage( dw.net );
+importPackage( dw.system );
+importPackage( dw.util );
+
+function execute( args : PipelineDictionary ) : Number
+{
+
+	var url : String = args.URL;
+	var user : String = args.User;
+	var password : String = args.Password;
+	var path : String = args.PATH;
+	var action : String = args.Action;
+	
+	if ( url.lastIndexOf('/') != url.length-1 ) {
+		url += '/';
+	}
+	
+	var status : Status = null;
+
+	if ( empty(url) ) {
+		status = new Status( Status.ERROR, 'URL not specified');
+	} else {
+		if ( url.indexOf( "sftp://" ) == 0 ) {
+			status = performSFTPOperation(action, url, path, user, password);
+		} else if ( url.indexOf( "ftp://" ) == 0 ) {
+			status = performFTPOperation(action, url, path, user, password);
+		} else {
+			status = performWebDAVOperation(action, url, path, user, password);
+		}
+	}		
+	args.Status = status;
+    return PIPELET_NEXT;
+}
+
+function performSFTPOperation( action : String, url : String, remotePath : String, user : String, password : String ) : Status {
+	
+	var supportedActions : Array = [ 'DELETE' ];
+	var currentAction : String = action;
+	
+	if ( !currentAction ) {
+    	return new Status( Status.ERROR, 'No action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+	currentAction = currentAction.toUpperCase();
+	if ( supportedActions.indexOf(currentAction) == -1 ) {
+    	return new Status( Status.ERROR, 'Invalid action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'ListRemoteFolder: Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'ListRemoteFolder: Parameter password empty (required for SFTP)' );
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'ListRemoteFolder: Parameter RemoteFolderURL not recognized, RemoteFolderURL: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var sftpClient : SFTPClient = new SFTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = sftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = sftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+    	return new Status( Status.ERROR, 'ListRemoteFolder: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+    	return new Status( Status.ERROR, 'ListRemoteFolder: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + sftpClient.errorMessage );
+	}
+	try{
+		switch ( currentAction ) {
+			case 'DELETE': 
+							var fileInfo : SFTPFileInfo = sftpClient.getFileInfo(path);
+							if ( empty(fileInfo) ) {
+								return new Status( Status.ERROR, 'Directory/File cannot be accessed!' );
+							} else if( !fileInfo.directory ) {
+								if ( !sftpClient.del(path) ) {
+									return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be deleted! Server Message:' + sftpClient.errorMessage );
+								}
+							} else {
+								var fileInfos : Array = sftpClient.list(path);
+								if ( !empty(fileInfos) ) {
+									for each ( var fileInfo : SFTPFileInfo in fileInfos) {
+										if ( fileInfo.name == '.' || fileInfo.name == '..' ) {
+											continue;
+										}
+										var currentPath : String = [path, fileInfo.name].join('/');
+										if ( fileInfo.directory ) {
+											var status : Status = performSFTPOperation( action, url, currentPath, user, password );
+											if ( status.error ) {
+												return status;
+											}
+										} else {
+											if ( !sftpClient.del(currentPath) ) {
+												return new Status( Status.ERROR, 'The file/directory \'' + currentPath + '\' couldn\'t be deleted!' );
+											} 
+										}
+									}
+									if ( !sftpClient.removeDirectory(path) ) {
+										return new Status( Status.ERROR, 'The file/directory \'' + currentPath + '\' couldn\'t be deleted!' );
+									}
+								} 
+							}
+							return new Status( Status.OK, 'OK');
+							break;
+		}
+		
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (SFTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( sftpClient.connected ) {
+			sftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+function performFTPOperation( action : String, url : String, remotePath : String, user : String, password : String ) : Status {
+
+	var supportedActions : Array = [ 'DELETE' ];
+	var currentAction : String = action;
+	
+	if ( !currentAction ) {
+    	return new Status( Status.ERROR, 'No action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+	currentAction = currentAction.toUpperCase();
+	if ( supportedActions.indexOf(currentAction) == -1 ) {
+    	return new Status( Status.ERROR, 'Invalid action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for SFTP)' );
+    }
+
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for FTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for FTP)' );
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): File URL not recognized: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var ftpClient : FTPClient = new FTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = ftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = ftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ftpClient.replyMessage );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ( ftpClient.replyMessage ? ftpClient.replyMessage : ' timeout(??).' ) );
+	}
+	
+	try{
+		switch ( currentAction ) {
+			case "DELETE":
+							var fileInfos : Array = ftpClient.list(path);
+							if ( fileInfos.length > 0 ) {
+								var removeDirectory : Boolean = false;
+								for each ( var fileInfo : FTPFileInfo in fileInfos ) {
+									var currentPath : String = [path, fileInfo.name].join('/');
+									if ( fileInfo.directory ) {
+										var status : Status = performFTPOperation( action, url, currentPath, user, password );
+										if ( status.error ) {
+											return status;
+										}
+									} else {
+										removeDirectory = path != fileInfo.name;
+										if ( !ftpClient.del( path != fileInfo.name ? currentPath : path ) ) {
+											return new Status( Status.ERROR, 'The file/directory \'' + fileInfo.name + '\' couldn\'t be deleted!' );
+										} 
+									}
+								}
+								if ( removeDirectory && !ftpClient.removeDirectory(path) ) {
+									return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be deleted!' );
+								} 
+							} else {
+								//assuming that this is an empty directory
+								if ( !ftpClient.removeDirectory(path) ) {
+									return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be deleted!' );
+								}
+							} 
+							break;
+		}
+		return new Status( Status.OK, 'OK');
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (FTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( ftpClient.connected ) {
+			ftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+function performWebDAVOperation( action : String, url : String, path : String, user : String, password : String ) : Collection
+{
+	var supportedActions : Array = [ 'DELETE' ];
+	var currentAction : String = action;
+	
+	if ( !currentAction ) {
+    	return new Status( Status.ERROR, 'No action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+	currentAction = currentAction.toUpperCase();
+	if ( supportedActions.indexOf(currentAction) == -1 ) {
+    	return new Status( Status.ERROR, 'Invalid action provided! Please use ' + supportedActions.join(', ') + '!' );
+	}
+
+	var webDAVClient : WebDAVClient;
+	var remoteFolderURL : String =  (url + ( path ? path : '/' )).replace(/\s/g, '%20');
+	
+	if ( !empty( user ) && !empty( password ) ) {
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, user, password );
+	} else {
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	var files : Array;
+	
+	try {
+		// remoteFolderURL already contains full reference to folder, no path to append, we pass ""
+		// The default depth of 1 makes propfind return the current folder AND files in that folder.
+		files = webDAVClient.propfind( "" );
+	} catch ( ex ) {
+		var exception = ex;
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );
+	}
+	
+	if ( !webDAVClient.succeeded() ) {
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );
+	}
+	
+	//actual action
+	try {
+		switch ( currentAction ) {
+			case "DELETE":
+							if ( !webDAVClient.del("") ) {
+								return new Status( Status.ERROR, 'The file/directory \'' + remoteFolderURL + '\' couldn\'t be deleted!' );
+							}
+							break;
+		}
+	} catch( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (WebDAV): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		webDAVClient.close();
+	}
+	
+	return;
+}

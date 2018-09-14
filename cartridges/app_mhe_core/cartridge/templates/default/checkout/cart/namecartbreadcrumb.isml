@@ -1,0 +1,2 @@
+	<isset name="cartnav"  value="${pdict.CurrentCustomer.profile.salutation +' ' + pdict.CurrentCustomer.profile.title+' '+ pdict.CurrentCustomer.profile.lastName+Resource.msg('pt_cart.breadcrumb','checkout',null)}" scope="page"/>
+	

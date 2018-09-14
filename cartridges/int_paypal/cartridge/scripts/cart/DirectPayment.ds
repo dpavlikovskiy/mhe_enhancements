@@ -1,0 +1,235 @@
+/**********************************************************************************************************************************************************************************************
+*
+* TITLE:  
+*
+*	Direct Payment
+*
+* DESCRIPTION:
+*
+*	Payment system that accepts and processes credit cards through a business PayPal account
+*
+* INPUT PARAMETERS:
+*
+*	@input Basket : dw.order.Basket The current Basket (which the order is created from)
+* 	@input PaymentProcessor : dw.order.PaymentProcessor The needed payment processor.
+* 	@input CCPaymentInstrument : dw.order.PaymentInstrument The needed payment instrument.
+* 	@input OrderNo : String Order Number
+* 	@input CreditCardCVN : String Order Number
+* 	@input IPAddress : String IP address of the machine
+* 	@input ButtonSource : String Flow - PayPal payment source
+* 	@input currentCustomerAuthenticated : Boolean 
+* 	@input creditCardNumberGuest : String
+* 	@input setFraudAlert : Boolean 
+*
+* OUPUT PARAMETERS:
+*
+* 	@output TransactionID : String The returned token from Paypal
+* 	@output TransactionToken : String The returned token from Paypal
+* 	@output Error : Object The Error object
+* 	@output PaypalError : String If a Paypal call fails or doesn't return Success
+* 	@output ReturnCode : Number The returned token from Paypal
+* 	@output AvailFuncs  : dw.util.ArrayList
+* 	@output WSResponse : Object
+* 
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.rpc );
+
+importScript("int_paypal:cart/Credentials.ds");
+importScript("int_paypal:cart/WsUtil.ds");
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var paymentProcessor : PaymentProcessor  = pdict.PaymentProcessor;
+	var paymentInstrument : PaymentInstrument  = pdict.CCPaymentInstrument;
+
+	if( basket == null )
+	{
+		Logger.error("Please provide a Basket!");
+		return PIPELET_ERROR;
+	}
+
+	try
+	{
+		Logger.debug("Entering Paypal Direct Payment --------------------");
+		var paypalDirectPayment : WebReference = webreferences.PayPalSvcDev;
+		
+		if (dw.system.System.getInstanceType() == dw.system.System.PRODUCTION_SYSTEM) 
+		{
+			paypalDirectPayment = webreferences.PayPalSvc;
+		}
+
+		var ppxService : Stub = paypalDirectPayment.getService("PayPalAPIInterfaceService", "PayPalAPIAA");
+		
+		//List of all the methods provided by the web service;
+		pdict.AvailFuncs = getAvailableFunctions(ppxService);
+		
+		// security header
+		SetCredentials( paymentProcessor, ppxService );
+
+		var directPaymentDetails = new paypalDirectPayment.DoDirectPaymentRequestDetailsType();
+		//Payment Action Authorization/Sale
+		directPaymentDetails.setPaymentAction(paypalDirectPayment.PaymentActionCodeType.Sale);
+		
+		//Set IP Address
+		directPaymentDetails.setIPAddress(pdict.IPAddress);
+		
+		//Get Fraud Alert Results
+		directPaymentDetails.setReturnFMFDetails(pdict.setFraudAlert);
+
+		//CreditCard - setting up credit card information;
+		var creditcard = new paypalDirectPayment.CreditCardDetailsType();
+		var creditcardOwner = new paypalDirectPayment.PayerInfoType();
+		var creditcardOwnerName = new paypalDirectPayment.PersonNameType();
+		
+		//Splitting the credit card holder's name
+		var strArray : Array = paymentInstrument.creditCardHolder.split(" ");
+		if (strArray.length == 2)
+		{
+			creditcardOwnerName.setFirstName( strArray[0] );
+			creditcardOwnerName.setLastName( strArray[1] );
+		} 
+		else if (strArray.length == 3)
+		{
+			creditcardOwnerName.setFirstName( strArray[0] );
+			creditcardOwnerName.setMiddleName( strArray[1] );
+			creditcardOwnerName.setLastName( strArray[2] );
+		} 
+		else 
+		{
+			creditcardOwnerName.setFirstName( paymentInstrument.creditCardHolder );
+			creditcardOwnerName.setLastName( paymentInstrument.creditCardHolder );
+		}
+		
+		creditcardOwner.setPayerName(creditcardOwnerName);
+		creditcardOwner.setPayerBusiness( paymentInstrument.creditCardHolder ); //Payer's Business Name
+		
+		var address = new paypalDirectPayment.AddressType();
+		var billingAddress : OrderAddress = basket.getBillingAddress();
+		address.setStreet1( billingAddress.getAddress1() );
+		address.setStreet2( billingAddress.getAddress2() );
+		address.setCityName( billingAddress.getCity() );
+		address.setStateOrProvince( billingAddress.getStateCode() );
+		address.setCountry(paypalDirectPayment.CountryCodeType.fromString( billingAddress.getCountryCode() ));
+		address.setPostalCode( billingAddress.getPostalCode() );
+		address.setPhone( billingAddress.phone);
+		creditcardOwner.setAddress(address);
+		
+		creditcard.setCardOwner(creditcardOwner);
+
+		//CreditCard type - AMEX, Discover, Mastercard, Visa, Maestro, Solo
+		//CreditCard type - For canada only Mastercard, Visa is allowed
+		//CreditCard type - For Mastero and Solo curreny id must be GBP. In addition either StartMonth and StartYear or Issue number must be specified
+		
+		creditcard.setCreditCardType( paypalDirectPayment.CreditCardTypeType.fromString(paymentInstrument.creditCardType) );
+		creditcard.setCreditCardNumber( paymentInstrument.creditCardNumber );
+		
+		if (!pdict.currentCustomerAuthenticated)
+		{
+			creditcard.setCreditCardNumber( pdict.creditCardNumberGuest );
+		}
+		
+		creditcard.setExpMonth( paymentInstrument.creditCardExpirationMonth );
+		creditcard.setExpYear( paymentInstrument.creditCardExpirationYear );
+		creditcard.setCVV2( pdict.CreditCardCVN );
+		directPaymentDetails.setCreditCard(creditcard);
+		
+
+		//Payment Details
+		var paymentDetails = new paypalDirectPayment.PaymentDetailsType();
+		var amount = new paypalDirectPayment.BasicAmountType( basket.totalGrossPrice );
+		amount.currencyID = paypalDirectPayment.CurrencyCodeType.fromString( basket.getCurrencyCode() );
+		paymentDetails.setOrderTotal(amount);
+		paymentDetails.setOrderDescription(pdict.OrderNo);
+		//Order total cannot be more than 10,000 USD in any curreny
+		
+       	//Button Source ButtonSource
+ 		paymentDetails.setButtonSource( pdict.ButtonSource ); 
+		
+		//set details to main call
+		directPaymentDetails.setPaymentDetails(paymentDetails); //** main message
+
+		//set all the values for direct payment values to the request object
+		var directPaymentRequest = new paypalDirectPayment.DoDirectPaymentRequestType();
+		directPaymentRequest.setVersion("56.0");
+		directPaymentRequest.setDoDirectPaymentRequestDetails(directPaymentDetails);
+		
+		var req = new paypalDirectPayment.DoDirectPaymentReq(directPaymentRequest);
+		
+		var response = ppxService.doDirectPayment( req );
+
+		pdict.WSResponse = response;
+		
+		pdict.TransactionToken = " - " + response.getAck();
+
+		Logger.debug('Ack  -- ' + response.getAck().toString() );
+		
+		if( response.getAck() != null && ( response.getAck().equals(paypalDirectPayment.AckCodeType.Success) || response.getAck().equals(paypalDirectPayment.AckCodeType.SuccessWithWarning))) 
+		{
+			var transactionId : String = response.getTransactionID();
+			pdict.TransactionID = transactionId;
+			pdict.ReturnCode = 1; 
+			
+			//Get Fraud Alert Results
+			if (pdict.setFraudAlert) 
+			{
+				var fmfDetails = response.getFMFDetails();
+				Logger.debug('getFMFDetails  --' + fmfDetails );
+				
+				if (fmfDetails != null) 
+				{
+					Logger.debug('AcceptFilters   --' + fmfDetails.getAcceptFilters() );
+					Logger.debug('DenyFilters     --' + fmfDetails.getDenyFilters() );
+					Logger.debug('PendingFilters  --' + fmfDetails.getPendingFilters() );
+					Logger.debug('ReportsFilters  --' + fmfDetails.getReportsFilters() );
+				}
+			}
+			
+		} 
+		else 
+		{
+			//Uncomment the following if you need more debugging tools
+				/*Logger.debug('looping thru response object  -- ');
+				for (i in response)
+				{
+	  				Logger.debug("object has property -- " + i);
+				}
+				Logger.debug('looping thru error object in response object  -- ');
+				for (j in response.getErrors() )
+				{
+	  				Logger.debug("object has property ------- " + j);
+				}
+				Logger.debug('Corelation ID  --' + response.correlationID );
+				Logger.debug('Ack response  --' + response.getAck().toString());
+				Logger.debug('Error Message Short Message  -- ' + response.getErrors()[0].getShortMessage() );
+				Logger.debug('Error Message Long Message  -- ' + response.getErrors()[0].getLongMessage() );
+				Logger.debug('Error Message ErrorCode  -- ' + response.getErrors()[0].getErrorCode() );
+				*/
+			
+			pdict.ReturnCode = new Number(response.getErrors()[0].getErrorCode().toString()); 
+			pdict.PaypalError = response.getErrors()[0].getLongMessage() + " (" + response.getErrors()[0].getErrorCode() + ")" + "-(" + response.correlationID + ")";
+		}
+	}
+	catch(e)
+	{
+		Logger.debug('Error Message  --' + e.message);
+		if(e instanceof Fault)
+		{
+			Logger.error("Actor " + e.faultActor+" caused fault '"+e.faultCode +"' ("+e.faultString+" - "+e.faultDetail+")");
+		}
+		else
+		{
+			Logger.error(e.toString());
+		}
+		pdict.ReturnCode = -1;
+		pdict.Error = e;
+		pdict.PaypalError = e.message;
+		return PIPELET_ERROR;
+	}
+
+	Logger.debug("Exiting Paypal Direct Payment --------------------");
+    return PIPELET_NEXT;
+}

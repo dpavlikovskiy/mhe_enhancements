@@ -1,0 +1,31 @@
+// =============================================================================
+// Edit Address
+// =============================================================================
+
+.account-module-editaddress {
+	padding:0;
+	width:595px;
+	overflow:hidden;
+	h1 {
+		font-size:16px;
+		text-align:center;
+		font-family:$fixed-font-family;
+		text-transform:uppercase;
+		font-weight:700;
+		letter-spacing:3px;
+	}
+	p {
+		font-size:15px;
+		padding:0 120px;
+		text-align:center;
+	}
+	.account-submit {
+		margin:30px;
+		text-align:left;
+		padding-left:170px;
+	}
+	.errors-total {
+		top:0;
+		margin:0 32px 16px;
+	}
+}

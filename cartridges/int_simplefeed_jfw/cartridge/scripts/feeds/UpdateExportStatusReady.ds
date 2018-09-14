@@ -1,0 +1,35 @@
+/**
+* The Script will update EXPORT_STATUS of orders passed as Iterator to EXPORT_STATUS_READY.
+*
+* @input  OrdersList : dw.util.Iterator  Iterator of Order collection.
+*
+*/
+importPackage( dw.system );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var orderList : dw.util.Iterator = args.OrdersList;
+	var failedOrders : String = "";
+	var order : dw.order.Order = null;	
+	while(orderList.hasNext())
+	{
+		try
+		{
+			order= orderList.next();
+			order.setExportStatus(dw.order.Order.EXPORT_STATUS_READY);
+			cvLogger.debug( "Order No : " + order.getOrderNo() );
+		}
+		catch ( ex )
+		{   
+			failedOrders=failedOrders.concat(order.getOrderNo()+",");
+		}
+	}
+	//order failed to set as READY FOR EXPORT
+     if(!empty(failedOrders)) {
+		cvLogger.error("Following Orders failed to set as READY FOR EXPORT"+failedOrders);
+		return PIPELET_ERROR;
+     }
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,35 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<isinclude template="util/modules"/>
+<head>
+	<iscomment>Include all important information globally , e.g. meta-data, link information, and javascript.</iscomment>
+	<isinclude template="components/header/htmlhead"/>
+	<iscomment>Script for Google APIs:</iscomment>
+	<link rel="canonical" href="${URLUtils.http('Stores-Find')}"/>	
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('DP'))}">
+		<link rel="alternate" href="${URLUtils.http('Stores-Find')}"  hreflang="${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}" />
+	</isif>
+	<isinclude template="storelocator/components/googlescript"/>
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+<body>
+<div id="container" class="pt-storelocator">
+<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+	<div id="main" class="page-content">
+	
+		<isbreadcrumbs bcurl1="${URLUtils.url('Stores-Find')}" bctext1="${Resource.msg('storelocator.enjoyat.message','storelocator',null)}"/>	
+		<iscomment>Creative-show/hide of the storename on click on store detail link </iscomment>
+		<section id="content" class="storesContentArea">			
+			<isreplace/>
+		</section><!-- END: content -->
+	</div><!-- END: main -->
+	<isinclude template="components/footer/footer"/>
+</div><!-- END: container -->
+</body>
+</html>

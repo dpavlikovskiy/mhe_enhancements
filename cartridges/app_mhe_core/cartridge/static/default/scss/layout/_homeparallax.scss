@@ -1,0 +1,50 @@
+// =============================================================================
+// Parallax Homepage Layout Styles
+// =============================================================================
+
+.homePage {
+	.row {
+		margin-left: 0;
+		margin-right: 0;
+		z-index:1;
+		.col {
+			overflow: hidden;
+			padding-left: 0;
+			padding-right: 0;
+			img.homeBadge{
+				height: auto;
+			    right:50px;
+			    position: absolute;
+			    top: 92px;
+			    width: 120px;
+			}
+		}
+	}
+	// Auto Scroll to position if Hero is visible ------------------
+	.scroll-to {
+		position: absolute;
+		width: 100%;
+		height: 500px;
+		&.one {
+			top: 0;
+		}
+		&.two {
+			top: 500px;
+		}
+	}
+}
+
+
+
+// Touch devices
+
+.touch {
+	.homePage {
+		.header {
+			position: relative;
+		}
+		.main {
+			padding-top: 0;
+		}
+	}
+}

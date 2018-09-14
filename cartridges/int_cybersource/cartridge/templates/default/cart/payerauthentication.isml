@@ -1,0 +1,47 @@
+<isdecorate template="checkout/pt_checkout"/>
+<isinclude template="util/modules"/>
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<isif condition="${!pdict.CurrentForms.multishipping.entered.value}">
+   	<ischeckoutprogressindicator step="3" multishipping="false" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+<iselse>
+	<ischeckoutprogressindicator step="4" multishipping="true" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+</isif>
+
+<div class="leftSide">
+
+	<div class="checkHeader">
+		<h1>${Resource.msg('pt_checkout.breadcrumb.cardauth','checkout',null)}</h1>
+		<h3>${Resource.msg('checkoutprogressindicator.step3','checkout',null)} ${Resource.msg('checkoutprogressindicator.placeorder','checkout',null)}</h3>
+		<p class="normal">${Resource.msg('enter_bank_details','checkout',null)}</p>
+	</div>
+	
+	<div class="payerauth" style="background:white" id="payerauth">
+		<div class=processing>
+			${Resource.msg('cart.payerauthentication.001','cart','')}
+		</div>
+		<div class="message">
+			${Resource.msg('cart.payerauthentication.002','cart','')}
+		</div>
+		<iframe name="PAFrame" width="400" height="500" src="" style="border: none;">${Resource.msg('cart.payerauthentication.003','cart','')}</iframe>
+		<form action="${pdict.AcsURL}" method="POST" name="PAInfoForm" target="PAFrame">
+			<input type="hidden" name="TermUrl" value="${URLUtils.httpsContinue()}">
+			<input type="hidden" name="PaReq" value="${pdict.PAReq}">
+			<input type="hidden" name="MD" value="${pdict.CurrentSession.sessionID}">
+		</form>
+		<script language="javascript">
+			var loaded = false;
+			function load(){
+				document.PAInfoForm.submit();
+				loaded = true;
+			}
+			load();
+		</script>
+	</div>
+</div>
+	
+<div class="rightSide reviewModules">
+	<iscontentasset aid="cs-contact-number"/>			
+</div>
+
+</isdecorate>

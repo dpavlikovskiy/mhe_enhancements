@@ -1,0 +1,73 @@
+.ePageNav{
+	text-align:center;
+	font-family:$titleFont;
+	font-size:$smaller_heading;
+	text-transform:uppercase;
+	font-weight:normal;
+	line-height:30px;
+	min-height:33px; 
+	li{
+		@include inline-block;
+		margin:0 15px;
+		a{
+			color:$rollOverNav;
+			display:block;
+			font-size: $smaller_heading;
+			letter-spacing: 3px;
+			font-weight:$bold;
+			:hover, :focus{
+				color:$brandcolor;
+			}
+		}
+		&.active{
+			a{
+				color:$brandcolor;
+				border-bottom:3px solid $brandcolor;
+			}
+		}
+	}
+}
+
+	.bmValue{
+		display:none;
+	}
+
+.static-offer{
+	.header{
+		background:$white;
+		@include box-shadow(0 0 0);
+		position:fixed;
+		width:100%;
+		top:0;
+		header{
+			padding:10px 0 0;
+			height:93px; 
+			width: 1280px;
+			background-color:$black;
+			border-bottom: 1px solid $brandcolor;
+			
+			.header_right {
+				top: 66px;
+				
+				.mini-cart-total {
+					margin-top: 10px !important;
+					font-size: $small_text;
+					font-weight: $bold;
+					font-family: $titleFont;
+					letter-spacing:0px;
+					
+					.mini-cart-label {
+						color: $brandcolor;
+					}
+					.mini-cart-link {
+						color: $brandcolor;
+					}
+				}
+				.mini-cart-content {
+					top: 12px;
+				}
+			}
+		}
+	}
+	
+}

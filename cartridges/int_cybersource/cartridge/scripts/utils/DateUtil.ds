@@ -1,0 +1,29 @@
+/**
+* Script used for formating date in the special format of   "Monday 1st Nov 2013","Tuesdat 2nd Nov 2013","Wednesday 3rd Nov 2013","Thursdat 4th Nov 2013" etc.
+*
+*/
+importPackage( dw.system );
+importPackage(dw.util);
+
+//get Date in string format from the TimeStamp
+function getDate ( calenderObj : dw.util.Calendar ) : String {
+	var returnDate : String = dw.util.StringUtils.formatCalendar(calenderObj, "yyyy-MM-dd");
+	return returnDate;
+}
+//get Time in string format from the TimeStamp 
+function getTime ( calenderObj : dw.util.Calendar ) : String {
+	var returnTime : String = dw.util.StringUtils.formatCalendar(calenderObj, "HH:mm:ss");
+	return returnTime;
+}
+
+// subtract the given minutes from the given date and return modified date
+function subtractMinutesFromDate(date: Date, minutes : Number) : Date {	
+	var newDateTime : Number = date.getTime() - (minutes * 60 * 1000); // convert minutes into milliseconds	
+	return new Date(newDateTime);
+}
+
+// Return the difference between two days, in hours
+function getDifferenceBetweenDates(dateStart: Date, dateEnd: Date) : Number {	
+	var newDateTime : Number = dateEnd.getTime() - dateStart.getTime(); // convert minutes into milliseconds	
+	return (newDateTime / (1000 * 60 * 60)); //	convert milliseconds into hours
+}

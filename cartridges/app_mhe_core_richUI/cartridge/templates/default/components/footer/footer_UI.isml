@@ -1,0 +1,13 @@
+<iscomment>jQuery UI 1.8.15 as minified version</iscomment>
+
+<iscomment>third-party add-ons</iscomment>
+<script type="text/javascript"><isinclude template="resources/appresources"/></script>
+<script type="text/javascript" src="${URLUtils.absStatic('js/allinone.js')}"></script>
+<isif condition="${!('pageContext' in this) || empty(pageContext)}">
+<isscript>pageContext = new Object();</isscript>
+</isif>
+<script>app.page.setContext(<isprint value="${JSON.stringify(pageContext)}" encoding="off"/>);</script>
+<script>
+var meta = "${pdict.CurrentPageMetaData.description}";
+var keywords = "${pdict.CurrentPageMetaData.keywords}";
+</script>

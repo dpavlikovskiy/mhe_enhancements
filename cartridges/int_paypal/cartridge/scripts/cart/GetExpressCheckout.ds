@@ -1,0 +1,227 @@
+/**********************************************************************************************************************************************************************************************
+*
+* TITLE:  
+*
+*	Get Express Checkout
+*
+* DESCRIPTION:
+*
+*	After valid returning from Paypal page we read the necessary parameters for
+* 	shipping, billing etc.
+*
+* INPUT PARAMETERS:
+*
+*	@input Basket : dw.order.LineItemCtnr The current Basket (which the order is created from).
+* 	@input PaypalToken : String the returned token from Paypal's SetExpressCheckout call.
+* 	@input PaymentProcessor : dw.order.PaymentProcessor The needed paymentprocessor.
+* 	@input PaypalOrigination : String Field to denote where the Paypal processing was originated.
+* 	@input GetBillingAddrFromPP : Boolean Flag to get Billing address from PayPal
+* 	@input PaymentAction : String PayPal payment action (Sale, Order)
+*
+* OUPUT PARAMETERS:
+*
+* 	@output Error : Object The Error object.
+* 	@output PpPayerID : String The Paypal Payer's ID.
+* 	@output PaypalError : String If a Paypal call fails or doesn't return Success
+* 	@output WSResponse : Object The Response
+* 
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.rpc );
+
+importScript("int_paypal:cart/Credentials.ds");
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var PAYPAL_PAYMENT : String = 'PayPal';
+	var basket = pdict.Basket;
+	var paypalToken : String = pdict.PaypalToken;
+	var paymentProcessor : dw.order.PaymentProcessor = pdict.PaymentProcessor;
+
+	if( basket == null || paypalToken == null )
+	{
+		if (basket == null){
+			pdict.PaypalError = "[GetExpressCheckout.ds : Error] - Basket is Null" ;
+		} else {
+			pdict.PaypalError = "[GetExpressCheckout.ds : Error] - Paypal Token is Null" ;			
+		} 
+		return PIPELET_ERROR;
+	}
+
+	try
+	{
+		var paypalExpress : WebReference = webreferences.PayPalSvcDev;
+		if (dw.system.System.getInstanceType() == dw.system.System.PRODUCTION_SYSTEM) 
+		{
+			paypalExpress = webreferences.PayPalSvc;
+		}
+		var ppxService : Stub = paypalExpress.getService("PayPalAPIInterfaceService", "PayPalAPIAA");
+
+		// security header
+		SetCredentials( paymentProcessor, ppxService );
+
+		var details = new paypalExpress.GetExpressCheckoutDetailsRequestType();
+		details.setVersion( "104.0" );
+		details.setToken( paypalToken );
+
+		var req = new paypalExpress.GetExpressCheckoutDetailsReq();
+		req.setGetExpressCheckoutDetailsRequest( details );
+		Logger.error("GetExpressCheckout.ds] Sending Get Express Checkout... for PayerID - " + pdict.PpPayerID + "Paypal Token - " + pdict.PaypalToken);
+		var response = ppxService.getExpressCheckoutDetails( req );
+		Logger.error("GetExpressCheckout.ds] Sent successfully Get Express Checkout... for PayerID - "+ pdict.PpPayerID + "Paypal Token - " + pdict.PaypalToken);
+		pdict.WSResponse = response;
+
+		var responseDetails = response.getGetExpressCheckoutDetailsResponseDetails();
+		
+
+		if( ! responseDetails.getBillingAgreementAcceptedStatus ) 
+		{
+			pdict.Location = dw.web.URLUtils.http( 'Cart-View' );
+			return PIPELET_NEXT;
+		}
+		
+		if( ! paypalToken.equals( responseDetails.getToken()) ) 
+		{
+			pdict.Location = dw.web.URLUtils.http( 'Cart-View' );
+			return PIPELET_NEXT;			
+		}
+
+		// object PayerInfoType
+		var customer = responseDetails.getPayerInfo();
+		// object PersonNameType
+		var person = customer.getPayerName();
+
+		// Set Address from PayPal if process originated from Cart(basket page) 
+		if (pdict.PaypalOrigination == "ExpressCheckout") 
+		{
+			var billingAddress : OrderAddress = basket.getBillingAddress();
+		
+			// object AddressType
+			var paypalAddress = customer.getAddress();
+	
+			basket.setCustomerEmail( customer.getPayer() );
+	
+			// Processing billing address
+			if( responseDetails.getBillingAddress() != null ) 
+			{
+				paypalAddress = responseDetails.getBillingAddress();
+			}
+			billingAddress.setFirstName( person.getFirstName() );
+			billingAddress.setSecondName( person.getMiddleName() );
+			billingAddress.setLastName( person.getLastName() );
+			billingAddress.setSalutation( person.getSalutation() );
+			billingAddress.setAddress1( paypalAddress.getStreet1() );
+			billingAddress.setAddress2( paypalAddress.getStreet2() );
+			billingAddress.setCity( paypalAddress.getCityName() );
+			billingAddress.setPhone( paypalAddress.getPhone() );
+			billingAddress.setPostalCode( paypalAddress.getPostalCode() );
+			billingAddress.setCountryCode( paypalAddress.getCountry().toString() );
+			billingAddress.setStateCode( paypalAddress.getStateOrProvince() );
+			billingAddress.setPhone( customer.getContactPhone() );
+			billingAddress.custom.paypalAddressStatus = paypalAddress.getAddressStatus();
+
+			// Processing shipping address
+		 	var shipAddress : OrderAddress = basket.defaultShipment.shippingAddress;
+			
+			if( responseDetails.getPaymentDetails()[0].getShipToAddress() != null ) 
+			{
+				paypalAddress = responseDetails.getPaymentDetails()[0].getShipToAddress();
+			}
+			//Splitting the Ship To Address Name
+			var strArray : Array = paypalAddress.getName().split(" ");
+			if (strArray.length == 2) 
+			{
+				shipAddress.setFirstName( strArray[0] );
+				shipAddress.setLastName( strArray[1] );
+			} 
+			else if (strArray.length == 3) 
+			{
+				shipAddress.setFirstName( strArray[0] );
+				shipAddress.setSecondName( strArray[1] );
+				shipAddress.setLastName( strArray[2] );
+			} 
+			else 
+			{
+				shipAddress.setFirstName( paypalAddress.getName() );
+				shipAddress.setLastName( paypalAddress.getName() );
+			}
+
+			shipAddress.setAddress1( paypalAddress.getStreet1() );
+			shipAddress.setAddress2( paypalAddress.getStreet2() );
+			shipAddress.setCity( paypalAddress.getCityName() );
+			shipAddress.setPhone( paypalAddress.getPhone() );
+			shipAddress.setPostalCode( paypalAddress.getPostalCode() );
+			shipAddress.setCountryCode( paypalAddress.getCountry().toString() );
+			shipAddress.setStateCode( paypalAddress.getStateOrProvince() );
+			shipAddress.setPhone( customer.getContactPhone() );
+			shipAddress.custom.paypalAddressStatus = paypalAddress.getAddressStatus();
+	
+		} 
+		else if (pdict.GetBillingAddrFromPP) 
+		{
+			// Get billing address from PayPal
+			var billingAddress : OrderAddress = basket.getBillingAddress();
+		
+			// object AddressType
+			var paypalAddress = customer.getAddress();
+			
+			// Processing billing address
+			if( responseDetails.getBillingAddress() != null ) 
+			{
+				paypalAddress = responseDetails.getBillingAddress();
+			}
+	
+			billingAddress.setFirstName( person.getFirstName() );
+			billingAddress.setSecondName( person.getMiddleName() );
+			billingAddress.setLastName( person.getLastName() );
+			billingAddress.setSalutation( person.getSalutation() );
+			billingAddress.setAddress1( paypalAddress.getStreet1() );
+			billingAddress.setAddress2( paypalAddress.getStreet2() );
+			billingAddress.setCity( paypalAddress.getCityName() );
+			billingAddress.setPhone( paypalAddress.getPhone() );
+			billingAddress.setPostalCode( paypalAddress.getPostalCode() );
+			billingAddress.setCountryCode( paypalAddress.getCountry().toString() );
+			billingAddress.setStateCode( paypalAddress.getStateOrProvince() );
+			billingAddress.setPhone( customer.getContactPhone() );
+			billingAddress.custom.paypalAddressStatus = paypalAddress.getAddressStatus();
+		}
+		
+		var paypalPays : Collection = basket.getPaymentInstruments( PAYPAL_PAYMENT );
+		var payment : dw.order.OrderPaymentInstrument;
+		
+		if( paypalPays == null || paypalPays.isEmpty() ) 
+		{
+			payment = basket.createPaymentInstrument( PAYPAL_PAYMENT, basket.getTotalGrossPrice() );
+		} 
+		else 
+		{
+			payment = paypalPays.iterator().next();
+		}
+		
+		payment.getPaymentTransaction().setPaymentProcessor( paymentProcessor );
+		payment.custom.paypalToken = paypalToken;
+		payment.custom.paypalPayerID = customer.getPayerID();
+		/*payment.custom.paypalPayerStatus = customer.getPayerStatus();*/
+		payment.custom.paypalPaymentAction = pdict.PaymentAction;
+		/*payment.custom.paypalOrigination = pdict.PaypalOrigination;*/
+		
+		pdict.PpPayerID = customer.getPayerID();
+	}
+	catch(e)
+	{
+		if(e instanceof Fault)
+		{
+			Logger.error("Actor " + e.faultActor+" caused fault '"+e.faultCode +"' ("+e.faultString+" - "+e.faultDetail+")");
+		}
+		else
+		{
+			Logger.error(e.toString());
+		}
+		pdict.Error = e;
+		pdict.PaypalError = "[GetExpressCheckout.ds : Error] - " + e.toString();
+		return PIPELET_ERROR;
+	}
+    return PIPELET_NEXT;
+}

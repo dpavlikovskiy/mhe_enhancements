@@ -1,0 +1,15 @@
+<isinclude template="util/modules"/>
+<isscript>
+importScript( "int_simplefeed_jfw:email/stringReplace.ds" );
+importPackage( dw.system );
+importPackage( dw.util );
+
+var regExp = new RegExp("(<&).*(&>)");
+var emailContent : String = StringUtils.decodeString(pdict.MailContent, StringUtils.ENCODE_TYPE_HTML);
+
+	emailContent = replaceAll(emailContent, regExp, "");   
+	
+</isscript>
+
+<isprint value="${emailContent}" encoding="off"/>
+

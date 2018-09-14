@@ -1,0 +1,48 @@
+
+    <div class="account-nav referafriend">
+			<isinclude url="${URLUtils.url('Account-IncludeNavigation')}"/>			
+	</div>
+	
+	<div class="account-content">
+	
+		<isset name="bctext2" value="${Resource.msg('referafriend.breadcrumbtext','account',null)}" scope="pdict"/>
+		<isslot id="account-banner" description="Banner for My Account pages" context="global" />
+		<iscomment> 
+			<isprint value="${pdict.CurrentCustomer.profile.salutation.toUpperCase()}"/>
+			<isprint value="${pdict.CurrentCustomer.profile.lastName.toUpperCase() + '\'s'}"/>
+			<isprint value="${Resource.msg('account.name','account',null)}"/>  
+		</iscomment>
+		<div class="errors-total">
+			<div class="errors-total-inner">
+				<iscomment>All validation errors listed at the top of the form</iscomment>
+			</div>
+		</div>
+		
+		<div class="account-module account-module-addaddress" id="leadForm">	
+			<h2>${Resource.msg('referafriend.header','account',null)}</h2>
+			<p class="subTitle">${Resource.msg('referafriend.subheader','account',null)}</p>
+		
+			<form action="${URLUtils.httpsContinue()}" method="post" name="${pdict.CurrentForms.leadgeneration.htmlName}">
+					<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereefname}" xhtmlclass="name-input" rowclass="form-row-leftalign" type="input" attribute1="placeholder" value1="${Resource.msg('profile.firstname','forms',null)}" requiredtext="${Resource.msg('forms.referafriend.firstname.missingerror','forms',null)}" />
+					<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereelname}" xhtmlclass="name-input" rowclass="form-row-leftalign" type="input" attribute1="placeholder" value1="${Resource.msg('profile.lastname','forms',null)}" requiredtext="${Resource.msg('forms.referafriend.lastname.missingerror','forms',null)}" />
+					<isinputfield formfield="${pdict.CurrentForms.leadgeneration.refereeemail}" xhtmlclass="email-input" rowclass="form-row-leftalign" type="input" attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}"/>
+					<div class="form-row form-row-leftalign">
+						<label><isprint value="${Resource.msg('forms.referralMessage.label','forms',null)}" /></label>
+						<select id="referralFormMessage" name="referralFormMessage" class="input-text ">
+							<option selected="selected" value=""><isprint value="${Resource.msg('forms.referralMessage.msg','forms',null)}" /></option>	
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('referralMessage')}" var="options" status="loopstatus">								
+							<option value="${options.getDisplayValue()}"> 	 ${options.getValue()}		</option> 					                		                  				                    				
+							</isloop>
+						</select>
+					</div>
+					<isinputfield formfield="${pdict.CurrentForms.leadgeneration.message}" type="textarea" rowclass="form-row-leftalign" attribute1="rows" value1="5" attribute2="cols" value2="50" attribute3="placeholder" value3="${Resource.msg('forms.contactus.message.placeholder','forms',null)}" />
+					
+					<div class="account-submit">
+						<button class="button secondary clear send-invitation" type="submit" name="${pdict.CurrentForms.leadgeneration.confirm.htmlName}" value="confirm" >
+							<span class="face front">${Resource.msg('referafriend.sendInvite','account',null)}</span>
+							<span class="face back">${Resource.msg('referafriend.sendInvite','account',null)}</span>
+						</button>
+					</div>
+</form>
+		</div>
+	</div>

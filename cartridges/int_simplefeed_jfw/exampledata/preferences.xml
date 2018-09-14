@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<preferences xmlns="http://www.demandware.com/xml/impex/preferences/2007-03-31">
+    <custom-preferences>
+        <all-instances/>
+        <development>
+            <preference preference-id="fileExchangePassword">anypassword</preference>
+            <preference preference-id="fileExchangeURL">ftp://ftp.somewhere.com/</preference>
+            <preference preference-id="fileExchangeUser">nobody</preference>
+        </development>
+        <staging/>
+        <production/>
+    </custom-preferences>
+</preferences>

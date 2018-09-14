@@ -1,0 +1,36 @@
+<isscript>
+	var colspan = 6;
+</isscript>
+<tr>
+<td class="alignRight" colspan="${colspan}">Shipping Adjustments</td><td>&nbsp;</td>
+</tr>
+
+<isloop iterator="${basket.allShippingPriceAdjustments}" alias="sa">
+	<tr class="listTableTotalRow fav">
+	<td class="alignRight" colspan="${colspan}">
+	${sa.lineItemText}
+	</td>
+	<td class="alignRight">
+		<isprint value="${sa.netPrice}">
+	</td>
+	</tr>
+</isloop>
+
+
+
+<tr>
+<td class="alignRight" colspan="${colspan}">Price Adjustments</td><td>&nbsp;</td>
+</tr>
+<isloop iterator="${basket.priceAdjustments}" alias="pa">
+	<tr class="listTableTotalRow fav">
+	<td class="alignRight" colspan="${colspan}">
+	${pa.lineItemText}
+	</td>
+	<td class="alignRight">
+		<isprint value="${pa.netPrice}">
+	</td>
+	</tr>
+</isloop>
+
+
+

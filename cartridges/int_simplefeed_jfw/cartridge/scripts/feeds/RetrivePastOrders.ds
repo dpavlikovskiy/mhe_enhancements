@@ -1,0 +1,77 @@
+/**
+* Demandware Script File
+* To based on web serviecs call retrive previous orders and return json.
+*
+*  @input  OrderDays : Number  
+*  @input  invStockLevel : String  
+*  @output OrderJSON : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.catalog );
+importPackage( dw.util );
+importPackage( dw.value );
+
+function execute( args : PipelineDictionary ) : Number{
+  
+  var productJSON =[]; 
+  try{
+  	   var days:Number=args.OrderDays;
+  	   var invStockLevel:String=args.invStockLevel;
+  	   var query : String = "";
+  	   var orderIterator : SeekableIterator =null;
+  	   var oldDate:Calendar = new Calendar(new Date());
+        oldDate.add(Calendar.HOUR, -days*24);
+        
+        if(invStockLevel.equalsIgnoreCase("physical")){
+		  query = "creationDate > {0}  AND confirmationStatus={1} AND status != {2} AND  shippingStatus={3}";
+          orderIterator  = OrderMgr.queryOrders(query, "orderNo asc", oldDate.getTime(),Order.CONFIRMATION_STATUS_CONFIRMED,Order.ORDER_STATUS_CANCELLED,Order.SHIPPING_STATUS_NOTSHIPPED);
+        }else{
+          query = "creationDate > {0}  AND confirmationStatus={1} AND status != {2} AND  exportStatus!={3}";
+          orderIterator  = OrderMgr.queryOrders(query, "orderNo asc", oldDate.getTime(),Order.CONFIRMATION_STATUS_CONFIRMED,Order.ORDER_STATUS_CANCELLED,Order.EXPORT_STATUS_EXPORTED);
+        }
+		//Iterate all order product line items 
+		var orderHashMap : HashMap = new HashMap();
+		var order : Order = null;
+		var productLineItems : Iterator=null;
+		var prodObj : Product = null;
+	 	var skipBundledProducts : Collection = null;
+	 	
+		if (!empty(orderIterator)){
+			while (orderIterator.hasNext())				
+			{
+				order = orderIterator.next();
+			    productLineItems = order.getAllProductLineItems().iterator();
+			    var productLineItem : ProductLineItem=null;
+			    skipBundledProducts = null;
+				while(productLineItems.hasNext())
+				{
+					//find quantity ordered and prepare json 
+					  productLineItem  = productLineItems.next();
+					  if (!(productLineItem.bundledProductLineItem && !empty(skipBundledProducts) && skipBundledProducts.contains(productLineItem))) {
+						  if (!empty(productLineItem.bundledProductLineItems) && productLineItem.product.getAvailabilityModel().getInventoryRecord()!=null) {
+						  	productJSON.push({ 
+					        	"pid" : productLineItem.productID,
+					        	"qty" : productLineItem.getQuantity().value
+					        	}); 
+					        skipBundledProducts = productLineItem.bundledProductLineItems;
+						  } else if (!(!empty(productLineItem.bundledProductLineItems) && productLineItem.product.getAvailabilityModel().getInventoryRecord()==null)) {
+						  	 	productJSON.push({ 
+					        	"pid" : productLineItem.productID,
+					        	"qty" : productLineItem.getQuantity().value
+					        	}); 		 
+						}
+					}
+				}
+			}
+		}
+	   
+	}catch(ex){
+		Logger.getLogger("RetrievePastOrders").error("json:"+JSON.stringify(productJSON));
+		Logger.getLogger("RetrievePastOrders").error("RetrievePastOrders:"+ex.message);
+	}
+	args.OrderJSON=JSON.stringify(productJSON);
+	Logger.getLogger("RetrievePastOrders").error("json:"+JSON.stringify(productJSON));
+    return PIPELET_NEXT;
+}

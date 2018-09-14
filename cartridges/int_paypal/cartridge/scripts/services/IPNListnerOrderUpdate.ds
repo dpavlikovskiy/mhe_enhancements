@@ -1,0 +1,103 @@
+/**********************************************************************************************************************************************************************************************
+*
+*	@input ParamMap : dw.web.HttpParameterMap
+*	@output PipelineName : String
+*   @output PaypalError : String 
+*   @output rejectedOrdersList : dw.util.ArrayList
+*
+* 
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.net );
+importPackage( dw.web );
+importPackage( dw.crypto);
+
+var PP_STATUS_VERIFIED : String = "VERIFIED";
+var PP_STATUS_INVALID : String = "INVALID";
+
+var ORDER_STATUS_REVIEW : String = "REVIEW";
+var ORDER_STATUS_REJECT : String = "REJECT";
+var ORDER_STATUS_CANCEL : String = "CANCEL";
+var ORDER_STATUS_APPROVED : String = "APPROVED";
+
+var PAYMENT_STATUS_COMPLETED : String = "completed";
+var PAYMENT_STATUS_PENDING : String = "pending";
+var PAYMENT_STATUS_REFUNDED : String = "refunded";
+var PAYMENT_STATUS_VOIDED : String = "voided";
+var PAYMENT_STATUS_DENIED : String = "denied";
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	Logger.error("[Paypal] - ConversionDetailReport Order Update--");
+	var pipelineName : String = null;
+	var rejectedOrdersList : dw.util.ArrayList = new ArrayList();
+	var paramMap : HttpParameterMap = pdict.ParamMap;
+	
+	try {
+			var orderNum : String = paramMap.invoice.value;
+			var order : Order = OrderMgr.getOrder(orderNum);
+			
+			if(order == null || empty(order)){
+				Logger.error("[Paypal] Conversion Request order update- Order Not found for Order number " + orderNum);
+				pdict.PaypalError = "[IPNLIstenerOrderUpdate.ds : Error] - Conversion Request order update- Order Not found for Order number " + orderNum;
+				return PIPELET_ERROR;						
+			}
+			
+			if (order.custom.orderStatus == ORDER_STATUS_REVIEW || order.custom.orderStatus == ORDER_STATUS_APPROVED){						
+				var paymentStatus : String = paramMap.payment_status.value;
+				Logger.error("[Paypal] - Conversion Request order update Payment Status is " + paymentStatus + " for order number " + orderNum);
+				
+				switch (paymentStatus.toLowerCase()){
+					case PAYMENT_STATUS_COMPLETED:
+						//If Order is in CREATED state, update the order object with other details and convert to NEW state
+						if (order.status.value == Order.ORDER_STATUS_CREATED) {
+							pipelineName = "COPlaceOrder-SubmitImpl";	
+						}
+						
+						order.setExportStatus(Order.EXPORT_STATUS_READY);								
+						order.custom.orderStatus = ORDER_STATUS_APPROVED;
+						order.paymentInstruments[0].paymentTransaction.custom.settlementRequestID = paramMap.txn_id.value;
+						order.custom.cs_SettlementStatus = "TRIGGERED";								
+						order.paymentStatus = 2;			
+						break;
+							
+					case PAYMENT_STATUS_PENDING:							
+						break;
+						
+					case PAYMENT_STATUS_VOIDED:
+					case PAYMENT_STATUS_DENIED:
+						order.custom.orderStatus = ORDER_STATUS_REJECT;
+						rejectedOrdersList.add(order);
+						//order.paymentInstruments[0].paymentTransaction.custom.settlementRequestID = paramMap.txn_id.value;
+						//order.custom.cs_SettlementStatus = "REJECT";
+						break;
+						
+					
+					case PAYMENT_STATUS_REFUNDED:
+						order.paymentInstruments[0].paymentTransaction.custom.refundRequestID = paramMap.txn_id.value;								
+						order.custom.cs_RefundStatus = "TRIGGERED";
+						order.custom.orderStatus = ORDER_STATUS_REJECT;
+						rejectedOrdersList.add(order);
+						break;
+						
+					default:							
+						Logger.error("[Paypal] - Conversion Request order update Payment Status not found " + paymentStatus + " for order number " + orderNum);
+				}
+					
+			}					
+	} catch (e) {
+		var a : String = e.message;
+		Logger.error("[Paypal] - Error in Sending Conversion Request order update " + e.message);	
+		pdict.PaypalError = "[IPNLIstenerOrderUpdate.ds : Error] -Error in Sending Conversion Request order update " + e.message;
+		return PIPELET_ERROR;
+	}
+	if(rejectedOrdersList.size() > 0)
+		{
+			pdict.rejectedOrdersList = rejectedOrdersList;
+		}
+	pdict.PipelineName = pipelineName;		
+    return PIPELET_NEXT;
+}

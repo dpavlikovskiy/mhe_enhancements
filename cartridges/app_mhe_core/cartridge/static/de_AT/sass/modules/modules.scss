@@ -1,0 +1,37 @@
+.loginRegister{
+	.main{
+		.loginAreaCont{
+			.lRBox{
+				.box600{
+					&.over18Msg {
+						font-family: $fixed-font-family;
+						font-size: $small_text;
+						color: $white;
+						margin-bottom: 20px;
+					}
+				}
+				.borderTop{
+					border-top: 1px solid $lightBorder;
+					&.loginActions{
+					    border-bottom: 1px solid $lightBorder;
+					    border-top: 0;
+					}
+				}
+				.noPosition label{
+					color:$white;
+				}
+			}
+		}
+	}	
+}
+.small_text{
+	color:$white;
+	a{
+		color:$white;
+	}
+}
+.confirmLogin{
+	.over18Msg{
+		margin:0 50px 10px;
+	}
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="true">
+
+	<!-- flag indicating whether this checkout step is fulfilled -->
+	<field formid="fulfilled" type="boolean" default-value="false"/>
+	
+	<!-- list of available addresses to select from -->
+	<list formid="addressList">
+
+		<!-- action for actually selecting the address -->
+		<action formid="useThisAddress" valid-form="false"/>
+
+	</list>
+
+	<!-- form for creating and editing shipping address -->
+	<group formid="shippingAddress" form-error="forms.address.invalid" >
+
+		<!-- use fields from shipping address definition -->
+		<include formid="addressFields" name="shippingaddress"/>
+
+		<!-- optional flags -->
+		<field formid="addToAddressBook" label="forms.checkout.addtoaddressbook" type="boolean"  mandatory="false"    />
+		<field formid="useAsBillingAddress" label="forms.checkout.useasbillingaddress" type="boolean" mandatory="false" />
+
+		<!-- gift options -->
+		<field formid="isGift" label="forms.checkout.shipment.isgift" type="boolean" default-value="false" binding="gift" mandatory="false" />
+		<field formid="giftMessage" label="forms.checkout.shipment.giftmessage" type="string" binding="giftMessage" mandatory="true" />
+		<field formid="deliveryInstructions" label="forms.checkout.shipment.deliveryInstructions" binding="custom.deliveryInstructions" type="string" mandatory="false" />
+		<field formid="requestedDeliveryDate" label="forms.checkout.shipment.requestedDeliveryDate" type="string"  mandatory="false" />
+		<field formid="requestedDeliveryTimeSlot" label="forms.checkout.shipment.requestedDeliveryTime" type="string"  mandatory="false" />
+
+
+		<!-- shipping method selection -->
+		<field formid="shippingMethodID" type="string" mandatory="true" />
+
+		<!-- action for actually saving the address -->
+		<action formid="save" valid-form="true"/>
+		<action formid="selectAddress" valid-form="false"/>
+		
+
+	</group>
+
+	<!-- general actions -->
+	<action formid="shipToMultiple" valid-form="false"/>
+
+</form>

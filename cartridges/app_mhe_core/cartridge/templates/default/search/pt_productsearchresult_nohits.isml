@@ -1,0 +1,52 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+	
+	<isscript>var pageContext={title:'Product Search Results No Hits', type:'search', ns:'search'};</isscript>
+	<isinclude template="util/modules"/>
+	<iscomment>
+		Please mind that the productsearchrefinebar contains price information that is subject to personalization.
+		Make sure the decorated template specifies ISCACHE varyby="price_promotion".
+	</iscomment>
+
+	<isinclude template="components/header/htmlhead"/>	
+	<isinclude template="search/pt_productsearchresult_UI"/>
+	
+	<isif condition="${(pdict.CurrentHttpParameterMap.cgid.submitted && pdict.CurrentHttpParameterMap.cgid.value != '')}">
+		<link rel="canonical" href="${URLUtils.url('Search-Show','cgid', pdict.CurrentHttpParameterMap.cgid)}" />	
+		<isif condition="${!(pdict.CurrentSession.custom.brand.equals('DP'))}">
+			<link rel="alternate" href="${URLUtils.url('Search-Show','cgid', pdict.CurrentHttpParameterMap.cgid)}" hreflang="${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}" />
+		</isif>
+	</isif>
+	
+	<iscomment>Add  template-specific header information here.</iscomment>	
+	<isinclude template="util/robotscrawling"/>
+</head>
+<body>
+
+	<div id="wrapper" class="pt_product-search-noresult">
+	
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		
+		<div id="main" role="main" class="page-content main clearfix">
+			<isinclude template="components/browsertoolscheck"/>
+						
+			<div id="primary" class="primary-content">
+				<isreplace/>
+			</div>
+			
+		
+	
+		</div>
+	
+		<isinclude template="components/footer/footer"/>
+		<isinclude template="search/pt_productsearchresult_VARS"/>
+	
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+Yes we have a new order
+
+<isprint value = "${pdict.orderNumber}"/>
+<br>
+<isprint value = "${pdict.lastNWatchList.length}"/>

@@ -1,0 +1,47 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:'Customer Service', type:'customerservice',ns:'account'};</isscript>
+	<isinclude template="util/modules"/>
+	
+	<iscomment>This page must be cachable. It inherits the caching attributes by the decorated template.</iscomment>
+
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="content/pt_customerservice_UI"/>
+	<iscomment>Add template-specific header information here.</iscomment>	
+	
+</head>
+
+<body>
+<isscript>
+var catID : String= ('catID' in pdict.CurrentSession.custom)?pdict.CurrentSession.custom.catID:null;
+</isscript>
+	<div id="wrapper" class="pt_customer-service">
+		
+		<isinclude url="${URLUtils.url('Home-IncludeStaticPageHeader','registeredFlag',pdict.CurrentCustomer.registered,'catID',catID)}"/>
+		
+		
+		<div id="main" role="main" class="page-content main clearfix">
+			
+			<div id="primary" class="primary-content">
+				<section>
+					<isinclude template="components/browsertoolscheck"/>
+					<isreplace/>
+				</section>
+			</div>
+			
+
+		</div><!-- /main -->
+			<isinclude template="components/footer/footer"/>
+		<isinclude template="content/pt_customerservice_VARS"/>
+		
+	</div><!--  /wrapper -->
+	
+</body>
+</html>

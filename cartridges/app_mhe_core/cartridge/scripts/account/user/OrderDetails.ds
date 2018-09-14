@@ -1,0 +1,20 @@
+/**
+*   OrderDetails.ds
+*   This script takes order number and give order object to retrieve order details 
+*
+*   @input orderNum:String 
+*   @output order: dw.order.Order
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var OrdNo: String= pdict.orderNum;
+	var orderObj: Order=OrderMgr.getOrder(OrdNo);
+	pdict.order=orderObj;
+
+    return PIPELET_NEXT;
+ 
+}

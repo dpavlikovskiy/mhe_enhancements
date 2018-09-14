@@ -1,0 +1,48 @@
+/**
+* This script copies the payment transactions and payment processors from the baskets payment instruments to the new orders
+* payments instruments.
+*
+* @input Basket : dw.order.Basket The basket
+* @input Order : dw.order.Order The order
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+    var order : Order = pdict.Order;
+    var basket : Basket = pdict.Basket;
+
+    if (order == null || basket == null) {
+    	return PIPELET_ERROR;
+    }
+    //Manually remove payment instruments from basket and copy all payment instruments from the order
+    basket.removeAllPaymentInstruments();
+    //Copy order line items in basket and set paymentTransaction attributes
+    for each (var pi : OrderPaymentInstrument in order.getPaymentInstruments()) {
+    	var basketPI : PaymentInstrument = null;
+    	if(pi.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE){
+    		basketPI = basket.createGiftCertificatePaymentInstrument(pi.getGiftCertificateCode(), pi.getPaymentTransaction().getAmount());
+    	}else if(pi.paymentMethod == PaymentInstrument.METHOD_CREDIT_CARD){
+    		basketPI = basket.createPaymentInstrument( PaymentInstrument.METHOD_CREDIT_CARD, pi.getPaymentTransaction().getAmount() );
+
+			// copy the credit card details to the basket payment instrument
+			basketPI.setCreditCardHolder( pi.getCreditCardHolder() );
+			basketPI.setCreditCardNumber( pi.getCreditCardNumber() );
+			basketPI.setCreditCardType( pi.getCreditCardType() );
+			basketPI.setCreditCardExpirationMonth( pi.getCreditCardExpirationMonth() );
+			basketPI.setCreditCardExpirationYear( pi.getCreditCardExpirationYear() );
+
+    	}else{
+    		basketPI = basket.createPaymentInstrument(pi.getPaymentMethod(), pi.getPaymentTransaction().getAmount());
+    	}
+
+    	basketPI.paymentTransaction.transactionID = pi.paymentTransaction.transactionID;
+		basketPI.paymentTransaction.paymentProcessor = pi.paymentTransaction.paymentProcessor;
+    }
+
+    return PIPELET_NEXT;
+}

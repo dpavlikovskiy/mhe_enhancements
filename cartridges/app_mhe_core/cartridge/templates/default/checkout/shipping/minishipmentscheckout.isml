@@ -1,0 +1,91 @@
+<iscomment>
+	This template renders a summary of all shipments of the basket which is
+	used below the order summary at the right hand side in the checkout
+	process.
+</iscomment>
+<isset name="Shipments" value="${pdict.Basket.shipments}" scope="page"/>
+
+<iscomment>the url to edit shipping addresses depends on the checkout scenario</iscomment>
+<isset name="editUrl" value="${URLUtils.https('COShipping-Start')}" scope="page"/>
+<isif condition="${pdict.CurrentForms.multishipping.entered.value}">
+	<isset name="editUrl" value="${URLUtils.https('COShippingMultiple-Start')}" scope="page"/>
+</isif>
+
+<isif condition="${!empty(Shipments)}">
+	<iscomment>render a box per shipment</iscomment>
+	<isset name="shipmentCount" value="${0}" scope="page"/>
+	<isloop items="${Shipments}" var="shipment" status="loopstate">
+		<isif condition="${(shipment.giftCertificateLineItems.size() > 0 && shipment.shippingAddress == null) || shipment.shippingAddress != null}">
+			<isset name="shipmentCount" value="${shipmentCount+1}" scope="page"/>
+			<div class="checkModule reviewMod <isif condition="${loopstate.first}"> first <iselseif condition="${loopstate.last}"> last</isif>">
+				<iscomment>omit the shipment name, if there is just one shipment</iscomment>
+				<isif condition="${Shipments.size() > 1 && pdict.Basket.productLineItems.size() > 0}"><div class="name">Shipment ${'#' + shipmentCount}</div></isif>
+
+
+				<h3 class="section-header">
+					<isif condition="${shipment.giftCertificateLineItems.size() > 0}">
+						${Resource.msg('minishipments.shipping','checkout',null)} <span>${Resource.msg('minishipments.giftcertdelivery','checkout',null)}</span>
+					<iselseif condition="${shipment.shippingAddress != null && pdict.Basket.productLineItems.size() > 0}">
+						<a href="${editUrl}" >${Resource.msg('minishipments.deliverto','checkout',null)}</a>
+					</isif>
+				</h3>
+	
+				<div class="details">
+					<iscomment>
+						render the detail section depending on whether this is a physical shipment with products
+						(shipped to an address) or if this is a gift certificate (send via email)
+					</iscomment>
+					<isif condition="${shipment.giftCertificateLineItems.size() > 0}">
+						<isloop items="${shipment.giftCertificateLineItems}" var="giftCertLI">
+							<h4><isprint value="${giftCertLI.recipientName}"/></h4>
+							<div>(<isprint value="${giftCertLI.recipientEmail}"/>)</div>
+						</isloop>
+					<iselseif condition="${shipment.shippingAddress != null && pdict.Basket.productLineItems.size() > 0}">
+						<isset name="address" value="${shipment.shippingAddress}" scope="page"/>
+						<h4><isif condition="${!empty(address.salutation)}"><isprint value="${address.salutation}"/></isif> <isprint value="${address.title}"/> <isprint value="${address.firstName}"/> <isprint value="${address.lastName}"/></h4>
+						<isif condition="${!empty(address.companyName)}">
+							<div><isprint value="${address.companyName}"/></div>
+						</isif>
+						
+						<isif condition="${!empty(address.stateCode)}">
+						   <isprint value="${Resource.msg('province.it.'+address.stateCode,'forms',null)}" />
+						</isif>
+						
+						<div><isprint value="${address.address1}"/></div>
+						<isif condition="${!empty(address.address2)}">
+							<div><isprint value="${address.address2}"/></div>
+						</isif>
+						<div> <isprint value="${address.postalCode}"/>, <isprint value="${address.city}"/></div>
+						<div>
+					 <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==address.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+          		    </isloop>
+          		 
+						</div>
+						<div><isprint value="${address.phone}"/></div>
+					</isif>
+					
+					<isif condition="${!empty(shipment.giftMessage)}">
+						<div class="giftMessage">
+							<h4>${Resource.msg('minishipments.giftmessage','checkout',null)}</h4>
+							<div class="giftMessageText">
+								<div class="imgTop"><img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/gift-bg.png')}" /></div>
+								<p><span><isprint value="${shipment.giftMessage}"/></span>
+								<img class="repeat" src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/bg-repeat.png')}" />
+								</p>
+								<div class="imgBot"><img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/gift-bg.png')}" /></div>
+							</div>
+						</div>
+					</isif>
+					
+				</div>
+				
+				
+		
+			</div>
+		</isif>
+	</isloop>
+</isif>

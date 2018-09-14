@@ -1,0 +1,26 @@
+// =============================================================================
+// Helper classes to be extended
+// =============================================================================
+
+// PDP
+%bottle-attributes-icon-list {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	display: inline-block;
+	text-align: center;
+	position: relative;
+	&.size-icon {
+		&:before {
+			@include icon;
+			@include bordered-icon($white);
+			line-height: 30px;
+			font-size: 30px;
+			position: absolute;
+			left: -40px;
+		}
+	}
+}
+.hidden{
+	display: none;
+}

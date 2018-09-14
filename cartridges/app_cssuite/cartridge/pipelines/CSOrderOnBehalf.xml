@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="CustomerServiceSuite" type="view">
+  <description>The pipeline provides the ability to login on behalf of registered and unregistered customers.</description>
+  <branch basename="Registered">
+    <segment>
+      <node>
+        <start-node name="Registered" secure="true"/>
+        <node-display x="0" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <call-node start-name-ref="CSLogin-RequireLogin"/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="LogoutCustomer" pipelet-set-identifier="bc_api">
+          <key-binding alias="null" key="RememberMe"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="GetCustomer" pipelet-set-identifier="bc_api">
+          <key-binding alias="CurrentHttpParameterMap.custid.value" key="Login"/>
+          <key-binding alias="Customer" key="Customer"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <interaction-node transaction-required="false">
+                <template buffered="true" dynamic="false" name="cssuite/orderonbehalf/error"/>
+              </interaction-node>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="LoginOnBehalfCustomer" pipelet-set-identifier="bc_api">
+          <key-binding alias="Customer" key="Customer"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="target" x="-1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <interaction-node transaction-required="false">
+                <template buffered="true" dynamic="false" name="cssuite/orderonbehalf/error2"/>
+              </interaction-node>
+              <node-display orientation="horizontal" x="2" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="cssuite/orderonbehalf/popup"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Unregistered">
+    <segment>
+      <node>
+        <start-node name="Unregistered" secure="true"/>
+        <node-display x="3" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <call-node start-name-ref="CSLogin-RequireLogin"/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="LogoutCustomer" pipelet-set-identifier="bc_api">
+          <key-binding alias="null" key="RememberMe"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in3" target-path="/Registered.2">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="6"/>
+        </transition-display>
+      </transition>
+    </segment>
+  </branch>
+  <branch basename="Error">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="Error" secure="false"/>
+        <node-display x="5" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <jump-node start-name-ref="CSSuite-Error"/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

@@ -1,0 +1,64 @@
+<iscomment><isinclude template="util/modules" /></iscomment>
+<iscomment>Use another decorator if the context is the content search</iscomment>
+<isscript>
+	importScript("util/DisImageSO.ds");
+	importScript("search/ArticlesPagination.ds");
+	var prevnextMap : LinkedHashMap = articlePagination(pdict.Content,pdict.ContentSearchResult.content);
+	var prevArticleList :List = prevnextMap.get("previous");
+	var nextArticleList :List= prevnextMap.get("next");	
+</isscript>
+
+	<div class="artPagi clearfix">
+		<isif condition="${prevArticleList.size()!= 0 }">
+			<span class="prev">
+				<a href="${URLUtils.url('Page-Show','cid', prevArticleList.get(0))}">
+					<isprint value="${Resource.msg('article.previous','rendering',null)}" encoding="off" />
+				</a>
+				<div class="articlePop">
+					<div class="img">
+						<isset name="image1"	value="${ new DisImage('content', prevArticleList.get(1)) }" scope="page" />
+						<img src="${image1.getURL()}" />
+					</div>
+					<div class="headings">
+						<h5><isprint value="${prevArticleList.get(2)}" /></h5>
+						<h3><isprint value="${prevArticleList.get(3)}" /></h3>
+					</div>
+				</div>
+			</span>
+		<iselse>
+			<span class="prev inactive">
+				<isprint value="${Resource.msg('article.previous','rendering',null)}" encoding="off" />
+			</span>
+		</isif>
+		<isif condition="${nextArticleList.size()!= 0 }">
+			<span class="next">
+				<a href="${URLUtils.url('Page-Show','cid', nextArticleList.get(0))}">
+					<isprint value="${Resource.msg('article.next','rendering',null)}" encoding="off" />
+				</a>
+				<div class="articlePop">
+					<div class="img">
+						<isset name="image2"	value="${ new DisImage('content', nextArticleList.get(1)) }" scope="page" />
+				   	<img src="${image2.getURL()}" />
+					</div>
+					<div class="headings">
+						<h5><isprint value="${nextArticleList.get(2)}" /></h5>
+						<h3><isprint value="${nextArticleList.get(3)}" /></h3>
+					</div>
+				</div>
+			</span>
+		<iselse>
+			<span class="next inactive">
+				<isprint value="${Resource.msg('article.next','rendering',null)}" encoding="off" />
+			</span>
+		</isif>
+	</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$(".artPagi span").hover(function(){
+		$(this).find(".articlePop").stop( true, true ).fadeIn();
+	}, function(){
+		$(this).find(".articlePop").stop( true, true ).fadeOut();
+	});
+});
+</script>

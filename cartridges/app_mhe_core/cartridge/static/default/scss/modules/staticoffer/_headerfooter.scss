@@ -1,0 +1,96 @@
+// =============================================================================
+// Static Offer - Header / Social
+// =============================================================================
+
+.static-offer {
+	.header {
+		@include box-shadow(0 0 14px $bgbody);
+		.social-links {
+			position: absolute;
+			left: 0;
+			width: auto;
+			margin-top: -12px;
+			top: 50%;
+			ul {
+				li {
+					float: left;
+					margin-right: 10px;
+					a {
+						display: inline-block;
+						color: $white;
+						padding: 3px 5px;
+						height: 24px;
+						min-width: 24px;
+						font-size: 12px;
+						border: 2px solid $white;
+						@include transition(all 0.15s ease-out);
+						&:hover {
+							background-color: $white;
+							color: $black;
+						}
+						&.email {
+							text-transform: uppercase;
+							letter-spacing: 1px;
+							padding-top: 4px;
+						}
+						span {
+							font-size: 14px;
+							@include icon();
+						}
+						&.tw span {
+							@extend .icon-twitter;
+						}
+						&.fb span {
+							@extend .icon-facebook;
+						}
+						&.gp span {
+							@extend .icon-google-plus;
+						}
+					}
+				}
+			}
+		}
+		.static-logo {
+			.title-wrap {
+				line-height: 6px;
+				margin: 0;
+				overflow: hidden;
+				text-align: center;
+			}
+		}
+		header {
+			min-height: 65px;
+			.header_right {
+				position: absolute;
+				right: 0;
+				width: auto;
+				margin-top: -7px;
+				top: 50%;
+				.mini-cart {
+					padding-right: 0;
+					border-right: none;
+				}
+			}
+		}
+	}
+	.signoff {
+		@include centered();
+		display: block;
+		font-size: 30px;
+		font-family: $heading-font-family, $base-font-family;
+		margin-top: 42px;
+	}
+	.footer {
+		.footer-first {
+			margin-top: 28px;
+		}
+	}
+}
+
+.ie8 {
+	.header {
+		.social-links ul li a {
+			min-width: 0;
+		}
+	}
+}

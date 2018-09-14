@@ -1,0 +1,218 @@
+<isdecorate template="account/orderhistory/pt_orderhistory"><isinclude
+	template="util/modules" /> <isset name="bctext2"
+	value="${Resource.msg('paymentInstrumentList.paymentsettings','account',null)}" scope="pdict" /> <isslot id="account-banner"
+	description="Banner for My Account pages" context="global" />
+
+<div class="account-nav paymentinformationlist">
+	<isinclude url="${URLUtils.url('Account-IncludeNavigation')}" />
+</div>
+<isif condition="${pdict.CurrentCustomer.authenticated}"> 
+<div class="account-content">
+	<h2>${Resource.msg('paymentinstrumentlist.header.mypaymentcards','account',null)}</h2>
+	<p>${Resource.msg('paymentinstrumentlist.header.paymentinformationdetail','account',null)}</p>
+
+
+		<isif condition="${pdict.PaymentInstruments.size() > 0}">
+		
+		<div class="account-module" id="js-saved-cards">
+		
+		<h2>${Resource.msg('paymentinstrumentlist.header.savedcards','account',null)}</h2>
+			<ul class="payment-list clearfix">
+	
+				<isloop
+					items="${pdict.CurrentForms.paymentinstruments.creditcards.storedcards}"
+					var="creditcard" status="loopstate">
+	
+				<li class="payment-list-card"><isbrandminicreditcard
+						p_card="${creditcard.object}" p_show_expiration="${true}" /> <iscomment>
+					SITE DEV - CHANGE BUTTON TO LINK AND SUBMIT THE FORM BELOW ON CLICK
+					OF LINK </iscomment>
+	
+					<form action="${URLUtils.url('PaymentInstruments-Delete')}"
+						name="payment-remove" method="post"
+						id="creditcards_${loopstate.count}">
+						<fieldset>
+							<button class="card-remove delete" type="button"
+								value="${Resource.msg('paymentinstrumentlist.removecard','account',null)}"
+								name="${creditcard.remove.htmlName}">
+								${Resource.msg('paymentinstrumentlist.removecard','account',null)}
+							</button>
+							<input type="hidden"
+								name="${pdict.CurrentForms.paymentinstruments.secureKeyHtmlName}"
+								value="${pdict.CurrentForms.paymentinstruments.secureKeyValue}" />
+						</fieldset>
+					</form>
+				</li>
+				</isloop>
+			</ul>
+		</div>
+		
+	</isif>
+	
+	
+	<div class="errors-total">
+		<div class="errors-total-inner">
+			<iscomment>All validation errors listed at the top of the form</iscomment>
+		</div>
+	</div>
+
+
+	<div class="account-module account-module-addcard" id="js-add-card">
+
+		<h2>${Resource.msg('paymentinstrumentlist.addnewcard','account',null)}</h2>
+
+		<iscomment>Site Dev- Show /hide div on click on add card </iscomment>
+		<div id="showhideaddcardform">
+			<form id="CreditCardForm" name="CreditCardForm"
+				action="${URLUtils.httpsContinue()}" method="post"
+				id="newcreditcard">
+
+				<fieldset class="account-form">
+
+					<div id="radiocreditcard"
+						class="form-row form-row-leftalign form-row-topalign">
+
+						<isscript> var
+						availablecardslist:dw.util.List=dw.order.PaymentMgr.getPaymentMethod(dw.order.PaymentInstrument.METHOD_CREDIT_CARD).activePaymentCards;
+						</isscript>
+
+						<label>${Resource.msg('paymentinstrumentdetails.selectcardtype','account',null)}</label>
+						<ul class="account-cards">
+
+							<isloop items="${availablecardslist}" var="showcards"
+								status="loopstatus"> 
+								<isif condition="${(empty(pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.type.htmlValue) && loopstatus.first) ||
+										pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.type.htmlValue.equals(showcards.cardType)}">	
+							<li><input type="radio" value="${showcards.cardType}"
+								id="${showcards.cardType}"
+								name="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.type.htmlName}"
+								checked>
+									<label class="radio-label" for="${showcards.cardType}">${showcards.cardType}</label>
+							</li>
+							<br>
+							<iselse/>
+							<li><input type="radio" value="${showcards.cardType}"
+								id="${showcards.cardType}"
+								name="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.type.htmlName}">
+									<label class="radio-label" for="${showcards.cardType}">${showcards.cardType}</label>
+							</li>
+							<br>
+							</isif> </isloop>
+							
+						</ul>
+
+					</div>
+					<isinputfield
+						formfield="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.name}"
+						type="input" maxlength="40" size="40" attribute1="autocomplete"
+						value1="off" rowclass="form-row-leftalign" 
+						requiredtext="${Resource.msg('creditcard.namemissingerror','forms',null)}"
+						xhtmlclass="input-text required name-input" />
+
+					<isinputfield
+						formfield="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.owner}"
+						type="input" maxlength="40" size="40" attribute1="autocomplete"
+						value1="off" rowclass="form-row-leftalign" 
+						requiredtext="${Resource.msg('creditcard.ownermissingerror','forms',null)}"
+						xhtmlclass="input-text required name-input" />
+
+					<isinputfield
+						formfield="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.number}"
+						p_dynamic="true" type="input" maxlength="19" size="17"
+						attribute1="autocomplete" value1="off"
+						rowclass="form-row-leftalign"
+						requiredtext="${Resource.msg('creditcard.numberrangeerror','forms',null)}"
+						xhtmlclass="required card-input" />
+
+					<div class="form-row form-row-multiple form-row-leftalign form-row-expiry">
+						<label class="line">${Resource.msg('paymentinstrumentdetails.expirationdate','account',null)}</label>
+						<span id="js-msg-expiry-month" class="hidden">${Resource.msg('paymentinstrumentdetails.expirymonth','account',null)}</span>
+						<span id="js-msg-expiry-year" class="hidden">${Resource.msg('paymentinstrumentdetails.expiryyear','account',null)}</span>
+						<isinputfield
+							formfield="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.month}"
+							type="select"
+							requiredtext="${Resource.msg('creditcard.monthmissingerror','forms',null)}"
+							xhtmlclass="input-text required"/>
+
+						<isinputfield
+							formfield="${pdict.CurrentForms.paymentinstruments.creditcards.newcreditcard.year}"
+							type="select"
+							requiredtext="${Resource.msg('creditcard.yearmissingerror','forms',null)}"
+							xhtmlclass="input-text required"
+							/>
+					</div>
+
+				</fieldset>
+
+				<div class="account-submit">
+					<img class="secured-by"
+						src="${URLUtils.staticURL('/images/myaccount/secure-global-sign.png')}">
+					<button class="button secondary clear save-changes" id="applyBtn"
+						type="submit"
+						value="${Resource.msg('paymentinstrumentlist.savecard','account',null)}">
+						<span class="face front">${Resource.msg('paymentinstrumentlist.savecard','account',null)}</span>
+						<span class="face back">${Resource.msg('paymentinstrumentlist.savecard','account',null)}</span>
+					</button>
+				</div>
+
+				<input type="hidden"
+					name="${pdict.CurrentForms.paymentinstruments.secureKeyHtmlName}"
+					value="${pdict.CurrentForms.paymentinstruments.secureKeyValue}" />
+
+
+
+			</form>
+
+			<div class="confirmation-container dialog-content"
+				id="confirmation-container" style="display: none;">
+				<div class="error-form">${Resource.msg('account.forbidden','account',null)}</div>
+				<button type="button">${Resource.msg('global.close','locale',null)}</button>
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
+<div id="js-remove-card" class="remove" style="display:none">
+	<h2>${Resource.msg('paymentinstrumentlist.deletecardconfirm','account',null)}</h2>
+	<p>${Resource.msg('paymentinstrumentlist.areyousure','account',null)}</p>
+	<p class="card"></p>
+	<button class="button clear secondary plain cancel">
+		<span class="face front">${Resource.msg('global.cancel','locale',null)}</span>
+		<span class="face back">${Resource.msg('global.cancel','locale',null)}</span>
+	</button>
+	<button class="button clear secondary remove">
+		<span class="face front">${Resource.msg('paymentinstrumentlist.deletecard','account',null)}</span>
+		<span class="face back">${Resource.msg('paymentinstrumentlist.deletecard','account',null)}</span>
+	</button>
+</div>
+
+<iselse>
+				<iscomment>Login Popup </iscomment>
+				<div id="authlogindialog" style="display:none"> Login </div> 
+		</isif>
+</isdecorate>
+<script type="text/javascript">
+$( document ).ready(function() {
+	
+			var url=app.util.appendParamsToUrl(app.urls.accountLoginAuthenticate,{format:"ajax",authlogin:"wallet"});
+			
+			var options = {
+					url: url,
+					type: "POST"
+				};
+				$.ajax( options ).done(function(data){
+					 	var $authlogin = $("#authlogindialog");
+					
+					 	$authlogin.html(data);
+					 	$authlogin.dialog({ width:600 });
+						var $dialog = $authlogin.closest('.ui-dialog');
+						$dialog.addClass('cartPrompts popUpForms');
+						$dialog.find(".ui-dialog-titlebar").hide();
+						app.validator.init();
+						globalFormsCtrl.initGlobalForms();
+				});
+		   });
+
+</script>

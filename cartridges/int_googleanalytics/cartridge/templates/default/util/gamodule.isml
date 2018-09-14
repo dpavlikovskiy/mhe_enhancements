@@ -1,0 +1,17 @@
+<iscomment>
+	Renders Google Analytics Script tag.
+	trackingid : Tracking ID in the format UA-XXXXXXXX-X
+	domain : Domain Name
+	gaenabled : For enabling, disabling GA 
+	eventtrackingenabled : For enabling, disabling Event Tracking
+</iscomment>
+	
+<ismodule 
+  template="analytics/gatagevents.isml"
+  name="GoogleAnalytics"
+  attribute="trackingid"
+  attribute="domain"
+  attribute="gaenabled"
+  attribute="eventtrackingenabled"
+/>
+

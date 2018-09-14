@@ -1,0 +1,20 @@
+<div><!--- DO NOT REMOVE: fixes an Ajax/Remote Include problem --->
+	<div id="cart_general_info" class="cart_general_info">
+		<isinclude template="cssuite/cart/generalinfo.isml">
+	</div>
+	<div id="cart_payment_instruments">
+		<isinclude template="cssuite/payment/billingaddress.isml">
+	</div>
+	<div id="cart_productLineItems">
+		<isinclude template="cssuite/cart/productlineitems.isml">
+	</div>
+	<div id="cart_history">
+		<isinclude template="cssuite/cart/orderhistory.isml">
+	</div>
+	<div id="cart_notes">
+		<isinclude template="cssuite/cart/notes.isml">
+	</div>
+	<div id="cart_paymentinstruments">
+		<isinclude url="${URLUtils.url('CSPayments-GetPaymentInfo')}">
+	</div>
+</div>

@@ -1,0 +1,9 @@
+"avStatus": "${AVM.availabilityStatus}",
+"inStock": ${AVM.inStock},
+<isset name="levels" value="${AVM.getAvailabilityLevels((empty(pdict.CurrentHttpParameterMap.Quantity.stringValue) ? 1 : pdict.CurrentHttpParameterMap.Quantity.intValue))}" scope="page"/>
+"avLevels": {"${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK}": ${levels.inStock.value},
+"${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}": ${levels.preorder.value},
+"${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}": ${levels.backorder.value},
+"${dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE}": ${levels.notAvailable.value}},
+"ATS": <isif condition="${!empty(AVM.inventoryRecord)}">${AVM.inventoryRecord.ATS.value}<iselse>0</isif>,
+"inStockDate": "${!empty(AVM.inventoryRecord) ? AVM.inventoryRecord.inStockDate : ''}"

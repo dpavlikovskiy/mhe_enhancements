@@ -1,0 +1,93 @@
+.static-offer {
+	.quickview {
+		background:$white;
+		border: $brandBg 2px solid;
+	}
+	.popUpForms, .accessory-dialog-wrap{
+		background: $bodyBg;
+		border: $brandBg 2px solid;
+		padding:0;
+		text-align:center;
+		.logo_header {
+			img.logo {
+				width:170px;
+			}
+		}
+		a {
+			&:hover{
+				color:$brandBg;
+			}
+		}
+		.agegate_message {
+			p {
+				color: $white;
+				font:$standardFontSize $regularFont;
+				margin:0 auto 20px;
+				width:300px;
+			}
+		}
+		.section-header {
+			color:$brandBg;
+			font:$standardFontSize $titleFont;
+			margin:0 0 10px 0;
+		}
+		input[type="text"], input[type="password"] {
+			border: $inputBorder 1px solid;
+			background: $black;
+			color: $inputText;
+			&:focus {
+				background: $black;
+			}
+		}
+		.form-row {
+			width:300px;
+			margin:0 auto 20px;
+			.form-row-error input[type="text"], .form-row-error input[type="password"] {
+				 border:$errorBorder 1px solid;
+				 background: $eModulesBg;
+			}
+			&.form-row-valid {
+					&:after {
+						content: url("images/form-valid.png");
+					}
+			}
+		}
+		.form-row {
+			.error {
+				background: $eModulesBg;
+				border:$errorBorder 1px solid;
+				&:before {
+					background: $eModulesBg;
+					border-left: 1px solid $errorBorder;
+			    	border-top: 1px solid $errorBorder;
+				}
+			}
+		}
+	}
+	.newsletter-signup {
+		h2 {
+			color:$brandColor;
+		}
+	}
+	.newsletter-heading {
+		 margin-top: -40px;
+		 padding-top: 30px;
+		 h3 {
+		 	color:$brandColor;
+			font:$largeFontSize $titleFont;
+		 }
+		 p {
+		 	font:$standardFontSize $regularFont;
+		 	line-height: 18px;
+		 	margin: 0 auto 20px;
+		 	width: 80%;
+		 }
+	}
+}
+
+
+.customeQuickview{
+	#update-main-img{
+		display:none;
+	}
+}

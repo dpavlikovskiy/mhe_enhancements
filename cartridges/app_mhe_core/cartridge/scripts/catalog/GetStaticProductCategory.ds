@@ -1,0 +1,38 @@
+/**
+* 
+*   @input product: dw.catalog.Product 
+*   @input cgid: String
+*	@output category : dw.catalog.Category
+*
+*/
+importPackage( dw.system );
+
+importPackage( dw.catalog );
+importScript( "product/ProductUtils.ds" );
+function execute( args : PipelineDictionary ) : Category
+{	
+	var categoryID: String=null;
+	var category:Category=null;
+	if(args.product.bundled){
+	return PIPELET_NEXT;
+	}
+	if(args.cgid!=null &&args.cgid.length>1){
+	categoryID = args.cgid;
+	}else if('catID' in session.custom){
+	categoryID = session.custom.catID;		
+	}
+	if(categoryID != null && categoryID.length>1){
+		category=CatalogMgr.getCategory(categoryID);
+	}else{
+	return PIPELET_NEXT;
+	}
+	if(category.custom.isStatic && category.online && args.product.isAssignedToCategory(category)){
+		
+	return PIPELET_NEXT;
+	}else{
+	return PIPELET_ERROR
+	}
+   args.category=category;
+
+   return PIPELET_NEXT;
+}

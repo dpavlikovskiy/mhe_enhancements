@@ -1,0 +1,28 @@
+<isif condition="${pdict.CurrentCustomer.authenticated}">
+	<isset name="DecoratorTemplate" value="error/pt_error" scope="page" />
+<iselse>
+	<isset name="DecoratorTemplate" value="content/pt_customerservice" scope="page" />
+</isif>
+	
+	
+<isdecorate template="${DecoratorTemplate}">
+<iscomment>following SPAN is for Google Analytics. it holds the URL from where the Error is Generated</iscomment>
+<div id="errorGeneratedAt" style="display: none;">
+<isif condition="${session.clickStream.clicks.size()>2}">
+	${session.clickStream.clicks[session.clickStream.clicks.size()-2].url}
+</isif>
+</div>
+
+<isif condition="${pdict.CurrentCustomer.authenticated}">
+	<isinclude url="${URLUtils.url('Error-DisplayAuthenticated')}"/> 
+<iselse>
+	<isinclude url="${URLUtils.url('Error-Display')}"/> 
+</isif>
+<iscomment>The JS is written for Google Analytics</iscomment>
+<script type="text/javascript">
+	$(window).load(function(){
+		$("#errorGeneratedAt").click();		
+	});
+</script>
+
+</isdecorate>

@@ -1,0 +1,55 @@
+/**
+* This script takes a target Order and payment processr as input and creates a payment 
+* instrument representing a reverse authorization. The transaction number is the order ID 
+* of the order that was replaced. 
+*
+* @input TargetOrder : dw.order.Order The order whose previous payment instrument transaction will be reveresed.
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.value );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+    var order : Order = pdict.TargetOrder;
+    
+    // get the original payment instrument
+    var payments : Collection = order.getPaymentInstruments();
+    var iter : Iterator = payments.iterator();
+    while (iter != null && iter.hasNext())
+    {
+    	// get the original payment and amount
+    	var paymentInstrument : OrderPaymentInstrument = iter.next();
+  		var amount : Money = paymentInstrument.getPaymentTransaction().getAmount();
+  		trace("amount before: " + amount.value);
+  		
+  		// create the negative of this amount
+  		amount = amount.multiply(-1);
+  		trace("amount after: " + amount.value);  	
+  		// create a new payment instrument	
+    	var reversePaymentInstrument : OrderPaymentInstrument = 
+    		order.createPaymentInstrument(paymentInstrument.getPaymentMethod(), 
+    			amount);
+    			
+    	// set some info
+    	reversePaymentInstrument.setCreditCardType(paymentInstrument.getCreditCardType());
+    	reversePaymentInstrument.setCreditCardHolder(paymentInstrument.getCreditCardHolder());
+    	reversePaymentInstrument.setCreditCardNumber(paymentInstrument.getCreditCardNumber());
+    	reversePaymentInstrument.setCreditCardExpirationMonth(paymentInstrument.getCreditCardExpirationMonth());
+    	reversePaymentInstrument.setCreditCardExpirationYear(paymentInstrument.getCreditCardExpirationYear());
+
+    	// Update the payment transaction
+    	var paymentTransaction : PaymentTransaction = 
+    		reversePaymentInstrument.getPaymentTransaction();
+    		
+    	paymentTransaction.setPaymentProcessor(paymentInstrument.getPaymentTransaction().getPaymentProcessor());
+    	paymentTransaction.setTransactionID(order.getReplacementOrderNo());
+    	
+    	trace("replacement transaction id: " + paymentTransaction.getTransactionID());
+    }
+
+
+    return PIPELET_NEXT;
+}

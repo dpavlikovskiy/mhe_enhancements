@@ -1,0 +1,127 @@
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+
+<isinclude template="util/modules"/>
+<isscript>
+	importScript('product/ProductUtils.ds');
+	importScript("util/ProductImageSO.ds");
+</isscript>	
+<div class="plp-promo promo-dark">
+<isprint value="${slotcontent.calloutMsg}" encoding="off" /> 
+<div class="promo-shelf js-promo-shelf promo-shelf-champagne" data-product-shelf='{"template": "plp"}'>
+<ul class="promo-shelf-sizes clearfix">
+
+	<isloop items="${slotcontent.content}" var="VariantProduct" begin="0" end="0" >
+		<isscript>
+			var MasterProduct : dw.catalog.Product = VariantProduct.masterProduct;
+			var productVariationModel : dw.catalog.ProductVariationModel = MasterProduct.variationModel;
+			var productVariationAttribute : dw.catalog.ProductVariationAttribute = productVariationModel.getProductVariationAttribute("size");
+			/* Get Top Level category, to create the key for getting Serving and Volume Info */
+			var rootCategory : dw.catalog.Category = ProductUtils.getRootCategory (MasterProduct);
+		</isscript>
+	</isloop>
+	
+	<isif condition="${!empty(MasterProduct)}">		
+		<isset name="productUrl" value="${URLUtils.http('Product-Show', 'pid', MasterProduct.ID)}" scope="page"/>
+	</isif>
+		
+	<isloop items="${slotcontent.content}" var="Product">
+		
+		<isif condition="${Product.variant}">
+			
+			<isset value="${productVariationModel.getVariationValue(Product, productVariationAttribute)}" name="sizeValue" scope="page" >
+			<isset value="${sizeValue.displayValue}" name="sizeDisplayValue" scope="page" >
+			<isset value="${'Shelf'+sizeValue.value}" name="imageSizeKey" scope="page" >
+			
+			<iscomment>Creating the Key for getting Serving and Volume Info from SitePref</iscomment>
+			<isset name="key" value="${rootCategory.ID + '-' + sizeValue.value}" scope="page" />
+			<isset name="sizeThumbnail" value="${new ProductImage(imageSizeKey, Product, 0)}" scope="page"/>
+
+			<iscomment>If images couldn't be determined, display a "no image" thumbnail</iscomment>
+			<isif condition="${!empty(sizeThumbnail)}">
+				<isset name="thumbnailUrl" value="${sizeThumbnail.getURL()}" scope="page"/>
+				<isset name="thumbnailAlt" value="${sizeThumbnail.alt}" scope="page"/>
+				<isset name="thumbnailTitle" value="${sizeThumbnail.title}" scope="page"/>
+			<iselse>
+				<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page"/>
+				<isset name="thumbnailAlt" value="${sizeDisplayValue}" scope="page"/>
+				<isset name="thumbnailTitle" value="${sizeDisplayValue}" scope="page"/>
+			</isif>
+		
+			<iscomment>build the proper URL and append the search query parameters</iscomment>
+			<isset name="serving" value="${ProductUtils.getValueFromSitePrefEnum('stdBottleEquivalent', key)}" scope="page"/>
+			<isset name="volume" value="${ProductUtils.getValueFromSitePrefEnum('sizeVolume', key)}" scope="page"/>
+			
+	
+			<iscomment>render a single swatch, the url to the proper product detail page is contained in the href of the swatch link</iscomment>
+
+			<iscomment>Pricing</iscomment>
+			<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+				Get the price model for this product.
+			</iscomment>
+			<isset name="PriceModel" value="${Product.getPriceModel()}" scope="page"/>
+			<iscomment>
+				Check whether this product has price in the sale pricebook.  If so, then
+				display two prices:  crossed-out standard price and sales price.
+			</iscomment>
+			<isinclude template="product/components/standardprice"/>
+			
+			<isset name="PriceTable" value="${PriceModel.getPriceTable()}" scope="page"/>
+			<isset name="SalesPrice" value="${PriceModel.getPrice()}" scope="page"/>
+			<isset name="BasePriceQuantity" value="${PriceModel.getBasePriceQuantity()}" scope="page"/>
+			<isset name="ShowStandardPrice" value="${StandardPrice.available && SalesPrice.available && StandardPrice.compareTo(SalesPrice) == 1}" scope="page"/>
+		
+			<iscomment>
+				Check whether there are any active customer promotions for this product.  If so, then
+				display two prices:  crossed-out pricebook price and promotional price.
+		
+				Note:  we never display two crossed-out prices even if there is both a price-book
+				discount and a promotion.
+			</iscomment>
+			
+			<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(Product)}" scope="page"/>
+			<isset name="PromotionalPrice" value="${dw.value.Money.NOT_AVAILABLE}" scope="page"/>
+				
+			<isif condition="${! empty(promos)}">
+				<isloop items="${promos}" var="promo">
+					<isif condition="${promo.getPromotionClass() != null && promo.getPromotionClass().equals(dw.campaign.Promotion.PROMOTION_CLASS_PRODUCT)}">
+						<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(Product)}" scope="page"/>
+					</isif>
+					<isbreak/>
+				</isloop>
+				<isif condition="${PromotionalPrice.available && SalesPrice.compareTo(PromotionalPrice) != 0}">
+					<isset name="ShowStandardPrice" value="${true}" scope="page"/>
+					<isset name="StandardPrice" value="${SalesPrice}" scope="page"/>
+					<isset name="SalesPrice" value="${PromotionalPrice}" scope="page"/>
+				</isif>
+			</isif>
+			
+			<li class="promo-shelf-bottle">
+				<a href="${productUrl}">
+					<iscomment>Height and Width on image is set on temporary basis | Will be changed to dynamic resizing of image using DIS | Naveen Kumar</iscomment>
+					<img src="${thumbnailUrl}" alt="${thumbnailAlt}" data-thumb='{"serve":"${serving}","vol":"${volume}"}'/>
+					
+					<span class="promo-shelf-details ${ProductUtils.getClassNameForSize(sizeValue.value)}">
+						<span class="promo-shelf-details-inner">
+							<h4>${sizeDisplayValue}</h4>
+							<p>
+								<isprint value="${serving}"/><br>
+	               				<span class="size"><isprint value="${volume}"/></span>
+	               				<span class="price">
+		           					<isif condition="${ShowStandardPrice}">
+										<span class="price-standard"><isprint value="${StandardPrice}"/></span>
+									</isif>
+									<span class="price-sales"><isprint value="${SalesPrice}"/></span>
+	                			</span>
+	           				</p>
+						</span>
+					</span>	
+				</a>
+			</li>				
+		</isif>
+	</isloop>
+</ul>
+<!--  <img id="js-flute" class="promo-shelf-flute" src="images/sizes/newflute.png?$staticlink$" alt="" />  -->
+</div>
+<iscomment></div></iscomment>
+<!-- END: verticalcarousel -->
+</div>

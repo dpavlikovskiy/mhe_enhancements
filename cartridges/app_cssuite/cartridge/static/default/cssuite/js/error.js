@@ -1,0 +1,1 @@
+function handleError(a,b,c){"401"==a.status?window.location.href=CSSuite.sessionExpiredURL:Dialog.message("An error occured",'<div>There was an error calling "'+CSSuite.info+'". Please contact your technical support.</div>',function(){window.location.href=CSSuite.homeUrl})}

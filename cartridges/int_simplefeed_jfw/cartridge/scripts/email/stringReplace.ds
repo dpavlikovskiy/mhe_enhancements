@@ -1,0 +1,36 @@
+/**
+* Demandware Script File
+* To define string replace functions:
+*/
+importPackage( dw.system );
+importPackage( dw.content );
+importPackage( dw.util );
+
+function replaceAll(mailBody : String, replaceTo : String, replaceWith : String) : String {
+	while(mailBody.indexOf(replaceTo) >=0)
+	{
+		mailBody = mailBody.replace(replaceTo, replaceWith);
+	}	
+	return mailBody;
+}
+
+function replaceAll(mailBody : String, regExp : RegExp, replaceWith : String) : String {
+	while(regExp.test(mailBody))
+	{
+		mailBody = mailBody.replace(regExp, replaceWith);
+	}	
+	return mailBody;
+}
+function trimTagContent(mailBody : String) : String {
+	var regExp : RegExp = new RegExp("(<& +)");
+	while(regExp.test(mailBody))
+	{
+		mailBody = mailBody.replace(regExp, "<&");
+	}
+	regExp = new RegExp("( +&>)");
+	while(regExp.test(mailBody))
+	{
+		mailBody = mailBody.replace(regExp, "&>");
+	}	
+	return mailBody;
+}

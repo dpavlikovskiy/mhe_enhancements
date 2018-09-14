@@ -1,0 +1,40 @@
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<isloop items="${slotcontent.content}" var="product" begin="0" end="1">
+	<isscript>  
+		importScript( "product/ProductUtils.ds" );					
+		/** Set	if the badge needs to be displayed or not */ 
+		var displayBadge : Boolean = ProductUtils.displayBadge(product); 
+	</isscript>
+
+	<a href="${URLUtils.http('Product-Show','pid', product.ID)}" class="module product product-listing product-listing-1x2">
+
+		<isset name="Product" value="${product}" scope="pdict" />
+		<iscomment>Check for a product in the dictionary, if no product found. This section is skipped.</iscomment>
+		<isif condition="${!empty(pdict.Product)}">
+		
+			<span class="overlay">
+		    	<span class="details">
+		        	<span class="shop">${Resource.msg('global.shop','locale',null)}</span>
+		        	<h3 class="secondary"><isprint value="${product.name}"/></h3>
+		            <span class="price"><isinclude template="product/components/pricing"/></span>
+		        </span>
+		    </span>
+		    
+			<isif condition="${displayBadge}"> 
+				<img class="homeBadge" src="${ProductUtils.getBadgeImage(product.custom.badge)}" />
+			</isif>
+			
+			<isif condition="${!empty(pdict.Product.getImage('hi-res',0))}">
+				<isset name="image" value="${ new ProductImage('product1x2', pdict.Product, 0 ) }" scope="page" />
+				<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" />
+			<iselse>	
+				<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagemedium.png')}" scope="page" />
+			</isif>
+				<img src="${thumbnailUrl}" alt="${product.name}" />
+			
+		</isif>
+	
+	</a>
+
+</isloop>

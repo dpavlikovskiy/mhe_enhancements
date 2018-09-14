@@ -1,0 +1,156 @@
+<iscomment>
+	This template is used to render the order totals for a basket or an order.
+
+    Parameters:
+    p_lineitemctnr     : the line item container to render (this could be either an order or a basket as they are both line item containers)
+    p_showshipmentinfo : boolean that controls if individual shipment information is rendered or if aggregate totals are rendered
+    p_shipmenteditable : boolean that controls if the shipment should have an edit link
+    p_totallabel       : label to use for the total at bottom of summary table
+</iscomment>
+
+<iscomment>Create page varibale representing the line item container</iscomment>
+<isset name="brand" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.toLowerCase()}" scope="page"/>
+<isif condition="${brand.equals('mh')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+<iselseif condition="${brand.equals('dp')}" >
+<isset name="color" value="${'#9e8a59'}" scope="page"/>
+<iselseif condition="${brand.equals('vc')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+<iselseif condition="${brand.equals('ad')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+</isif>
+<isset name="LineItemCtnr" value="${pdict.p_lineitemctnr}" scope="page"/>
+<isif condition="${'replacedOrderNumber' in LineItemCtnr.custom && !empty(LineItemCtnr.custom.replacedOrderNumber)}" >
+<isset name="setPriceZero" value="true" scope="page"/>
+</isif>
+
+<isif condition="${!empty(LineItemCtnr)}">
+
+	<table width="280" border="0" cellspacing="0" cellpadding="0">
+		
+		<iscomment>
+			render order subtotal if there are both contained in the cart, products and gift certificates
+			(product line item prices including product level promotions plus gift certificate line items prices)
+		</iscomment>
+		<tr>
+			<td width="203" style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">${Resource.msg('ordersummary.subtotal','components',null)}
+			<br/><span style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;text-align:left;">(${Resource.msg('ordersummary.ordertax','components',null)}     <isif condition="${LineItemCtnr.totalTax.available}">
+			    <isprint value="${pdict.taxRate}" />%
+				 <isprint value="${LineItemCtnr.totalTax}"/>
+				<iselse>
+					${Resource.msg('ordersummary.nodata','components',null)}
+				</isif>
+				)</span>
+			</td>
+			<td width="77" style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;"><isprint value="${LineItemCtnr.getAdjustedMerchandizeTotalPrice(false).add(LineItemCtnr.giftCertificateTotalPrice)}"/></td>
+		</tr>
+		
+		<iscomment>calculate order level discounts</iscomment>
+		<isscript>
+			var merchTotalExclOrderDiscounts : dw.value.Money = LineItemCtnr.getAdjustedMerchandizeTotalPrice(false);
+			var merchTotalInclOrderDiscounts : dw.value.Money = LineItemCtnr.getAdjustedMerchandizeTotalPrice(true);
+			var orderDiscount : dw.value.Money = merchTotalExclOrderDiscounts.subtract( merchTotalInclOrderDiscounts );
+		</isscript>
+		<isif condition="${!empty(orderDiscount) && orderDiscount.value > 0.0}">
+			<tr>
+				<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">${Resource.msg('ordersummary.orderdiscount','components',null)}</td>
+				<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">- <isprint value="${orderDiscount}"/></td>
+			</tr>
+		</isif>
+		
+           <iscomment>render each single shipment or shipping total</iscomment>
+			<isif condition="${pdict.p_showshipmentinfo}">
+				<iscomment>the url to edit shipping depends on the checkout scenario</iscomment>
+				<isset name="editUrl" value="${URLUtils.https('COShipping-Start')}" scope="page"/>
+				<isif condition="${pdict.CurrentForms.multishipping.entered.value}">
+					<isset name="editUrl" value="${URLUtils.https('COShippingMultiple-StartShipments')}" scope="page"/>
+				</isif>
+				<isloop items="${LineItemCtnr.shipments}" var="Shipment" status="loopstatus">
+				   <iscomment>show shipping cost per shipment only if it's a physical shipment containing product line items</iscomment>
+				   <isif condition="${Shipment.productLineItems.size() > 0}">
+			       <tr>
+					<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;font-style:italic;text-align:left;">
+						<isif condition="${pdict.p_shipmenteditable}">
+							<a href="${editUrl}">${Resource.msg('ordersummary.ordershipping.edit','components',null)}</a>
+						</isif>
+						${Resource.msg('ordersummary.ordershipping','components',null)} <!--  SHIPPING NAME --><isprint value="${Shipment.shippingMethod.displayName}"/>
+					</td>
+					<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">
+						<isif condition="${LineItemCtnr.shippingTotalPrice.available}">
+							<isprint value="${Shipment.shippingTotalPrice}"/>
+						<iselse>
+							${Resource.msg('ordersummary.nodata','components',null)}
+						</isif>
+					</td>
+				</tr>
+				</isif>
+			</isloop>
+		<iselse>
+			<tr>
+				<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;font-style:italic;text-align:left;">
+					${Resource.msg('ordersummary.ordershipping','components',null)}
+					<!-- Display Shipping Method -->
+					<isset name="Shipment" value="${LineItemCtnr.shipments.iterator().next()}" scope="page"/>
+					<isif condition="${!empty(Shipment) && !empty(Shipment.shippingMethod)}">
+						<isprint value="${Shipment.shippingMethod.displayName}"/>
+					</isif>
+				</td>
+				<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">
+					<isif condition="${LineItemCtnr.shippingTotalPrice.available}">
+						<isprint value="${LineItemCtnr.shippingTotalPrice}"/>
+					<iselse>
+						${Resource.msg('ordersummary.nodata','components',null)}
+					</isif>
+				</td>
+			</tr>
+		</isif>
+		
+		<iscomment>calculate shipping discount</iscomment>
+		<isscript>
+			var shippingExclDiscounts : dw.value.Money = LineItemCtnr.shippingTotalPrice;
+			var shippingInclDiscounts : dw.value.Money = LineItemCtnr.getAdjustedShippingTotalPrice();
+			var shippingDiscount : dw.value.Money = shippingExclDiscounts.subtract( shippingInclDiscounts );
+		</isscript>
+		<isif condition="${!empty(shippingDiscount) && shippingDiscount.value > 0.0}">
+			<isif condition="${pdict.p_showshipmentinfo}">
+				<tr>
+					<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;font-style:italic;text-align:left;">${Resource.msg('ordersummary.ordershippingdiscount','components',null)}</td>
+					<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">- <isprint value="${shippingDiscount}"/></td>
+				</tr>
+			<iselse>
+				<tr>
+					<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;font-style:italic;text-align:left;">${Resource.msg('ordersummary.ordershippingdiscount','components',null)}</td>
+					<td style="${Resource.msg('email.tablecell','email',null)} ${Resource.msg('email.error','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">- <isprint value="${shippingDiscount}"/></td>
+				</tr>
+			</isif>
+		</isif>
+		
+		<iscomment>tax amount</iscomment>
+		<iscomment>
+		<tr>
+			<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:11px;text-align:left;">${Resource.msg('ordersummary.ordertax','components',null)}</td>
+			<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;text-align:left;">
+				<isif condition="${LineItemCtnr.totalTax.available}">
+				    <isprint value="${pdict.taxRate}" />%
+					<isprint value="${LineItemCtnr.totalTax}"/>
+				<iselse>
+					${Resource.msg('ordersummary.nodata','components',null)}
+				</isif>
+			</td>
+		</tr>
+		</iscomment>
+		<iscomment>order total</iscomment>
+		<tr>
+			<isif condition="${LineItemCtnr.totalGrossPrice.available}">
+			 	<isset name="orderTotalValue" value="${LineItemCtnr.totalGrossPrice}" scope="page"/>
+			<iselse>
+				<isset name="orderTotalValue" value="${LineItemCtnr.getAdjustedMerchandizeTotalPrice(true).add(LineItemCtnr.giftCertificateTotalPrice)}" scope="page"/>
+			</isif>
+
+			<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-size:12px;font-weight:bold;letter-spacing:1px;text-align:left;"><isprint value="${pdict.p_totallabel}"/></td>
+			<td style="${Resource.msg('email.tablecell','email',null)} padding:0;font-family:Arial,Helvetica,sans-serif;color:${color};font-weight:bold;font-size:13px;text-align:left;"><isprint value="${orderTotalValue}"/></td>
+		</tr>
+		
+	</table>
+
+</isif>

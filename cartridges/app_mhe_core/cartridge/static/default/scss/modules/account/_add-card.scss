@@ -1,0 +1,72 @@
+// =============================================================================
+// Add card
+// =============================================================================
+
+.account-module-addcard {
+	h2 {
+		&:before {
+			@include icon();
+			@extend .icon-lock;
+			padding-right:8px;
+		}
+	}
+	.form-row-expiry {
+		.date-group {
+			label {
+				visibility:hidden;
+				width:0;
+				height:0;
+			}
+		}
+	}
+	.account-form {
+		padding-bottom:30px;
+	}
+	.account-cards {
+		display:inline-block;
+		width:300px;
+		margin-top:-5px;
+		li {
+			display:inline-block;
+			line-height:2em;
+			position:relative;
+			text-transform:uppercase;
+			letter-spacing:1px;
+			@include custom-radio();
+		}
+	}
+	.account-submit {
+		margin-top:0;
+	}
+	.error {
+		.selectHolder {
+			font-weight:400;
+		}
+	}
+}
+
+// IE8 -------------------------------------------------------------------------
+.ie8 {
+	.account-module-addcard {
+		.account-cards {
+			margin-top:0;
+			li {
+				label {
+					margin:-6px 0 0 0;
+					display:inline;
+					float:none;
+					&:before {
+						display:none;
+					}
+				}
+				input[type=radio] {
+					display:inline;
+					visibility: visible;
+					position:static;
+					vertical-align:middle;
+					padding:0;
+				}
+			}
+		}
+	}
+}

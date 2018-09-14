@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="Job" type="process">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Simple Job Example. Parameters:
+
+testparameter (o) - string - the string you want to see in the debug log file 
+
+Task Configuration Example:
+{&quot;name&quot;:&quot;Job Example Run1&quot;, &quot;pipeline&quot;:&quot;JobExample-Start&quot;, &quot;testparameter&quot;:&quot;Hello World!&quot;}</description>
+        </text-node>
+        <node-display width="3" x="2" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Start">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="Start" secure="false"/>
+        <node-display x="2" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Start to process Step 1&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Start to process Step 1&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="job/pipelet/JobExampleScript.ds"/>
+          <key-binding alias="ScriptLog" key="ScriptLog"/>
+          <key-binding alias="Task.getParameter(&quot;testparameter&quot;,&quot;Hello world per default.&quot;)" key="TestParameter"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="target" x="0" y="-2"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Task.setErrorStatusMessage()" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="true"/>
+                <config-property key="Expression" value="Task.setErrorStatusMessage(&quot;Processing of ScriptFile job/pipelet/JobExampleScript.ds failed: &quot; + ScriptLog)"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="2" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Step 1 successfully processed!&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Step 1 successfully processed!&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

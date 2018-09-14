@@ -1,0 +1,95 @@
+.pdp-section-tabs {
+	background: $tastingNotesBg;
+	.tab {
+		a {
+			color: $darkBrownText;
+			font: $small_heading $titleFont;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $brandcolor;
+				border-bottom: $brandcolor 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+			.col-hero {
+				.col-inner {
+					img {
+						margin-bottom: 0;
+					}
+					.credit {
+						padding:0 45px 20px 15px;
+					}
+				}
+			}
+		}
+		.col-hero {
+			.col-inner {
+				.credit {
+					padding:0 45px 20px 15px;
+				}
+			}
+		}
+		h2 {
+			color: $brandcolor;
+			font: $slightly_big_text $regularFont;
+			letter-spacing: 1px;
+			margin:40px 0;
+		}
+		h3 {
+			color: $brandcolor;
+			font: $very_small_text $titleFont;
+		}
+		.gamma-heading {
+			color: $brandcolor;
+			font: $small_heading $titleFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:10px;
+		}
+		p {
+			color: $darkBrownText;
+			font: Italic $small_text $regularFont;
+		}
+		&.characteristics {
+			.cta-wrap {
+				.button {
+					background:$brandBg;
+					font:$smaller_heading $regularFont;
+					.face {
+						color:$white;
+						border:none;
+						font-weight:normal;
+						&.back {
+							color:$white;
+							background:$brandBg;
+						}
+					}
+				}
+			}
+			p {
+				font: Italic $small_text $regularFont;
+			}
+		}
+		&.award {
+			p {
+				font: Italic $small_text $regularFont;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $darkBrownText !important;
+			}
+			&:after {
+				color: $darkBrownText !important;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

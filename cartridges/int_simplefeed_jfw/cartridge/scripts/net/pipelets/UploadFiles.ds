@@ -1,0 +1,150 @@
+/*
+ * Uploads a list of files matching a given pattern from the app-server to an FTP server.
+ * Each uploaded file will be moved to a given archive directory at the app-server.
+ *
+ * @todo implement in accodance with job framework
+ *
+ */
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.net );
+importPackage( dw.io );
+
+importScript( "net/ftp/libFTPClient.ds" );
+importScript( "net/sftp/libSFTPClient.ds" );
+
+function execute( pdict : PipelineDictionary ) : Number {
+	// input variables 
+	var useSFTP			: Boolean = pdict.SFTP != null ? pdict.SFTP : false;
+	var host			: String = pdict.Host;
+	var user			: String = pdict.User;
+	var pw				: String = pdict.Password;
+	var path			: String = pdict.Path;
+	var pattern			: String = pdict.Pattern;
+	var encoding		: String = !empty(pdict.Encoding) ? pdict.Encoding : 'UTF-8';
+	var transferBinary	: Boolean = pdict.Binary != null ? pdict.Binary : false; 
+	var uploadDir		: String = pdict.UploadDir;
+	var archiveDir		: String = pdict.ArchiveDir;
+	var logger			: FileLogger = (pdict.FileLogger != null) ? pdict.FileLogger : new FileLogger();
+	
+	if(empty(host) || empty(user) || empty(pw))
+	{
+		logger.error("Mandatory input parameters for ftp server missing. Host: {0}, User: {1}, Password: {2}.", host, user, pw);  
+		return PIPELET_ERROR;
+	}
+
+	if(empty(path))
+	{
+		logger.error("Mandatory input parameter for source directory missing.");  
+		return PIPELET_ERROR;
+	}
+	if (path.charAt(path.length-1) != File.SEPARATOR)
+	{
+		path = path.concat(File.SEPARATOR);
+	} 
+	var dir : File = new File(path);
+	if (!dir.exists() || !dir.directory) 
+	{
+		logger.error("The input parameter Path ({0}) does not specify a directory.", path);  
+		return PIPELET_ERROR;
+	}
+	
+	if(empty(uploadDir))
+	{
+		logger.error("Mandatory input parameter for upload directory missing.");  
+		return PIPELET_ERROR;
+	}
+	if (uploadDir.charAt(uploadDir.length-1) != File.SEPARATOR)
+	{
+		uploadDir = uploadDir.concat(File.SEPARATOR);
+	} 
+
+	if(empty(archiveDir))
+	{
+		logger.error("Mandatory input parameter for archive directory missing.");  
+		return PIPELET_ERROR;
+	}
+	if (archiveDir.charAt(archiveDir.length-1) != File.SEPARATOR)
+	{
+		archiveDir = archiveDir.concat(File.SEPARATOR);
+	} 
+	dir = new File(archiveDir);
+	if (dir.exists()) 
+	{
+		if (!dir.directory)
+		{
+			logger.error("The input parameter ArchiveDir ({0}) does not specify a directory.", archiveDir);  
+			return PIPELET_ERROR;
+		}
+	}
+	else if (!dir.mkdirs())
+	{
+		logger.error("The input parameter ArchiveDir ({0}) does not specify an existing directory and could not be created.", archiveDir);  
+		return PIPELET_ERROR;
+	}
+	else
+		logger.debug("Archive directory {0} created!", archiveDir);
+	
+	if (!useSFTP)
+	{
+		var ftpClient : EnhancedFTPClient = new EnhancedFTPClient(logger);
+		if (ftpClient.connect(host, user, pw))
+		{
+			logger.debug("Connected to ftp server {0}.", host);
+			
+			var ok : Boolean = true;
+			try
+			{
+				ok = ftpClient.uploadFiles(path, pattern, archiveDir, uploadDir, encoding, transferBinary);
+			}
+			catch (e)
+			{
+				ok = false;
+				logger.error("EXCEPTION: {0}", e);
+			}
+			ftpClient.disconnect();
+			logger.debug("Connection to ftp server {0} closed.", host);
+			
+			return ok ? PIPELET_NEXT : PIPELET_ERROR;
+		}
+		else
+		{
+			var msg : String = 
+				StringUtils.format('Connection to ftp server failed. Host: {0}, Server reply: {1} ({2}).',
+					host, ftpClient.replyCode, ftpClient.replyMessage);
+			logger.error(msg);
+			return PIPELET_ERROR;
+		}
+	}
+	else
+	{
+		var sftpClient : EnhancedSFTPClient = new EnhancedSFTPClient(logger);
+		if (sftpClient.connect(host, user, pw))
+		{
+			logger.debug("Connected to sftp server {0}.", host);
+			
+			var ok : Boolean = true;
+			try
+			{
+				ok = sftpClient.uploadFiles(path, pattern, archiveDir, uploadDir, encoding, transferBinary);
+			}
+			catch (e)
+			{
+				ok = false;
+				logger.error("EXCEPTION: {0}", e);
+			}
+			sftpClient.disconnect();
+			logger.debug("Connection to sftp server {0} closed.", host);
+			
+			return ok ? PIPELET_NEXT : PIPELET_ERROR;
+		}
+		else
+		{
+			var msg : String = 
+				StringUtils.format('Connection to sftp server failed. Host: {0}, Server reply: {1}.',
+					host, sftpClient.errorMessage);
+			logger.error(msg);
+			return PIPELET_ERROR;
+		}
+	}
+}

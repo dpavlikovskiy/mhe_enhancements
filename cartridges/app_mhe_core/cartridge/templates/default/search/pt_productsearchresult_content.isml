@@ -1,0 +1,17 @@
+<isset name="DecoratorTemplate" value="search/pt_productsearchresult" scope="page"/>
+
+<isif condition="${pdict.CurrentHttpParameterMap.format.stringValue == 'ajax'}">
+
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+	
+</isif>
+
+<isdecorate template="${DecoratorTemplate}">
+
+	<isinclude template="search/components/productsearchbreadcrumbs"/>
+
+	<div id="primary" class="products-container primary-content">
+		<isreplace/>
+	</div>
+	
+</isdecorate>

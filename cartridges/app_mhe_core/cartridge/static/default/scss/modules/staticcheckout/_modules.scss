@@ -1,0 +1,28 @@
+.staticCheckoutHeader{
+	.header{
+		background:$black;
+		.title-wrap{
+			line-height:6px;
+			margin:0;
+			overflow:hidden;
+			text-align:center;
+		}
+		header{
+			.header_right{
+				position:absolute;
+				right:0;
+				width:auto;
+				margin:-7px 0 0;
+				top:50%;
+				.mini-cart{
+					border:0;
+					padding:0;
+					margin:0;
+					.mini-cart-total{
+						font-size:12px;
+					}
+				}
+			}
+		}
+	}
+}

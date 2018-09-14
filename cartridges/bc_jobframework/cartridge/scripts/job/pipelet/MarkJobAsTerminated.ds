@@ -1,0 +1,35 @@
+/**
+* This script marks a job, identified by its id, as abnormally terminated.
+*
+* @input JobStatusID : String The id of the job status object.
+*/
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.util );
+
+var STATUS_TERMINATED : String = 'TERMINATED';
+var STATUS_RUNNING : String = 'RUNNING';
+
+function execute( args : PipelineDictionary ) : Number {
+	var jobStatusID : String = args.JobStatusID;
+	if ( empty(jobStatusID) ) {
+		return PIPELET_NEXT;
+	}
+	var jobStatusObject : CustomObject = CustomObjectMgr.getCustomObject('JobStatus', jobStatusID);
+	if ( empty(jobStatusObject) ) {
+		return PIPELET_NEXT;
+	}
+	
+	if ( jobStatusObject.custom.state == 'RUNNING' ) {
+		var currentDate : Date = System.getCalendar().getTime();
+		jobStatusObject.custom.state = STATUS_TERMINATED;
+		jobStatusObject.custom.endDate = currentDate;
+		var taskStatusObjects : SeekableIterator = CustomObjectMgr.queryCustomObjects('JobStatus', 'custom.parent={0} AND custom.state={1}', null, jobStatusID, STATUS_RUNNING );
+		for each( var taskStatusObject : CustomObject in taskStatusObjects ) {
+			taskStatusObject.custom.state = STATUS_TERMINATED;
+			taskStatusObject.custom.endDate = currentDate;
+		}
+	}
+		
+    return PIPELET_NEXT;
+}

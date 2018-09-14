@@ -1,0 +1,65 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<iscomment>
+	Creates a div rendering product availability information.
+	p_productli           : the product line item representing the product to render.
+	
+</iscomment>
+
+<iscomment>Create page variable representing the product line item</iscomment>
+<isset name="p_productli" value="${pdict.p_productli}" scope="page"/>
+<div class="productavailibity">
+	<isif condition="${p_productli.product != null}">
+		<div class="availibity">
+			<isset name="availabilityModel" value="${p_productli.product.availabilityModel}" scope="page"/>
+			<isset name="availabilityStatus" value="${p_productli.product.availabilityModel.availabilityStatus}" scope="page"/>
+			<isset name="inventoryRecord" value="${p_productli.product.availabilityModel.inventoryRecord}" scope="page"/>
+			<!--- considering the current line item quantity if product is not perpeptual --->
+			<isif condition="${ !availabilityModel.isOrderable(p_productli.quantity.value) && inventoryRecord }">
+				<isif condition="${!inventoryRecord.perpetual}">
+					<isset name="productAvailabilityLevels" value="${availabilityModel.getAvailabilityLevels(p_productli.quantity.value)}" scope="page">
+					<isif condition="${productAvailabilityLevels.inStock.value>0}">
+						<p>
+							<span class="label">In Stock:</span>
+							<span class="value"><isprint value="${productAvailabilityLevels.inStock.value}" formatter="#"></span>
+						</p>
+					</isif>
+					<isif condition="${productAvailabilityLevels.backorder.value>0}">
+						<p>
+							<span class="label">Backorder:</span>
+							<span class="value"><isprint value="${productAvailabilityLevels.backorder.value}" formatter="#"></span>
+						</p>
+					</isif>
+					<isif condition="${productAvailabilityLevels.preorder.value>0}">
+						<p>
+							<span class="label">Preorder:</span>
+							<span class="value"><isprint value="${productAvailabilityLevels.preorder.value}" formatter="#"></span>
+						</p>
+					</isif>
+					<isif condition="${productAvailabilityLevels.notAvailable.value>0}">
+						<p>
+							<span class="label error">Not Available:</span>
+							<span class="value error"><isprint value="${productAvailabilityLevels.notAvailable.value}" formatter="#"></span>
+						</p>
+					</isif>
+				</isif>
+			<iselse>
+				<isif condition="${availabilityStatus == dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK}">
+					<span class="isinstock">
+						${Resource.msg('displayproductavailability.instock','cssuite',null)}<br/>
+					</span>
+				<iselseif condition="${availabilityStatus == dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}">
+					<span class="onorder">
+						${Resource.msg('displayproductavailability.preorder','cssuite',null)}<br/>
+					</span>
+				<iselseif condition="${availabilityStatus == dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER}">
+					<span class="onorder">
+						${Resource.msg('displayproductavailability.backorderitem','cssuite',null)}<br/>
+					</span>
+				<iselse>
+					<span class="notavailable">${Resource.msg('displayproductavailability.notavailable','cssuite',null)}</span>
+				</isif>
+			</isif>
+			
+		</div><!-- END: availibity -->
+	</isif>
+</div><!-- END: productavailibity -->

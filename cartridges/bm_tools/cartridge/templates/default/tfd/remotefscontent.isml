@@ -1,0 +1,51 @@
+<isif condition="${!empty(pdict.RemoteStatus) && pdict.RemoteStatus.error}">
+	<div class="error">
+		${pdict.RemoteStatus.message}
+	</div>
+<iselse/>
+	<table class="table_title_description">
+		<tr>
+			<td><strong>Directories:</strong></td>
+			<td><strong>${pdict.RemoteObjectList ? pdict.RemoteObjectList.directories.length.toFixed() : '0'}</strong></td>
+		</tr>
+		<tr>
+			<td><strong>Files:</strong></td>
+			<td><strong>${pdict.RemoteObjectList ? pdict.RemoteObjectList.files.length.toFixed() : '0'}</strong></td>
+		</tr>
+	</table>
+	<table cellpadding="3">
+		<tr>
+			<th class="table_header w e n s left">Name</th>
+			<th class="table_header w e n s left">Size</th>
+			<th class="table_header w e n s left">Last Modified</th>
+			<th class="table_header w e n s left">Action</th>
+		</tr>
+		<isif condition="${!empty(pdict.RemoteObjectList)}">
+			<isloop iterator="${pdict.RemoteObjectList.directories}" alias="directory">
+				<tr class="remotedirectory">
+					<td class="table_detail w e s top name left" style="cursor: pointer; background-color: lightgray;"  title="${directory.path}">${directory.name}</td>
+					<td class="table_detail e s top size left" style="background-color: lightgray;">${directory.size}</td>
+					<td class="table_detail e s top lastModified left" style="background-color: lightgray;">${directory.lastModified}</td>
+					<td class="table_detail e s top left file_operation" style="background-color: lightgray;">
+						<isif condition="${directory.name != '..'}">
+							<span class="delete" style="cursor: pointer;">delete</span>
+						<iselse/>
+							&nbsp;
+						</isif>
+					</td>
+				</tr>
+			</isloop>
+			<isloop iterator="${pdict.RemoteObjectList.files}" alias="file">
+				<tr class="remotefile">
+					<td class="table_detail w e s top name left" style="cursor: pointer;" title="${file.path+'/'+file.name}">${file.name}</td>
+					<td class="table_detail e s top size left">${file.size}</td>
+					<td class="table_detail e s top lastModified left">${file.lastModified}</td>
+					<td class="table_detail e s top left file_operation">
+						<span class="delete" style="cursor: pointer;">delete</span>
+						<span class="copy" style="cursor: pointer;">copy</span>
+					</td>
+				</tr>
+			</isloop>
+		</isif>
+	</table>
+</isif>

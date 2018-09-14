@@ -1,0 +1,17 @@
+/**
+* This script takes the error exit if a BML Paymnet Instrument is detected at the Order or a Basket
+*
+* @input LineItemCtnr : dw.order.LineItemCtnr Either an Order or a Basket that need to be checked.
+*/
+ importPackage( dw.system );
+ importScript( "app_cssuite:css/utils.ds" );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var lineItemCtnr : dw.order.LineItemCtnr = pdict.LineItemCtnr;
+	if (!empty(lineItemCtnr) && isBMLUsed(lineItemCtnr))
+	{
+		return PIPELET_ERROR;
+	}
+    return PIPELET_NEXT;
+}

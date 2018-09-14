@@ -1,0 +1,167 @@
+<!--- TEMPLATENAME: registerinterestdialog.isml --->
+<isinclude template="util/modules"/>
+<isinclude template="tagmanager/gtm_container" />
+	<div style="display: block;" id="divRegisterInterest">
+	
+		<isset name="isAuth" value="${pdict.CurrentCustomer.authenticated}" scope="page" >
+		<isset name="csOnlyInd" value="${pdict.csOnly}" scope="page" >
+		<isif condition="${isAuth}" > 
+		   <isset name="frmAction" value="${URLUtils.http('Product-RegisterInterest')}" scope="page" >
+		<iselse>
+		   <isset name="frmAction" value="${URLUtils.http('Product-RegisterInterestBrand')}" scope="page" >
+		</isif>
+		
+		<form action="${frmAction}" name="register-form" id="register-form">
+		    <input type="hidden" name="csOnly"   value="${pdict.csOnly}">
+		    <isif condition="${pdict.regType == 'product' }" > 
+		        <input type="hidden" name="pid"   value="${pdict.productID}">
+			<iselse>
+			     <input type="hidden" name="serviceId"   value="${pdict.productID}">
+			</isif>
+			<input type="hidden" name="pname" id="productName" value="${pdict.Product.name}">
+			<isif condition="${pdict.CurrentCustomer.authenticated}" > 
+				<input type="hidden" name="email" id="emailidRI" value="${pdict.CurrentCustomer.profile.email}">
+				<input type="hidden" name="salutation" id="salutation" value="${pdict.CurrentCustomer.profile.salutation}">
+				<input type="hidden" name="title" id="title" value="${pdict.CurrentCustomer.profile.title}">
+				<input type="hidden" name="firstname" id="nameRI" value="${pdict.CurrentCustomer.profile.firstName}">
+				<input type="hidden" name="lastname" id="surnameRI" value="${pdict.CurrentCustomer.profile.lastName}">
+				<input type="hidden" name="phone" id="phone" value="${pdict.CurrentCustomer.profile.phoneHome}">
+			</isif>		
+			<section class="section">
+				 <isif condition="${pdict.CurrentCustomer.authenticated}"> 
+					    <isif condition="${pdict.csOnly}">	
+						 	<span class="beta-heading white form-title form-title-head"><isprint value="${Resource.msg('product.csonly.isorderable','product',null)}" encoding="off" /></span>
+							<br/>
+							<br/>
+							<isprint value="${Resource.msg('product.csonly.registerinterest.thanksmsg','product',null)}" encoding="off" />
+							<br/>
+							<br/>
+							<isprint value="${Resource.msg('product.csonly.registerinterest.content','product',null)}" encoding="off" />
+							<br/>
+							<br/>
+							<div class="formWrapper clearfix" >
+							       		<div class="form-row registerTele">
+										 	<label class="optionalLabel">${Resource.msg('profile.telephone','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.phone}" type="input"   />
+										</div>
+										<div class="form-row isinputtext">
+											<label class="optionalLabel">${Resource.msg('profile.message','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.message}" type="textarea"  attribute2="rows" value2="5" attribute4="cols" value4="10" attribute3="data-character-limit" value3="300" />  
+										</div>
+							       </div>
+					    <iselse>
+						    <h2 class="beta-heading white">${Resource.msg('product.registerinterest.heading1','product',null)}</h2>
+						    <p>${Resource.msg('product.registerinterest.heading2','product',null)}</p>
+							<p>
+								<span>${pdict.CurrentCustomer.profile.firstName}</span> 
+								<span>${pdict.CurrentCustomer.profile.lastName}</span>
+							</p>
+							<p class="email_address">${pdict.CurrentCustomer.profile.email}</p>
+							 <div class="formWrapperRight" >
+							       		<div class="form-row registerTele">
+										 	<label class="optionalLabel">${Resource.msg('profile.telephone','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.phone}" type="input"   />
+										</div>
+										<div class="form-row isinputtext">
+											<label class="optionalLabel">${Resource.msg('profile.message','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.message}" type="textarea"  attribute2="rows" value2="5" attribute4="cols" value4="10" attribute3="data-character-limit" value3="300" />  
+										</div>
+							       </div>
+					    </isif>	
+						<ul class="bag-cta-list">
+							<li>
+								<button class="button secondary cancel-button">
+									<span class="face front">${Resource.msg('global.cancel','locale',null)}</span>
+									<span class="face back">${Resource.msg('global.cancel','locale',null)}</span>
+								</button>	
+							</li>
+							<li>
+								<button class="button secondary okay-button" id="btnSubmitRI">
+									<span class="face front">${Resource.msg('global.ok','locale',null)}</span>
+									<span class="face back">${Resource.msg('global.ok','locale',null)}</span>
+								</button>
+							</li>
+						</ul>	
+				 <iselse>
+							<isif condition="${!pdict.csOnly}">	
+								<h2 class="beta-heading">${Resource.msg('product.registerinterest.head1','product',null)}</h2>
+									<p>${Resource.msg('product.registerinterest.head2','product',null)}</p>
+								<br/>
+							<iselse>
+								<span class="beta-heading white form-title form-title-head"><isprint value="${Resource.msg('product.csonly.isorderable','product',null)}" encoding="off" /></span>
+								<br/>
+								<div class="form-title"><isprint value="${Resource.msg('product.registerinterestheader.form.csOnlytitle','product',null)}" encoding="off" /></div>
+							</isif>
+				   			<div class="formWrapper clearfix">
+							       <div class="formWrapperLeft" >
+							       		<isscript>
+											importScript('checkout/Utils.ds');
+											var titleMap : dw.util.Map = getTitleMap();	
+											var salutationMap : dw.util.Map = getSalutationMap();							
+										</isscript>
+										<div class="form-row registerSelect" >
+											<label>${Resource.msg('profile.registerinterest.salutation','forms',null)}</label>
+											<select id="title" name="title" class="input-text">
+												<option value=""></option>
+												<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">	
+													<isif condition="${isAuth && !empty(pdict.CurrentCustomer.profile.title) && pdict.CurrentCustomer.profile.title.equals(titleMap.get(key))}">							 
+											 			<option selected="selected" value="${key}">${titleMap.get(key)}</option>
+													<iselse>
+														<option value="${key}">${titleMap.get(key)}</option>
+													</isif>	                            				
+												</isloop>
+											</select>
+										</div>
+										<div class="form-row required registerSelect" data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+									   <label>${Resource.msg('profile.salutation2','forms',null)}</label>
+											<select id="salutation" name="salutation" class="input-text required">
+												<option value=""></option>
+												<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+													<isif condition="${isAuth && !empty(pdict.CurrentCustomer.profile.salutation) && pdict.CurrentCustomer.profile.salutation.equals(salutationMap.get(key))}">							 
+											 			<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+													<iselse>
+														<option value="${key}">${salutationMap.get(key)}</option>
+													</isif>	                            				
+												</isloop>
+											</select>
+										</div>	
+										<div class="form-row required">
+										   <label>${Resource.msg('profile.firstname','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.firstname}" type="input"  requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}"/>
+										</div>
+										<div class="form-row required">
+											<label>${Resource.msg('profile.lastname','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.lastname}" type="input"   requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"/>
+										</div>
+										<div class="form-row required">
+											<label>${Resource.msg('profile.emailaddress','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.email}" type="input"    requiredtext="${Resource.msg('forms.sendtofriend.email.missing-error','forms',null)}"/>
+										</div>
+							       </div>
+							       <div class="formWrapperRight" >
+							       		<div class="form-row registerTele">
+										 	<label class="optionalLabel">${Resource.msg('profile.telephone','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.phone}" type="input"   />
+										</div>
+										<div class="form-row isinputtext">
+											<label class="optionalLabel">${Resource.msg('profile.message','forms',null)}</label>
+											<isinputfield formfield="${pdict.CurrentForms.reginterest.message}" type="textarea"  attribute2="rows" value2="5" attribute4="cols" value4="10" attribute3="data-character-limit" value3="300" />  
+										</div>
+							       </div>
+							       <div class="buttonWrapper">
+										    <button class="button fill" id="btnSubmitRI">
+												<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+												<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+											</button>
+									</div>
+							 </div>
+				</isif>
+			</section>
+		</form>
+	</div>
+
+<script type="text/javascript">
+     $(document).ready(function(){
+    	 $( "#dwfrm_reginterest_phone" ).removeClass( "input-text phone" ).addClass( "input-text" );
+	 });
+</script>

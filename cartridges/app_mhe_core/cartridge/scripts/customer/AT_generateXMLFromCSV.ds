@@ -1,0 +1,488 @@
+/**
+* This Script will read the CSV file form IMpex location and will create the XML file which will be passed as input to the importCustomer pipelet. This 
+* script will return an error count as output  
+* @input FileNameCSV : String
+* @input FileNameXML : String
+* @input FolderName : String
+* @input CustomerIDToStartWith : String
+* @output importErrors : Number
+* @output fileToImport : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.customer );
+importPackage( dw.util );
+importPackage( dw.io );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger("Create_Customer_AT");
+
+/* Generating Constant for Column Numbers */
+
+var COL_NUM_CUSTOMER_NO : Number = 0;
+var COL_NUM_EMAIL : Number = 1;
+var COL_NUM_ACTIVATED : Number = 2;
+var COL_NUM_DOB : Number = 3;
+var COL_NUM_TITLE : Number = 4 ;	//#Added---------------
+var COL_NUM_SALUTATION : Number = 5 ;	//#Modified---------------
+var COL_NUM_FIRST_NAME : Number = 6;
+var COL_NUM_LAST_NAME : Number = 7 ;
+var COL_NUM_PASSWORD_HASH : Number = 8;
+var COL_NUM_ADDRESS_TITLE : Number = 9 ;	//#Added--------------
+var COL_NUM_ADDRESS_SALUTATION : Number = 10 ;	//#Modified--------------
+var COL_NUM_ADDRESS_FIRST_NAME : Number = 11;
+var COL_NUM_ADDRESS_LAST_NAME : Number = 12;
+var COL_NUM_ADDRESS_COMPANY : Number = 13;		//
+var COL_NUM_ADDRESS_ADDRESS1 : Number = 14;		//#Added--------------
+var COL_NUM_ADDRESS_ADDRESS2 : Number = 15;		//#Added--------------
+//var COL_NUM_ADDRESS_STREET : Number = 12;		//#Removed---------------
+var COL_NUM_ADDRESS_CITY : Number = 16;
+var COL_NUM_ADDRESS_POSTCODE : Number = 17;
+var COL_NUM_ADDRESS_TELEPHONE : Number = 18;
+var COL_NUM_ADDRESS_COUNTRY_ID : Number = 19;
+var COL_SAP_CUST_ID : Number = 20;
+var COL_NUM_GROUP_ID : Number = 21;
+var COL_NUM_ADDRESS_NAME : Number = 22;		//#Column Added-------------
+
+
+/*
+var COL_NUM_STORE : Number = 2;
+var COL_NUM_ACTIVITY_STATUS : Number = 3;
+var COL_NUM_ASSOCIATED_BRAND : Number = 4;
+var COL_NUM_BRAND_SEGMENT : Number = 5;
+var COL_NUM_COMPANY_NAME : Number = 6;
+var COL_NUM_CONTANT_NUMBER : Number = 8;
+var COL_NUM_CREATED_AT : Number = 10;
+var COL_NUM_GENDER : Number = 16;
+var COL_NUM_MIDDLE_NAME : Number = 24;
+var COL_NUM_REFERRER_EVENT : Number = 30;
+var COL_NUM_ADDRESS_MIDDLE_NAME : Number = 46;
+var COL_NUM_ADDRESS_REGION : Number = 49;
+var COL_NUM_ADDRESS_DEFAULT_BILLING : Number = 53;
+var COL_NUM_ADDRESS_DEFAULT_SHIPPING : Number = 54;
+*/
+
+/*  Generating Constant for Tag Names */
+var TAG_EMAIL : String = "email" ; //done
+var CUSTOM_TAG_SOURCE : String = "source";//done
+var CUSTOM_TAG_ACTIVITY_STATUS : String = "activityStatus";
+var TAG_DOB : String = "birthday"; //done
+var TAG_FIRSTNAME : String = "first-name";//done
+var TAG_LASTNAME : String = "last-name";//done
+var TAG_PASSWORD : String = "password";//done
+var TAG_TITLE : String = "title";//done		//#Added-----------
+var TAG_SALUTATION : String = "salutation";//done		//#Modified-----------
+var TAG_ADDRESS_CITY : String = "city";//done
+var TAG_ADDRESS_COUNTRY : String = "country-code";//done
+var TAG_POSTCODE : String = "postal-code";//done
+var TAG_STATES : String = "state-code"; //not to be used
+var TAG_COMPANY : String = "company-name";//done				//#Added----------
+var TAG_ADDRESS1 : String = "address1";//done
+var TAG_ADDRESS2 : String = "address2"; //done
+var TAG_PHONE : String = "phone"; //done
+var CUSTOM_TAG_saltKey: String="saltKey";//done
+var CUSTOM_TAG_migratedPassword: String="migratedPassword"; //done
+var TAG_ENABLED : String = "enabled-flag";
+var CUSTOM_TAG_SAP_CUSTOMER_ID = "sapCustomerId";
+var TAG_CUSTOMER_GROUP="customer-group";
+var rowIndex : Number = 0;
+var newCustomerIndex : Number = 0;
+var invalidEmailIndex : Number = 0;
+var defaultPassword : String = "moet1234";
+var importErrors : Number = 0;
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var csvFileName : String = pdict.FileNameCSV; //"CustomerCSV.csv"; // customer_moet.csv
+	var xmlFileName : String = pdict.FileNameXML; //"customersToImport.xml";// XML file used by ImportCustomer pipelet
+	var folderName : String = pdict.FolderName; //"customer";// folder name where files will be created
+	//Customer ID to start with
+	var customerID : Number = 9000;
+	if (!empty(pdict.CustomerIDToStartWith)){
+		customerID = new Number (pdict.CustomerIDToStartWith);
+	}
+	var csvLineArrays : ArrayList = new ArrayList();
+	var csvLineArray : Array = null;
+	var preEmail : String = null;
+	// Hashmap to maintain the list of customers with multiple entries
+	var customersWithMultipleEntries : HashMap =  new HashMap();
+	// CSV file location
+	var FILE_PATH : String = dw.io.File.IMPEX + dw.io.File.SEPARATOR + "src" + dw.io.File.SEPARATOR + folderName + dw.io.File.SEPARATOR;
+	//Create CSV Reader
+	var file : dw.io.File = new File( FILE_PATH  + csvFileName ); 
+	var csvReader : dw.io.CSVStreamReader = new CSVStreamReader(new FileReader(file));
+	
+	//Create XML Writer
+	var fileOut : File = new File(FILE_PATH + xmlFileName);
+	if (!fileOut.exists()){
+		fileOut.createNewFile();
+	}	
+	var fileWriter : FileWriter = new FileWriter(fileOut);	
+	var xmlWriter : XMLStreamWriter = new XMLStreamWriter(fileWriter);
+	
+	//Write the Customers Tag
+	xmlWriter.writeStartDocument();
+	xmlWriter.writeStartElement("customers");
+	xmlWriter.writeAttribute("xmlns", "http://www.demandware.com/xml/impex/customer/2006-10-31");
+	
+	do {
+		csvLineArray = csvReader.readNext();
+		rowIndex += 1;
+		if (rowIndex == 1) continue;
+	
+		//if csvLine is null i.e. End Of File; Create the last customer tag
+		if (empty(csvLineArray)){
+			createCustomer (csvLineArrays, xmlWriter, customerID);
+			newCustomerIndex += 1;
+		/* } Even if the ROW is empty csvLineArray is created with all the indexes having empty string
+		//If CSV Row is empty i.e. doesnt have any values
+		else if (csvLineArray.length <= 0) {
+			cvLogger.error( "******************Moet Customer Import-Error :: Empty Row : Row Number - " + rowIndex);
+			emptyRowIndex += 1;
+		*/
+		} else {
+			var email : String = csvLineArray[COL_NUM_EMAIL];
+			var customerNo: Number= csvLineArray[COL_NUM_CUSTOMER_NO];
+			//If email is empty or invalid
+			//if (empty(email) || !(new RegExp("^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$").test(email))) {
+				if (empty(email)) {
+				cvLogger.error( "Moet Customer Import-Error :: Empty or Invalid Email Address - " + email + " : Row Number - " + rowIndex );	
+				importErrors++;
+				invalidEmailIndex += 1;
+			} 
+			else if (empty(customerNo) || !(new RegExp("^[0-9]{1,10}$").test(customerNo))) {
+				cvLogger.error( "Moet Customer Import-Error :: Empty or Invalid customerNo- " + customerNo + " : Row Number - " + rowIndex );	
+				importErrors++;
+				invalidEmailIndex += 1;
+			} 
+			//if customer exist, update the address only
+			else if (isCustomerExist (email)){
+				
+				cvLogger.error( "Moet Customer Import-Status :: Existing Customer in System : Email Address - " + email + " : Row Number - " + rowIndex);
+				importErrors++;
+					} else {
+				//if same email id as previous line, add it to the list
+				if (preEmail==null || email.equalsIgnoreCase(preEmail)){
+					csvLineArrays.add1(csvLineArray);
+					if (preEmail!=null){
+						customersWithMultipleEntries.put(email, rowIndex);
+					}
+				} else {
+					//else Create a new customer
+					if (createCustomer (csvLineArrays, xmlWriter, customerID)) {
+						//increase the Customer Number
+						customerID += 1;
+						newCustomerIndex += 1;
+					}
+					csvLineArrays = new ArrayList();
+					csvLineArrays.add1(csvLineArray);	
+				}
+				preEmail = email;
+			}
+		}
+		
+	} while (csvLineArray != null);
+	
+	// end tag of the document
+	xmlWriter.writeEndElement();
+	xmlWriter.writeEndDocument();
+		
+	csvReader.close();// closing the csvreader 
+	xmlWriter.close();// closing the xmlWriter 
+	
+	cvLogger.error( "Moet Customer Import-Status ::\n Total Rows Read - " + (rowIndex-1) + " \n New Customers Created - " + newCustomerIndex + " \n Total Number of invalid or Empty Emails - " + invalidEmailIndex);
+	
+	if (customersWithMultipleEntries.size() > 0) {
+		cvLogger.error( "Moet Customer Import-Status ::\n List of Customers with Multiple Entries \n");
+		var itr : Iterator = customersWithMultipleEntries.keySet().iterator();
+		while (itr.hasNext()){
+			var emailId : String = itr.next();
+			var rowNumber : Number = customersWithMultipleEntries.get(emailId);
+			cvLogger.error( "Row - " + rowNumber + " :: Email - " + emailId);
+		}
+	} else {
+		cvLogger.error( "Moet Customer Import-Status ::\n NO Customer with Multiple Entries");
+	}
+	
+	pdict.importErrors=importErrors;
+	pdict.fileToImport=folderName + dw.io.File.SEPARATOR + xmlFileName;
+   	return PIPELET_NEXT;
+}
+
+// This function will call the another methods for populating the address information, credentials information, profile information
+function createCustomer (lineArrays : ArrayList, xmlWriter : XMLStreamWriter, customerNum : Number) : Boolean 
+{
+	if (lineArrays.length > 0){
+		var lineArray : Array = lineArrays[0];
+			xmlWriter.writeStartElement("customer");
+			
+		xmlWriter.writeAttribute("customer-no", lineArray[COL_NUM_CUSTOMER_NO]);
+			
+			//Create customer credentials 
+			createCredential(lineArray, xmlWriter);
+			
+			//Create custome profile form 
+			createProfile(lineArray, xmlWriter);
+			
+			//Create Addresses for all the rows
+			createAddresses(lineArrays, xmlWriter);
+			
+			//Create CustomerGroup for all the rows
+			createCustomerGroups(lineArray, xmlWriter);
+		
+		xmlWriter.writeEndElement();
+	}
+	return true;
+}
+
+//This method will Set credentials values for user
+function createCredential(lineArray : Array, xmlWriter : XMLStreamWriter) : Boolean
+{
+
+	xmlWriter.writeStartElement("credentials");
+	
+		xmlWriter.writeStartElement("login");
+			xmlWriter.writeCharacters(lineArray[COL_NUM_EMAIL]);
+		xmlWriter.writeEndElement();
+		
+		if(lineArray[COL_NUM_PASSWORD_HASH]!=null){
+			var migratedPassword: String=lineArray[COL_NUM_PASSWORD_HASH];
+			var hashPasswordarray=migratedPassword.split(":");
+			
+		xmlWriter.writeStartElement(TAG_PASSWORD);
+		xmlWriter.writeAttribute("encrypted", "false");
+			xmlWriter.writeCharacters(hashPasswordarray[0]);
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeStartElement(TAG_ENABLED);
+		
+			if (lineArray[COL_NUM_ACTIVATED].equalsIgnoreCase("yes")){
+				xmlWriter.writeCharacters("true");
+			} else {
+				xmlWriter.writeCharacters("false");
+			}		
+		xmlWriter.writeEndElement();
+		
+		}		
+
+	xmlWriter.writeEndElement();	
+	return true;
+}
+
+//Set profile values
+function createProfile(lineArray : Array, xmlWriter : XMLStreamWriter) : Boolean
+{
+	xmlWriter.writeStartElement("profile");
+	
+		xmlWriter.writeStartElement(TAG_SALUTATION);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_SALUTATION]);
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeStartElement(TAG_TITLE);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_TITLE]);
+		xmlWriter.writeEndElement();
+	
+		xmlWriter.writeStartElement(TAG_FIRSTNAME);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_FIRST_NAME]);
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeStartElement(TAG_LASTNAME);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_LAST_NAME]);
+		xmlWriter.writeEndElement();
+			
+		xmlWriter.writeStartElement(TAG_EMAIL);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_EMAIL]);
+		xmlWriter.writeEndElement();
+	 
+	 
+	 
+	 if(!empty(lineArray[COL_NUM_DOB])){ 
+	 	
+		var cal : Calendar = new Calendar();
+		try {
+			cal.parseByFormat(lineArray[COL_NUM_DOB],"yyyy-MM-dd");
+		} catch (e){
+			Logger.error("Customer Migeration -- Error " + e + " Occured at Line #" + rowIndex + " Value is " + lineArray[COL_NUM_DOB]);
+		}
+
+		xmlWriter.writeStartElement(TAG_DOB);
+		
+			xmlWriter.writeCharacters(StringUtils.formatCalendar(cal,"yyyy-MM-dd"));
+			
+		xmlWriter.writeEndElement();
+	 }
+	 
+	 
+		//Custom Attributes
+		createProfileCustomAttribute(lineArray, xmlWriter);
+		
+	xmlWriter.writeEndElement();	
+	
+   	return true;
+}
+
+//Set address values
+function createAddresses(lineArrays : ArrayList, xmlWriter : XMLStreamWriter) : Boolean
+{
+	var index : Number;
+	var lineArray : Array;
+	xmlWriter.writeStartElement("addresses");
+	for (index = 0; index < lineArrays.length; index++){
+		lineArray = lineArrays[index];
+		/*
+		if (!empty (lineArray[COL_NUM_ADDRESS_ADDRESS1])){
+			var addressID : String = lineArray[COL_NUM_ADDRESS_ADDRESS1];
+			
+			if (!empty (lineArray[COL_NUM_ADDRESS_CITY])){
+			addressID=addressID + "_" + lineArray[COL_NUM_ADDRESS_CITY];
+			}
+		*/
+		//#Address Name is picked from the excel sheet
+		if (!empty (lineArray[COL_NUM_ADDRESS_NAME])){
+			var addressID : String = lineArray[COL_NUM_ADDRESS_NAME];
+			
+			xmlWriter.writeStartElement("address");
+			xmlWriter.writeAttribute("address-id", addressID);
+			xmlWriter.writeAttribute("preferred", "false");
+			
+				xmlWriter.writeStartElement(TAG_SALUTATION);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_SALUTATION]);
+				xmlWriter.writeEndElement();
+			
+				xmlWriter.writeStartElement(TAG_TITLE);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_TITLE]);
+				xmlWriter.writeEndElement();
+			
+				xmlWriter.writeStartElement(TAG_FIRSTNAME);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_FIRST_NAME]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_LASTNAME);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_LAST_NAME]);
+				xmlWriter.writeEndElement();
+			
+				xmlWriter.writeStartElement(TAG_COMPANY);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_COMPANY]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_ADDRESS1);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_ADDRESS1]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_ADDRESS2);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_ADDRESS2]);
+				xmlWriter.writeEndElement();
+
+				xmlWriter.writeStartElement(TAG_ADDRESS_CITY);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_CITY]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_POSTCODE);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_POSTCODE]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_ADDRESS_COUNTRY);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_COUNTRY_ID]);
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(TAG_PHONE);
+					xmlWriter.writeCharacters(lineArray[COL_NUM_ADDRESS_TELEPHONE]);
+				xmlWriter.writeEndElement();
+				
+			xmlWriter.writeEndElement();
+		}
+	}
+	xmlWriter.writeEndElement();
+	
+   	return true;
+}
+
+//Set customer group values
+function createCustomerGroups(lineArray : Array, xmlWriter : XMLStreamWriter) : Boolean
+{
+	
+	if(!empty(lineArray[COL_NUM_GROUP_ID])&&!empty(CustomerMgr.getCustomerGroup(lineArray[COL_NUM_GROUP_ID]))){
+xmlWriter.writeStartElement("customer-groups");
+	xmlWriter.writeStartElement(TAG_CUSTOMER_GROUP);
+			xmlWriter.writeAttribute("group-id", lineArray[COL_NUM_GROUP_ID]);
+		xmlWriter.writeEndElement();	
+xmlWriter.writeEndElement();
+	}
+   return true;
+}
+
+
+//Set profile custom attributes values
+function createProfileCustomAttribute (lineArray : Array, xmlWriter : XMLStreamWriter) : Boolean
+{
+		var hashPasswordarray : Array = null;
+		xmlWriter.writeStartElement("custom-attributes");
+		/*xmlWriter.writeStartElement("custom-attribute");
+			xmlWriter.writeAttribute("attribute-id", CUSTOM_TAG_ACTIVITY_STATUS);
+			xmlWriter.writeCharacters(lineArray[COL_NUM_ACTIVITY_STATUS].toLocaleLowerCase());
+			xmlWriter.writeEndElement();
+		*/
+		xmlWriter.writeStartElement("custom-attribute");
+		xmlWriter.writeAttribute("attribute-id", CUSTOM_TAG_SOURCE);
+			xmlWriter.writeCharacters("Magento");
+		xmlWriter.writeEndElement();
+		
+		
+		if(lineArray[COL_NUM_PASSWORD_HASH]!=null){
+			
+
+			
+			var migratedPassword: String=lineArray[COL_NUM_PASSWORD_HASH];
+			var hashPasswordarray=migratedPassword.split(":");
+			
+		xmlWriter.writeStartElement("custom-attribute");
+		xmlWriter.writeAttribute("attribute-id", CUSTOM_TAG_saltKey);
+			xmlWriter.writeCharacters(hashPasswordarray[1]);
+		xmlWriter.writeEndElement();
+		
+		
+		
+		xmlWriter.writeStartElement("custom-attribute");
+		xmlWriter.writeAttribute("attribute-id", CUSTOM_TAG_migratedPassword);
+			xmlWriter.writeCharacters(hashPasswordarray[0]);
+		xmlWriter.writeEndElement();
+		
+		
+		
+		xmlWriter.writeStartElement("custom-attribute");
+		xmlWriter.writeAttribute("attribute-id", CUSTOM_TAG_SAP_CUSTOMER_ID);
+		xmlWriter.writeCharacters(lineArray[COL_SAP_CUST_ID]);
+		xmlWriter.writeEndElement();
+		
+		
+		}
+				
+	xmlWriter.writeEndElement();
+	
+   	return true;
+}
+
+
+function getGenderNumber (gender: String) : Number{
+	
+	var genderNum : Number = 0;
+	if (gender.equalsIgnoreCase("MALE")){
+		genderNum = 1;
+	} else if (gender.equalsIgnoreCase("FEMALE")){
+		genderNum = 2;
+	}
+		
+	return genderNum;
+	
+}
+
+function isCustomerExist (email : String) : Number{
+	
+	var profile : Profile = null;
+	profile = CustomerMgr.queryProfile("email = {0}", email);
+	
+	if (profile != null){
+		return true;
+	}
+	return false;
+	
+}

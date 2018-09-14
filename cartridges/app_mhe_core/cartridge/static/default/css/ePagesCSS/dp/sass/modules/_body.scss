@@ -1,0 +1,115 @@
+body{
+	background:$bodyBg;
+	font-family: $regularFont;
+	#wrapper {
+	    max-width: 1280px;
+	    margin:0 auto;
+	    background: $bodyBg;
+	    padding:84px 0 0; 
+	}
+}	
+.epages-body{
+	.button{
+		.face{
+			border:1px solid $brandBorder;
+			background: $brandBg;
+			color: $white;
+			font-weight: bold;
+			font-family: $titleFont;
+			font-size: $mediumFontSize;
+			&.back { 
+				background: none;
+		    	border: 1px solid $brandBorder;
+		    	color: $white;
+			}
+		}
+		&.fill {
+	    	.face {
+	    		background: $brandBg;
+	    		border:1px solid $brandBorder;
+	    		color: $white;
+	    		&.back { 
+					background: none;
+			    	border: 1px solid $brandBorder;
+			    	color: $white;
+				}
+	    	}
+	    }
+	    &.darkfill {
+	    	.face {
+	    		background: $brandBg;
+	    		border:1px solid $brandBorder;
+	    		color: $white;
+	    	}
+	    }
+	    &.grey {
+	    	.face {
+	    		background: $brandBg;
+	    		border:1px solid $brandBorder;
+	    		color: $white;
+	    		&.back {
+	    			background: none;
+			    	border: 1px solid $brandBorder;
+			    	color: $white;
+	    		}
+	    	}
+	    }
+	    &.trans {
+	    	.face {
+	    		background: $brandBg;
+	    		border:1px solid $brandBorder;
+	    		color: $white;
+	    	}
+	    }
+	    &.hero {
+	    	.face {
+	    		background: $brandBg;
+	    		border:1px solid $brandBorder;
+	    		color: $white;
+				&.front {
+					background: $brandBg;
+				}
+				&.back {
+					background: none;
+			    	border: 1px solid $brandBorder;
+			    	color: $white;
+				}
+			}
+	    }
+	}
+}
+
+	blockquote {
+			display:block;
+			clear:both;
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $brandColor;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+.ePageModule{
+	margin:0 0 10px;
+}
+
+.homePage .moetCaro .slider li * {
+	color: inherit;
+}

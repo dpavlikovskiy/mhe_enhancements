@@ -1,0 +1,45 @@
+<iscomment>
+	Desc:
+		Includes the options of a product if available
+
+	Parameter:
+		Product - the product to use
+
+	Options:
+		none
+
+	Available if empty: none
+	Full-Block-Element: yes
+</iscomment>
+<isif condition="${pdict.Product.product}">
+
+	<isif condition="${pdict.Product.optionProduct && !pdict.Product.master }">
+		<isif condition="${pdict.CurrentOptionModel != null}">
+			<isset name="POM" value="${pdict.CurrentOptionModel}" scope="page"/>
+		<iselse>
+			<isset name="POM" value="${pdict.Product.getOptionModel()}" scope="page"/>
+		</isif>
+		<isif condition="${!empty(POM.options)}">
+			<div id="pdpOptionsDiv" class="product_options">
+						<isloop items="${POM.options}" var="Option">
+							<div><isprint value="${Option.getDisplayName()}">: <span id="pdp<isprint value="${Option.ID}">selected"></span>
+								<div>
+								<select id="${Option.htmlName}" class="productOption">
+									<isloop items="${POM.getOptionValues(Option)}" var="OptionValue">
+										<isif condition="${POM.isSelectedOptionValue(Option, OptionValue)}">
+											<isset name="selected" value="${'selected="selected"'}" scope="page"/>
+										<iselse>
+											<isset name="selected" value="" scope="page"/>
+										</isif>
+										<iscomment>%?% is s delimiter between ID and actual price so it could be like 001%?%99.99</iscomment>
+										<option value="${ OptionValue.ID }" <isprint value="${selected}" encoding="off">>[<isprint value="${POM.getPrice(OptionValue)}">] <isprint value="${OptionValue.getDisplayValue()}"></option>										
+									</isloop>
+								</select>
+								</div>
+							</div>
+							<div class="clear"><!-- W3C Clearing --></div>
+						</isloop>
+			</div><!-- END:productoptions -->
+		</isif>
+	</isif>
+</isif>

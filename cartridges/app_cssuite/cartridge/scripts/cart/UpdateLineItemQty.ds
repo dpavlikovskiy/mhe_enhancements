@@ -1,0 +1,41 @@
+/**
+* This script is updating the quantity of line items given by ID.
+*
+* @input basket : dw.order.Basket
+* @input lineItemID : String
+* @input qty : Number
+* @output ErrorMessage : String
+*
+*/
+importPackage( dw.system );
+importPackage(dw.util);
+importPackage(dw.order);
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket = pdict.basket;
+	var lineItemID = pdict.lineItemID;
+	var qty : String = pdict.qty;
+	
+	if (empty(qty))
+	{
+		pdict.ErrorMessage = "No valid quantity was provided.";
+		return PIPELET_ERROR;
+	}
+	
+	//get all the product line items
+	var lineItems = basket.getProductLineItems();
+	for each (item in lineItems)
+	{
+		//map the passed lineItem ID then remove it from basket
+		if(item.UUID == lineItemID)
+		{
+			//update the quantity
+			item.setQuantityValue(qty);
+			
+			break;
+		}
+	}
+	
+    return PIPELET_NEXT;
+}

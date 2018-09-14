@@ -1,0 +1,89 @@
+// =============================================================================
+// PDP overlays
+// =============================================================================
+
+// keep me updated -------------------------------------------------------------
+
+.keep-updated-dialog {
+	text-align: center;
+	.section {
+		margin: 0;
+		padding: 0 65px 40px 65px;
+	}
+	.beta-heading {
+		margin: 0;
+		padding: 0;
+		font-family: $fixed-font-family;
+		font-weight: $bold;
+		font-size: 18px;
+		color: white;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		line-height: 1.4em;
+		margin-bottom:1em;
+	}
+	p {
+		&.email_address {
+			color: $mediumpurple;
+			text-transform: lowercase;
+		}
+	}
+	.form-row { 
+		width:300px;
+		margin:20px auto 24px;
+	}
+}
+
+// Delivery details ------------------------------------------------------------
+
+.delivery-dialog,
+.promo-detail-dialog {
+	h1,h2,h3 {
+		font-family:$fixed-font-family;
+		text-transform:uppercase;
+		padding:0 96px;
+	}
+	h1 {
+		font-size:15px;
+		font-weight:700;
+		letter-spacing:3px;
+		margin-top:-.25em;
+		text-align:center;
+	}
+	h2 {
+		font-size:16px;
+		font-weight:400;
+		letter-spacing:3px;
+		margin:2.5em 0 0;
+	}
+	h3 {
+		font-size:13px;
+		letter-spacing:2px;
+	}
+	p {
+		padding:0 96px;
+		line-height:1.25em;
+		&:last-child {
+			padding-bottom:32px;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

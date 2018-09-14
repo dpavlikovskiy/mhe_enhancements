@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: jsredirect.isml --->
+
+<script type="text/javascript">
+var loc = '<isprint value="${pdict.Location}" encoding="off"/>';                
+if (loc != "" && loc != "null"){         
+	window.location.href = loc;
+}
+</script>
+

@@ -1,0 +1,68 @@
+// =============================================================================
+// Home Parallax Promo Link Module
+// =============================================================================
+
+.module.promo {
+	width: 100%;
+	height: 395px;
+	border: 3px solid $darkpurple;
+	.promo_header,
+	.promo_footer {
+		position: absolute;
+		text-align: center;
+		width: 100%;
+		padding: 0 30px;
+	}
+	.promo_header {
+		top: 110px;
+		h3 {
+			font-size: 36px;
+			margin-bottom: 5px;
+		}
+		h4, h5 {
+			font-family: $fixed-font-family, $base-font-family;
+			font-weight: $regular;
+		}
+		h4 {
+			font-size: 30px;
+			letter-spacing: 3px;
+			margin-bottom: 5px;
+		}
+		h5 {
+			font-size: 12px;
+			letter-spacing: 2px;
+			margin-bottom: 0;
+		}
+	}
+	.promo_footer {
+		bottom: 35px;
+		.dot {
+			@extend .sprite_divider_dot;
+			background-position: 0 -7px;
+			width: 7px;
+			height: 7px;
+			display: block;
+			margin:0 auto 10px;
+		}
+		.ft {
+			font-size: $small_heading;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+	}
+}
+
+
+.twoHoursModule{
+	padding:125px 60px;
+	text-align:center;
+	border:3px solid $darkpurple;
+	h2{
+		font-size:36px;
+	}
+	p{
+		font-size:$small_heading;
+		letter-spacing:1px;
+		text-transform:uppercase;
+	}
+}

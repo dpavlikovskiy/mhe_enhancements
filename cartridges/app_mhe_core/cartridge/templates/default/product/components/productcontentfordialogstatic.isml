@@ -1,0 +1,137 @@
+<!--- TEMPLATENAME: productsection.isml --->
+
+	<isscript>		
+		importScript("product/ProductUtils.ds");
+		var availableCount : Number = 0;
+		var showOption = pdict.CurrentHttpParameterMap.showOption.stringValue;		
+		var masterId = pdict.Product.isVariant() ? pdict.Product.masterProduct.ID : pdict.Product.ID; 
+		var avm = pdict.Product.availabilityModel;
+		pdict.available = avm.availability>0;
+		var invFlag: Boolean=dw.catalog.ProductInventoryMgr.getInventoryList().getDefaultInStockFlag();				
+		availableCount = ProductUtils.getMaxOrderableQuantity(pdict.Product,invFlag);
+		
+	</isscript>
+	<iscomment>
+		Primary Details 
+		=============================================================
+	</iscomment>
+
+	<h2 class="visually-hidden">Details</h2>	
+	<span class="visually-hidden" itemprop="url">${URLUtils.http('Product-Show','pid', pdict.Product.ID)}</span>
+	
+	
+	<div class="item-n-price-wrap">
+		<iscomment>
+			Product Name
+			=============================================================
+		</iscomment>
+		<h3 class="gamma-heading item-detail">${pdict.Product.name}</h3>
+		<isset name="pam" value="${pdict.Product.getAttributeModel()}" scope="page"/>
+		<isset name="group" value="${pam.getAttributeGroup('mainAttributes')}" scope="page"/>
+		<iscomment>
+			Pricing
+			=============================================================
+		</iscomment>
+	
+		<isset name="showTieredPrice" value="${true}" scope="page"/>
+		<isinclude template="product/components/pricing"/>
+	</div>
+	
+	<div class="options-wrap">
+	
+		<ul class="options-list">
+		
+			
+			<iscomment> 
+				variations
+				=============================================================
+			</iscomment>
+			<li class="selection">
+				<isinclude template="product/components/variations"/>
+			</li>		
+			<iscomment> 
+				product actions - Add To basket | Add Personalization
+				=============================================================
+			</iscomment>
+			<isif condition="${!pdict.isDiscontinued && !pdict.isComingSoon}" >
+				<style>
+				
+				</style>
+				<li class="quantity-wrap">
+					<div class="js-veil"></div>
+					<div class="product-add-to-cart">
+						<h2 class="visually-hidden">Product Actions</h2>
+							<div class="inventory">
+								<div class="quantity">
+									<label for="Quantity">${Resource.msg('global.quantity','locale',null)}</label>
+									<a class="qtyMinusProd quant-mod-btn quant-mod-btn-neg ${Number(empty(pdict.CurrentHttpParameterMap.Quantity.stringValue)) ? 'DISABLE' : ''}"><span>-</span></a>
+									<input type="text" class="input-text quant-mod-quantity" name="Quantity" id="Quantity" size="2" maxlength="3" value="${Number(empty(pdict.CurrentHttpParameterMap.Quantity.stringValue) ? 1 : pdict.CurrentHttpParameterMap.Quantity.stringValue).toFixed()}" data-available="${new Number(availableCount).toFixed()}" />
+									<a class="qtyPlusProd quant-mod-btn quant-mod-btn-pos"><span>+</span></a>
+								</div>
+							</div>							
+							<iscomment>Display Standarad With Two Qty Message</iscomment>				
+							<span id="twostandardbottle" style="display: none;">${Resource.msg('product.twostandardbottle.msg','product',null)}</span>
+							
+							<isscript>
+								var source : String = pdict.CurrentHttpParameterMap.source.stringValue;
+							</isscript>
+							
+							<isset name="cartAction" value="add" scope="page"/>
+							
+							<isif condition="${pdict.CurrentHttpParameterMap.uuid.stringValue}">	
+								<input type="hidden" name="uuid" id="uuid" value="${pdict.CurrentHttpParameterMap.uuid.stringValue}" />
+								<isset name="cartAction" value="update" scope="page"/>
+							</isif>
+							<isif condition="${source}">
+								<input type="hidden" name="source" id="source" value="${source}" />
+							</isif>
+							<iscomment> Fix for Error Log - plid" is not defined
+								<isif condition="${plid}">
+									<input type="hidden" name="productlistid" id="productlistid" value="${plid}" />
+								</isif>
+							</iscomment>
+							<input type="hidden" name="cartAction" id="cartAction" value="${cartAction}" />
+							<input type="hidden" name="pid" id="pid" value="${pdict.Product.ID}" />
+							
+							<isset name="disabledAttr" value="${pdict.available&&!pdict.Product.master ? '' : ' disabled="disabled"'}" scope="page"/>	
+										
+							<div class="availability"><isif condition="${!pdict.Product.master}">
+								<span class="label">${Resource.msg('global.availability','locale',null)}:&nbsp;</span>				
+								<span class="value"><isinclude template="product/components/availability"/></span>								
+							</isif></div>
+							
+					</div><!--  end details block -->
+				</li>
+			</isif>
+			<isif condition="${showOption}" >				
+				<isif condition="${!pdict.Product.master && !pdict.Product.variant}" >
+					<isset name="singleItem" value="${'true'}" scope="page" />				
+				<iselseif condition="${Valength > 1}" >
+					<isset name="singleItem" value="${'false'}" scope="page" />
+				<iselse>
+					<isset name="singleItem" value="${'true'}" scope="page" />
+				</isif>
+				<isset name="makeUnique" value="${dw.web.Resource.msg('personalize.makeunique','product','Make it Unique')}" scope="page">
+				<li class="cta-personalise">
+					<button id="personalizeit" class="personalizeit button secondary button-personalise" type="button" value="${makeUnique}" data-singleitem="${singleItem}">
+						<span class="face front">${makeUnique}</span>
+						<span class="face back">${makeUnique}</span>
+					</button>
+				</li>
+			<iselse>
+				<isset name="buttonTitle" value="${dw.web.Resource.msg('global.addtocart','locale','Add to Cart')}" scope="page" />
+				<li class="cta-add-to-cart">
+					<button id="add-to-cart-dialog" class="button-fancy-large add-to-cart button secondary js-add-to-cart" type="submit" value="${buttonTitle}">
+						<span class="face front">${buttonTitle}</span>
+						<span class="face back">${buttonTitle}</span>
+					</button>
+				</li>					
+			</isif>
+		</ul>
+		
+		<isif condition="${showOption}">
+			<span style="display: none"><isinclude template="product/components/options"/></span>
+		</isif>
+	</div>
+	
+	

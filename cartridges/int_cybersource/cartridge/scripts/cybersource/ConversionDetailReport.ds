@@ -1,0 +1,213 @@
+/**
+* This script is used to retrieve the detailed conversion report from HttpClient.
+*
+* @input timeZone : String 
+* @input reportName : String 
+* @output sendErrorMail : Boolean
+* @output rejectedOrdersList : dw.util.ArrayList
+* @output StatusMessage : String
+* @output rejectionComment : String
+*/
+importPackage( dw.system );
+importPackage( dw.net );
+importPackage( dw.order );
+importPackage( dw.util );
+importScript('cybersource/libCybersource.ds');
+importScript('utils/DateUtil.ds');
+
+/*Constant declaration*/
+var REJECT:String="REJECT";
+var CANCEL:String="CANCEL";
+var APPROVED:String="APPROVED";
+var REVIEW:String="REVIEW";
+var READY:String="READY";
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+	Logger.error("[Cybersource] - ConversionDetailReport---------------- -");
+	var httpClient : HTTPClient = new HTTPClient();
+	var postURL : String;
+	var message : String;
+	var sendErrorMail : Boolean = false;
+	var rejectedOrdersList : dw.util.ArrayList = new ArrayList();
+
+	//create hashmap of orders based on the query below
+	//var query : String = "exportStatus =" + Order.EXPORT_STATUS_NOTEXPORTED + "d";
+		//query += " and confirmationStatus =0d";
+		//query += " and status !=" + Order.ORDER_STATUS_CANCELLED + "d";
+		
+	var query : String = "exportStatus = {0} AND custom.orderStatus = {1}"; 
+	
+	var orderIterator : Iterator = OrderMgr.queryOrders(query, "orderNo asc", Order.EXPORT_STATUS_NOTEXPORTED, REVIEW);
+	var orderHashMap : HashMap = new HashMap();
+	if (!empty(orderIterator))
+	{
+		while (orderIterator.hasNext())
+		{
+			var order : Order = orderIterator.next();
+			var transactionID : String = order.orderNo ;
+			if (transactionID != null && !empty(transactionID)){
+				if(order.getPaymentInstruments()[0].getPaymentTransaction().getPaymentProcessor() != null && order.getPaymentInstruments()[0].getPaymentTransaction().getPaymentProcessor().ID == "CYBERSOURCE_CREDIT"){
+					Logger.error("[Cybersource] - Order Number - " + order.orderNo + " :::: Transaction ID - " + transactionID);
+					orderHashMap.put(transactionID, order);
+				}
+			}
+		}
+	}
+	Logger.error("[Cybersource] - total unconfirmend orders - " + orderHashMap.length);
+
+	if (orderHashMap.length > 0){
+		var startDate : String = null;
+		var endDate : String = null;
+		var startTime : String = null;
+		var endTime : String = null;
+		var currentDateAndTime : Date = new Date(); 
+		var startDateAndTime : Date = null;
+		var endDateAndTime : Date = null;
+	 	
+	 	var BM_Variable : Number = Site.getCurrent().getCustomPreferenceValue("CyberSource_Start_DateAndTime"); 	
+	 	if (BM_Variable !=null && !empty(BM_Variable)){ //get Start Date and Time from BM Variable
+	 		startDateAndTime = new Date (BM_Variable);
+	 	} else{ //if start date is not available in BM variable	
+	 		startDateAndTime = subtractMinutesFromDate(currentDateAndTime, 11);
+	 	}	
+	
+		//startDateAndTime = subtractMinutesFromDate(currentDateAndTime, 60);
+		//get End Date and Time from current Date and Time
+		endDateAndTime  = subtractMinutesFromDate(currentDateAndTime, 1);
+		var startCalender : dw.util.Calendar = new Calendar(startDateAndTime);
+		var endCalender : dw.util.Calendar = new Calendar(endDateAndTime);
+		
+		var CybersourceHelper = getCybersourceHelper();
+		var merchantID : String = CybersourceHelper.getMerchantID();
+		var password :String = CybersourceHelper.getMerchantPassword();
+		
+		//fetching the variables names from site prefrences
+		var merchantIDVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_merchantID");
+		var usernameVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_username");
+		var passwordVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_password");
+		var startDateVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_startDate");
+		var startTimeVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_startTime");
+		var endDateVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_endDate");
+		var endTimeVarName : String = Site.getCurrent().getCustomPreferenceValue("conversionReportVariable_endTime");
+		var userName : String = Site.getCurrent().getCustomPreferenceValue("CyberSource_userName");	
+	
+		//var newTime : Number = getDifferenceBetweenDates(startDateAndTime, endDateAndTime);
+		if (getDifferenceBetweenDates(startDateAndTime, endDateAndTime) > 24){
+			/* TODO: write send mail method in "cybersource/Date&TimeUtility.ds" */		
+			//sendMail();
+			startDateAndTime = subtractMinutesFromDate(endDateAndTime, ((23*60) + 58));
+			startCalender = new Calendar(startDateAndTime);
+		}
+		
+		startDate = getDate (startCalender);
+		startTime = getTime (startCalender);
+		endDate = getDate (endCalender);
+		endTime = getTime (endCalender);
+		
+		//Create the Post URL Values
+		var postValues : String = "";
+		postValues = merchantIDVarName+ "="+ merchantID;
+		postValues += "&" +usernameVarName + "="+userName;
+		postValues += "&" + passwordVarName+ "="+password;
+		postValues += "&" + startDateVarName + "="+ startDate;
+		postValues += "&" + startTimeVarName + "="+ startTime;
+		postValues +=  "&" + endDateVarName + "="+ endDate;
+		postValues += "&" + endTimeVarName + "="+ endTime;
+		
+		var postlogValues : String = "";
+		postlogValues = merchantIDVarName+ "="+ merchantID;
+		postlogValues += "&" +usernameVarName + "=XXXX";
+		postlogValues += "&" + passwordVarName+ "=XXXX";
+		postlogValues += "&" + startDateVarName + "="+ startDate;
+		postlogValues += "&" + startTimeVarName + "="+ startTime;
+		postlogValues +=  "&" + endDateVarName + "="+ endDate;
+		postlogValues += "&" + endTimeVarName + "="+ endTime;
+	
+		Logger.error("[Cybersource] - postValues sent for Demand Conversion report :: " + postlogValues);
+		//Making request to CS
+		//postURL = "https://ebctest.cybersource.com/ebctest/ConversionDetailReportRequest.do";
+		postURL = Site.getCurrent().getCustomPreferenceValue("conversionReportURL");
+		
+		httpClient.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		httpClient.open('POST', postURL, null, null);
+		try{
+		httpClient.send(postValues);
+		if (httpClient.statusCode == 200)
+		{
+			Logger.error("[Cybersource] - Got the report....");
+			//var xmlMessage : String  = xmlString.replace("<!DOCTYPE CaseManagementOrderStatus SYSTEM \"https://ebctest.cybersource.com/ebctest/reports/dtd/cmorderstatus_1_1.dtd\">", "");
+	    	//var xmlDocument : XML = new XML(xmlString);
+			//var ns = new Namespace("http://reports.cybersource.com/reports/cmos/1.0");
+	
+		    message = httpClient.text;
+			Logger.error("[Cybersource] - XML from CyberSource - " +  message);
+			if(httpClient.text.toString().indexOf("<?xml")<0){
+				pdict.StatusMessage="[ConversionDetailReport.ds] Error coversion report response is not an xml "+ message;
+				return PIPELET_ERROR;
+			}
+		    var xmlDocument : XML = new XML(message);
+		    var ns = new Namespace("http://reports.cybersource.com/reports/cmos/1.0");
+	
+			Logger.error("[Cybersource] - Processing daily conversion report xml ......");
+			//for each (var xmlConversion in xmlDocument.ns::Conversion)
+			for each (var xmlConversion:XML in xmlDocument..*::["Conversion"]) 
+			{
+				//var orderNumber = xmlConversion.attribute("RequestID").toString();
+				var orderNumber = xmlConversion.@MerchantReferenceNumber.toString();
+				var order : Order = orderHashMap.get(orderNumber);
+				
+				Logger.error("[Cybersource] - Order Id - " + xmlConversion.@MerchantReferenceNumber.toString());
+				if (order != null) {
+					//new decision ACCEPT decision applied to order
+					if (xmlConversion..*::["NewDecision"].toString() == 'ACCEPT') {
+						//order.setConfirmationStatus(Order.CONFIRMATION_STATUS_CONFIRMED); //no need to set,already marked as confirm.
+						order.setExportStatus(Order.EXPORT_STATUS_READY);
+						order.custom.orderStatus = APPROVED;
+						if(empty(order.custom.cs_SettlementStatus.value)){
+							order.custom.cs_SettlementStatus=READY;
+						}
+						Logger.error("[Cybersource] - ConversionDetailReport, Order Number: "+orderNumber+" status converted to: APPROVED");
+					//new decision REJECT decision applied to order
+					} else if (xmlConversion..*::["NewDecision"].toString() == 'REJECT') { 
+						order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+						order.custom.orderStatus = REJECT;
+						if(!empty(xmlConversion..*::["ReviewerComments"])){
+						order.setCancelDescription(xmlConversion..*::["ReviewerComments"].toString());
+						}
+						rejectedOrdersList.add(order);
+						Logger.error("[Cybersource] - ConversionDetailReport, Order Number: "+orderNumber+" status converted to: REJECTED");
+					} else {
+						//do nothing
+					}
+				} else {
+					Logger.error("[Cybersource] - Order in Daily conversion report not found in the query results against Demandware DB");
+				}
+			}
+			// Set the Start Date in BM variable
+			Site.getCurrent().setCustomPreferenceValue("CyberSource_Start_DateAndTime", endDateAndTime.getTime());
+			
+		} else {
+		    // error handling
+	        sendErrorMail = true;
+		    message = httpClient.statusCode;
+		    pdict.StatusMessage="[ConversionDetailReport.ds] Error getting the coversion report"+ message;
+			Logger.error("[Cybersource] - Error getting the coversion report -- " + message);
+		}
+		if(rejectedOrdersList.size() > 0)
+		{
+			pdict.rejectedOrdersList = rejectedOrdersList;
+		}
+		pdict.sendErrorMail = sendErrorMail;
+		} catch(e){
+			Logger.error("[ConversionDetailReport.ds] Error getting the coversion report",e.message);
+			pdict.StatusMessage="[ConversionDetailReport.ds] Error getting the coversion report"+ e.message;
+			return PIPELET_ERROR;
+		}
+		
+	}
+	
+	
+    return PIPELET_NEXT;
+}

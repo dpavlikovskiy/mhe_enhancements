@@ -1,0 +1,147 @@
+/*
+ * Downloads a list of files matching a given pattern from an FTP server to the app-server.
+ * Each downloaded file will be moved to a given archive directory at the ftp server.
+ *
+ * @input RemoteFolderURL 	: String that points to the directory 
+ * @input RemoteArchiveDir  : String The archive directory at the ftp server the downloaded files are moved to. 
+ *						  	  The downloaded files are not archived if this parameter is missing (empty). 
+ * @input User 				: String User name for login.
+ * @input Password 			: String Password for login.
+ * @input Pattern 			: String The pattern for the filenames (use ".*" to get all)
+ * @input Encoding 			: String The file encoding for ftp get. If null or an empty string, "UTF-8" is assumed.
+ * @input DownloadDir 		: String The directory at the app-server to download to.
+ * @input BinaryMode 		: Boolean Defines whether or not the binary mode should be used.
+ * @input Recursive			: Boolean Determines whether the files are downloaded recursively or not. FALSE is assumed if missing.
+ * @input DeleteAfterDownload : Boolean Defines whether or not files should be deleted after download and no archivce directory has been defined
+ */
+
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.net );
+importPackage( dw.io );
+
+importScript( "net/ftp/libFTPClient.ds" );
+importScript( "net/sftp/libSFTPClient.ds" );
+//importScript( "net/webdav/libWebDAVClient.ds" );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger = getJobMonitor() && getJobMonitor().getCurrentTask() ? getJobMonitor().getCurrentTask() : Logger;
+
+function execute( pdict : PipelineDictionary ) : Number {
+	// input variables 
+	var remoteFolderURL : String = pdict.RemoteFolderURL ? pdict.RemoteFolderURL : null;
+	var archiveDir		: String = pdict.RemoteArchiveDir;
+	var user			: String = pdict.User;
+	var password		: String = pdict.Password;
+	var pattern			: String = pdict.Pattern;
+	var encoding		: String = !empty(pdict.Encoding) ? pdict.Encoding : 'UTF-8';
+	var downloadDir		: String = pdict.DownloadDir;
+	var recursive		: Boolean = pdict.Recursive != null ? pdict.Recursive : true;
+	var binaryMode : Boolean = pdict.BinaryMode ? pdict.BinaryMode : false;
+	var deleteAfterDownload : Boolean = pdict.DeleteAfterDownload ? pdict.DeleteAfterDownload : false;
+
+	var connectionType = null;
+	if ( remoteFolderURL.indexOf( "sftp://" ) == 0 ) {
+		connectionType = 'sftp';
+	} else if ( remoteFolderURL.indexOf( "ftp://" ) == 0 ) {
+		connectionType = 'ftp';
+	} else {
+		connectionType = 'webdav';
+	}
+
+	//@todo: determine protocol SFTP, FTP or WebDAV based on URL
+	
+	if(empty(remoteFolderURL) || empty(user) || empty(password)) {
+		cvLogger.error("Mandatory input parameters for ftp server missing. URL: {0}, User: {1}, Password: {2}.", remoteFolderURL, user, password);  
+		return PIPELET_ERROR;
+	}
+
+	switch ( connectionType ) {
+		case 'ftp' :
+		    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+			var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+		
+			if ( params == null || params.length != 4 ) {
+		    	cvLogger.error( "DownloadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+		    	return PIPELET_ERROR;
+			}
+			var host : String = params[1];
+			var port : Number = null;
+			// params[2] is undefined if there was no port provided
+			if ( params[2] != undefined )
+			{
+				port = new Number( params[2] );
+			}
+			var path : String = params[3];	
+
+			var ftpClient : EnhancedFTPClient = new EnhancedFTPClient();
+			if ( ftpClient.connect( host, user, password ) ) {
+				cvLogger.debug("Connected to ftp server {0}.", host);
+				var ok : Boolean = false;
+				try {
+					ok = recursive ? 
+						ftpClient.downloadFilesRecursive(path, pattern, archiveDir, downloadDir, encoding, binaryMode, deleteAfterDownload) :
+						ftpClient.downloadFiles(path, pattern, archiveDir, downloadDir, encoding, binaryMode, deleteAfterDownload);
+				} catch (e) {
+					ok = false;
+					cvLogger.error("EXCEPTION: {0}", e.toString());
+				}
+				
+				ftpClient.disconnect();
+				cvLogger.debug("Connection to ftp server {0} closed.", host);
+				
+				return ok ? PIPELET_NEXT : PIPELET_ERROR;
+			} else {
+				var msg : String = 
+					StringUtils.format('Connection to ftp server failed. Host: {0}, Server reply: {1} ({2}).',
+						host, ftpClient.replyCode, ftpClient.replyMessage);
+				cvLogger.error(msg);
+				return PIPELET_ERROR;
+			}
+			break;
+		case 'sftp' : 
+
+		    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+			var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+		
+			if ( params == null || params.length != 4 ) {
+		    	cvLogger.error( "DownloadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+		    	return PIPELET_ERROR;
+			}
+			var host : String = params[1];
+			var port : Number = null;
+			// params[2] is undefined if there was no port provided
+			if ( params[2] != undefined )
+			{
+				port = new Number( params[2] );
+			}
+			var path : String = params[3];	
+
+
+			var sftpClient : EnhancedSFTPClient = new EnhancedSFTPClient(cvLogger);
+
+			if ( sftpClient.connect( host, user, password ) ) {
+				cvLogger.debug("Connected to sftp server {0}.", host);
+				var ok : Boolean = false;
+				try {
+					ok = recursive ? 
+						sftpClient.downloadFilesRecursive(path, pattern, archiveDir, downloadDir, encoding, binaryMode, deleteAfterDownload) :
+						sftpClient.downloadFiles(path, pattern, archiveDir, downloadDir, encoding, binaryMode, deleteAfterDownload);
+				} catch (e) {
+					ok = false;
+					cvLogger.error("EXCEPTION: {0}", e.toString());
+				}
+				
+				sftpClient.disconnect();
+				cvLogger.debug("Connection to sftp server {0} closed.", host);
+				
+				return ok ? PIPELET_NEXT : PIPELET_ERROR;
+			} else {
+				var msg : String = 
+					StringUtils.format('Connection to sftp server failed. URL: {0}, Server reply: {1}.',
+						host, sftpClient.errorMessage);
+				cvLogger.error(msg);
+				return PIPELET_ERROR;
+			}
+			break;
+	}
+}

@@ -1,0 +1,45 @@
+<iscache type="relative" hour="24"/>
+<isinclude url="${URLUtils.url('Login-RedirectToLogin')}"/>
+<div id="header" class="header stickyHeaderNew" role="banner">
+	<header class="clearfix">
+		<isinclude url="${URLUtils.url('SegmentPricing-AssignPriceBook')}"/> 
+		<isinclude url="${URLUtils.url('Home-IncludeHeaderCustomerInfo')}"/> 
+		
+	    <div class="header_right side-module">
+	    	<iscomment>Search icon instead of text below</iscomment>
+	    	<div class="search_icon_cont">
+				<span class="search_icon">${Resource.msg('global.search','account',null)}</span>
+			</div>
+			
+			<iscomment>INCLUDE: Mini-cart, do not cache</iscomment>
+		  	<div id="mini-cart" class="mini-cart">
+		    	<isinclude url="${URLUtils.url('Cart-MiniCart')}"/>
+		    </div>
+		    <isinclude url="${URLUtils.url('Home-IncludeNewsLetter')}"/>
+		</div>
+		
+		<div class="logo_header" id="headerLogo" data-main-logo-anim='{"hideClass":"js-hide","showClass":"js-show","targetElement":"js-hide-target","scrollSwitchPoint":200}'>
+			<!-- <a href="${URLUtils.url('Home-Show')}" class="logo_sm">Selection</a> -->			
+			<h1 class="title-wrap">
+				<a href="${URLUtils.url('Home-Show')}">
+					<span class="main-title">
+						${Resource.msg('global.selection','locale',null)}
+					</span>
+					<span class="sub-heading js-hide-target js-show">
+						<img class="logo" src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" alt="Moet Hennessy" />
+					</span>
+				</a>
+			</h1>
+		</div>
+	</header>
+	<isinclude template="search/simplesearch"/>
+	<div id="navigation" class="navigation" role="navigation">
+		<nav>
+			<!--<h1 class="visually-hidden navigation-header">Catalog Navigation</h1>-->
+			<!--  category navigation -->
+			<iscomment>INCLUDE: category menu</iscomment>
+			<isinclude url="${URLUtils.url('Home-IncludeHeaderMenu')}"/>
+		</nav>
+	</div><!-- /navigation -->
+</div><!-- /header -->
+

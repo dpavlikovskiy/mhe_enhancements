@@ -1,0 +1,125 @@
+<isscript>importScript("product/ProductUtils.ds");
+importScript("util/ProductImageSO.ds");</isscript>
+<iscomment>
+	This renders product sets of featured products
+</iscomment>
+
+<isset name="Product" value="${pdict.product}" scope="page"/>
+<isset name="OrgProduct" value="${null}" scope="page"/>
+<isset name="showpricing" value="${false}" scope="page"/>
+<iscomment>To be used by id team for hover over product sets </iscomment>
+<isif condition="${pdict.showpricing != null}">
+	<isset name="showpricing" value="${pdict.showpricing}" scope="page"/>
+</isif>
+<isif condition="${!empty(Product) && ((Product.master && Product.priceModel.minPrice.value!=0) || (!Product.master && Product.priceModel.price.value!=0))}">
+	<isscript>  
+		importScript( "product/ProductUtils.ds" );					
+		/** Set	if the badge needs to be displayed or not */ 
+		var displayBadge : Boolean = ProductUtils.displayBadge(Product); 
+	</isscript>
+	<iscomment>
+		Generate link to product detail page. If a color variation is available, the first color is used as link url.
+	</iscomment>
+	<isif condition="${'catID' in pdict.CurrentSession.custom}">
+	<isset name="productUrl" value="${URLUtils.http('Product-StaticShow', 'pid', Product.ID,'cgid' , pdict.CurrentSession.custom.catID)}" scope="page"/>
+	<iselse>
+	<isset name="productUrl" value="${URLUtils.http('Product-StaticShow', 'pid', Product.ID)}" scope="page"/>
+	</isif>
+	<li class="product-tile" id="${Product.UUID}" data-itemid="${Product.ID}"><!-- dwMarker="product" dwContentID="${Product.UUID}" -->
+	<a class="product-info" href="${productUrl}">
+	<isset name="image" value="${null}" scope="page" />
+	<isif condition="${Product.getImage('hi-res',0) != null}">
+  		<isset name="image" value="${new ProductImage('staticofferprodsetlist', Product, 0 )}" scope="page" />
+  	</isif>			
+	<iscomment>If image couldn't be determined, display a "no image" thumbnail</iscomment>
+	<div class="pImage">
+		<isif condition="${typeof image !== 'undefined' && !empty(image)}">
+			<isset name="thumbnailUrl" value="${image.getURL()}" scope="page"/>
+		<isset name="imageAlt" value="${Product.name}" scope="page"/>
+		<isset name="imageTitle" value="${Product.name}" scope="page"/>
+			<img src="${thumbnailUrl}" alt="${imageAlt}" />
+		<iselse>
+			<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagemedium.png')}" scope="page"/>
+		<isset name="imageAlt" value="${Product.name}" scope="page"/>
+		<isset name="imageTitle" value="${Product.name}" scope="page"/>
+			<div class="noImg"><img src="${thumbnailUrl}" alt="${imageAlt}" /></div>
+		</isif>
+	</div>
+	<h3 class="secondary"><isprint value="${Product.name}"/></h3>
+	<isif condition="${showpricing}">
+		<span class="price">
+			<iscomment>Renders pricing information depending on the option or variation model, as well as scaled prices and so on.</iscomment>
+			<isif condition="${Product.master && Product.priceModel.isPriceRange()}">
+				<iscomment>Product master price range depending on the variants</iscomment>
+				<isprint value="${Product.priceModel.minPrice}"/> - <isprint value="${Product.priceModel.maxPrice}"/>
+			<iselse>
+				<iscomment>For Product master without a price range get the pricing from its first variant </iscomment>
+				<isif condition="${Product.master && !Product.priceModel.isPriceRange()}"/>
+					<iscomment>Preserve current product instance</iscomment>
+					<isset name="OrgProduct" value="${Product}" scope="page"/>
+					<isset name="Product" value="${OrgProduct.variationModel.variants[0]}" scope="page"/>
+				</isif>
+				<iscomment>
+					Regular pricing through price model of the product. If the product is an option product, 
+					we have to initialize the product price model with the option model.
+				</iscomment>
+				<isif condition="${Product.optionProduct}">
+					<isset name="PriceModel" value="${Product.getPriceModel(Product.getOptionModel())}" scope="page"/>
+				<iselse>
+					<isset name="PriceModel" value="${Product.getPriceModel()}" scope="page"/>
+				</isif>
+				<iscomment>
+					Check whether the product has price in the sale pricebook. If so, then
+					display two prices: crossed-out standard price and sales price.
+				</iscomment>
+				<isinclude template="product/components/standardprice"/>
+				<isset name="SalesPrice" value="${PriceModel.getPrice()}" scope="page"/>
+				<isset name="ShowStandardPrice" value="${StandardPrice.available && SalesPrice.available && StandardPrice.compareTo(SalesPrice) == 1}" scope="page"/>
+				<isif condition="${ShowStandardPrice}">
+					<span class="product-discounted-price">
+						<span class="product-standard-price strike"><isprint value="${StandardPrice}"/></span>
+						<span class="product-sales-price"><isprint value="${SalesPrice}"/></span>
+					</span>
+				<iselse>
+					<span class="product-sales-price"><isprint value="${SalesPrice}"/></span>
+				</isif>
+				<iscomment>Promotion</iscomment>
+				<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+				<iscomment>Render information on active product promotions 
+				<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(Product)}"	scope="page"/>
+				<isif condition="${!empty(promos)}">
+					<div class="product-promo">
+						<isloop items="${promos}" var="promo" status="promoloopstate">
+							<a href="${productUrl}" class="promo-msg <isif condition="${promoloopstate.first}">first<iselseif condition="${promoloopstate.last}">last</isif>">
+								<isprint value="${promo.calloutMsg}" encoding="off" />
+							</a>
+							<isbreak/>
+						</isloop>
+					</div>
+				</isif> 
+				</iscomment>
+				<isif condition="${!empty(OrgProduct)}">
+					<iscomment>Restore current product instance</iscomment>
+					<isset name="Product" value="${OrgProduct}" scope="page"/>
+				</isif>
+			</isif>
+		</span>
+	</isif>
+</a>
+<a class="button fill commmonQuickview" data-pid="${Product.ID}" href="#">
+	<span class="face front"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+	<span class="face back"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+</a>
+<isprint value="${Product.custom.FeaturedProdDisplay}" encoding="off" />
+</li>
+</isif>
+
+
+
+
+
+
+
+
+
+

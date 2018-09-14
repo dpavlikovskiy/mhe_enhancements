@@ -1,0 +1,162 @@
+/**
+* This script performes a file operation for a given file. 
+* If the file doesn't exist or the operation failed, it takes the error exit.
+*
+* @input FilePath : String The relative path of the file in its context
+* @input Context : String The context of the file - IMPEX, LOGS, TEMP, etc.
+* @input SiteID: String The Site ID which is required for library access
+* @input CatalogID: String The Site ID which is required for library access
+* @input Action : String The operation that should be performed on the file - DELETE, ZIP, UNZIP
+* @input NewDirectoryName : String The name of the new directory
+* @output Status : dw.system.Status The status of the operation.
+*/
+importPackage( dw.system );
+importPackage( dw.io );
+
+var cvActions : Array = ['DELETE', 'ZIP', 'UNZIP', 'NEWDIRECTORY'];
+
+function execute( args : PipelineDictionary ) : Number {
+	var filePath : String = args.FilePath;
+	if ( !filePath ) {
+    	args.Status = new Status( Status.ERROR, 'No file path provided!' );
+    	return PIPELET_NEXT;
+	}
+
+	var context : String = args.Context;
+	if ( !context ) {
+    	args.Status = new Status( Status.ERROR, 'No file context provided!' );
+    	return PIPELET_NEXT;
+	}
+	
+	var action : String = args.Action;
+	if ( !action ) {
+    	args.Status = new Status( Status.ERROR, 'No action provided! Please use \'DELETE\', \'ZIP\' or \'UNZIP\'.' );
+    	return PIPELET_NEXT;
+	}
+
+	action = action.toUpperCase();
+	if ( cvActions.indexOf(action) == -1 ) {
+    	args.Status = new Status( Status.ERROR, 'Invalid action provided! Please use \'DELETE\', \'ZIP\' or \'UNZIP\'.' );
+    	return PIPELET_NEXT;
+	}
+
+	var newDirectoryName = args.NewDirectoryName;
+	var siteID : String = args.SiteID;
+	var catalogID : String = args.CatalogID;
+	
+	var fileFullPathArray : Array = [context];
+	if ( context == 'LIBRARIES' ) {
+		if ( siteID ) {
+			siteID = siteID.replace(/\//g, '');
+			fileFullPathArray.push('/' + siteID);
+		}
+	} else if ( context == 'CATALOGS' ) {
+		if ( catalogID ) {
+			catalogID = catalogID.replace(/\//g, '');
+			fileFullPathArray.push('/' + catalogID);
+		}
+	}
+	fileFullPathArray.push(filePath);
+	
+	var fileFullPath : String = fileFullPathArray.join('');
+	var file : File = new File( fileFullPath );
+	if ( !file.exists() ) {
+    	args.Status = new Status( Status.ERROR, 'The file \'' + fileFullPath + '\' does not exist!' );
+    	return PIPELET_NEXT;
+	} 
+	
+	var status : Status = null;
+	
+	//start with the actual file handling
+	switch ( action ) {
+		case "ZIP" : 	
+					status = zipFile( file );
+					break;
+		case "UNZIP" : 	
+					status = unzipFile( file );
+					break;
+		case "DELETE" : 	
+					status = deleteFile( file );
+					break;
+		case "NEWDIRECTORY" : 	
+					status = newDirectory( file, newDirectoryName );
+					break;
+	}
+	args.Status = status;
+    return PIPELET_NEXT;
+}
+
+
+function zipFile( file : File ) {
+	if ( file.name.toLowerCase().match(/.zip/) ) {
+		return new Status( Status.ERROR, 'An already compressed file will not be compressed again!' );
+	} else {
+		var zipFileName : String = file.fullPath + '.zip';
+		var zipFile : File = new File( zipFileName );
+		try {
+			file.zip(zipFile);
+		} catch ( e ) {
+			return new Status( Status.ERROR, 'Operation failed: ' + e );
+		}
+	}
+	return new Status( Status.OK, 'Operation successfully performed.' );
+}
+
+function unzipFile( file : File ) {
+	if ( !file.name.toLowerCase().match(/.zip/) ) {
+		return new Status( Status.ERROR, 'Only zip files can be decompressed!' );
+	} else {
+		var filePath : String = file.fullPath;
+		var rootDirectoryPath : String = filePath.substr(0, filePath.lastIndexOf('/'));
+		var rootDirectory : File = new File( rootDirectoryPath );
+		if ( !rootDirectory.exists() ) {
+			return new Status( Status.ERROR, 'Root directory doesn\'t exist!' );
+		}
+		try {
+			file.unzip(rootDirectory);
+		} catch ( e ) {
+			return new Status( Status.ERROR, 'Operation failed: ' + e );
+		}
+	}
+	return new Status( Status.OK, 'Operation successfully performed.' );
+}
+
+function newDirectory( file : File, directoryName ) {
+	if ( !file.directory ) {
+		return new Status( Status.ERROR, 'The base directory is not a directory' );
+	} else {
+		var filePath : String = file.fullPath;
+		var rootDirectoryPath : String = /\/\.*$|\/$/.test(filePath) ? filePath.substr(0, filePath.lastIndexOf('/')) : filePath;
+		var newDirectoryPath = [rootDirectoryPath,directoryName].join(File.SEPARATOR);
+		var newDirectory : File = new File( newDirectoryPath );
+		if ( !newDirectory.mkdirs() ) {
+			return new Status( Status.ERROR, 'Directory \'' + newDirectoryPath + '\' couldn\'t be created!' );
+		}
+	}
+	return new Status( Status.OK, 'Operation successfully performed.' );
+}
+
+function deleteFile( file : File ) {
+	var systemFiles : Array = ['/IMPEX/log'];
+	if ( systemFiles.indexOf(file.fullPath) != -1 ) {
+		return new Status( Status.ERROR, 'The file/directory you try to delete is required by the system and must not be deleted!' );
+	} else {
+		try {
+			if ( file.directory && file.list().length > 0 ) {
+				for each ( var subFileName : File in file.list() ) {
+					var subFilePath : String = [file.fullPath, subFileName].join( File.SEPARATOR );
+					var status : Status = deleteFile( new File(subFilePath) );
+					if ( status.error ) {
+						return status;
+					}
+				}
+				return deleteFile( file );
+			} else  if ( !file.remove() ) {
+				return new Status( Status.ERROR, 'The file/directory \'' + file.fullPath + '\' couldn\'t be deleted!' );
+			}
+		} catch ( e ) {
+			return new Status( Status.ERROR, 'Operation failed: ' + e );
+		}
+	}
+	return new Status( Status.OK, 'Operation successfully performed.' );
+}

@@ -1,0 +1,94 @@
+/**
+ * SetDefaultAddress.ds
+ *
+ * This script sets the default address for the customer addressbook.
+ *
+*  @input Basket :dw.order.Basket  
+ * @input BillingAddressForm : dw.web.FormGroup
+ *
+ */
+importPackage( dw.customer );
+importPackage( dw.system );
+importPackage(dw.util);
+importPackage( dw.web );
+function execute( pdict : PipelineDictionary ) : Number
+{
+	//var validcode: Boolean=true;
+	//var fiscalCode : dw.web.FormField = pdict.BillingAddressForm.addressFields.fiscalCode;
+    var vNumber : dw.web.FormField = pdict.BillingAddressForm.addressFields.vatNumber;	 
+ 
+	 if( typeof vNumber !="undefined" ){
+	   if(dw.web.Resource.msg('global.fiscalCheckFlag','locale', null).equals("true")){
+	 	 if(empty(pdict.BillingAddressForm.addressFields.companyName.value)){
+	 	 	if(!empty(pdict.BillingAddressForm.addressFields.vatNumber.value)){
+	           pdict.BillingAddressForm.addressFields.companyName.invalidateFormElement(Resource.msg('forms.address.companyName.missing','forms',null));
+	           return PIPELET_ERROR;
+	 	 	}
+	     }
+	   }else if(dw.web.Resource.msg("global.vatHandlingFlag","locale",null).equals("true")){
+		   var vatNumber : dw.web.FormField =  pdict.BillingAddressForm.addressFields.vatNumber;
+	       var orderTotalValue:Number =0.00;
+	       if (pdict.Basket.totalGrossPrice.available){
+			    orderTotalValue = pdict.Basket.totalGrossPrice.value;
+	       }else{
+			    orderTotalValue =pdict.Basket.getAdjustedMerchandizeTotalPrice(true).add(LineItemCtnr.giftCertificateTotalPrice).value;
+	       }
+	       var vatReq:String=Resource.msg('vatnumber.required.amout','forms',null);
+		   if(orderTotalValue >= parseInt(vatReq) && empty(vatNumber.htmlValue)){
+		    	 vatNumber.invalidateFormElement(Resource.msg('forms.vatnumber.missing-error','forms',null));
+		    	return PIPELET_ERROR;
+		  }
+	  }
+    }
+	 
+    /*if(!empty(args.fiscalCode.value)){
+	    var addIterator: Iterator =addressList.iterator();
+	    while(addIterator.hasNext()){
+		    var address:CustomerAddress =addIterator.next();
+		    if(!(address.ID.toString().equalsIgnoreCase(args.addressId.value))){
+		    if(address.custom.addressType=="billing" && "fiscalCode" in address.custom && args.fiscalCode.value.toString().equalsIgnoreCase(address.custom.fiscalCode)){
+			    validcode=false;
+			    args.fiscalCode.invalidateFormElement();
+		    }
+		   }else{
+		   	
+		   	if(address.custom.addressType=="billing" && "fiscalCode" in address.custom && args.fiscalCode.value.toString().equalsIgnoreCase(address.custom.fiscalCode)){
+			   //allow
+		    }else{
+		         validcode=false;
+			     args.addressId.invalidateFormElement();
+		   	}
+		   }
+	    }
+    }else if(!empty(args.vatNumber.value)){
+	    var addIterator: Iterator =addressList.iterator();
+	    while(addIterator.hasNext()){
+		    var address:CustomerAddress =addIterator.next();
+		    if(!(address.ID.toString().equalsIgnoreCase(args.addressId.value))){
+		    if(address.custom.addressType=="billing" && "vatNumber" in address.custom && args.vatNumber.value.toString().equalsIgnoreCase(address.custom.vatNumber)){
+			    validcode=false;
+			    args.vatNumber.invalidateFormElement();
+		    }else{
+		       if(empty(args.companyName.value)){
+		          validcode=false;
+		          args.companyName.invalidateFormElement();
+		        }
+		       }
+		    }else{
+		     if(address.custom.addressType=="billing" && "vatNumber" in address.custom && args.vatNumber.value.toString().equalsIgnoreCase(address.custom.vatNumber)){
+			    // validcode=false;
+			   // args.addressId.invalidateFormElement();
+		      //allow
+		    }else{
+		         validcode=false;
+			     args.addressId.invalidateFormElement();
+		   	}
+
+		   }
+	    }
+    }
+    if(!validcode){
+		return PIPELET_ERROR;
+	}*/
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,24 @@
+<!--- TEMPLATENAME: dialogConfirmOrderCancellation.isml --->
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude template="cssuite/utils/modules">
+
+<form id="OrderCancelationForm" action="${URLUtils.httpsContinue()}" onsubmit="return false;">
+	
+			<p class="ui-dialog-text_dialog">Do you really want to cancel the order?</p>
+	</form>
+<script type="text/javascript">
+<!--
+	Dialog.formDialog("Confirm Order Cancellation for Order ${pdict.Order.orderNo}", 
+		{
+			
+				"Proceed": function() { 
+					$(this).dialog("destroy");
+					Order.cancelOrder("Confirmed");
+				},
+			
+			"Cancel": function() { 
+				$(this).dialog("destroy");}
+		}, false, 'auto', 'auto'
+	);
+//-->
+</script>

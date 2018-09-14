@@ -1,0 +1,98 @@
+/**
+* Demandware Script File
+* To define input and output parameters, create entries of the form:
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+* For example:
+*
+*   @output fileNameToArchive : String 
+*   @output fileWriter : dw.io.CSVStreamWriter 
+*	@output fileNameWithPath : String 
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.io );
+importPackage( dw.catalog );
+importPackage(dw.web);
+//importScript('int_cybersource:cybersource/Date&TimeUtility.ds');
+
+function execute( args : PipelineDictionary ) : Number
+{
+	try
+	{
+	    var writer : FileWriter=null;
+	   // var pid : String = "";
+	    var siteName:String = dw.system.Site.getCurrent().ID;
+		var currentDateAndTime : Date = new Date(); 
+		var startCalender : dw.util.Calendar = new Calendar(currentDateAndTime);
+	//	var timestamp_date : String = getDate(startCalender);
+		//var timestamp_time : String = getTime(startCalender);
+	//	timestamp_time=timestamp_time.replace(/[:]/g,"");
+	    var fileName : String = "RegistrationConversionReport_"+siteName+"_"+currentDateAndTime.getDate()+"_"+(currentDateAndTime.getMonth()+1)+"_"+currentDateAndTime.getFullYear()+"_"+currentDateAndTime.getTime()+".csv";
+	    var fileNameWithPath : String = File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + "registerConversions" + File.SEPARATOR+ fileName;
+	    var fileout : File = new File(fileNameWithPath);
+	    	  
+	   	if(!fileout.exists())
+	   	{
+	   		fileout.createNewFile();
+	   	}    
+	   	    
+		var writer  = new FileWriter(fileout);
+		var csvWriter : CSVStreamWriter = new CSVStreamWriter(writer);
+		var referrerEmail:String = "Referrer Email";
+		var referrerFname:String = "Referrer First Name";
+		var referrerLName:String = "Referrers Last Name";
+		var refereeEmail:String = "Referee Email";
+		var refereeTitle:String = "Referee Title";
+		var refereeSalutation:String = "Referee Salutation";
+		var refereeFname:String = "Referee First Name";
+		var refereeLName:String = "Referee Last Name";
+		var refereeApproved:String = "Referee Approved";
+		var refereeRegistered: String = "Referee Registered";
+		var refereeRegisteredOn: String = "Referee Registeration Date";
+		var refereeSpentVal: String = "Referee Spent Value(Lifetime)";
+		var refereeSpentValInLastMonth: String = "Referee Spent Value(30 days)";		
+		var refereeChannel: String = "Registration Channel";
+		var source: String = "Registration Source";
+		var orderPlaced : String = "Order Placed";
+		var dateCreated : String = "Referral Date";
+		var siteId : String = dw.system.Site.getCurrent().ID;
+		var str: String = referrerEmail+ "," +referrerFname + "," +referrerLName+ "," + refereeEmail + "," ;
+		
+		if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("false") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true"))
+		{
+			str = str + refereeSalutation + ","  ;
+		}
+		else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true"))
+		{
+			str = str + refereeTitle + "," + refereeSalutation + "," ;
+		}
+		else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("false"))
+		{
+			str = str + refereeTitle + "," ;
+		}
+		
+		str = str + refereeFname + "," + refereeLName+ "," +refereeApproved+ "," +refereeRegistered+ "," +refereeRegisteredOn+ "," +refereeSpentVal+ ","+refereeSpentValInLastMonth+","+refereeChannel+ "," +source+ "," +orderPlaced+ "," +dateCreated;
+		
+		
+		var arr : Array = str.split(",");
+		csvWriter.writeNext(arr);
+		args.fileNameToArchive = fileName;
+		args.fileWriter = csvWriter;
+		args.fileNameWithPath = fileNameWithPath;
+		
+	}
+	catch(e)
+	{
+		Logger.error(String(e));
+		return PIPELET_ERROR;
+	}
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,78 @@
+<iscomment>
+	Creates a miniaddress display.
+
+	Parameter:
+	p_address	 	: the address object to display
+    p_productlist   : the product list the address represents. can be empty
+</iscomment>
+
+
+<iscomment>
+	There are some addresses without an ID, catch this here and make this include
+    more universal usable therefore.
+</iscomment>
+
+<isif condition="${'ID' in pdict.p_address && !empty(pdict.p_address.ID)}">
+	<div class="mini-address-title">
+		<label style="display:none;">${Resource.msg('minishipments.deliverto','checkout',null)}</label>
+		<h2><isprint value="${pdict.p_address.ID}"/></h2>
+	<iscomment>	
+	<isif condition="${!empty(pdict.p_productlist)}">
+			<div class="mini-address-product-list">${Resource.msg('miniaddress.registrywishlist','account',null)}</div>
+		</isif> 
+		 </iscomment>
+	</div>
+<iselseif condition="${!empty(pdict.p_address.custom.addressName)}">	
+	<div class="mini-address-title">
+	<h3 class="mini-address-name"><isprint value="${pdict.p_address.custom.addressName}"/></h3>
+	</div>
+</isif>
+<iscomment>Confirmation Page Content</iscomment>
+<isif condition="${pdict.ifConfirmationPage}">
+	<isprint value="${Resource.msg('orderdetails.amountpaid','components',null)}" /><br>
+	<isprint value="${orderTotalValue}" /><br>
+	<isprint value="${Resource.msg('orderdetails.billingaddress','components',null)}" /><br>
+</isif>
+
+<div class="mini-address-location">
+	<address>
+	<isprint value="${pdict.p_address.title}"/>
+	<isprint value="${pdict.p_address.firstName}"/>
+	<isprint value="${pdict.p_address.lastName}"/><br>
+	<isif condition="${!empty(pdict.p_address.companyName)}">
+		<isprint value="${pdict.p_address.companyName}"/><br>
+	</isif>
+	<isif condition="${!empty(pdict.p_address.address1)}">
+		<isprint value="${pdict.p_address.address1}"/><br>
+		</isif>
+		
+		<isif condition="${!empty(pdict.p_address.address2)}">
+			<isprint value="${pdict.p_address.address2}"/><br>
+		</isif>
+	
+		<isif condition="${!empty(pdict.p_address.postalCode)}">
+		<isprint value="${pdict.p_address.postalCode}"/><br>
+		</isif>
+	
+		<isif condition="${pdict.p_address.city != null}">
+			<isprint value="${pdict.p_address.city}"/><br>
+		</isif>
+	
+<iscomment>	    <isprint value="${pdict.p_address.stateCode}"/>    </iscomment>   	    
+		   
+		  <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==pdict.p_address.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+         </isloop>
+		 <br>
+		
+		<isif condition="${!empty(pdict.p_address.phone)}">
+		<iscomment>	<br/>${Resource.msg('miniaddress.phone','account',null)}   </iscomment>
+			 <isprint value="${pdict.p_address.phone}"/> 
+		</isif>
+	
+	</address>
+	
+</div>

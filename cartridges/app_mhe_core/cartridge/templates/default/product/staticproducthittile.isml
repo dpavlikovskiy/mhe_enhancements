@@ -1,0 +1,231 @@
+<iscache type="relative" hour="24" varyby="price_promotion"/>
+<isinclude template="util/modules"/>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+</isscript>
+<iscomment>
+	This template renders a product in the Brand Landing Page using a ProductSearchHit object.
+</iscomment>
+
+<isif condition="${!empty(pdict.Product) }">
+<isscript>
+	importScript('product/ProductUtils.ds');
+</isscript>
+
+	<iscomment>Set the product of the product search hit locally for reuse</iscomment>
+	<isset name="Product" value="${pdict.Product}" scope="page"/>
+	<isset name="OrgProduct" value="${null}" scope="page"/>
+	
+	<iscomment>
+		Get the sizes selectable from the current product master or variant range if we
+		need to determine them based on a search result.
+	</iscomment>
+	<isscript>
+		var selectableSize : dw.util.Collection = new dw.util.ArrayList();
+		var varAttrSize : dw.catalog.ProductVariationAttribute = null;
+		var onlyMagnum : Boolean = false;
+		var displayBadge : Boolean = false;
+		var selectedSize: dw.catalog.ProductVariationAttributeValue = null;
+		if( Product.master )
+		{
+			var varModel : dw.catalog.ProductVariationModel = Product.variationModel;
+			//varAttrSize = varModel.getProductVariationAttribute("color");
+
+			/**
+				This is to create swatches as per the the size attribute -- Naveen Kumar
+			*/
+			varAttrSize = varModel.getProductVariationAttribute("size");
+			if( varAttrSize != null )
+			{
+				selectableSize = Product.variationModel.getFilteredValues( varAttrSize );
+			}
+			/**
+				check if only magnum size is available
+			*/
+			if (selectableSize.size() == 1 && selectableSize.get(0).value == 150){
+				onlyMagnum = true;
+			}
+		}
+		
+		var firstProduct : dw.catalog.Product = pdict.FirstProduct;
+		if( firstProduct && firstProduct.variant && varAttrSize != null )
+		{
+			selectedSize = firstProduct.variationModel.getSelectedValue( varAttrSize );
+		}
+		
+		/**
+			Set if the badge needs to be displayed or not
+		*/
+		displayBadge = ProductUtils.displayBadge(Product);		
+		
+	</isscript>
+		
+    <iscomment>
+		Generate link to product detail page: by default it's just the product of the product search hit.
+		If a size variation is available, the first size is used as link URL.
+	</iscomment>
+	<isset name="firstSizeVariation" value="${null}" scope="page"/>
+	<isset name="productUrl" value="${URLUtils.http('Product-StaticShow', 'pid', Product.ID, 'cgid' , pdict.CurrentHttpParameterMap.cgid.stringValue)}" scope="page"/>
+	<isif condition="${!empty(selectableSize) && selectableSize.size() > 0 && !empty(varAttrSize)}">
+		
+		<iscomment>if we have a selected size, this size is highlighted otherwise the first selectable size is hightlighted</iscomment>
+		<isif condition="${!empty(selectedSize)}">
+			<isset name="firstSizeVariation" value="${selectedSize}" scope="page"/>
+		<iselse>
+			<isset name="firstSizeVariation" value="${selectableSize.get(0)}" scope="page"/>
+		</isif>
+	</isif>
+
+    <iscomment>append the paging parameters to the product URL</iscomment>
+	<iscomment><isset name="productUrl" value="${productUrl.append('start', pdict.CurrentHttpParameterMap.starting.stringValue)}" scope="page"/></iscomment>
+
+	<iscomment>append the search query parameters to the product URL</iscomment>
+	<isif condition="${!empty(pdict.ProductSearchResult)}">
+		<isset name="productUrl" value="${productUrl}" scope="page"/>
+	</isif>
+
+<div class="product-tile" id="${Product.UUID}" data-itemid="${Product.ID}">
+	<a class="product-info" href="${productUrl}">
+		<isif condition="${displayBadge}">
+			<img class="homeBadge" src="${ProductUtils.getBadgeImage(Product.custom.badge)}"/>
+		</isif>
+		
+		<span class="overlay_anim"></span>
+		<span class="hr-line"></span>
+		<isset name="image" value="${null}" scope="page" />
+		<isif condition="${!empty(selectableSize) && selectableSize.size() > 0}">
+			<isif condition="${!empty(selectedSize)}">
+				<isset name="firstSizeVariation" value="${selectedSize}" scope="page"/>
+			<iselse>
+				<isset name="firstSizeVariation" value="${selectableSize.get(0)}" scope="page"/>
+			</isif>
+		</isif>
+
+		<isif condition="${Product.getImage('hi-res',0) != null}">
+			<isif condition="${(pdict.CurrentHttpParameterMap.pagetype != null) &&(pdict.CurrentHttpParameterMap.pagetype.stringValue.equals(dw.web.Resource.msg('pagename.seasonal','components',null)))}"> 
+				<isset name="image" value="${ new ProductImage('staticofferprodlist', Product, 0 ) }" scope="page"/>
+			<iselse>
+				<isset name="image" value="${ new ProductImage('staticoffer', Product, 0 ) }" scope="page"/>
+			</isif>
+			
+		</isif>	
+
+		<div class="pImage">
+			<isif condition="${!empty(image)}">
+				<isset name="thumbnailUrl" value="${image.getURL()}" scope="page"/>
+				<isset name="thumbnailAlt" value="${Product.name}" scope="page"/>
+				<isset name="thumbnailTitle" value="${Product.name}" scope="page"/>
+				<img src="${thumbnailUrl}" alt="${thumbnailAlt}" />
+			<iselse>
+				<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagemedium.png')}" scope="page"/>
+				<isset name="thumbnailAlt" value="${Product.name}" scope="page"/>
+				<isset name="thumbnailTitle" value="${Product.name}" scope="page"/>
+				<div class="noImg"><img src="${thumbnailUrl}" alt="${thumbnailAlt}" /></div>
+			</isif>
+		</div>
+		<h2 class="secondary"><isprint value="${Product.custom.mheBrand}"/></h2>
+		<h3 class="secondary"><isprint value="${Product.name}"/></h3>
+		
+		<iscomment>Box Description </iscomment>
+		<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+		<div class="productBoxDescription">
+			<isif condition="${!empty(pdict.Product.custom.boxDescription)}">
+				<isprint value="${pdict.Product.custom.boxDescription}" />
+			</isif>
+		</div>
+		
+		<span class="price">
+			<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(pdict.Product)}" scope="page"/>
+			<isset name="PromotionalPrice" value="${dw.value.Money.NOT_AVAILABLE}" scope="page"/>
+			<isset name="isPromoPrice" value="${false}" scope="page"/>
+			<isif condition="${! empty(promos)}">
+				<isloop items="${promos}" var="promo">
+					<isif condition="${promo.getPromotionClass() != null && promo.getPromotionClass().equals(dw.campaign.Promotion.PROMOTION_CLASS_PRODUCT)}">
+						<isif condition="${pdict.Product.optionProduct}">
+							<isif condition="${pdict.CurrentOptionModel != null}">
+								<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(pdict.Product, pdict.CurrentOptionModel)}" scope="page"/>
+							<iselse>
+								<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(pdict.Product, pdict.Product.getOptionModel())}" scope="page"/>
+							</isif>
+						<iselse>
+							<isset name="PromotionalPrice" value="${promo.getPromotionalPrice(pdict.Product)}" scope="page"/>
+						</isif>
+					</isif>
+					<isbreak/>
+				</isloop>	
+			</isif>
+			
+			<iscomment>Renders pricing information depending on the option or variation model, as well as scaled prices and so on.</iscomment>
+			<isset name="currencyCode" value="${dw.system.Site.getCurrent().getDefaultCurrency()}" scope="page"/>	
+			<isif condition="${Product.productSet}">
+				<iscomment>Product set pricing</iscomment>
+				<span class="product-set-price">${Resource.msg('global.buyall','locale',null)}</span>
+				
+			<iselseif condition="${Product.master && pdict.CurrentHttpParameterMap.pricerange.stringValue == 'true'}">
+				<iscomment>Product master price range depending on the represented variants</iscomment>	
+				<span class="product-standard-price"><isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(pdict.CurrentHttpParameterMap.minprice, currencyCode))}" /> - <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(pdict.CurrentHttpParameterMap.maxprice, currencyCode))}" /></span>
+			<iselse>						
+				<iscomment>For Product master without a price range get the pricing from firstRepresentedProduct </iscomment>
+				<isif condition="${Product.master && pdict.CurrentHttpParameterMap.pricerange.stringValue != 'true'}"/>
+					<iscomment>Preserve current product instance</iscomment>
+					<isset name="OrgProduct" value="${Product}" scope="page"/>
+					<isset name="Product" value="${pdict.FirstProduct}" scope="page"/>
+				</isif>
+				<isif condition="${Product.optionProduct}">
+					<isset name="PriceModel" value="${Product.getPriceModel(Product.getOptionModel())}" scope="page"/>
+				<iselse>
+					<isset name="PriceModel" value="${Product.getPriceModel()}" scope="page"/>
+				</isif>
+				<isinclude template="product/components/standardprice"/>
+				<isset name="SalesPrice" value="${PriceModel.getPrice()}" scope="page"/>
+				<isset name="ShowStandardPrice" value="${StandardPrice.available && SalesPrice.available && StandardPrice.compareTo(SalesPrice) == 1}" scope="page"/>
+				<iscomment>Added for promotional pricing </iscomment>		
+				<isif condition="${PromotionalPrice.available && SalesPrice.compareTo(PromotionalPrice) != 0}">
+					<isset name="ShowStandardPrice" value="${true}" scope="page"/>
+					<isset name="StandardPrice" value="${SalesPrice}" scope="page"/>
+					<isset name="SalesPrice" value="${PromotionalPrice}" scope="page"/>
+					<isset name="isPromoPrice" value="${true}" scope="page"/>
+				</isif>
+		
+				<isif condition="${ShowStandardPrice}">
+					<span class="product-discounted-price">
+						<span class="product-standard-price strike"><isprint value="${StandardPrice}"/></span>
+						<span class="product-sales-price"><isif condition="${(SalesPrice.valueOrNull != null && SalesPrice.valueOrNull > 0) || isPromoPrice}"><isprint value="${SalesPrice}"/><iselse>${Resource.msg('pricing.noprice','product',null)}</isif></span>
+					</span>
+				<iselse>
+					<span class="product-sales-price"><isprint value="${SalesPrice}"/></span>
+				</isif>
+				
+				<isif condition="${!empty(OrgProduct)}">
+					<iscomment>Restore current product instance</iscomment>
+					<isset name="Product" value="${OrgProduct}" scope="page"/>
+					<isset name="OrgProduct" value="${null}" scope="page"/>
+				</isif>
+			</isif>
+			<iscomment>Render information on active product promotions</iscomment>
+			<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(Product)}" scope="page"/>
+			<isif condition="${!empty(promos)}">
+				<div class="product-promo">
+					<isloop items="${promos}" var="promo" status="promoloopstate">
+						<a href="${productUrl}" class="promo-msg">
+							<isprint value="${promo.calloutMsg}" encoding="off" />
+						</a>
+						<isbreak/>
+					</isloop>
+				</div>
+			</isif>
+		</span>
+	</a>
+	<iscomment>Product Popup Link</iscomment>
+	<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+	<iscomment>Please make the below conditional to render only in ePages</iscomment>
+	<isif condition="${(pdict.CurrentHttpParameterMap.pagetype != null) && (pdict.CurrentHttpParameterMap.pagetype.stringValue.equals(dw.web.Resource.msg('pagename.seasonal','components',null)) || pdict.CurrentHttpParameterMap.pagetype.stringValue.equals(dw.web.Resource.msg('pagename.heroPage','components',null))) }"> 
+	<a class="button fill commmonQuickview" data-pid="${pdict.Product.ID}" href="#">
+		<span class="face front"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+		<span class="face back"><isprint value="${Resource.msg('epage.shopnow','locale',null)}" /></span>
+	</a>
+	</isif>
+</div>
+						
+
+</isif>

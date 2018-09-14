@@ -1,0 +1,30 @@
+// =============================================================================
+// Account content
+// =============================================================================
+
+.account-content {
+	width:640px;
+	float:right;
+	padding-top:40px;
+	h2 {
+		text-transform:uppercase;
+		margin-bottom:12px;
+		letter-spacing:3px;
+	}
+	p {
+		padding-right:75px;
+		line-height:1.25em;
+		margin-bottom:1.75em;
+		letter-spacing:1px;
+	}
+	.account-submit {
+		margin-top:30px;
+		padding-top:30px;
+		border-top:3px solid #2b2637;
+		text-align:right;
+	}
+	.subTitle{
+		text-transform:uppercase;
+		color:$white;
+	}
+}

@@ -1,0 +1,28 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<title>CS Suite</title>
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+</isscript>
+
+<link rel="stylesheet" type="text/css" href="${URLUtils.staticURL('/cssuite/css/cssuite.css')}" />
+<link rel="stylesheet" type="text/css" href="${URLUtils.staticURL('/cssuite/css/jquery-ui.css')}" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/jQuery-date-picker.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/lib/jquery/js/jquery-validate/jquery.validate.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/lib/jquery/js/jquery/ui.accordion-1.8.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/lib/jquery/js/jquery/jquery.blockUI.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/lib/jquery/js/jquery/jquery.cookie.js')}"></script>
+
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/CalendarPopup.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/cssuite.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/customer.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/order.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/error.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/dialog.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/product.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/jquery.ba-bbq.min.js')}"></script> 
+<script type="text/javascript" src="${URLUtils.staticURL('/cssuite/js/init.js')}"></script>
+
+<isinclude template="cssuite/app/appurls">

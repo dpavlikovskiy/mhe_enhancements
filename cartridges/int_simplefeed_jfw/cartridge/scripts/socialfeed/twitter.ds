@@ -1,0 +1,94 @@
+/**
+* Demandware Script File to get tweet from user time line and output as json string
+ 
+*	 @output json : String
+*    @output errorMessage : String
+*/
+importPackage( dw.system );
+importPackage( dw.net );
+importPackage( dw.util );
+importPackage( dw.crypto );
+importPackage( dw.io );
+
+function execute( args : PipelineDictionary ) : Number{
+   args.json="";
+   var oAuthConsumerKey : String = dw.system.Site.getCurrent().getCustomPreferenceValue("oAuthConsumerKey");
+   var oAccessToken : String = dw.system.Site.getCurrent().getCustomPreferenceValue("oAccessToken");
+   var  consumerSecretKey : String = dw.system.Site.getCurrent().getCustomPreferenceValue("consumerSecretKey");
+   var  accessTokenSecretKey : String = dw.system.Site.getCurrent().getCustomPreferenceValue("accessTokenSecretKey");
+   var tweetCount : Number = dw.system.Site.getCurrent().getCustomPreferenceValue("tweetCount");
+   if (empty(oAuthConsumerKey) || empty(oAccessToken) || empty(consumerSecretKey) || empty(accessTokenSecretKey)) {
+   		 return PIPELET_NEXT;
+   }
+
+   var _oAuthConsumerKey = oAuthConsumerKey;//"4es5GgzjBawOOaUCsYWbLLvT3";
+
+   var _random : SecureRandom = new SecureRandom();
+
+   var _randomBytes : Bytes = _random.generateSeed(32);
+
+   var _randomString : String = Encoding.toBase64(_randomBytes);
+
+  _randomString = (escape(_randomString.substr(0,32))).replace("/", "t", "g").replace("+", "Z", "g");
+
+   var _oAuthNonce = _randomString;
+
+   var _oAuthSignatureMethod = "HMAC-SHA1";
+
+   var _oAuthTimeStamp = Math.round((new Date()).getTime() / 1000).toString();
+   var _oAccessToken = oAccessToken;//"61432828-UiCI6GYdbrOhY9zCdhhqpuALXr0kb3Y5Aq2K9FhIV";
+
+   var _sigBase = StringUtils.format("count="+tweetCount+"&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}", escape(_oAuthConsumerKey), escape(_oAuthNonce), escape(_oAuthSignatureMethod), escape(_oAuthTimeStamp), escape(_oAccessToken), escape("1.0"));
+
+   _sigBase = "GET&" + (escape("https://api.twitter.com/1.1/statuses/user_timeline.json")).replace("/", "%2F", "g").replace("+", "%2B", "g") + "&" + escape(_sigBase);
+
+
+   var _consumerSecretKey = consumerSecretKey;// "TsLu6jsIWOttWpbJwhJOBos0uy2WQxuXS7be7WVCPQOfZurT0f";
+ 
+   var _accessTokenSecretKey = accessTokenSecretKey;//"YWwtXNfMxH8tq8V5p3mLqaC8ad558OVzK7x03vC44hInE";
+
+   var _signingKey = _consumerSecretKey + "&" + _accessTokenSecretKey;
+
+   var _mac : Mac = new Mac(Mac.HMAC_SHA_1);
+
+   var _oAuthSignature = Encoding.toBase64(_mac.digest(_sigBase, _signingKey));
+
+   var _oAuthData = StringUtils.format("OAuth oauth_consumer_key=\"{0}\", oauth_nonce=\"{1}\", oauth_signature=\"{2}\", oauth_signature_method=\"{3}\", oauth_timestamp=\"{4}\", oauth_token=\"{5}\", oauth_version=\"{6}\"", escape(_oAuthConsumerKey), escape(_oAuthNonce), (escape(_oAuthSignature)).replace("/", "%2F", "g").replace("+", "%2B", "g"), escape(_oAuthSignatureMethod), escape(_oAuthTimeStamp), escape(_oAccessToken), escape("1.0"));
+ 
+   try{
+   var _httpClient : HTTPClient = new HTTPClient();
+
+   var _message : String;
+  _httpClient.open('GET', 'https://api.twitter.com/1.1/statuses/user_timeline.json?count='+tweetCount);
+  
+  _httpClient.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  _httpClient.setRequestHeader("Authorization", _oAuthData);
+
+  _httpClient.send();
+
+  if (_httpClient.statusCode == 200){
+
+        _message = _httpClient.text;
+
+  }else {
+      _message="An error occured with status code "+ _httpClient.statusCode;
+      args.errorMessage = "Error in twitter.ds - " + _message;
+      Logger.error("Error in twitter.ds - " + _message);
+    return PIPELET_ERROR;
+  }  
+  args.json=_message;
+    
+   
+    
+  }catch(e){
+    Logger.error("Error in catch block twitter.ds - " + e.message);
+    args.errorMessage = "Error in catch block twitter.ds - " + e.message;
+    return PIPELET_ERROR;
+  }
+  return PIPELET_NEXT;
+
+}
+
+ 
+
+

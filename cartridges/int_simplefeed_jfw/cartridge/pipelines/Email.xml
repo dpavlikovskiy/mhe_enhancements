@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="view">
+  <branch basename="SendMail">
+    <segment>
+      <node>
+        <start-node name="SendMail" secure="false"/>
+        <node-display x="0" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="email/ValidateEmailFields.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="InstanceReqd" key="InstanceReqd"/>
+          <key-binding alias="MailFrom" key="MailFrom"/>
+          <key-binding alias="MailTo" key="MailTo"/>
+          <key-binding alias="MailCC" key="MailCC"/>
+          <key-binding alias="MailBCC" key="MailBCC"/>
+          <key-binding alias="MailSubject" key="MailSubject"/>
+          <key-binding alias="MailHeader" key="MailHeader"/>
+          <key-binding alias="MailFooter" key="MailFooter"/>
+          <key-binding alias="MailParams" key="MailParams"/>
+          <key-binding alias="MailTo" key="OutMailTo"/>
+          <key-binding alias="MailHeader" key="OutMailHeader"/>
+          <key-binding alias="MailFrom" key="OutMailFrom"/>
+          <key-binding alias="MailFooter" key="OutMailFooter"/>
+          <key-binding alias="MailCC" key="OutMailCC"/>
+          <key-binding alias="MailBCC" key="OutMailBCC"/>
+          <key-binding alias="FailedMessage" key="FailedMessage"/>
+          <key-binding alias="EmailFlow" key="EmailFlow"/>
+          <key-binding alias="MailContentAssetID" key="OutMailContentAssetID"/>
+          <key-binding alias="MailSubject" key="OutMailSubject"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in1" target-path="./b3.1">
+            <transition-display>
+              <bend-point relative-to="target" x="0" y="-2"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="email/FormatEmail.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="MailContentAssetID" key="ContentAssetID"/>
+          <key-binding alias="MailParams" key="MailParams"/>
+          <key-binding alias="MailContent" key="MailContent"/>
+          <key-binding alias="FailedMessage" key="FailedMessage"/>
+          <key-binding alias="EmailFlow" key="EmailFlow"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in1"/>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="2" y="0"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="MailFrom"/>
+                <key-binding alias="&quot;mail/errorSendEmail&quot;" key="MailTemplate"/>
+                <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailTo" key="MailTo"/>
+                <key-binding alias="null" key="LocaleID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <end-node name="FAIL"/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="!empty(InstanceReqd)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b4" source-connector="yes">
+          <transition target-connector="in1" target-path="./+1">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="2"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <key-binding alias="InstanceReqd" key="To_0"/>
+          <key-binding alias="false" key="From_0"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+      <transition target-connector="in3" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+          <bend-point relative-to="target" x="1" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="empty(logFiles)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+                <key-binding alias="MailFrom" key="MailFrom"/>
+                <key-binding alias="&quot;mail/emailFrameworkTemplate&quot;" key="MailTemplate"/>
+                <key-binding alias="MailTo" key="MailTo"/>
+                <key-binding alias="MailSubject" key="MailSubject"/>
+                <key-binding alias="null" key="LocaleID"/>
+                <key-binding alias="MailCC" key="MailCC"/>
+                <key-binding alias="MailBCC" key="MailBCC"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <end-node name="SUCCESS"/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="MailFrom" key="MailFrom"/>
+          <key-binding alias="&quot;mail/emailTemplateAttachment&quot;" key="MailTemplate"/>
+          <key-binding alias="MailTo" key="MailTo"/>
+          <key-binding alias="MailSubject" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="MailCC" key="MailCC"/>
+          <key-binding alias="MailBCC" key="MailBCC"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node name="SUCCESS"/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_2">
+    <segment>
+      <node>
+        <text-node>
+          <description>Check mandatory Email fields be available
+EmailSubject - This will be the subject of email and Content Asset ID - This will contain the email content
+Validate the other optional fileds against validation format like EmailFrom, EmailTo, EmailCC, EmailBCC</description>
+        </text-node>
+        <node-display width="2" x="3" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_3">
+    <segment>
+      <node>
+        <text-node>
+          <description>Replace the placeholder of content in content asset with parameters value available in HashMap (pdict variable) having key same as placeholder in content Asset</description>
+        </text-node>
+        <node-display width="2" x="3" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_4">
+    <segment>
+      <node>
+        <text-node>
+          <description>Template will be fixed and picked based on locale. Also header and footer are fixed as specified in template</description>
+        </text-node>
+        <node-display width="2" x="3" y="3"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

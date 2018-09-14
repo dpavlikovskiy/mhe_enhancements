@@ -1,0 +1,121 @@
+<!--- TEMPLATENAME: whitestrap.isml --->
+<isscript>
+		var prodCategory : String =  null;	
+		if("productCategory" in pdict.Product.custom && !empty(pdict.Product.custom.productCategory)){
+			prodCategory=pdict.Product.custom.productCategory;
+		}	
+		if (prodCategory == null && pdict.Product.variant){
+			if("productCategory" in pdict.Product.masterProduct.custom && !empty(pdict.Product.masterProduct.custom.productCategory)){
+				prodCategory =  pdict.Product.masterProduct.custom.productCategory;
+			}
+		}
+</isscript>
+<isif condition="${!pdict.Product.custom.excludeCharacteristics}">	
+<div class="pdp-section pdp-section-tabs product-detail">
+	
+	<div class="pdp-section-inner">
+		
+		<isif condition="${!isQuickView}">
+			<div class="product-tabs">
+			
+				<h2 class="visually-hidden">Additional Information</h2>
+				
+				<isset name="vags" value="${pam.getVisibleAttributeGroups()}" scope="page"/>
+	
+				<ul class="tabs-menu">
+					<isif condition="${!empty(pdict.Product.custom.tastingNotes) && pdict.Product.custom.tastingNotes.markup.length > 0}">
+						<li class="tab"><a href="#tab1">${Resource.msg('product.tab.tasting','product',null)}</a></li>
+					</isif>				
+			<isif condition="${prodCategory!='accessories'}">
+				
+					<li class="tab"><a href="#tab2">${Resource.msg('product.tab.characteristics','product',null)}</a></li>
+			<iselse>
+			<isif condition="${'other' in pdict.Product.custom || 'composition' in pdict.Product.custom|| 'careInstruction' in pdict.Product.custom }">
+			<li class="tab"><a href="#tab2">${Resource.msg('product.tab.productdetails','product',null)}</a></li>
+				<div id="tab2" class="tab-content characteristics js-show-hide" data-show-hide='{"trigger":"js-detail-trigger","showClass":"js-visible","hiddenContent":"extra-detail","drawerOpen":false,"ctaMore":"View more characteristics","ctaLess":"View less characteristics","ctaTargetClass":"js-cta"}'>
+					
+					<isif condition="${'other' in pdict.Product.custom && !empty(pdict.Product.custom.other)}">
+						<isprint value="${Resource.msg('product.tab.proddetails.other','product',null)}" encoding="off"/>
+					<isloop iterator="${pdict.Product.custom.other}" alias="prod" status="loopstate">
+				  	 		<isprint value="${prod}" encoding="off"/>
+				 		<isif condition="${!loopstate.last}">
+				  			<isprint value="${Resource.msg('global.pipe','locale',null)}" encoding="off"/>
+				  		</isif>
+				 	</isloop>
+						<br/>		
+				
+				</isif>	
+				<isif condition="${'composition' in pdict.Product.custom && !empty(pdict.Product.custom.composition)}">
+					<isprint value="${Resource.msg('product.tab.proddetails.composition','product',null)}" encoding="off"/>
+						<isloop iterator="${pdict.Product.custom.composition}" alias="prod" status="loopstate">
+				  			<isprint value="${prod}" encoding="off"/>
+				  		<isif condition="${!loopstate.last}">
+				  			<isprint value="${Resource.msg('global.pipe','locale',null)}" encoding="off"/>
+				  		</isif>
+				 		</isloop>	
+				 		<br/>	
+				</isif>	
+				<isif condition="${'careInstruction' in pdict.Product.custom && !empty(pdict.Product.custom.careInstruction)}">
+					<isprint value="${Resource.msg('product.tab.proddetails.careinst','product',null)}" encoding="off"/>
+						<isloop iterator="${pdict.Product.custom.careInstruction}" alias="prod" status="loopstate"> 
+				  		<isprint value="${prod}" encoding="off"/>
+				 		<isif condition="${!loopstate.last}">
+				  		<isprint value="${Resource.msg('global.pipe','locale',null)}" encoding="off"/>
+				  		</isif>
+				 		</isloop>	 					
+				</isif>	
+				</div>
+				</isif>
+				</isif>
+					<isif condition="${!empty(pdict.Product.custom.awards) && pdict.Product.custom.awards.markup.length > 0}">
+						<li class="tab"><a href="#tab3">${Resource.msg('product.tab.awards','product',null)}</a></li>
+					</isif>				
+
+					<isif condition="${!empty(pdict.Product.custom.foodPairing) && pdict.Product.custom.foodPairing.markup.length > 0}">						
+						<isset name="tabHeading" value="${Resource.msg('product.tab.foodpairing','product',null)}" scope="page" >
+						
+						<isif condition="${prodCategory!=null && prodCategory.value.toLowerCase() == 'spirits'} " >							
+							<isset name="tabHeading" value="${Resource.msg('product.tab.cocktail','product',null)}" scope="page" >
+						</isif>
+						<li class="tab"><a href="#tab4">${tabHeading}</a></li>
+					</isif>				
+
+					<isif condition="${!empty(pdict.Product.custom.discover) && pdict.Product.custom.discover.markup.length > 0}">
+						<li class="tab"><a href="#tab5">${Resource.msg('product.tab.discover','product',null)}</a></li>
+					</isif>				
+				</ul>
+				
+				<isif condition="${!empty(pdict.Product.custom.tastingNotes) && pdict.Product.custom.tastingNotes.markup.length > 0}">
+					<div id="tab1" class="tab-content" itemprop="description">						
+						<isprint value="${pdict.Product.custom.tastingNotes}" encoding="off"/>
+					</div>
+				</isif>
+				
+				<div id="tab2" class="tab-content characteristics js-show-hide" data-show-hide='{"trigger":"js-detail-trigger","showClass":"js-visible","hiddenContent":"extra-detail","drawerOpen":false,"ctaMore":"View more characteristics","ctaLess":"View less characteristics","ctaTargetClass":"js-cta"}'>
+					<isinclude url="${URLUtils.url('Product-GetCharacteristics', 'pid', pdict.Product.ID)}"/>
+				</div>
+				
+				
+				
+				<isif condition="${!empty(pdict.Product.custom.awards) && pdict.Product.custom.awards.markup.length > 0}">
+					<div id="tab3" class="tab-content awards">
+						<isprint value="${pdict.Product.custom.awards}" encoding="off"/>					
+					</div>
+				</isif>				
+
+				<isif condition="${!empty(pdict.Product.custom.foodPairing) && pdict.Product.custom.foodPairing.markup.length > 0}">
+					<div id="tab4" class="tab-content pairings">					
+						<isprint value="${pdict.Product.custom.foodPairing}" encoding="off"/>				
+					</div>
+				</isif>			
+						
+				<isif condition="${!empty(pdict.Product.custom.discover) && pdict.Product.custom.discover.markup.length > 0}">
+					<div id="tab5" class="tab-content">					
+						<isprint value="${pdict.Product.custom.discover}" encoding="off"/>				
+					</div>
+				</isif>			
+			</div>
+		</isif>
+	</div> 
+</div>
+</isif>

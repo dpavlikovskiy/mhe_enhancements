@@ -1,0 +1,118 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<style type="text/css">
+	.nowrap {white-space: nowrap;}
+</style>
+<!-- Page Navigator -->
+<isset name="TOP_URL"   value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'customsitemenuextension_id01')}" scope="PAGE">
+<isbreadcrumb name1="Manage Job Configurations">
+<!-- EO Page Navigator -->
+
+<!-- errors -->
+<isif condition="${false}"> <!-- or any other useful error condition -->
+	<table border="0" cellspacing="0" cellpadding="4" width="100%" class="error_box n s e w">
+		<tr valign="top">
+			<td class="error_icon top e"><img src="${URLUtils.webRoot()}/images/error.gif" width="16" height="15" alt="" border="0"/></td>
+			<td class="error top" width="100%">
+			<p>Custom Error ...: <isprint value="${pdict.ErrorParameter}"> hasn't been defined. This is an error message sample.<br/>
+			</td>
+		</tr>
+	</table>
+</isif>
+<!-- end errors-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tr>
+		<td width="100%" class="w e s table_title">Job Configuration List</td>
+	</tr>
+	<tr>
+		<td valign="top" class="table_title_description w e s">
+			<p>This page shows the configurations that have already been created. You can add, remove and edit them by clicking on the respective button.</p>
+		</td>
+	</tr>
+</table>
+
+
+<!-- table list view -->
+<isset name="jobConfigurations" value="${pdict.CurrentForms.jobconfig.jobConfigList.jobConfigs}" scope="page">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tr>
+		<td class="table_header w e s nowrap">ID</td>
+		<td class="table_header w e s">Name</td>
+		<td class="table_header e s nowrap">Log Level</td>
+		<td class="table_header e s nowrap">File Logging</td>
+		<td class="table_header e s nowrap">Error Email</td>
+		<td class="table_header e s nowrap">On Error</td>
+		<td class="table_header e s nowrap">Follow Up Job</td>
+		<td class="table_header e s nowrap">Action</td>
+	</tr>
+	<isif condition="${!empty(jobConfigurations)}">
+		<isloop items="${jobConfigurations}" var="jobConfiguration">
+			<tr>
+				<td class="table_detail w e s" nowrap="nowrap"> 
+					${jobConfiguration.object.custom.ID}
+				</td>
+				<td class="table_detail w e s" nowrap="nowrap"> 
+					${jobConfiguration.object.custom.name}
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					${jobConfiguration.object.custom.logLevel}
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					${jobConfiguration.object.custom.fileLogging}
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					${jobConfiguration.object.custom.errorEmail}
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					${jobConfiguration.object.custom.onTemporaryError}
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					<isif condition="${!empty(jobConfiguration.object.custom.followUpJob)}">
+						${jobConfiguration.object.custom.followUpJob}
+						<isif condition="${!empty(jobConfiguration.object.custom.processSites)}">
+							<br/>(<isloop iterator="${jobConfiguration.object.custom.processSites}" alias="siteID">${siteID}, </isloop> )
+						</isif>
+					<iselse/>
+						&nbsp;
+					</isif>
+				</td>
+				<td class="table_detail e s" nowrap="nowrap">
+					<form action="${URLUtils.continueURL()}" method="post" name="${jobConfiguration.htmlName}">
+						<input type="submit" name="${jobConfiguration.remove.htmlName}" value="Delete" class="button" onclick="return confirm('Do you really want to delete this configuration?');"/>
+						<input type="submit" name="${jobConfiguration.edit.htmlName}" value="Edit" class="button"/>
+					</form>
+				</td>
+			</tr>
+		</isloop>
+	</isif>
+	<tr>
+		<td colspan="7" class="w e s" align="right">
+			<form action="${URLUtils.continueURL()}" method="post" name="${pdict.CurrentForms.jobconfig.jobConfigList.htmlName}">
+				<table border="0" cellspacing="4" cellpadding="0">
+					<tr>
+						<td class="button"><input type="submit" name="${pdict.CurrentForms.jobconfig.jobConfigList.add.htmlName}" value="Add" class="button"/></td>
+						<input type="hidden" name="CurrentMenuItemId" value="<isprint value="${pdict.CurrentMenuItemId}">"/>
+						<input type="hidden" name="mainmenuname" value="<isprint value="${pdict.mainmenuname}">"/>
+					</tr>
+				</table> 
+			</form>
+		</td>
+	</tr>
+</table>
+<!-- EO Main Content -->
+
+<table class="bottombuttons">          
+	<form name="Back" action="${TOP_URL}" method="post">
+		<tr>
+			<td>
+				<input class="button" type="submit" name="backToPrefs" value="&lt;&lt; Back"/>
+			</td>
+		</tr>
+	</form>
+</table>
+<!-- EO Working Area -->
+
+</isdecorate>

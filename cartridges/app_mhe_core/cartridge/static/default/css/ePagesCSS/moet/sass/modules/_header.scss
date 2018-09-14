@@ -1,0 +1,155 @@
+.ePageNav{
+	/*background: $navigationBg;
+	border-bottom: 1px solid $navigationBorder;*/
+	text-align:center;
+	font-family:$regularFont;
+	font-size:$smallFontSize;
+	text-transform:uppercase;
+	font-weight:normal;
+	line-height:30px;
+	min-height:33px; 
+	padding: 0;
+	li{
+		@include inline-block;
+		margin:0 35px;
+		a{
+			color:$black;
+			display:block;
+			font:$smallFontSize $regularFont;
+			line-height: 20px;
+			:hover, :focus{
+				color:$secondaryColor;
+			}
+		}
+		&.active{
+			a{
+				color: $secondaryColor;
+			}
+		}
+	}
+}
+.bmValue{
+	display:none;
+}
+
+.static-offer{
+	.header{
+		background: $white url("images/navBg.png") repeat-x left bottom;
+		@include box-shadow(0 0 0);
+		position:fixed;
+		width:100%;
+		header{
+			padding:10px 0 0;
+			height:auto;
+			width: 1280px;
+			.static-logo {
+				padding:5px 0 5px 0;
+				img {
+					height: 60px;
+				}
+			}
+			.header_right {
+				top: 93px;
+				right: 0px;
+				margin-top: 0px;
+				.mini-cart-total {
+					.mini-cart-label {
+						color: $brandColor;
+						font-size: $smallFontSize;
+					}
+					.mini-cart-link {
+						color: $brandColor;
+						font-family: $regularFont;
+						font-size: $smallFontSize;
+						&:hover {
+							color: $black;
+						}
+						span {
+							&:hover {
+								color: $black;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+}
+
+
+
+
+	.epages-product-store-social {
+    	background: none;
+    	margin-top: 0;
+    	padding-top: 0;
+    	position: relative;
+    	.social-icons {
+    		text-align: center;
+    		li {
+    			border-right: 1px solid $brandColor;
+    			display: inline-block;
+    			height: 12px;
+    			padding: 0 7px 0 4px;
+			}
+			li:last-child {
+			border: medium none;
+			}
+			.icon{
+			background: url("images/pdp-social.png") no-repeat;
+			display:block;
+			margin-top: -2px;
+			}
+			.email {
+   				 background-position: -24px -53px;
+    			 height: 16px;
+    			 width: 22px;
+    			 &:hover {
+    			 	background-position: -2px -53px;
+    			 }
+			}
+			.instagram {
+	    		background-position: -24px 0;
+	    		height: 16px;
+	    		width: 17px;
+	    		&:hover {
+    			 	background-position: -2px 0px;
+    			 }
+			}
+			.facebook {
+	    		background-position: -24px -26px;
+	    		height: 16px;
+	    		width: 12px;
+	    		&:hover {
+    			 	background-position: -2px -26px;
+    			 }
+			}
+			.pintrest {
+	    		background-position: -24px -81px;
+	    		height: 16px;
+	    		width: 20px;
+	    		&:hover {
+    			 	background-position: -2px -81px;
+    			 }
+			}
+			.twitter {
+	    		background-position: -24px -107px;
+	    		height: 16px;
+	    		width: 19px;
+	    		&:hover {
+    			 	background-position: -2px -107px;
+    			 }
+			}
+		}
+    .gamma-heading {
+    	color: $lightGray;
+    	font-family: $regularFont;
+    	font-size: $standardFontSize;
+    	font-weight: 400;
+    	letter-spacing: 2px;
+    	text-align: center;
+    	text-transform: uppercase;
+		}
+    
+	} 

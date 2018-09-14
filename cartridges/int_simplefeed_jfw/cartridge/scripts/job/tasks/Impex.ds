@@ -1,0 +1,208 @@
+/**
+* This script implements a task especially meant for import tasks.
+*
+Example Configuration:
+
+{
+    "name"				: "Import Catalogs",
+    "pipeline"			: "FeedJob-DownloadAndImport",
+    "impexType"			: "catalog",
+    "importMode"		: "REPLACE",
+    "remoteFolderUrl"	: "inbound/",
+    "type"				: "impex",
+    "remoteFilePattern"	: "^Catalog_.*\\.xml$",
+    "tempFolder"		: "catalog",
+    "fileListBased"		: true,
+    "deleteRemoteFile"	: false
+}
+
+General
+	impexType			- specifies the type of an import task and can have following 
+	remoteFolderUrl		- URL or connection string (can also contain the relative path to the files if 'defaultFileServer' is set to true) 
+	remoteLogin			- login that can be used to access the file transfer server (ignored if 'defaultFileServer' is set to true)
+	remotePassword		- password used to access the file transfer server
+
+
+Import
+	
+	archiveFolder 		- name of the archive folder (optional, defaults to 'archive' if not specified
+	importMode			- specifies the import mode (optional, defaults to 'MERGE' if not specified)
+	remoteFilePattern	- specifies the file name pattern, e.g. '^ActiveData_.*\.csv$'
+	tempFolder			- folder the files from the transferserver are downloaded to.
+	deleteRemoteFile	- Defines if the remote file should be deleted after successful import - defaults to true if not defined
+	fileListBased		- Defines if the download should be based on a file list, if set to true, the provided list of files is used. 
+						  If it doesn't exist, the list will be created. 
+						  This setting is a tremendous help in cases where the number of files is considerably high, or the files must not be deleted after the import.
+
+Order Export
+	encryptionAlgorithm	- algorithm that is used for order export (optional, doesn't use encryption if not specified)
+	encryptionKey		- key that is used to encrypt sensitive data (optional, needs to correspond to encryptionAlgorithm)
+	filePrefix			- specifies the prefix for order export files - e.g. Orders_
+
+*/
+importPackage( dw.system );
+importScript( 'bc_jobframework:util/libInheritance.ds' );
+importScript( 'bc_jobframework:job/tasks/BasicTask.ds' );
+importScript( 'bc_jobframework:job/tasks/libTasks.ds' );
+
+/** JobInfo Singleton */
+var jobInfo = null;
+var cvLogger : Logger = Logger.getLogger( 'Impex' );
+
+/**
+* Factory function that initializes a task.
+* 
+* @param config JSON object that the task configuration.
+* 
+* return Task
+*/
+function initImpex( taskConfig : Object, jobMonitor : JobMonitor ) : Task {
+	return new Impex( taskConfig, jobMonitor );
+};
+
+//Hack, because vars are cannot be imported in DW, only functions
+function getTaskClass() {
+	return Impex;
+};
+function getImpexClass() {
+	return Impex;
+};
+var BasicTask = getBasicTaskClass();
+
+/**
+* Impex Task implementation.
+*/
+var Impex = BasicTask.extend ( 
+/** @lends Impex.prototype */
+{
+	/**
+	* Initialises the object
+	* @constructs
+	* @augments BasicTask 
+	*/
+	init : function( config : Object, jobMonitor : Object ) {
+		
+		Logger.debug('Initialize Impex Task!');
+		
+		//injecting standard import pipeline		
+		if ( !empty(config) && config.hasOwnProperty('pipeline') ) {
+			config.pipeline = 'FeedJob-DownloadAndImport';
+		}
+		
+		//call 'super class' init function
+		this._super( config, jobMonitor );
+
+		//reset executable flag
+		this.executable = false;		
+
+		//check if required impexType is specified
+		if ( empty( this.getParameter('impexType') ) ) {
+			this.initErrorMessage = 'Parameter \'impexType\' expected but not specified!';
+			cvLogger.error( 'Parameter \'impexType\' expected but not specified!' );
+			return;
+		}
+		
+		//check if any validation schema can be applied
+		this.validationSchema = null;
+		this.validationSchema = this.getValidationSchema();
+		if ( empty(this.validationSchema) ) {
+			this.initErrorMessage = 'Value for parameter \'impexType\' is not valid!';
+			cvLogger.error( 'Value for parameter \'impexType\' is not valid!' );
+			return;
+		}
+		
+		//finally all basic checks have been passed
+		this.executable = true;		
+
+	},
+	
+	/**
+	* Gets the schema that can be validated
+	*
+	* @return the schema xsd name if available, otherwise null
+	*/
+	getValidationSchema : function() : String {
+		var importType : String = this.getParameter('impexType','').toLowerCase();
+		if ( !empty(this.validationSchema) ) {
+			this.validationSchema;
+		}
+		switch (importType) {
+			case 'activedata' 		: return 'empty.xsd';
+			case 'catalog' 			: return 'catalog.xsd';
+			case 'content' 			: return 'library.xsd'; 
+			case 'coupons' 			: return 'coupon.xsd';
+			case 'customobjects' 	: return 'customobject.xsd';
+			case 'customers' 		: return 'customer.xsd';
+			case 'giftcertificates' : return 'giftcertificate.xsd';
+			case 'inventory' 		: 
+			case 'inventorylists' 	: return 'inventory.xsd';
+			case 'pricebooks' 		: return 'pricebook.xsd';
+			case 'promotions' 		: return 'promotion.xsd';
+			case 'shippingmethods' 	: return 'shipping.xsd';
+			case 'slots' 			: return 'slot.xsd';
+			case 'sourcecodes' 		: return 'sourcecode.xsd';
+			case 'stores' 			: return 'store.xsd';
+			case 'taxtable' 		: return 'tax.xsd';
+			case 'uploadorders'		: return 'order.xsd';
+			case 'orderstatus' 		: return 'empty.xsd';
+		}
+		return null;
+	},
+
+	/**
+	* Gets the pipeline that needs to be executed.
+	* 
+	* @return String
+	*/
+	getPipeline : function() : String {
+		//using standard import pipeline		
+		if ( empty(this.config) || !this.config.hasOwnProperty('pipeline') ) {
+			return 'FeedJob-DownloadAndImport';
+		}
+		return this.config.pipeline;
+	},
+	
+	/**
+	* Returns the parameter defined for the task.
+	*
+	* @param parameterName name of the parameter at the to be returned
+	* @param defaultValue value that should be returned if the parameter is not present
+	*/
+	getParameter : function( parameterName : String, defaultValue : Object ) : Object {
+		var returnValue : String = null;
+		var returnDefaultValue : Boolean = true;
+		if ( parameterName ) {
+			var test : Object = {};
+			if ( this.config.hasOwnProperty(parameterName) ) {
+				returnValue = this.config[parameterName];
+				returnDefaultValue = false;
+			}
+			if ( empty(returnValue) ) {
+				switch (parameterName) {
+					case 'remoteFolderUrl' 	: return System.getPreferences().custom['fileExchangeURL'];
+					case 'remoteLogin' 		: return System.getPreferences().custom['fileExchangeUser']; 
+					case 'remotePassword' 	: return System.getPreferences().custom['fileExchangePassword'];
+				}
+			} else if ( parameterName == 'remoteFolderUrl' ) {
+				var tmpValue = returnValue.toLowerCase();
+				if ( tmpValue.indexOf( "sftp://" ) != 0 && tmpValue.indexOf( "ftp://" ) != 0 && tmpValue.indexOf( "http://" ) != 0 && tmpValue.indexOf( "https://" ) != 0 ) {
+					var baseURL : String = System.getPreferences().custom['fileExchangeURL'];
+					var remoteFolderURLArray : Array = [ baseURL ];
+					if ( baseURL.lastIndexOf( '/' ) != (baseURL.length - 1) && returnValue.indexOf('/') != 0 ) {
+						remoteFolderURLArray.push('/');
+					}
+					remoteFolderURLArray.push( returnValue );
+					if ( returnValue.lastIndexOf( '/' ) != (returnValue.length - 1) ) {
+						remoteFolderURLArray.push('/');
+					}
+					returnValue = remoteFolderURLArray.join('');
+				}
+				return returnValue.replace(/\{SiteID\}/g, Site.current ? Site.current.ID : 'Sites' );
+			}
+		}
+		return returnDefaultValue ? defaultValue : returnValue;
+	}
+	
+});
+
+registerTaskClass( 'impex', Impex );

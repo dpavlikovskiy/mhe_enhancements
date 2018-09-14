@@ -1,0 +1,69 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importPackage(dw.order);
+	importScript( "app_cssuite:css/utils.ds" );
+
+	var basket = pdict.Basket;
+	var ba = basket.getBillingAddress();
+	var order = basket.orderBeingEdited;
+</isscript>
+
+<isinclude template="cssuite/utils/modules">
+
+<isif condition="${!empty(pdict.SuccessJSAction)}">
+<script type="text/javascript">
+<!--
+${pdict.SuccessJSAction}
+//-->
+</script>
+</isif>
+
+<h3>Payment Information</h3>
+
+
+<form action="${URLUtils.httpsContinue()}" id="removePayments" onsubmit="return false;">
+	<isloop iterator="${pdict.CurrentForms.csspayment.paymentinstruments}" alias="pi" status="loopstatus">
+		<div class="search_order_attributes">
+			<div class="pointer twist_link" onclick="togglePaymentInstrument('search_order_attributes_${loopstatus.count}');">
+				<img src="${URLUtils.staticURL('/cssuite/images/fam/arrow_grey_right.png')}" id="search_order_attributes_${loopstatus.count}_show" alt="Show payment instrument"/>
+				<img src="${URLUtils.staticURL('/cssuite/images/fam/arrow_grey_down.png')}" id="search_order_attributes_${loopstatus.count}_hide" alt="Hide payment instrument" style="display: none"/>
+				<isif condition="${pi.object.paymentMethod == PaymentInstrument.METHOD_CREDIT_CARD}">
+					<isif condition="${pi.object.creditCardType}">
+						Credit Card
+					</isif>
+				<iselseif condition="${pi.object.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE}">
+					Gift Certificate
+				</isif>
+				&#35;${loopstatus.count}
+			<!--- if toRemove flag is set display message that this PI will be removed on "Save Order" --->
+					<iscomment><isif condition="${pi.object.custom.toRemove == true}">
+					(Will be removed if you hit "Save Order")</iscomment>
+				<!--- if transaction ID is empty or the pi is a PPGC we can display the X to remove this PI --->
+				<!--- <iselseif condition="${empty(pi.object.paymentTransaction.transactionID) || pi.object.paymentMethod == 'METHOD_PPGC'}"> --->
+				<!--- always show the remove link --->
+				<iscomment><iselse></iscomment>
+				
+					<isif condition="${isBMLUsed(basket) || pi.object.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE}">
+						&nbsp;
+					<iselse>
+						<input type="image" src="${URLUtils.staticURL('/cssuite/images/fam/cross.png')}" name="${pi.removePaymentInstrument.htmlName}" onclick="Order.removePaymentInstrument_dlg('${pi.removePaymentInstrument.htmlName}');">
+					</isif>
+				<iscomment></isif></iscomment>
+			</div>
+			<div id="search_order_attributes_${loopstatus.count}" style="display: none">
+				<ispaymenttransaction transaction="${pi.object.paymentTransaction}">
+				<ispaymentinstrument instrument="${pi.object}">
+			</div>
+		</div> <!-- search_order_attributes -->
+	</isloop>
+</form>
+<br/>
+
+
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+	<tr>
+		<td colspan="2" class="lefttab_searchbutton_container">
+       	<input class="lefttab_button newpayment" name="addPayment" onclick="Dialog.addPayment();">
+ 		</td>
+ 	</tr>
+</table>

@@ -1,0 +1,551 @@
+/**
+* This script copies data from local file system to a remote location of remote files to the local file system. 
+*
+* @input URL : String URL of remote location
+* @input PATH : String PATH of remote location
+* @input User : String Name of the user
+* @input Password : String Password
+* @input FilePath : String The relative path of the file in its context
+* @input Context : String The context of the file - IMPEX, LOGS, TEMP, etc.
+* @input SiteID: String The Site ID which is required for library access
+* @input CatalogID: String The Site ID which is required for library access
+* @input Action : String The operation that should be performed on the file - DELETE, ZIP, UNZIP
+*
+* @output Status : Object Status of the response
+*/
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.system );
+importPackage( dw.util );
+
+var cvActions : Array = ['REMOTE2LOCAL', 'LOCAL2REMOTE'];
+
+function execute( args : PipelineDictionary ) : Number
+{
+
+	var url : String = args.URL;
+	var user : String = args.User;
+	var password : String = args.Password;
+	var path : String = args.PATH;
+	var action : String = args.Action;
+	var filePath : String = args.FilePath;
+	var context : String = args.Context;
+	var action : String = args.Action;
+	var siteID : String = args.SiteID;
+	var catalogID : String = args.CatalogID;
+
+	if ( !filePath ) {
+    	args.Status = new Status( Status.ERROR, 'No file path provided!' );
+    	return PIPELET_NEXT;
+	}
+
+	if ( !context ) {
+    	args.Status = new Status( Status.ERROR, 'No file context provided!' );
+    	return PIPELET_NEXT;
+	}
+	
+	if ( !action ) {
+    	args.Status = new Status( Status.ERROR, 'No action provided! Please use \'DELETE\', \'ZIP\' or \'UNZIP\'.' );
+    	return PIPELET_NEXT;
+	}
+
+	action = action.toUpperCase();
+	if ( cvActions.indexOf(action) == -1 ) {
+    	args.Status = new Status( Status.ERROR, 'Invalid action provided! Please use \'DELETE\', \'ZIP\' or \'UNZIP\'.' );
+    	return PIPELET_NEXT;
+	}
+
+	var fileFullPathArray : Array = [context];
+	if ( context == 'LIBRARIES' ) {
+		if ( siteID ) {
+			siteID = siteID.replace(/\//g, '');
+			fileFullPathArray.push('/' + siteID);
+		}
+	} else if ( context == 'CATALOGS' ) {
+		if ( catalogID ) {
+			catalogID = catalogID.replace(/\//g, '');
+			fileFullPathArray.push('/' + catalogID);
+		}
+	}
+	fileFullPathArray.push(filePath);
+	
+	var fileFullPath : String = fileFullPathArray.join('');
+	var file : File = new File( fileFullPath );
+	if ( !file.exists() ) {
+    	args.Status = new Status( Status.ERROR, 'The file \'' + fileFullPath + '\' does not exist!' );
+    	return PIPELET_NEXT;
+	} 
+
+	
+	if ( url.lastIndexOf('/') != url.length-1 ) {
+		url += '/';
+	}
+	
+	var status : Status = null;
+
+	if ( empty(url) ) {
+		status = new Status( Status.ERROR, 'URL not specified');
+	} else {
+		
+		switch ( action ) {
+			case 'REMOTE2LOCAL' :
+									if ( url.indexOf( "sftp://" ) == 0 ) {
+										status = getSFTP(action, url, path, user, password, file);
+									} else if ( url.indexOf( "ftp://" ) == 0 ) {
+										status = getFTP(action, url, path, user, password, file);
+									} else {
+										status = getWebDAV(action, url, path, user, password, file);
+									}
+									break;
+			case 'LOCAL2REMOTE'	:	
+									if ( url.indexOf( "sftp://" ) == 0 ) {
+										status = putSFTP(action, url, path, user, password, file);
+									} else if ( url.indexOf( "ftp://" ) == 0 ) {
+										status = putFTP(action, url, path, user, password, file);
+									} else {
+										status = putWebDAV(action, url, path, user, password, file);
+									}
+									break; 
+		}
+	}		
+	args.Status = status;
+    return PIPELET_NEXT;
+}
+
+function getSFTP( action : String, url : String, remotePath : String, user : String, password : String, directory : File ) : Status {
+	
+	if ( !directory.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided directory is not a directory.' );
+	}
+	
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'CopyData: Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'CopyData: Parameter password empty (required for SFTP)' );
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'CopyData: Parameter RemoteFolderURL not recognized, RemoteFolderURL: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var sftpClient : SFTPClient = new SFTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = sftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = sftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+    	return new Status( Status.ERROR, 'CopyData: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+    	return new Status( Status.ERROR, 'CopyData: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + sftpClient.errorMessage );
+	}
+	try{
+		var fileInfo : SFTPFileInfo = sftpClient.getFileInfo(path);
+		if ( empty(fileInfo) ) {
+			return new Status( Status.ERROR, 'Directory/File cannot be accessed!' );
+		} else if( !fileInfo.directory ) {
+			var fileName : String = fileInfo.name;
+			if ( fileName.lastIndexOf('/') != -1 ) { 
+				fileName = fileName.substr(fileName.lastIndexOf('/'));
+			}
+			var fileName : String = [directory.fullPath, fileName].join(File.SEPARATOR);
+			if ( !sftpClient.getBinary(path, new File(fileName) ) ) {
+				return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + sftpClient.errorMessage );
+			}
+		} 
+		return new Status( Status.OK, 'OK');
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (SFTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( sftpClient.connected ) {
+			sftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+function putSFTP( action : String, url : String, remotePath : String, user : String, password : String, file : File ) : Status {
+	
+	if ( file.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided file is a directory.' );
+	}
+	
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'CopyData: Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'CopyData: Parameter password empty (required for SFTP)' );
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'CopyData: Parameter RemoteFolderURL not recognized, RemoteFolderURL: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var sftpClient : SFTPClient = new SFTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = sftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = sftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+    	return new Status( Status.ERROR, 'CopyData: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+    	return new Status( Status.ERROR, 'CopyData: Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + sftpClient.errorMessage );
+	}
+	try{
+		var fileInfo : SFTPFileInfo = sftpClient.getFileInfo(path);
+		if ( empty(fileInfo) ) {
+			return new Status( Status.ERROR, 'Directory cannot be accessed!' );
+		} else if( fileInfo.directory ) {
+			var fileName : String = file.name;
+			var filePath : String = [path, fileName].join(File.SEPARATOR);
+			if ( !sftpClient.putBinary(filePath, file ) ) {
+				return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + sftpClient.errorMessage );
+			}
+		} else {
+			return new Status( Status.ERROR, 'Remote location is not a directory!' );
+		}
+		return new Status( Status.OK, 'OK');
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (SFTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( sftpClient.connected ) {
+			sftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+
+function getFTP( action : String, url : String, remotePath : String, user : String, password : String, directory : File ) : Status {
+
+	if ( !directory.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided directory is not a directory.' );
+	}
+
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for SFTP)' );
+    }
+
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for FTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for FTP)' );
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): File URL not recognized: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var ftpClient : FTPClient = new FTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = ftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = ftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ftpClient.replyMessage );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ( ftpClient.replyMessage ? ftpClient.replyMessage : ' timeout(??).' ) );
+	}
+	
+	try{
+		var fileInfos : Array = ftpClient.list(path);
+		if ( fileInfos.length == 0 ) {
+			var fileName : String = path;
+			fileName = fileName.substr(fileName.lastIndexOf('/'));
+			var fileName : String = [directory.fullPath, fileName].join(File.SEPARATOR);
+			if ( !ftpClient.getBinary(path, new File(fileName) ) ) {
+				return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + ftpClient.replyMessage );
+			}
+		} else if ( fileInfos.length == 1 ) {
+			var fileName : String = fileInfos[0].name;
+			if ( fileName.lastIndexOf('/') != -1 ) { 
+				fileName = fileName.substr(fileName.lastIndexOf('/'));
+			}
+			var fileName : String = [directory.fullPath, fileName].join(File.SEPARATOR);
+			if ( !ftpClient.getBinary(path, new File(fileName) ) ) {
+				return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + ftpClient.replyMessage );
+			}
+		}
+		return new Status( Status.OK, 'OK');
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (FTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( ftpClient.connected ) {
+			ftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+function putFTP( action : String, url : String, remotePath : String, user : String, password : String, file : File ) : Status {
+
+	if ( file.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided file is a directory.' );
+	}
+
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for SFTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for SFTP)' );
+    }
+
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( user ) ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter user empty (required for FTP)' );
+    }
+
+    if ( empty( password ) ){
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Parameter password empty (required for FTP)' );
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( url );
+
+	if ( params == null || params.length < 3 ) {
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): File URL not recognized: ' + url );
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = remotePath ? remotePath : '.';
+	
+	// connect
+	var ftpClient : FTPClient = new FTPClient();
+	var connected : boolean;
+	
+	try
+	{
+		if ( port != null ) {
+			connected = ftpClient.connect( host, port, user, password );
+		} else {
+			// use default port
+			connected = ftpClient.connect( host, user, password );
+		}
+	} catch ( ex ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ex );
+	}
+
+	if ( !connected ) {
+		Logger.error( 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ftpClient.replyMessage );
+    	return new Status( Status.ERROR, 'Perform Remote File Operation (FTP): Error while connecting to ' + host + ( ( port != null ) ? ( ':' + port ) : '' ) + ': ' + ( ftpClient.replyMessage ? ftpClient.replyMessage : ' timeout(??).' ) );
+	}
+	
+	try{
+		var fileName : String = file.name;
+		var filePath : String = [path, fileName].join(File.SEPARATOR);
+		if ( !ftpClient.putBinary(filePath, file ) ) {
+			return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + ftpClient.replyMessage );
+		}
+		return new Status( Status.OK, 'OK');
+	} catch ( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (FTP): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		if ( ftpClient.connected ) {
+			ftpClient.disconnect();
+		}
+	}
+	return;
+}
+
+function getWebDAV( action : String, url : String, path : String, user : String, password : String, directory : File ) : Collection
+{
+	if ( !directory.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided directory is not a directory.' );
+	}
+
+	var webDAVClient : WebDAVClient;
+	var remoteFolderURL : String =  (url + ( path ? path : '/' )).replace(/\s/g, '%20');
+	
+	if ( !empty( user ) && !empty( password ) ) {
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, user, password );
+	} else {
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	var files : Array;
+	
+	try {
+		// remoteFolderURL already contains full reference to folder, no path to append, we pass ""
+		// The default depth of 1 makes propfind return the current folder AND files in that folder.
+		files = webDAVClient.propfind( "" );
+	} catch ( ex ) {
+		var exception = ex;
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );
+	}
+	
+	if ( !webDAVClient.succeeded() ) {
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );
+	}
+	
+	//actual action
+	try {
+		var fileName : String = path;
+		fileName = fileName.substr(fileName.lastIndexOf('/'));//.replace(/\s/g, '%20');
+		var fileName : String = [directory.fullPath, fileName].join(File.SEPARATOR);
+		if ( !webDAVClient.getBinary("", new File(fileName) ) ) {
+			return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + webDAVClient.statusCode + ' - ' + webDAVClient.statusText );
+		}
+	} catch( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (WebDAV): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		webDAVClient.close();
+	}
+	
+	return;
+}
+
+function putWebDAV( action : String, url : String, path : String, user : String, password : String, file : File ) : Collection
+{
+	if ( file.directory ) {
+    	return new Status( Status.ERROR, 'CopyData: Provided file is a directory.' );
+	}
+
+	var webDAVClient : WebDAVClient;
+	var remoteFolderURL : String =  (url + ( path ? path : '/' )).replace(/\s/g, '%20');
+	
+	if ( !empty( user ) && !empty( password ) ) {
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, user, password );
+	} else {
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	var files : Array;
+	
+	try {
+		// remoteFolderURL already contains full reference to folder, no path to append, we pass ""
+		// The default depth of 1 makes propfind return the current folder AND files in that folder.
+		files = webDAVClient.propfind( "" );
+	} catch ( ex ) {
+		var exception = ex;
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " + ex );
+	}
+	
+	if ( !webDAVClient.succeeded() ) {
+		Logger.error( "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+    	return new Status( Status.ERROR, "DownloadFeed: Error while listing " + remoteFolderURL + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );
+	}
+	
+	//actual action
+	try {
+		var fileName : String = file.name.replace(/\s/g, '%20');
+		var filePath : String = [path, fileName].join(File.SEPARATOR);
+		if ( !webDAVClient.put(fileName, file ) ) {
+			return new Status( Status.ERROR, 'The file/directory \'' + path + '\' couldn\'t be copied! Server Message:' + webDAVClient.statusCode + ' - ' + webDAVClient.statusText );
+		}
+	} catch( e ) {
+		var exception = e;
+		Logger.error( 'Perform Remote File Operation (WebDAV): ' + e.message );
+		return new Status( Status.ERROR, e.message);
+	} finally {
+		webDAVClient.close();
+	}
+	
+	return;
+}

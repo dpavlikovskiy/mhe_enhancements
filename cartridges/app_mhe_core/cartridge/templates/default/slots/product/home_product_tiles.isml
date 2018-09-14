@@ -1,0 +1,58 @@
+<isscript>importScript("product/ProductUtils.ds");
+importScript("util/ProductImageSO.ds");</isscript>
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+
+<div class="product-listing product-listing-1x2">
+	
+	<isloop items="${slotcontent.content}" var="product" begin="0" end="1">
+	
+	<a href="${URLUtils.http('Product-Show','pid', product.ID)}" class="module product product-listing product-listing-1x2">
+		
+		<isset name="Product" value="${product}" scope="pdict" />
+		<iscomment>Check for a product in the dictionary, if no product found. This section is skipped.</iscomment>
+		<isif condition="${!empty(pdict.Product)}">
+	
+			<span class="overlay">
+		    	<span class="details">
+		        	<span class="shop">${Resource.msg('global.shop','locale',null)}</span>
+		        	<h3 class="secondary"><isprint value="${product.custom.mheBrand}"/></h3>
+		        	<h4><isprint value="${product.name}"/></h4>
+		            <span class="price"><isinclude template="product/components/pricing"/></span>
+		            
+		 	<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(product)}"	scope="page"/>
+			<isif condition="${!empty(promos)}">
+				
+				<isloop items="${promos}" var="promo" status="promoloopstate">
+					<isprint value="${promo.calloutMsg}" encoding="off" />
+				</isloop>
+				
+		   </isif> 
+		            
+		            <isif condition="${ProductUtils.getBadgeImage(product.custom.badge) != null}">
+		               	<img src="${ProductUtils.getBadgeImage(product.custom.badge)}"/>
+					</isif>
+		        </span>
+		    </span>
+	
+			<isif condition="${!empty(pdict.Product.getImage('hi-res',0))}">
+				<isset name="image" value="${new ProductImage('home-product-tile', product, 0 )}" scope="page" />
+				<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" /> 
+				<isset name="thumbnailAlt" value="${product.name}" scope="page" /> 
+				<isset name="thumbnailTitle" value="${product.name}" scope="page" />
+
+			 	<iscomment>
+			 		<img src="${product.getImage('large',0).getURL()}" alt="${product.name}" />
+			 	</iscomment>
+			<iselse> 
+				<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagemedium.png')}" scope="page" /> 
+				<isset name="thumbnailAlt" value="${product.name}" scope="page" /> 
+				<isset name="thumbnailTitle" value="${product.name}" scope="page" />
+			</isif>
+		 	<img src="${thumbnailUrl}" alt="${thumbnailAlt}" />	
+		 	
+
+		</isif>
+	</a>
+	</isloop>
+	
+</div>

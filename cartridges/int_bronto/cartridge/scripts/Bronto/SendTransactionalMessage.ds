@@ -1,0 +1,49 @@
+/**
+* Demandware Script File
+* Contains algorythm to send order confirmation transactional message
+*
+* Created By: Astound Commerce
+* @input Order : dw.order.Order 
+* @input TemplateName : String - name of the message to send from Bronto account
+*
+*/
+
+importPackage (dw.system);
+importPackage (dw.util);
+importPackage (dw.net);
+importPackage (dw.rpc);
+importPackage (dw.web);
+importPackage (dw.net);
+importPackage (dw.order);
+
+importScript ('Bronto/API.ds');
+
+function execute (pdict : PipelineDictionary) : Number {
+	
+	// Step1 : Autorize API
+	var map = authorizeAPI();
+	var order : Order = pdict.Order;
+
+	// Step 2: Get message API ID
+	var messageFilter = createMessageFilter(pdict.TemplateName, map.ref);
+	var messageId = getMessageId(messageFilter, map);
+	// End of step 2
+				
+	// Step 3: Get Contact and set status to "Transactional"
+	var contacfFilter = createContactFilter(map.ref, order.customerEmail);
+	var contactId = getContactId(contacfFilter, map);
+	if (contactId) {
+		updateContactStatus(contactId, map, "Transactional", false);
+	}
+	// End of step 3
+	
+	// Step 4: Schedule the delivery
+	var recipient = getRecipient(contactId, map.ref);
+	var parameters : Array = new Array();
+	parameters.push(messageId, recipient, map.ref, order);
+	var deliveries = createDeliveries(parameters);
+	startDelivery(deliveries, map);
+	// End of step 4
+
+	return PIPELET_NEXT;
+}	

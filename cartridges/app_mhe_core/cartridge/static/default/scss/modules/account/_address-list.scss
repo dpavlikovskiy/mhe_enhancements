@@ -1,0 +1,129 @@
+// =============================================================================
+// Address list
+// =============================================================================
+
+.account-module-addresses {
+	.address-list { @extend .clearfix; }
+	.address {
+		width:270px;
+		height:280px;
+		overflow:hidden;
+		position:relative;
+		float:left;
+		margin:20px 20px 0 0;
+		padding:18px 20px;
+		font-size:15px;
+		line-height:1.5em;
+		h2 {
+			font-size:12px;
+			letter-spacing:2px;
+		}
+		h3 {
+			font-size:12px;
+			margin-bottom:0;
+			font-family:$fixed-font-family;
+			letter-spacing:1px;
+		}
+		address {
+			margin-bottom:1em;
+			letter-spacing:1px;
+		}
+		.address-default {
+			padding-right:0;
+			letter-spacing:1px;
+			font-size:15px;
+			@include custom-radio();
+			input {
+				margin-right:8px;
+			}
+			label {
+				@include transition(color 0.3s);
+				text-transform:uppercase;
+				&:before {
+					top:-2px;
+				}
+			}
+		}
+		.address-modify {
+			text-align:right;
+			text-transform:none;
+			padding-right: 8px;
+			position:absolute;
+			bottom:0;
+			right:12px;
+			.address-edit {
+				&:after {
+					font-style:normal;
+					content:"|";
+					color:#2b2637;
+					padding-left:0.25em;
+				}
+			}
+		}
+	}
+}
+
+// Remove address & credit card dialogs -------------------------
+
+.moet-overlay {
+	&.ui-dialog {
+		&.remove-dialog {
+			.ui-dialog-titlebar {
+				padding:30px 0 10px;
+			}
+		}
+	}
+	.remove {
+		padding-top:0;
+		text-align:center;
+		h2 {
+			font-family:$fixed-font-family;
+			font-size:15px;
+			font-weight:700;
+			letter-spacing:3px;
+			text-transform:uppercase;
+			margin-top:-.25em;
+		}
+		address, .card {
+			font-size:12px;
+			color:#888;
+			text-transform:uppercase;
+			height:1.5em;
+			white-space:nowrap;
+			text-overflow:ellipsis;
+			overflow:hidden;
+			margin:0 auto;
+			width:380px;
+			letter-spacing:1px;
+			b {
+				color:#fff;
+				font-weight:700;
+				letter-spacing:2px;
+			}
+		}
+		.button {
+			margin:30px 6px 30px;
+		}
+	}
+}
+
+
+
+// IE8 -------------------------------------------------------------------------
+.ie8 {
+	.account-module-addresses {
+		.address {
+			.address-default {
+				label {
+					margin:-6px 0 0 -20px;
+					&:before {
+						display:none;
+					}
+				}
+				input[type=radio] {
+					display:inline;
+				}
+			}
+		}
+	}
+}

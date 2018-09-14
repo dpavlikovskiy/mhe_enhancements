@@ -1,0 +1,32 @@
+
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+
+<isinclude template="util/modules"/>
+
+<div class="home_modal">
+    <div class="modal_content">
+    	<div class="menu_clone"></div>
+        <!-- Cloned Hero Panel -->
+        <div class="row clearfix hero-clone">
+            
+        </div>
+        <div class="hero_arrow"></div>
+        <a href="#" class="close_modal">Close</a>
+        
+        <!-- Carousel Slider -->
+        <div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+            <div class="box">
+                <ul class="slider">
+					<isloop items="${slotcontent.content}" var="product"><li><ishomecarouselproducttile product="${product}" showpricing="${true}" /></li></isloop>
+				</ul>
+                <div class="controls">
+                    <a href="#" class="prev">&lt;</a>
+                    <a href="#" class="next">&gt;</a>
+                    <div class="disabledLayer"></div>
+                </div>
+            </div>
+        </div>
+        <!-- /END Carousel Slider -->
+        
+    </div>
+</div>

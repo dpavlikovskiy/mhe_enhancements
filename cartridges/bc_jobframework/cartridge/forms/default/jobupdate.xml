@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="jobID" type="string" mandatory="true" binding="custom.ID" />
+	<field formid="jobName" type="string" mandatory="true" binding="custom.name" />
+	<field formid="jobFileLogging" type="string" mandatory="true" binding="custom.fileLogging">
+		<options>
+			<option optionid="None" value="None" />
+			<option optionid="JobBased" value="Job Based" />
+			<option optionid="TaskBased" value="Task Based" />
+		</options>
+	</field>
+	<field formid="jobLogLevel" type="string" mandatory="true" binding="custom.logLevel">
+		<options>
+			<option optionid="fatal" value="fatal" />
+			<option optionid="error" value="error" />
+			<option optionid="debug" value="debug" />
+			<option optionid="info" value="info" />
+		</options>
+	</field>
+	<field formid="jobProcessSites" type="string" binding="custom.processSites" mandatory="true"/>
+	<field formid="jobTasks" type="string" binding="custom.tasks" />
+	<field formid="jobSuccessEmail" type="string" binding="custom.successEmail" />
+	<field formid="jobErrorEmail" type="string" binding="custom.errorEmail" />
+	<field formid="jobFollowUpJob" type="string" binding="custom.followUpJob" />
+	<field formid="jobOnTemporaryError" type="string" mandatory="true" binding="custom.onTemporaryError">
+		<options>
+			<option optionid="CONTINUE" value="CONTINUE" />
+			<option optionid="FAIL" value="FAIL" />
+		</options>
+	</field>
+	<action formid="update" valid-form="false" />
+	<action formid="cancel" valid-form="false" />
+</form>

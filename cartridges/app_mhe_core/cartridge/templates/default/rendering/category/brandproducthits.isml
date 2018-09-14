@@ -1,0 +1,90 @@
+<isdecorate template="search/pt_productsearchresult_content">
+
+<iscache type="relative" minute="30" varyby="price_promotion" /> <isinclude
+	template="util/modules" /> <iscomment>create reporting
+event</iscomment> <isinclude template="util/reporting/ReportSearch.isml" /> <iscomment>
+Creative -- Flag to identify if the page will be expanded</iscomment> <isset
+	name="expanded" value="${new Boolean('false')}" scope="page" /> <isif
+	condition="${pdict.ProductPagingModel.count > 2}"> <isset
+	name="expanded" value="${new Boolean('true')}" scope="page" /> </isif> <isset
+	name="blpPageName"
+	value="${Resource.msg('pagename.blp','components',null)}" scope="page" />
+<iscomment> Render promotional content at the top of search
+results as global slot. </iscomment> <iscomment>
+<div class="content-slot slot-grid-header">
+	<isslot id="cat-banner" context="category"
+		description="Category Banner"
+		context-object="${pdict.ProductSearchResult.category}" />
+</div>
+</iscomment>
+<isscript>
+importScript("product/ProductUtils.ds");
+var category : dw.catalog.Category = ProductUtils.getProductCategoryForPDP(pdict.ProductSearchResult, pdict.Product); 
+</isscript>
+<div class="blpSlot brand${category.displayName}">
+	<isslot id="brandCarouselSlot" context="category" description="Carousel for Brand Pages" context-object="${pdict.ProductSearchResult.category}" />
+</div>
+<div class="blp-sizes-space">
+	<isslot id="BLPSlot_Shelf" context="category"
+		description="Size Shelf Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+</div>
+
+<isscript> var selectedString = 'selected="selected"'; </isscript> <isif
+	condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+
+<div class="search-result-options blp-options" id="js-sort-options">
+
+	<iscomment>sort by</iscomment>
+	<isproductsortingoptions
+		productsearchmodel="${pdict.ProductSearchResult}"
+		pagingmodel="${pdict.ProductPagingModel}" uniqueid="grid-sort"
+		pagetype="${blpPageName}" />
+
+	<iscomment>pagination</iscomment>
+	<ispaginginformation pagingmodel="${pdict.ProductPagingModel}"
+		pageurl="${pdict.ProductSearchResult.url('Search-Show')}"
+		uniqueid="grid-paging-footer" />
+	<ispagingbar pageurl="${pdict.ProductSearchResult.url('Search-Show')}"
+		pagingmodel="${pdict.ProductPagingModel}" />
+
+</div>
+
+<div class="search-result-content blp-products">
+	<isproductgrid pagingmodel="${pdict.ProductPagingModel}"
+		category="${pdict.ProductSearchResult.category}"
+		pagetype="${blpPageName}" />
+</div>
+
+<div class='blp-promos'>
+	<div class="content-slot">
+	<isslot id="BLPSlot_promo1" context="category"
+		description="First BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+	<div class="content-slot">
+	<isslot id="BLPSlot_promo2" context="category"
+		description="First BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+</div>
+
+<iscomment> Show All Button is not required now
+	<isif condition="${!expanded}"> <isscript>
+	pdict.ProductPagingModel.setPageSize(pdict.ProductPagingModel.count -
+	4); </isscript> <a class="page-next"
+		href="${deURI(pdict.ProductPagingModel.appendPaging(pdict.ProductSearchResult.url('Search-Show'), 4))}">Show
+		All</a> </isif> 	
+</iscomment>
+	
+<iselse> <iscomment>display no results</iscomment>
+<div class="no-results">
+	${Resource.msg('productresultarea.noresults','search',null)}</div></isif> <iscomment>Renders
+Brand Heritage Content from the slot </iscomment> <iscomment><isslot id="blp-heritage-content"
+	description="Brand Heritage Content" context="category"
+	context-object="${pdict.ProductSearchResult.category}" /></iscomment>
+</div>
+
+
+			
+</isdecorate>

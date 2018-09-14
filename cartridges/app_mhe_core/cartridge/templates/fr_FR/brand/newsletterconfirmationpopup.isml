@@ -1,0 +1,17 @@
+<!--- TEMPLATENAME: newsletterconfirmationpopup.isml --->
+
+<div class="newsletter-signup">
+		<h2><isprint value="${StringUtils.format(Resource.msg('newsletter.title','components',null),'','')}"/></h2>
+		<p><isprint value="${StringUtils.format(Resource.msg('newsletter.thanks','components',null),'','')}"/> 
+		
+		</p>
+	
+			
+	
+		<iscomment>Run time error message display if failed to update the newsletter subscription covered in EDM Integration story by DEV Team</iscomment>
+		<iscomment>Creative - close pop-up if newsletterstatus returned as empty in this div </iscomment>
+		<div id="newsublinkerror" class="error" style="display:none"><isprint value="${Resource.msg('newsletter.subscribe.error','components',null)}" /></div>
+		
+		
+		
+	</div>

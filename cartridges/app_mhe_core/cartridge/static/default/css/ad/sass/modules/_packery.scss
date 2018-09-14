@@ -1,0 +1,556 @@
+.brandHome{
+	.Stamp2-wrapper{
+		border-bottom: 1px solid $darkgrey;
+	    height: 310px;
+	    padding: 40px 10px 23px;
+	    width: 280px;
+		.blockquote-class{
+			P{
+    			color: #f8e9cf;
+    			font-family: "ITC Caslon 224 W01 Bold";
+    			font-size: 25px;
+    			line-height: 1.3;
+    			text-transform:uppercase;
+			}
+			.credit{
+				font-size: $small_text;
+				font-family: $secondary-font-family;
+				color: $brandcolor;	
+			}
+		}
+	}
+	.Stamp3-wrapper{
+    	margin: 0;
+    	width: 280px;
+    	img{
+    	 height: 290px;
+    	 width: 280px;
+    	}
+		.shop-now {
+    		position: absolute;
+    		top: 258px;
+    		width: 100%;
+		}
+	}
+	.Stamp4-wrapper{
+    	margin: 0;
+    	width: 280px;
+    	img{
+    	 height: 290px;
+    	 width: 280px;
+    	}
+		.shop-now {
+    		position: absolute;
+    		top: 258px;
+    		width: 100%;
+		}
+	}
+	.Stamp5-wrapper{
+   		border-bottom: 1px solid #333333;
+    	height: 610px;
+    	padding: 10px 0;
+    	&:hover .stamp4-wrapper-hover{
+    		display:block;
+    	}
+    	&:hover img{
+    		opacity:0.3;
+    	}
+    	.stamp4-wrapper-hover {
+    		display: none;
+    		height: 580px;
+    		left: 0;
+    		padding-top: 175px;
+    		position: absolute;
+    		top: 0;
+    		width: 100%;
+		}
+		.shop-now {
+		    position: absolute;
+    		top: 529px;
+    		width: 100%;
+    	}	
+	}
+	
+	
+
+
+}
+
+
+
+
+
+.brandHome{
+	.getme{
+		.getMe{
+    	padding: 10px;
+    	}
+    }
+    .blockquote-class{
+    	.credit {
+    		color: $brandcolor;
+    		font-family: $secondary-font-family;
+    		font-size: 14px;
+    		text-transform: uppercase;
+		}
+    
+    }
+	blockquote {
+			display:block;
+			clear:both;
+				p{
+    				color: $white;
+    				font-family: $heading-font-family;
+    				font-size: $big_text;
+    				line-height: 1;
+    				text-transform: none;
+				}
+
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $brandcolor;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+		
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+	.Stamp1-wrapper{
+		border-bottom: 1px solid $darkgrey;
+    	width:280px;
+    	height:620px;
+		margin: 0 10px;
+    	padding: 10px 0;
+		h4{
+			font-family:$fixed-font-family;
+			font-size:$small_text;
+			text-transform:uppercase;
+			color:$bodycolor;
+			padding-top:20px;
+		}
+		.blockquote-class{
+			padding: 15px 34px;
+			blockquote{
+				p{
+    				color: #f8e9cf;
+    				font-family: $heading-font-family;
+    				font-size: 25px;
+    				line-height: 1.3;
+				}
+			}
+			.credit{
+				font-family:$secondary-font-family;
+				font-size:$small_text;
+				text-transform:uppercase;
+				color: $brandcolor;	
+				
+			}
+		}
+		
+	}
+
+
+
+	
+	.Stamp6-wrapper{
+		border-bottom: 1px solid $darkgrey;
+	    height: 300px;
+	    margin: 10px;
+	    width: 280px;
+		.stamp-content{
+		background:white;
+	    height: 290px;
+	    padding: 50px 23px 0;
+			h1{
+				font-size: $slightly_big_text;
+				font-family: $fixed-font-family;
+				color: $brandcolor;
+				letter-spacing:1px;
+			}
+			p{
+				font-size: $base-font-size;
+				font-family: $fixed-font-family;
+				color: $packerygreyText; 
+				text-transform:none;
+				letter-spacing: 0;
+			}
+		}
+		
+	}  
+	.Stamp7-wrapper{
+		border-bottom: 1px solid $darkgrey;
+	    height: 620px;
+	    margin: 0 10px;
+	    padding: 10px 0;
+	    position: relative;
+	    width: 580px;
+		img{
+			left: 0;
+		    position: absolute;
+		    top: 10px;
+		}
+		.stamp-content-data{
+			margin: 150px 100px 0;
+    		position: relative;
+			
+			h3{
+				font-size: $medium_big_text_1;
+				font-family: $fixed-font-family;
+				color: $brandcolor;
+				text-transform:uppercase;
+				font-weight:$bold;
+				margin-left: 85px;
+    			margin-right: 85px;
+			} 
+			p{
+				font-size: $base-font-size;
+				font-family: $fixed-font-family;
+				color: $bodycolor;
+				text-transform:none;
+			}
+			.button{
+				margin:10px;
+				.face{
+				 border: 1px solid $brandcolor;
+    			 color: $bodycolor;
+    			 font-weight:$bold;
+    			 font-size:$smaller_heading;
+				}
+			}
+		}
+	} 
+	.Stamp8-wrapper{
+		border-bottom: 1px solid $darkgrey;
+	    height: 930px;
+	    margin: 0 10px;
+	    padding: 10px 0;
+	    width: 280px;
+	} 
+		.products-tile-inner{
+		    height: 620px;
+		    width: 300px;
+		    border-right: 1px solid $darkgrey;
+		    .products-tile-inner-cont{
+		    	height: 620px;
+		    	width: 280px;
+		    	margin: 0 10px;
+		    	padding:10px 0;
+		    	border-bottom: 1px solid $darkgrey;
+    			.product-image-badge{
+		    		left: 0;
+					position: absolute;
+					top: 30px;
+					width: 140px;
+		    	}	
+		    }
+		    .product-name{
+    			h2{
+    			 line-height: 20px;
+    			 margin-bottom: 0;
+    			 letter-spacing:2px;
+    				a{
+    				font-size: $small_text;
+					font-family: $secondary-font-family;
+					color: $brandcolor;
+					}
+    			}
+    		} 
+    		.product-swatches{
+    			display:none;
+    		}
+    		.product-pricing{
+    				h3{
+	    				font-size: $big_text;
+						font-family: $fixed-font-family;
+						margin-bottom:5px;
+					}
+    		}
+		    &.products-tile-inner-gift{
+		    	width:600px;
+		    	.products-tile-inner-cont {
+    				border-bottom: 1px solid $darkgrey;
+    				height: 620px;
+    				margin: 0 10px;
+    				padding: 10px 0;
+    				width: 580px;
+					}
+		    }
+		    &.social-feed{
+		    	height:310px;
+		    		.products-tile-inner-cont {
+    					border-bottom: 1px solid $darkgrey;
+    					margin: 0 10px;
+    					padding: 10px 0;
+    					width: 280px;
+    					height:310px;
+    					h4{
+    						margin-top:30px;
+    					}
+					}
+		    }
+		    &.products-tile-inner-magnum{
+		    	height:1240px;
+		    	padding:10px 0;
+		    	visibility:visible;
+		    	.products-tile-inner-cont{
+		    		border-bottom: 1px solid $darkgrey;
+		    		height:1230px;
+		    		}
+	    		.product-image{
+	    			height: auto;
+	    			.content-asset{
+	    				height: 400px;
+						text-align: center;
+							h2{
+								font-size: $slightly_big_text;
+								font-family: $fixed-font-family;
+								letter-spacing: -1px;
+							    margin-top: 1.85em;
+							    text-transform: uppercase;
+							    
+							}
+							h3{
+								font-size: $normal-font-size;
+								font-family: $secondary-font-family;
+								text-transform: uppercase;
+								color: $brandcolor;
+							}
+							p{
+								font-size: $normal-font-size;
+								font-family: $fixed-font-family;
+								text-transform: none;
+							}
+	    			}
+	    			.thumb-link{
+	    				display: block;
+						margin-top: -213px;
+	    					img{
+	    						display: inline-block;
+								margin-left: -98px;
+								margin-top: 60px;
+	    					}
+	    			}
+		    	}
+	   		}
+		}
+	}
+
+
+.getTopMargin{
+	margin:70px 0 0;
+}
+.products{
+	background-image:url(images/products-grid_01.png);
+	.products-tile{
+		&.products-tile-inner-gift{
+			width:600px;
+		}
+		.product-image{ 
+		text-align:center;
+	    	.product-image-badge{
+	    		height: auto;
+			    left: 0;
+			    position: absolute;
+			    top: 0;
+			    width: 140px;
+			    z-index:-1;
+	    	}
+	    }
+	}
+}
+
+.home_social_feeds{
+	width:1280px;
+	margin:0 auto;
+	height:406px;
+	position:relative;
+	h4{
+		color:$brandcolor;
+		font-size:$stand_first;
+	}
+	.dpStamp8{
+		left: 0; 
+		top: 0;
+		height:203px;
+		width:233px;
+		position: absolute;
+		.Stamp8-wrapper{
+			margin: 0;
+			width:233x;	
+		}
+	}
+	.dpStamp9{
+		left: 0; 
+		top: 204px;
+		height:202px;
+		width:233px;
+		position: absolute;
+		background-color:#f5efe6;
+		.Stamp9-wrapper{
+			margin: 0;
+			width:233x;
+			.tweet-cont{
+    			font-size: 11px;
+    			width: 200px;
+    			margin: 15px auto;
+				.twt{
+				color:$darkblack;
+				text-transform:none;
+				}
+				&:before{
+				content:url('images/twitter.png');
+				}	
+			}	
+		}
+	}
+	.dpStamp10{
+		left: 233px; 
+		top: 0;
+		height:406px;
+		width:406px;
+		position: absolute;
+		.Stamp10-wrapper{
+			margin: 0;
+			width:406px;
+			.tweet-cont{
+    			font-size: $smaller_heading;
+    			left: 70px;
+   	 			position: absolute;
+   				top: 55px;
+    			width: 200px;
+				.twt{
+				color:$darkblack;
+				text-transform:none;
+				}
+				&:before{
+				content:url('images/twitter.png');
+				}	
+			}
+			.user-time{
+				position:absolute;
+				bottom:0px;
+				color:$darkblack;
+				text-transform:uppercase;
+				font-weight:$bold;
+				width: 406px;
+				font-size:$smaller_heading;
+				.user{
+					color:$brandcolor;	
+				}	
+			}
+		}
+	}
+	.dpStamp11{
+		left: 639px; 
+		top: 0;
+		height:200px;
+		width:406px;
+		position: absolute;
+		background-color:#f5efe6;
+		.Stamp11-wrapper{
+			margin: 0;
+			width:406x;
+			.tweet-cont{
+    			font-size: 11px;
+    			width: 280px;
+    			margin: 15px auto;
+				.twt{
+				color:$darkblack;
+				text-transform:none;
+				}
+				&:before{
+				content:url('images/twitter.png');
+				}
+				.user-time{
+				color:$darkblack;
+				text-transform:uppercase;
+				font-weight:$bold;
+				width: 280px;
+				font-size:$smaller_heading;
+				.user{
+					color:$brandcolor;	
+					}	
+				}	
+			}	
+		}
+	}
+	.dpStamp12{
+		left: 639px; 
+		top:203px;
+		height:200px;
+		width:203px;
+		position: absolute;
+		.Stamp12-wrapper{
+			margin: 0;
+			width:203x;	
+		}
+	}
+	.dpStamp13{
+		left: 1046px; 
+		top: 0;
+		height:200px;
+		width:234px;
+		position: absolute;
+		.Stamp13-wrapper{
+			margin: 0;
+			width:234x;	
+		}
+	}
+	.dpStamp14{
+		left: 839px; 
+		top: 200px;
+		height:200px;
+		width:433px;
+		position: absolute;
+		.Stamp14-wrapper{
+			margin: 0;
+			width:433x;
+			.tweet-cont{
+    			font-size: 11px;
+    			width: 280px;
+    			margin-left:-140px;
+    			position: absolute;
+    			top:10px;
+    			left:50%;
+				.twt{
+				color:$darkblack;
+				text-transform:none;
+				}
+				&:before{
+				content:url('images/twitter.png');
+				}
+				.user-time{
+				color:$darkblack;
+				text-transform:uppercase;
+				font-weight:$bold;
+				width: 280px;
+				font-size:$smaller_heading;
+				.user{
+					color:$brandcolor;	
+					}	
+				}	
+			}	
+		}
+	}
+	
+	
+
+
+}
+

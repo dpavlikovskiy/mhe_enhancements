@@ -1,0 +1,39 @@
+/**
+* Demandware Script File to set default shipping method if we have single shipping method applicable
+*
+* @input  Basket : dw.order.Basket
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage(dw.web);
+function execute( pdict : PipelineDictionary ) : Number{
+	
+        var shipment : dw.order.Shipment = pdict.Basket.defaultShipment;
+		//Retrieve the list of applicabnle shipping methods for the given shipment and address.
+		var shippingModel : ShipmentShippingModel = ShippingMgr.getShipmentShippingModel(shipment);
+		var ret : Collection = new ArrayList();
+		ret = shippingModel.getApplicableShippingMethods();
+		if(!empty(shippingModel.getInapplicableShippingMethods())){
+		  ret.addAll(shippingModel.getInapplicableShippingMethods());
+		}
+		var shippingMethodsIter : Iterator = ret.iterator();
+		while(shippingMethodsIter.hasNext())
+		{
+			var method : dw.order.ShippingMethod = shippingMethodsIter.next();
+			if (method.custom.chilledDeliveryShippingMethod && pdict.Basket.custom.chilledDeliveryProductAvailability){
+			   shipment.setShippingMethod( method );
+			   break ;
+			   
+		     }else if(method.custom.preOrderShippingMethod && pdict.Basket.custom.preOrderProductAvailability){
+			   shipment.setShippingMethod( method );
+			   break ;
+		     }
+	   }
+	   
+	   if (empty(shipment.getShippingMethodID() )){ // This will happen only when there is no chilled/preorder delivery method enabled in BM
+	   	return PIPELET_ERROR ;
+	   }
+   return PIPELET_NEXT;
+}

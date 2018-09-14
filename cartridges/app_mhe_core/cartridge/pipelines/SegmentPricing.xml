@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="view">
+  <branch basename="AssignPriceBook">
+    <segment>
+      <node>
+        <start-node name="AssignPriceBook" secure="false"/>
+        <node-display x="2" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <call-node start-name-ref="SegmentPricing-CustomerPriceBook"/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="util/empty"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="UpdatePriceBook">
+    <segment>
+      <node>
+        <start-node name="UpdatePriceBook" secure="false"/>
+        <node-display x="4" y="0"/>
+      </node>
+      <transition target-connector="in2" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="CurrentCustomer.getCustomerGroups()" key="From_0"/>
+          <key-binding alias="customergroups" key="To_0"/>
+          <key-binding alias="Boolean(false)" key="From_1"/>
+          <key-binding alias="segmentedCustomer" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <loop-node element-key="customergroup" iterator-key="customergroups"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="do">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <decision-node condition-key="!empty(customergroup.custom.listprice)&amp;&amp;(!customergroup.ruleBased)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in">
+                  <transition-display>
+                    <bend-point relative-to="source" x="0" y="1"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="false"/>
+                      <key-binding alias="segmentedCustomer" key="To_0"/>
+                      <key-binding alias="null" key="From_1"/>
+                      <key-binding alias="null" key="To_1"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                      <key-binding alias="Boolean(true)" key="From_0"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+                      <key-binding alias="customergroup.custom.listprice" key="PriceBook1ID"/>
+                      <key-binding alias="customergroup.custom.saleprice" key="PriceBook2ID"/>
+                      <key-binding alias="null" key="PriceBook3ID"/>
+                      <key-binding alias="null" key="PriceBook4ID"/>
+                      <key-binding alias="null" key="PriceBook5ID"/>
+                      <key-binding alias="null" key="PriceBook6ID"/>
+                      <key-binding alias="null" key="PriceBook7ID"/>
+                      <key-binding alias="null" key="PriceBook8ID"/>
+                      <key-binding alias="null" key="PriceBook9ID"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="false"/>
+                      <key-binding alias="customergroup.custom.listprice" key="From_0"/>
+                      <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+                      <key-binding alias="customergroup.custom.saleprice" key="From_1"/>
+                      <key-binding alias="CurrentSession.custom.saleprice" key="To_1"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="../+1">
+                    <transition-display>
+                      <bend-point relative-to="source" x="-2" y="0"/>
+                    </transition-display>
+                  </transition>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="./+1">
+              <transition-display>
+                <bend-point relative-to="source" x="1" y="0"/>
+                <bend-point relative-to="source" x="1" y="-1"/>
+              </transition-display>
+            </transition>
+          </segment>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="-1" y="-1"/>
+            </node>
+            <transition target-connector="loop" target-path=".."/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="!segmentedCustomer" condition-operator="expr"/>
+        <node-display x="2" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+                <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="PriceBook2ID"/>
+                <key-binding alias="null" key="PriceBook3ID"/>
+                <key-binding alias="null" key="PriceBook4ID"/>
+                <key-binding alias="null" key="PriceBook5ID"/>
+                <key-binding alias="null" key="PriceBook6ID"/>
+                <key-binding alias="null" key="PriceBook7ID"/>
+                <key-binding alias="null" key="PriceBook8ID"/>
+                <key-binding alias="null" key="PriceBook9ID"/>
+                <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="PriceBook1ID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="From_0"/>
+                <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+                <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="From_1"/>
+                <key-binding alias="CurrentSession.custom.saleprice" key="To_1"/>
+                <key-binding alias="null" key="From_2"/>
+                <key-binding alias="null" key="To_2"/>
+                <key-binding alias="null" key="From_3"/>
+                <key-binding alias="null" key="To_3"/>
+                <key-binding alias="null" key="From_4"/>
+                <key-binding alias="null" key="To_4"/>
+                <key-binding alias="null" key="From_5"/>
+                <key-binding alias="null" key="To_5"/>
+                <key-binding alias="null" key="From_6"/>
+                <key-binding alias="null" key="To_6"/>
+                <key-binding alias="null" key="From_7"/>
+                <key-binding alias="null" key="To_7"/>
+                <key-binding alias="null" key="From_8"/>
+                <key-binding alias="null" key="To_8"/>
+                <key-binding alias="null" key="From_9"/>
+                <key-binding alias="null" key="To_9"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="CustomerPriceBook">
+    <segment>
+      <node>
+        <start-node name="CustomerPriceBook" secure="false"/>
+        <node-display x="5" y="0"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="(!('listPrice' in CurrentSession.custom) )&amp;&amp; empty(CurrentSession.custom.listprice)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in1" target-path="/UpdatePriceBook.2"/>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="SetDefaultCustomerGroup">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="SetDefaultCustomerGroup" secure="false"/>
+        <node-display x="9" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="customer/SetDefaultCustomers.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="errorCount" key="errorCount"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <key-binding alias="&quot;setDefaultCustomerError&quot;" key="From_0"/>
+                <key-binding alias="EmailFlow" key="To_0"/>
+                <key-binding alias="true" key="From_1"/>
+                <key-binding alias="InstanceReqd" key="To_1"/>
+                <key-binding alias="new dw.util.HashMap()" key="From_2"/>
+                <key-binding alias="MailParams" key="To_2"/>
+                <key-binding alias="null" key="From_3"/>
+                <key-binding alias="null" key="To_3"/>
+                <key-binding alias="null" key="From_4"/>
+                <key-binding alias="null" key="To_4"/>
+                <key-binding alias="null" key="From_5"/>
+                <key-binding alias="null" key="To_5"/>
+                <key-binding alias="null" key="From_6"/>
+                <key-binding alias="null" key="To_6"/>
+                <key-binding alias="null" key="From_7"/>
+                <key-binding alias="null" key="To_7"/>
+                <key-binding alias="null" key="From_8"/>
+                <key-binding alias="null" key="To_8"/>
+                <key-binding alias="null" key="From_9"/>
+                <key-binding alias="null" key="To_9"/>
+              </pipelet-node>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="1" y="0"/>
+                <bend-point relative-to="source" x="1" y="-1"/>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <key-binding alias="null" key="From_0"/>
+                <key-binding alias="null" key="To_0"/>
+                <key-binding alias="null" key="From_1"/>
+                <key-binding alias="null" key="To_1"/>
+                <key-binding alias="null" key="From_2"/>
+                <key-binding alias="null" key="To_2"/>
+                <key-binding alias="null" key="From_3"/>
+                <key-binding alias="null" key="To_3"/>
+                <key-binding alias="null" key="From_4"/>
+                <key-binding alias="null" key="To_4"/>
+                <key-binding alias="null" key="To_5"/>
+                <key-binding alias="null" key="To_6"/>
+                <key-binding alias="null" key="To_7"/>
+                <key-binding alias="null" key="To_8"/>
+                <key-binding alias="MailParams.put(&quot;JobConfigurationId&quot;,JobConfigID)" key="From_9"/>
+                <key-binding alias="null" key="To_9"/>
+                <key-binding alias="MailParams.put(&quot;ErrorMessage&quot;,&quot;Default Customer assignment complete. Please find attached the logfiles :&quot;+LogFileName)" key="From_8"/>
+              </pipelet-node>
+              <node-display x="1" y="0"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+                <bend-point relative-to="source" x="1" y="1"/>
+                <bend-point relative-to="source" x="1" y="0"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="&quot;setDefaultCustomerError&quot;" key="From_0"/>
+          <key-binding alias="EmailFlow" key="To_0"/>
+          <key-binding alias="true" key="From_1"/>
+          <key-binding alias="InstanceReqd" key="To_1"/>
+          <key-binding alias="new dw.util.HashMap()" key="From_2"/>
+          <key-binding alias="MailParams" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="MailParams.put(&quot;JobConfigurationId&quot;,JobConfigID)" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+          <key-binding alias="MailParams.put(&quot;ErrorMessage&quot;,&quot;Default Customer assignment complete. please refer attached log for issues:&quot;)" key="From_8"/>
+          <key-binding alias="MailParams.put(&quot;SiteId&quot;,dw.system.Site.getCurrent().ID)" key="From_7"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node name="FAILED"/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="StaticOfferPDP">
+    <segment>
+      <node>
+        <start-node name="StaticOfferPDP" secure="false"/>
+        <node-display x="0" y="5"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="GetCategory" pipelet-set-identifier="bc_api">
+          <key-binding alias="CurrentHttpParameterMap.cgid.value" key="CategoryID"/>
+          <key-binding alias="category" key="Category"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in2" target-path="./+1"/>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="(&quot;customerGroupID&quot; in category.custom)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="catalog/AssignCustomerGroupToSession.ds"/>
+                <key-binding alias="null" key="ScriptLog"/>
+                <key-binding alias="listPricebook" key="listPricebook"/>
+                <key-binding alias="salePricebook" key="salePricebook"/>
+                <key-binding alias="&quot;customerGroupID&quot; in category.custom?category:null" key="category"/>
+                <key-binding alias="category.custom.customerGroupID" key="groupID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="./b3.2">
+                  <transition-display>
+                    <bend-point relative-to="source" x="1" y="0"/>
+                    <bend-point relative-to="target" x="1" y="0"/>
+                  </transition-display>
+                </transition>
+              </branch>
+            </node>
+            <simple-transition/>
+            <node>
+              <decision-node condition-key="!empty(listPricebook)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b3" source-connector="yes">
+                <transition target-connector="in">
+                  <transition-display>
+                    <bend-point relative-to="source" x="0" y="1"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+                      <key-binding alias="listPricebook" key="PriceBook1ID"/>
+                      <key-binding alias="salePricebook" key="PriceBook2ID"/>
+                      <key-binding alias="null" key="PriceBook3ID"/>
+                      <key-binding alias="null" key="PriceBook4ID"/>
+                      <key-binding alias="null" key="PriceBook5ID"/>
+                      <key-binding alias="null" key="PriceBook6ID"/>
+                      <key-binding alias="null" key="PriceBook7ID"/>
+                      <key-binding alias="null" key="PriceBook8ID"/>
+                      <key-binding alias="null" key="PriceBook9ID"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="false"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                      <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+                      <key-binding alias="listPricebook" key="From_0"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="./+1"/>
+                </segment>
+                <segment>
+                  <node>
+                    <join-node/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <interaction-node transaction-required="false">
+                      <template buffered="true" dynamic="false" name="util/empty"/>
+                    </interaction-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in2" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="PriceBook2ID"/>
+          <key-binding alias="null" key="PriceBook3ID"/>
+          <key-binding alias="null" key="PriceBook4ID"/>
+          <key-binding alias="null" key="PriceBook5ID"/>
+          <key-binding alias="null" key="PriceBook6ID"/>
+          <key-binding alias="null" key="PriceBook7ID"/>
+          <key-binding alias="null" key="PriceBook8ID"/>
+          <key-binding alias="null" key="PriceBook9ID"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="PriceBook1ID"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="From_0"/>
+          <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="From_1"/>
+          <key-binding alias="CurrentSession.custom.saleprice" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="util/empty"/>
+        </interaction-node>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="StaticOffer">
+    <segment>
+      <node>
+        <start-node call-mode="public" name="StaticOffer" secure="false"/>
+        <node-display x="2" y="5"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="GetCategory" pipelet-set-identifier="bc_api">
+          <key-binding alias="CurrentHttpParameterMap.cgid.value" key="CategoryID"/>
+          <key-binding alias="category" key="Category"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in2" target-path="./+1"/>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="(&quot;customerGroupID&quot; in category.custom)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="catalog/AssignCustomerGroupToSession.ds"/>
+                <key-binding alias="null" key="ScriptLog"/>
+                <key-binding alias="listPricebook" key="listPricebook"/>
+                <key-binding alias="salePricebook" key="salePricebook"/>
+                <key-binding alias="&quot;customerGroupID&quot; in category.custom?category:null" key="category"/>
+                <key-binding alias="category.custom.customerGroupID" key="groupID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="./b3.2">
+                  <transition-display>
+                    <bend-point relative-to="source" x="1" y="0"/>
+                    <bend-point relative-to="target" x="1" y="0"/>
+                  </transition-display>
+                </transition>
+              </branch>
+            </node>
+            <simple-transition/>
+            <node>
+              <decision-node condition-key="!empty(listPricebook)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b3" source-connector="yes">
+                <transition target-connector="in">
+                  <transition-display>
+                    <bend-point relative-to="source" x="0" y="1"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+                      <key-binding alias="listPricebook" key="PriceBook1ID"/>
+                      <key-binding alias="salePricebook" key="PriceBook2ID"/>
+                      <key-binding alias="null" key="PriceBook3ID"/>
+                      <key-binding alias="null" key="PriceBook4ID"/>
+                      <key-binding alias="null" key="PriceBook5ID"/>
+                      <key-binding alias="null" key="PriceBook6ID"/>
+                      <key-binding alias="null" key="PriceBook7ID"/>
+                      <key-binding alias="null" key="PriceBook8ID"/>
+                      <key-binding alias="null" key="PriceBook9ID"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="false"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                      <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+                      <key-binding alias="listPricebook" key="From_0"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="./+1"/>
+                </segment>
+                <segment>
+                  <node>
+                    <join-node/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <end-node/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in2" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="PriceBook2ID"/>
+          <key-binding alias="null" key="PriceBook3ID"/>
+          <key-binding alias="null" key="PriceBook4ID"/>
+          <key-binding alias="null" key="PriceBook5ID"/>
+          <key-binding alias="null" key="PriceBook6ID"/>
+          <key-binding alias="null" key="PriceBook7ID"/>
+          <key-binding alias="null" key="PriceBook8ID"/>
+          <key-binding alias="null" key="PriceBook9ID"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="PriceBook1ID"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="From_0"/>
+          <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="From_1"/>
+          <key-binding alias="CurrentSession.custom.saleprice" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <end-node/>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="StaticOfferCart">
+    <segment>
+      <node>
+        <start-node call-mode="public" name="StaticOfferCart" secure="false"/>
+        <node-display x="6" y="11"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="GetCategory" pipelet-set-identifier="bc_api">
+          <key-binding alias="CurrentHttpParameterMap.catid.value" key="CategoryID"/>
+          <key-binding alias="category" key="Category"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in2" target-path="./+1"/>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="(&quot;customerGroupID&quot; in category.custom)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="catalog/AssignCustomerGroupToSession.ds"/>
+                <key-binding alias="null" key="ScriptLog"/>
+                <key-binding alias="listPricebook" key="listPricebook"/>
+                <key-binding alias="salePricebook" key="salePricebook"/>
+                <key-binding alias="&quot;customerGroupID&quot; in category.custom?category:null" key="category"/>
+                <key-binding alias="category.custom.customerGroupID" key="groupID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="./b3.2">
+                  <transition-display>
+                    <bend-point relative-to="source" x="1" y="0"/>
+                    <bend-point relative-to="target" x="1" y="0"/>
+                  </transition-display>
+                </transition>
+              </branch>
+            </node>
+            <simple-transition/>
+            <node>
+              <decision-node condition-key="!empty(listPricebook)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b3" source-connector="yes">
+                <transition target-connector="in">
+                  <transition-display>
+                    <bend-point relative-to="source" x="0" y="1"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+                      <key-binding alias="listPricebook" key="PriceBook1ID"/>
+                      <key-binding alias="salePricebook" key="PriceBook2ID"/>
+                      <key-binding alias="null" key="PriceBook3ID"/>
+                      <key-binding alias="null" key="PriceBook4ID"/>
+                      <key-binding alias="null" key="PriceBook5ID"/>
+                      <key-binding alias="null" key="PriceBook6ID"/>
+                      <key-binding alias="null" key="PriceBook7ID"/>
+                      <key-binding alias="null" key="PriceBook8ID"/>
+                      <key-binding alias="null" key="PriceBook9ID"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="false"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                      <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+                      <key-binding alias="listPricebook" key="From_0"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="./+1"/>
+                </segment>
+                <segment>
+                  <node>
+                    <join-node/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <end-node/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in2" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="SetApplicablePriceBooks" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="PriceBook2ID"/>
+          <key-binding alias="null" key="PriceBook3ID"/>
+          <key-binding alias="null" key="PriceBook4ID"/>
+          <key-binding alias="null" key="PriceBook5ID"/>
+          <key-binding alias="null" key="PriceBook6ID"/>
+          <key-binding alias="null" key="PriceBook7ID"/>
+          <key-binding alias="null" key="PriceBook8ID"/>
+          <key-binding alias="null" key="PriceBook9ID"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="PriceBook1ID"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('listPriceDefault')" key="From_0"/>
+          <key-binding alias="CurrentSession.custom.listprice" key="To_0"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('salePriceDefault')" key="From_1"/>
+          <key-binding alias="CurrentSession.custom.saleprice" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <end-node/>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

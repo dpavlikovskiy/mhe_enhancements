@@ -1,0 +1,97 @@
+body{
+	background:$white;
+	#wrapper {
+	    max-width: 1280px;
+	    margin:0 auto;
+	    background:white;
+	    padding:84px 0 0;
+	}
+}	
+.epages-body{
+.button{
+	.face{
+		border:1px solid $brandBorder;
+		color: $brandcolor;
+		font-weight:$bold;
+		&.back { 
+			background-color: $brandBg;
+	    	border: 1px solid $brandBorder;
+	    	color: $white;
+		}
+	}
+	&.fill {
+    	.face {
+    		background-color: $brandBg;
+    		color: $white;
+    	}
+    }
+    &.darkfill {
+    	.face {
+    		background-color: $black;
+    	}
+    }
+    &.grey {
+    	.face {
+    		border-color: $lightergrey;
+    		color: $lightergrey;
+    		&.back {
+    			background-color: $lightergrey;
+    			border-color: $lightergrey;
+    			color: $white;
+    		}
+    	}
+    }
+    &.trans {
+    	.face {
+    		background: $black;
+    		background: rgba(0,0,0,0.5);
+    	}
+    }
+    &.hero {
+    	.face {
+    		border-color: $white;
+    		color: $white;
+			&.front {
+				background: $blackgrey;
+    			background: rgba(22,21,28,0.2);
+			}
+			&.back {
+				background-color: $white;
+				border-color: $white;
+				color: $black;
+			}
+		}
+    }
+}
+}
+
+	blockquote {
+			display:block;
+			clear:both;
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $white;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+.ePageModule{
+	margin:0 0 10px;
+}

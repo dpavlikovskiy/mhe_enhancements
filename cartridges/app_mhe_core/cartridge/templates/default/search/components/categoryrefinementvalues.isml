@@ -1,0 +1,66 @@
+<isinclude template="util/modules"/>
+
+<iscomment>memorize some locale variables for reuse</iscomment>
+<isset name="SearchModel" value="${pdict.searchmodel}" scope="page"/>
+<isset name="Category" value="${pdict.category}" scope="page"/>
+<isset name="CategoryPath" value="${pdict.categorypath}" scope="page"/>
+<isset name="Refinements" value="${pdict.searchmodel.refinements}" scope="page"/>
+<isset name="CategoryLevel" value="${new Number(pdict.categorylevel)}" scope="page"/>
+
+<isscript>
+	var IDPath = new dw.util.ArrayList();
+
+	if(CategoryPath != null)
+	{
+		// remove the first level successively
+		if(CategoryPath.size() > 0)
+		{
+			CategoryPath.removeAt(0);
+		}
+
+		// build array list of category IDs
+		var pathIterator = CategoryPath.iterator();
+		while( pathIterator.hasNext() )
+		{
+			IDPath.add( pathIterator.next().ID );
+		}
+	}
+</isscript>
+<isif condition="${SearchModel != null}">
+	<iscomment>
+		in case the given category is the current refinement category we render the
+		next level category refinement values for that category using the search refinements;
+		in case the given category is not the current refinement category we use the
+		online sub categories independent of the search result!
+	</iscomment>
+	<isif condition="${!empty(Category)}">
+		<isset name="RefinementValue" value="${Refinements.getRefinementValue(Refinements.getCategoryRefinementDefinition(),Category.ID)}" scope="page"/>
+		<isif condition="${!empty(RefinementValue)}">
+			<ul id="category-level-${CategoryLevel.toFixed()}">
+					<iscomment>get the category object</iscomment>
+					<li>
+						<iscomment>render the actual link</iscomment>
+						<a class="refinement-link <isif condition="${IDPath.contains(RefinementValue.getValue())}"> active</isif>" href="${SearchModel.urlRefineCategory('Search-Show',RefinementValue.getValue())}"><isprint value="${RefinementValue.getDisplayValue()}"/></a>
+						<isprint value="${RefinementValue.getHitCount() }" />
+					</li>
+			</ul>
+		</isif>
+		<iselseif condition="${empty(Category) || SearchModel.categoryID == Category.ID}">
+		<iscomment>display the next level category refinement values for the given category</iscomment>
+		<isset name="RefinementValues" value="${Refinements.getNextLevelCategoryRefinementValues(Category)}" scope="page"/>
+		<isif condition="${RefinementValues.size() > 0}">
+			<ul id="category-level-${CategoryLevel.toFixed()}">
+					<isloop items="${RefinementValues}" var="RefinementValue">
+					<iscomment>get the category object</iscomment>
+					<isset name="categoryObj" value="${dw.catalog.CatalogMgr.getCategory( RefinementValue.getValue() )}" scope="page"/>
+					<li <isif condition="${Refinements.getNextLevelCategoryRefinementValues(categoryObj).size() > 0}">class="expandable<isif condition="${IDPath.contains(RefinementValue.getValue())}"> active</isif>"</isif>>
+						<iscomment>render the actual link</iscomment>
+						<a class="refinement-link <isif condition="${IDPath.contains(RefinementValue.getValue())}"> active</isif>" href="${SearchModel.urlRefineCategory('Search-Show',RefinementValue.getValue())}"><isprint value="${RefinementValue.getDisplayValue()}"/></a>
+						<isprint value="${RefinementValue.getHitCount() }" />
+					</li>
+				</isloop>
+			</ul>
+		</isif>
+
+	</isif>
+</isif>

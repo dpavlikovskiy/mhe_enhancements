@@ -1,0 +1,54 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="cache-control" content="max-age=0" />
+
+	<isscript>var pageContext={title:'My Account', type:'MyAccount', ns:'account'};</isscript>
+	<isinclude template="util/modules"/>
+	
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="account/pt_account_UI"/>
+	
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<isinclude template="util/robotscrawling"/>
+</head>
+
+<body>
+	<div id="wrapper" class="pt_account">
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		<div id="main" role="main" class="page-content main clearfix">
+			<isinclude template="components/browsertoolscheck"/>
+			<isif condition="${!empty(pdict.bctext2)}">
+				<isbreadcrumbs bcurl1="${URLUtils.https('Order-History')}" bctext1="${Resource.msg('account.header','account',null)}" bctext2="${pdict.bctext2}"/>
+			<iselse>
+				<isbreadcrumbs bcurl1="${URLUtils.https('Order-History')}" bctext1="${Resource.msg('account.header','account',null)}"/>
+			</isif>		
+		
+			<div class="account-wrap">
+				<h1 class="account-header" id="showUserLastName">
+				    <span class="capitalize">
+				    <isset name="pageheader" value="${Resource.msg('account.name','account',null)}" scope="pdict" />
+					<isinclude template="account/includefirstlastname" /></span>
+				</h1>
+				
+				<div id="primary" class="primary-content">
+					<isreplace/>
+				</div>
+							
+			</div>	
+					
+		</div><!-- /main -->
+		
+		<isinclude template="components/footer/footer"/>	
+		<isinclude template="account/pt_account_VARS"/>		
+	</div>
+</body>
+</html>

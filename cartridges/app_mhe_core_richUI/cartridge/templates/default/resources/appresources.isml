@@ -1,0 +1,258 @@
+<iscontent type="text/javascript" charset="UTF-8" compact="true"/>
+
+<isscript>
+	importPackage( dw.system );
+	importPackage( dw.catalog );
+	importPackage( dw.util );
+	importPackage( dw.value );
+	importPackage( dw.web );
+	
+	function isMobile() {
+		var mobileAgentHash = ["mobile","tablet","phone","ipad","ipod","android","blackberry","windows ce","opera mini","palm"],
+			idx = 0,
+			item = null,
+			isMobile : Boolean = false,
+			userAgent : String = request.httpUserAgent.toLowerCase();
+				
+		while (item = mobileAgentHash[idx++] && !isMobile) {
+			isMobile = (userAgent.indexOf(mobileAgentHash[idx]) >= 0);
+		}
+		return isMobile;
+	}
+
+	var clientcache = {
+		LISTING_INFINITE_SCROLL : (dw.system.Site.getCurrent().getCustomPreferenceValue('enableInfiniteScroll') ? true : false),
+		LISTING_REFINE_SORT : true
+	};	
+	
+	var carousalSpeed={
+		CAROUSAL_SPEED : dw.system.Site.getCurrent().getCustomPreferenceValue('carousalSpeed')
+	};
+	
+	
+	//console.log(dw.system.Site.getCurrent().getCustomPreferenceValue('GiftMessageArray'));
+	
+	// application constants
+	var constants = {	
+		AVAIL_STATUS_IN_STOCK 		: ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK,
+		AVAIL_STATUS_PREORDER 		: ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER,
+		AVAIL_STATUS_BACKORDER 		: ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER,
+		AVAIL_STATUS_NOT_AVAILABLE 	: ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE,
+		PI_METHOD_GIFT_CERTIFICATE	: dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE,
+		CURRENT_LOCALE_COUNTRY		: dw.util.Locale.getLocale(request.locale).getCountry().toLowerCase(),
+		AGEGATE_REFERRER			: request.httpReferer,		
+		INSTAGRAM_CLIENTID			: dw.system.Site.getCurrent().getCustomPreferenceValue('instagramUserId'),			
+		INSTAGRAM_ACCESSTOKEN		: dw.system.Site.getCurrent().getCustomPreferenceValue('instagramAccessToken'),			
+		SITE_BRAND					: dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.toLowerCase(),
+		PERSONALIZE_REGEX			: dw.system.Site.getCurrent().getCustomPreferenceValue('Regex')? dw.system.Site.getCurrent().getCustomPreferenceValue('Regex'):"",
+		GIFTMSG_REGEX				: dw.system.Site.getCurrent().getCustomPreferenceValue('RegexForGiftMessage')? dw.system.Site.getCurrent().getCustomPreferenceValue('RegexForGiftMessage'):""		   
+	};
+	
+	// application resources
+	var resources =  {			
+		SHIP_QualifiesFor 				: Resource.msg('shipment.qualifiesfor','checkout',null),		
+		CC_LOAD_ERROR 					: Resource.msg('billing.creditcardloaderror','checkout',null),				
+	
+		// Registry resources
+		REG_ADDR_ERROR 					: Resource.msg('global.couldntloadaddress','locale',null),
+		
+		// bonus products messages
+		BONUS_PRODUCT 					: Resource.msg('product.bonusproduct','product',null),
+		BONUS_PRODUCTS 					: Resource.msg('product.bonusproducts','product',null),
+		SELECT_BONUS_PRODUCTS 			: Resource.msg('product.selectbonusproducts','product',null),
+		SELECT_BONUS_PRODUCT 			: Resource.msg('product.selectbonusproduct','product',null),
+		BONUS_PRODUCT_MAX 				: Resource.msg('product.bonusproductsmax','product',null),
+		SIMPLE_SEARCH 					: Resource.msg('simplesearch.searchtext','search', null),
+		SUBSCRIBE_EMAIL_DEFAULT			: Resource.msg('forms.subscribe.email.default','forms', 'Email Address'),
+				
+		CURRENCY_SYMBOL					: Currency.getCurrency(dw.system.Site.current.defaultCurrency).symbol,
+		MISSINGVAL						: Resource.msg('global.missingval','locale',null),
+		SERVER_ERROR 					: Resource.msg('global.servererror','locale',null),
+		MISSING_LIB 					: Resource.msg('global.missinglib','locale',null),
+		BAD_RESPONSE					: Resource.msg('global.badresponse','locale',null),
+		INVALID_PHONE					: Resource.msg('global.invalidphone','locale',null),
+		INVALID_EMAIL					: Resource.msg('profile.emailparseerror','forms',null),
+		INVALID_POSTCODE				: Resource.msg('forms.errorzip','forms',null),
+		REMOVE							: Resource.msg('global.remove','locale',null),
+		QTY								: Resource.msg('global.qty','locale',null),
+		EMPTY_IMG_ALT					: Resource.msg('global.remove', 'locale', null),
+		COMPARE_BUTTON_LABEL			: Resource.msg('productcomparewidget.compareitemsbutton', 'search', null),
+		COMPARE_CONFIRMATION			: Resource.msg('productcomparewidget.maxproducts', 'search', null),
+		COMPARE_REMOVE_FAIL				: Resource.msg('productcomparewidget.removefail', 'search', null),
+		COMPARE_ADD_FAIL				: Resource.msg('productcomparewidget.addfail', 'search', null),
+		ADD_TO_CART_FAIL				: Resource.msg('cart.unableToAdd', 'checkout', null),	
+		REGISTRY_SEARCH_ADVANCED_CLOSE	: Resource.msg('giftregistry.closeadvanced', 'account', null),
+					
+		GIFT_CERT_INVALID				: Resource.msg('billing.giftcertinvalid', 'checkout', null),
+		GIFT_CERT_BALANCE				: Resource.msg('billing.giftcertbalance', 'checkout', null),
+		GIFT_CERT_AMOUNT_INVALID		: Resource.msg('giftcert.amountvalueerror', 'forms', null),
+		GIFT_CERT_MISSING				: Resource.msg('billing.giftcertidmissing', 'checkout', null),
+		
+		COUPON_CODE_MISSING				: Resource.msg('cart.COUPON_CODE_MISSING','checkout', null),
+		
+		COOKIES_DISABLED				: Resource.msg('browsertoolscheck.cookies','components',null),
+		BML_AGREE_TO_TERMS				: Resource.msg('bml.termserror', 'forms', null),
+		CHAR_LIMIT_MSG					: Resource.msg('forms.character.limit', 'forms', null),
+		CONFIRM_DELETE					: Resource.msg('forms.confirm.delete', 'forms', null),
+		TITLE_GIFTREGISTRY				: Resource.msg('forms.title.giftregistry', 'forms', null),
+		TITLE_ADDRESS					: Resource.msg('forms.title.address', 'forms', null),
+		TITLE_CREDITCARD				: Resource.msg('forms.title.creditcard', 'forms', null),
+		SERVER_CONNECTION_ERROR 		: Resource.msg('global.serverconnection','locale','Server connection failed!'),
+		IN_STOCK_DATE					: Resource.msg('global.inStockDate', 'locale', null),
+		INIFINITESCROLL					: Resource.msg('paginginformation.infinite-scroll','search',null),
+		PHONE_MIN					    : Resource.msg('phone_min','forms',null),
+		PHONE_MAX					    : Resource.msg('phone_max','forms',null),
+		ERROR_MESSAGE				    : Resource.msg('error_message','forms',null),
+		CHECK_FOLLOWING_FIELD		    : Resource.msg('check_following_field','forms',null),
+		CHECK_FOLLOWING_FIELDS		    : Resource.msg('check_following_fields','forms',null),
+		VALID_DATE					    : Resource.msg('valid_date','forms',null),
+		MAXLENGTH_CHARACTER			    : Resource.msg('maxlength_characters','forms',null),
+		MAXLENGTHNUM_NUMBERS			: Resource.msg('maxlengthNum_numbers','forms',null),
+		MINLENGTH_CHARACTER				: Resource.msg('minlength_characters','forms',null),
+		MINLENGTHNUM_NUMBERS			: Resource.msg('minlengthNum_numbers','forms',null),
+		AGE_GATE_ERROR					: Resource.msg('agegate.error.message','forms',null),
+		HAPPY_BIRTHDAY					: Resource.msg('happy.birthday','forms',null),
+		EQUALS_TO						: Resource.msg('equals.error.message','forms',null),
+		
+		JANUARY							: Resource.msg('calender.january','forms',null),
+		FEBRUARY						: Resource.msg('calender.february','forms',null),
+		MARCH							: Resource.msg('calender.march','forms',null),
+		APRIL							: Resource.msg('calender.april','forms',null),
+		MAY								: Resource.msg('calender.may','forms',null),
+		JUNE							: Resource.msg('calender.june','forms',null),
+		JULY							: Resource.msg('calender.july','forms',null),
+		AUGUST							: Resource.msg('calender.august','forms',null),
+		SEPTEMBER						: Resource.msg('calender.september','forms',null),
+		OCTOBER							: Resource.msg('calender.october','forms',null),
+		NOVEMBER						: Resource.msg('calender.november','forms',null),
+		DECEMBER						: Resource.msg('calender.december','forms',null),
+		
+		SU								: Resource.msg('days.short.min.sunday','forms',null),
+		MO								: Resource.msg('days.short.min.monday','forms',null),
+		TU								: Resource.msg('days.short.min.tuesday','forms',null),
+		WE								: Resource.msg('days.short.min.wednesday','forms',null),
+		TH								: Resource.msg('days.short.min.thursday','forms',null),
+		FR								: Resource.msg('days.short.min.friday','forms',null),
+		SA								: Resource.msg('days.short.min.saturday','forms',null),
+		
+		FIRSTDAY						: Resource.msg('calender.firstday','forms',null),
+		ACCESSORY_MAXALLOWED1			: Resource.msg('product.accessory.maxallowed1','product',null),
+		ACCESSORY_MAXALLOWED2			: Resource.msg('product.accessory.maxallowed2','product',null),
+		QTY_ONLYAVAILABLE1				: Resource.msg('product.qty.onlyavailable1','product',null),
+		QTY_ONLYAVAILABLE2				: Resource.msg('product.qty.onlyavailable2','product',null),
+		
+		ALLOWED_AMOUNT					: Resource.msg('vatnumber.required.amout','forms',null),
+		CHAR_LEFT					    : Resource.msg('global.charleft','locale',null),
+		CVN_PLACEHOLDER					:Resource.msg('billing.cvn.example','checkout',null),
+		CVN2_PLACEHOLDER				:Resource.msg('billing.cvn2.example','checkout',null),
+		VALID_AGE						:dw.system.Site.getCurrent().getCustomPreferenceValue('validAge'),
+		VIEW_M_CHAR						:Resource.msg('product.characteristics.button.more','product',null),
+		VIEW_L_CHAR						:Resource.msg('product.characteristics.button.less','product',null),
+		CAROUSAL_SPEED 					: dw.system.Site.getCurrent().getCustomPreferenceValue('carousalSpeed'),
+		CELLER_SUBMIT					: Resource.msg('makeenquiry.congrats','forms',null),
+		POSTCODE_ERROR					: Resource.msg('postcode.chilleddelivery.error','forms',null),
+		ORDER_CANCELLED_ERROR			: Resource.msg('checkout.ordercancelled','checkout',null),
+		ORDER_NOTEXPORTED_ERROR			: Resource.msg('checkout.ordernotexported','checkout',null),
+		GTM_ENABLED						: dw.system.Site.getCurrent().preferences.custom.enableGTM,
+		FBAPP_ID						: dw.system.Site.getCurrent().getCustomPreferenceValue('fbappID'),	
+		GIFT_ERROR_MSG                  : dw.system.Site.getCurrent().getCustomPreferenceValue('RegexForGiftMessage')?Resource.msgf('global.giftErrorMessage','locale',null, dw.system.Site.getCurrent().getCustomPreferenceValue('RegexForGiftMessage').toString()):Resource.msg('global.giftErrorMessage','locale',null),
+		GIFT_TOOLTIP_MSG                : Resource.msg('global.giftTooltipMessage','locale',null),   
+		PROFINITY_MSG					: Resource.msg('global.giftProfinityMessage','locale',null)
+	};
+	
+	// additional resources 
+	resources[ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK] = Resource.msg('global.instock','locale',null);
+	resources["QTY_" + ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK] = Resource.msg('global.quantityinstock','locale',null);
+	resources[ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER] = Resource.msg('global.allpreorder','locale',null);
+	resources["QTY_" + ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER] = Resource.msg('global.quantitypreorder','locale',null);
+	resources["REMAIN_" + ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER] = Resource.msg('global.remainingpreorder','locale',null);
+	resources[ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER] = Resource.msg('global.allbackorder','locale',null);
+	resources["QTY_" + ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER] = Resource.msg('global.quantitybackorder','locale',null);
+	resources["REMAIN_" + ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER] = Resource.msg('global.remainingbackorder','locale',null);
+	resources[ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE] = Resource.msg('global.allnotavailable','locale',null);
+	resources["REMAIN_" + ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE] = Resource.msg('global.remainingnotavailable','locale',null);
+			
+	// application urls
+	var urls =  {
+		appResources				: URLUtils.url('Resources-Load').toString(),
+		pageInclude					: URLUtils.url('Page-Include').toString(),
+		continueUrl 				: request.isHttpSecure() ? URLUtils.httpsContinue().toString() : URLUtils.httpContinue().toString(),
+		staticPath					: URLUtils.staticURL("/").toString(),
+		addGiftCert					: URLUtils.url('GiftCert-Purchase').toString(),		
+		minicartGC					: URLUtils.url('GiftCert-ShowMiniCart').toString(),		
+		addProduct					: URLUtils.url('Cart-AddProduct').toString(),		
+		minicart					: URLUtils.url('Cart-MiniAddProduct').toString(),
+		cartShow 					: URLUtils.url('Cart-Show').toString(),
+		giftRegAdd					: URLUtils.https('Address-GetAddressDetails', 'addressID', '').toString(),
+		paymentsList				: URLUtils.https('PaymentInstruments-List').toString(),
+		addressesList				: URLUtils.https('Address-List').toString(),
+		wishlistAddress				: URLUtils.https('Wishlist-SetShippingAddress').toString(),
+		deleteAddress				: URLUtils.url('Address-Delete').toString(),
+		getProductUrl 				: URLUtils.url('Product-Show').toString(),
+		getBonusProducts			: URLUtils.url('Product-GetBonusProducts').toString(),
+		addBonusProduct				: URLUtils.url('Cart-AddBonusProduct').toString(),	
+		getSetItem 					: URLUtils.url('Product-GetSetItem').toString(),
+		productDetail 				: URLUtils.url('Product-Detail').toString(),
+		getAvailability				: URLUtils.url('Product-GetAvailability').toString(),			
+		removeImg 					: URLUtils.staticURL('/images/interface/icon_remove.gif').toString(),
+		searchsuggest 				: URLUtils.url('Search-GetSuggestions').toString(),	
+		productNav 					: URLUtils.url('Product-Productnav').toString(),	
+		summaryRefreshURL			: URLUtils.url('COBilling-UpdateSummary').toString(),
+		billingSelectCC				: URLUtils.https('COBilling-SelectCreditCard').toString(),
+		updateAddressDetails		: URLUtils.https('COShipping-UpdateAddressDetails').toString(),
+		updateAddressDetailsBilling : URLUtils.https('COBilling-UpdateAddressDetails').toString(),	
+		shippingMethodsJSON			: URLUtils.https('COShipping-GetApplicableShippingMethodsJSON').toString(),
+		shippingMethodsList			: URLUtils.https('COShipping-UpdateShippingMethodList').toString(),
+		selectShippingMethodsList	: URLUtils.https('COShipping-SelectShippingMethod').toString(),
+		resetPaymentForms 			: URLUtils.url('COBilling-ResetPaymentForms').toString(),
+		compareShow					: URLUtils.url('Compare-Show').toString(),
+		compareAdd					: URLUtils.url('Compare-AddProduct').toString(),	
+		compareRemove				: URLUtils.url('Compare-RemoveProduct').toString(),
+		compareEmptyImage			: URLUtils.staticURL('/images/comparewidgetempty.png').toString(),
+		giftCardCheckBalance		: URLUtils.https('COBilling-GetGiftCertificateBalance').toString(),
+		addCoupon					: URLUtils.https('Cart-AddCoupon').toString(),	
+		powerReviewsFullJs			: URLUtils.staticURL(URLUtils.CONTEXT_CATALOG, null, '/pwr/engine/js/full.js').toString(),
+		powerReviewsZip				: URLUtils.staticURL(URLUtils.CONTEXT_CATALOG, null, '').toString(),
+		setDefaultAddressUrl		:URLUtils.https('Address-SetDefault').toString(),
+		selectedShippingAddress	    :URLUtils.https('COShipping-UpdateFormWithSelectedAddress').toString(),
+		selectedBillingAddress	    :URLUtils.https('COBilling-UpdateFormWithSelectedAddress').toString(),
+		agegateValidator			:URLUtils.url('Home-Agegate').toString(),
+		sendtofriendurl				:URLUtils.url('SendToFriend-Start').toString(),
+		staticofferagegatesubmit	:URLUtils.url('Search-ValidAge').toString(),
+		validateagesubmit         	:URLUtils.url('Search-ValidateAge').toString(),
+		shippingAuthentication	    :URLUtils.https('COShipping-Start').toString(),
+		loginAuthentication	        :URLUtils.https('COCustomer-Start').toString(),
+		accountLoginAuthenticate  	:URLUtils.https('COCustomer-StartLogin').toString(),
+		orderhistoryRedirect        :URLUtils.https('Order-History').toString(),
+		addressBookRedirect         :URLUtils.https('Address-List').toString(),
+		paymentInstRedirect         :URLUtils.https('PaymentInstruments-List').toString(),
+		profileRedirect             :URLUtils.https('Account-EditProfile').toString(),
+		homeredirect       			:URLUtils.url('Home-HomeRedirect').toString(),
+		newsLetterToSubscribe       :URLUtils.url('Account-NewsLetterToSubscribe').toString(),
+		newsLetterSubscription      :URLUtils.url('Account-NewsLetterSubscription').toString(),
+		giftMessage                 :URLUtils.url('COShipping-GiftMessage').toString(),
+		registerInterest			:URLUtils.url('Product-KeepMeUpdate').toString(),
+		getCreditCardForm			:URLUtils.url('COBilling-GetCreditCardForm').toString(),
+		addBillingFields			:URLUtils.url('Address-AddField').toString(),
+		loginShow					:URLUtils.https('Login-Show').toString(),
+		pdpQuickView				:URLUtils.https('Product-CustomQuickView').toString(),
+		clearFiscalFields			:URLUtils.url('COBilling-ClearFiscalField').toString(),
+		paymentform   			    :URLUtils.url('COBilling-GetPaymentForm').toString(),
+		validateOrder   			:URLUtils.url('COBilling-ValidateOrder').toString(),
+		getOtherField    			:URLUtils.url('COBilling-GetOtherField').toString(),
+		getProductJson				:URLUtils.url('Product-GetProductJson').toString(),
+		validateMessage             :URLUtils.url('Product-ValidateMsg').toString(),
+		getDeliveryTimeSlots		:URLUtils.url('COShipping-getTimeSlot').toString()
+	};
+	
+	var isMobileUserAgent = isMobile();
+</isscript>
+(function(app){
+	app.isMobileUserAgent = ${isMobileUserAgent};
+	app.zoomViewerEnabled = ${!isMobileUserAgent};	
+	app.constants = <isprint value="${JSON.stringify(constants)}" encoding="off"/>;
+	app.resources = <isprint value="${JSON.stringify(resources)}" encoding="off"/>;	
+	app.urls = <isprint value="${JSON.stringify(urls)}" encoding="off"/>;	
+	app.clientcache = <isprint value="${JSON.stringify(clientcache)}" encoding="off"/>;
+
+}(window.app = window.app || {}));

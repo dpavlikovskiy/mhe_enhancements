@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+<!-- field for order name -->
+    <field formid="reason" label="reason" type="string" mandatory="true" />
+    <field formid="subject" label="subject" type="string" mandatory="true"   />
+ 	<field formid="addressedfrom" label="form.addformname" type="string" mandatory="true"  />
+ 	<field formid="addressee" label="form.addname" type="string" mandatory="true"  />
+    <field formid="message" label="message" type="string" mandatory="true"   />
+  </form>

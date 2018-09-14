@@ -1,0 +1,45 @@
+/**
+Script used for providing pagination and recommendation products for articles detail page. 
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.content )
+
+/*
+ * Function to calculate Previous and next Article for the current Article Page
+ */
+function articlePagination(content : dw.content.Content, contentIterator : dw.util.Iterator) : Map
+{
+    var prevnextArticle :dw.util.Map=new LinkedHashMap();
+  	var currentContent:dw.content.Content;
+	var prevContent:dw.content.Content;
+	var nextContent:dw.content.Content;
+	var prevArticleList :List=new ArrayList();
+	var nextArticleList :List=new ArrayList();
+	// Iterate contents of the folder to fetch previous and next articles.
+	while(contentIterator.hasNext()){
+		
+		currentContent= contentIterator.next();
+		if(currentContent.getID().equals(content.getID())){
+			if(prevContent){
+				prevArticleList.add(prevContent.getID());
+				prevArticleList.add(prevContent.custom.lifestyleImage);
+				prevArticleList.add(prevContent.getClassificationFolder().getDisplayName());
+				prevArticleList.add(prevContent.getName());
+			}
+			if(contentIterator.hasNext()){
+				nextContent=contentIterator.next();
+				nextArticleList.add(nextContent.getID());
+				nextArticleList.add(nextContent.custom.lifestyleImage);
+				nextArticleList.add(nextContent.getClassificationFolder().getDisplayName());
+				nextArticleList.add(nextContent.getName());
+				
+			}
+			break;
+		}
+		prevContent=currentContent;
+	}
+	prevnextArticle.put("previous", prevArticleList);
+	prevnextArticle.put("next", nextArticleList);
+    return prevnextArticle;
+}

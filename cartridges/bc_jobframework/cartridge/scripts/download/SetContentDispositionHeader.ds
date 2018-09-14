@@ -1,0 +1,12 @@
+/**
+* @input File : dw.io.File The file
+*/
+importPackage( dw.system );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	if ( !empty(args.File) ) {
+		response.setHttpHeader(Response.CONTENT_DISPOSITION, "attachement;filename="+args.File.name);
+	}
+    return PIPELET_NEXT;
+}

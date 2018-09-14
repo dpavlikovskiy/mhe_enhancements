@@ -1,0 +1,22 @@
+//============================================================
+//
+// prefix-property
+//
+// @param property            :  String
+// @param value               :  String
+// @param supportWebkit       :  Boolean
+// @param supportFirefox      :  Boolean
+// @param supportExplorer     :  Boolean
+// @param supportOpera        :  Boolean
+//
+//============================================================
+
+@mixin prefix-property($property, $value, $supportWebkit: $defaultWebkitSupport, $supportFirefox: $defaultFirefoxSupport, $supportExplorer: $defaultExplorerSupport, $supportOpera: $defaultOperaSupport) {
+
+  @if $supportWebkit   { -webkit-#{$property}: $value; }
+  @if $supportFirefox  {    -moz-#{$property}: $value; }
+  @if $supportExplorer {     -ms-#{$property}: $value; }
+  @if $supportOpera    {      -o-#{$property}: $value; }
+
+  #{$property}: $value;
+}

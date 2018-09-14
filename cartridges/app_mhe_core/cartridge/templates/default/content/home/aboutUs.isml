@@ -1,0 +1,27 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+<iscache type="relative" hour="24"/>
+<isinclude template="util/modules"/>
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/color.css')}" />
+<!-- Typekit Font -->
+<script type="text/javascript" src="//use.typekit.net/jow0zyl.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body class="aboutUs">
+	<isslot id="aboutUsSlot1" description="About Us Slot 1" context="global" />
+	<isslot id="aboutUsSlot2" description="About Us Slot 2" context="global" />
+	<isslot id="aboutUsSlot3" description="About Us Slot 3" context="global" />
+	<isslot id="aboutUsSlot4" description="About Us Slot 4" context="global" />
+	<isslot id="aboutUsSlot5" description="About Us Slot 5" context="global" />
+	
+	<div class="footerlinks_footer">
+        <iscontentasset aid="CA_Faq_Footer"/>
+    </div>
+	    
+</body>

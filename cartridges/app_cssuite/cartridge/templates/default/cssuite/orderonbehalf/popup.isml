@@ -1,0 +1,15 @@
+<isscript>
+if (empty(pdict.CurrentSession.customer.profile)) {
+	var custName = 'Unregistered User';
+} else if (empty(pdict.CurrentSession.customer.profile.firstName) || empty(pdict.CurrentSession.customer.profile.lastName)) {
+	var custName = pdict.CurrentSession.customer.profile.credentials.login;
+} else {
+	var custName = pdict.CurrentSession.customer.profile.firstName + ' ' + pdict.CurrentSession.customer.profile.lastName;
+}
+</isscript>
+<!---<p>
+	<h4>Agent: <div style="display:inline;font-size:18px;">${!empty(pdict.CurrentSession.userName) ? pdict.CurrentSession.userName : ""}</div> logged in as customer: <div style="display:inline;font-size:18px;">${custName}</div></h4>
+</p>--->
+
+<iframe src="${URLUtils.https('Home-Show')}" width='100%' height='100%' style="padding: 0; margin: 0; border: none;">
+</iframe>

@@ -1,0 +1,588 @@
+<iscomment>
+	Displays order details, such as order number, creation date, payment information,
+	order totals and information for each contained shipment.
+	This template module can be used in order confirmation pages as well as in the
+	order history to render the details of a given order. Depending on the context
+	being used in, one might omit rendering certain information.
+
+	Parameters:
+
+	order		: the order whose details to render
+	orderstatus	: if set to true, the order status will be rendered
+	              if set to false or not existing, the order status will not be rendered
+</iscomment>
+<isscript>importScript("util/ProductImageSO.ds");</isscript>
+<isset name="currencyCode" value="${dw.system.Site.getCurrent().getDefaultCurrency()}" scope="page"/>
+<isset name="brand" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.toLowerCase()}" scope="page"/>		
+<isinclude template="util/modules"/>
+<isset name="Order" value="${pdict.order}" scope="page"/>
+<isif condition="${brand.equals('mh')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+<isset name="color2" value="${'#fff'}" scope="page"/>
+<iselseif condition="${brand.equals('dp')}" >
+<isset name="color" value="${'#9e8a59'}" scope="page"/>
+<isset name="color2" value="${'#fff'}" scope="page"/>
+<iselseif condition="${brand.equals('vc')}" >
+<isset name="color" value="${'#f7b621'}" scope="page"/>
+<isset name="color2" value="${'#333'}" scope="page"/>
+<iselseif condition="${brand.equals('ad')}" >
+<isset name="color" value="${'#9e8a59'}" scope="page"/>
+<isset name="color2" value="${'#fff'}" scope="page"/>
+</isif>
+
+<isset name="setPriceZero" value="false" scope="page"/>
+<isif condition="${!empty(Order.custom.replacedOrderNumber)}" >
+<isset name="setPriceZero" value="true" scope="page"/>
+</isif>
+
+<isscript> 
+   var customer=dw.customer.CustomerMgr.getProfile(Order.customerNo);
+   var itemsordered:String = dw.web.Resource.msg('orderdetails.itemsordered','components',null);
+   var orderdate:String = dw.web.Resource.msg('orderdetailsemail.orderdate','components',null);
+   var deliverydetails:String =dw.web.Resource.msg('orderdetailsemail.deliverydetails','components',null);
+   var deliverymethod:String =dw.web.Resource.msg('orderdetailsemail.deliverymethod','components',null);
+   var giftmessage:String =dw.web.Resource.msg('orderdetailsemail.giftmessage','components',null);
+   var deliverto:String =dw.web.Resource.msg('orderdetailsemail.deliverto','components',null);
+   var billingandpaymentdetails:String =dw.web.Resource.msg('orderdetailsemail.billingandpaymentdetails','components',null);
+   var amountpaid:String = dw.web.Resource.msg('orderdetailsemail.amountpaid','components',null);
+   var paymentMethod:String =dw.web.Resource.msg('orderdetailsemail.paymentMethod','components',null);
+   var billingaddress:String =dw.web.Resource.msg('orderdetailsemail.billingaddress','components',null);
+   var itemsordered:String =dw.web.Resource.msg('orderdetails.itemsordered','components',null);
+   var deliveryDate:String =dw.web.Resource.msg('orderdetails.deliveryDate','components',null);
+   var deliveryInst:String =dw.web.Resource.msg('orderdetails.deliveryInst','components',null);
+	 
+</isscript>			
+	<iscomment>Thank you, order number and details section</iscomment>
+	
+	<span style="letter-spacing:2px;">
+		<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+			<isif condition="${!empty(shipment.trackingNumber) && !empty(shipment.custom.carrierurl)}"> 
+				<span class="label" style="color:${color};">${Resource.msg('orderdetails.tracking','components',null)}</span> <span style="color:${color2}"><isprint value="${shipment.trackingNumber}"/></span>
+				<br /><br />
+	   			<a href="${shipment.custom.carrierurl}" style="border:1px solid ${color}; display:inline-block; color:${color}; padding:7px 20px; font-size:13px; font-weight:bold; text-decoration:none; letter-spacing:2px; margin:0 30px 0 0;">${Resource.msg('orderdetails.trackingbutton','components',null)}</a> 
+			</isif>
+ 			<isbreak />
+		</isloop>
+		<isif condition="${!pdict.DeliveryPartner && !empty(customer)}"> 
+		 <a href="${URLUtils.https('Order-History')}" style=" border:${color} 1px solid; color:${color}; padding:7px 20px; font-size:13px; font-weight:bold; text-decoration:none; letter-spacing:2px; margin:0 30px 0 0;">${Resource.msg('orderdetailsemail.viewaccount','components',null)}</a>
+	    </isif>
+	</span>
+	<br /><br />
+	
+	<isif condition="${pdict.DeliveryPartner}"> 
+	<iscomment>Products ordered section</iscomment>
+	
+	<span style="letter-spacing:2px;line-height:25px;">
+	 <isif condition="${brand.equals('mh')}">
+		 <isprint value="${itemsordered.toUpperCase()}" /> 
+	  <iselse>
+	    <isprint value="${itemsordered}" /> 
+	  </isif> 
+	</span>
+			
+	<img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" />
+	<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+       
+       <isif condition="${shipment.productLineItems.size() > 0}">
+			
+			<table width="525" border="0" cellspacing="0" cellpadding="0">
+			
+			<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+         		
+         		<tr>
+         			<td width="118" align="center" valign="top">
+						<isif condition="${!empty(productLineItem.product.getImage('hi-res',0))}">
+                       		<isset name="image" value="${new ProductImage('order-detail', productLineItem.product, 0 )}" scope="page" />
+                       	<iselse>
+                       		<isset name="image" value="${null}" scope="page"/>
+                       	</isif>      
+                        <isif condition="${!empty(image)}"> 
+                           	<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" /> 
+                        <iselse> 
+                           	<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagesmall.png').http()}" scope="page" /> 
+                        </isif>
+						<img class="product-thumb" src="${thumbnailUrl}" alt="${productLineItem.productName}" width="60" />
+					</td>
+					
+					<td width="407" style="font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;line-height:16px;text-align:left;">
+						<span style="letter-spacing:2px;line-height:30px;font-size:12px; padding-bottom:10px; display:block;">
+							<isif condition="${productLineItem.custom.associatedParentPosition != null }">
+                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}" />
+	                        <iselseif condition="${productLineItem.optionProductLineItems.size() > 0}">
+	                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+							<iselseif condition="${productLineItem.custom.engravingMessageLine1 !=null}">
+	                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+	                        <iselse>
+								<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidsize="${true}"  p_hidepromo="${true}"/>
+							</isif>
+						</span><br />
+												
+						<iscomment> <isdisplayvariationvaluesemail product="${productLineItem.product}"/>  </iscomment>
+						
+						<isif condition="${productLineItem.product != null && productLineItem.product.isVariant()}">
+							<isloop items="${productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+								<isset name="SelectedVariationValue" value="${productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>
+								<span class="cSize" style="color:${color2};display:inline-block;margin-top:10px; padding-top:10px;">
+									<isif condition="${SelectedVariationValue != null}">
+										<isprint value="${SelectedVariationValue.displayValue}"/>
+										<span style="color:${color2};display:inline-block;margin:0 10px;">|</span>
+									</isif>
+								</span>
+							</isloop>
+						</isif>
+						
+						<span style="display:inline-block;margin-top:3px; color:${color2};"><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" /> : <isprint value="${productLineItem.quantity}" /></span>
+						<isif condition="${!pdict.DeliveryPartner}"> 
+						<span style="color:${color2};;display:inline-block; margin:3px 10px;">|</span>
+						</isif>
+						<span style="display:inline-block;margin-top:3px;color:${color2};">
+						<isset name="chilledprice" value="" scope="page" />				
+						<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.chilledDeliveryService }">
+								<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+									<isif condition="${oli.price > 0}"> 
+										<isif condition="${oli.price > oli.adjustedPrice}">
+										<isset name="chilledprice" value="${oli.adjustedPrice}" scope="page" />	
+										<iselse>
+										<isset name="chilledprice" value="${oli.price}" scope="page" />	
+										</isif>
+									</isif>
+								</isloop>
+						</isif>
+						<isif condition="${!pdict.DeliveryPartner}"> 
+						   <isif condition="${empty(Order.custom.replacedOrderNumber)}"  >
+						       <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(chilledprice+productLineItem.adjustedPrice, currencyCode))}" />
+						   <iselse>
+						       <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(0, currencyCode))}" />
+						   </isif>
+						</isif>
+						</span>
+					</td>
+				</tr>
+				
+				<tr>
+					<td colspan="2"><img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" /></td>
+				</tr>
+				
+				<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.engravingMessageLine1 !=null }">
+                	<tr>
+	                    <td colspan="2" style="background-color:#1b1923;border:1px solid #2B2637;padding:16px 12px;">
+	                        <span style="font-family:Arial,Helvetica,sans-serif;color:${color};letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;font-weight:bold;">
+	                        	<isprint value="${Resource.msg('global.personaliselabel','locale',null)}" /><br>
+	                        </span>
+	                        <span style="font-family:Arial,Helvetica,sans-serif;color:${color};letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;">
+	                        	<isprint value="${Resource.msg('global.personalisesublabel','locale',null)}" />
+	                        </span>
+	                        <span style="color:${color};font-family:Arial,Helvetica,sans-serif;display:inline-block;margin:0 5px;">
+                              <isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+                              <isif condition="${!pdict.DeliveryPartner}"> 
+                              	<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+                                	<isif condition="${oli.price > 0}"> 
+										<span style="color:${color};font-size:12px;font-family:Arial,Helvetica,sans-serif;display:inline-block;">
+                                        	<span style="display:inline-block;margin:0px 8px;">|</span> <isprint value="${oli.basePrice}" />
+                                        </span>
+									</isif>
+                                 </isloop>
+                              </isif>   
+                              </isif>
+                        	</span><br>
+                        	<span style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-style:italic;letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;">
+                     			<isprint value="${productLineItem.custom.engravingMessageLine1}" /> 
+                      		</span>
+                   		</td>
+              		</tr>
+              		<tr>
+                    	<td colspan="2"><img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" /></td>
+               		</tr>
+            	</isif>	
+            	
+			</isloop>
+			
+			</table>
+         
+		</isif>
+	</isloop>
+	</isif>
+
+ 	<iscomment>Delivery details section</iscomment>
+	<span style="letter-spacing:2px;line-height:25px;">
+	  <isif condition="${brand.equals('mh')}">
+		 <isprint value="${deliverydetails.toUpperCase()}" /> 
+	  <iselse>
+	    <isprint value="${deliverydetails}" /> 
+	  </isif> 
+	</span>
+	<img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" />
+	
+	
+	
+	<table width="525" border="0" cellspacing="0" cellpadding="0">
+	<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+    	<tr>
+        	<td width="305" valign="top" style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+        	   <isif condition="${!pdict.ChilledDeliveryAvailability}"> 
+        	       <isif condition="${brand.equals('mh')}">
+					 <span style="display:inline-block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+						<isprint value="${orderdate.toUpperCase()}" />
+					 </span><br/>
+					 <iselse>
+					 <span style="display:inline-block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+						<isprint value="${orderdate}" />
+					 </span><br/>
+					</isif>
+					<span style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+						<isprint value="${Order.getCreationDate()}" />
+					</span>
+					<br /><br />
+				</isif>
+				<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					 <isif condition="${brand.equals('mh')}">
+						 <isprint value="${deliverymethod.toUpperCase()}" /> 
+					  <iselse>
+					    <isprint value="${deliverymethod}" /> 
+					  </isif>
+				</span>
+                <table width="220" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+	                	<isprint value="${pdict.Order.defaultShipment.shippingMethod.displayName}" />
+						<br />
+                	</td>
+                  </tr>
+                </table>
+				<br />
+				<isif condition="${!empty(shipment.giftMessage)}">
+				<table width="220" border="0" cellspacing="0" cellpadding="0" >
+                  <tr>
+                  	<td>
+                  		<span style="display:block;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:${color};margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					   <isif condition="${brand.equals('mh')}">
+						 <isprint value="${giftmessage.toUpperCase()}" /> 
+					   <iselse>
+					    <isprint value="${deliverydetails}" /> 
+					  </isif> 
+				</span>
+                  	</td>
+                  </tr>
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;font-style:italic;">
+						
+						<isset name="giftShipment" value="${shipment}" scope="pdict" />
+						<isscript>
+						var giftmsg:String = pdict.giftShipment.giftMessage;
+						var giftmsgarray:Array = giftmsg.split('[#]');
+						</isscript>
+						
+						<isloop items="${giftmsgarray}" alias="gift">
+						<isprint value="${gift}" /><br>
+						</isloop>						
+						
+					</td>
+				  </tr>
+				  <isif condition="${pdict.ChilledDeliveryAvailability}"> 
+				  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;font-style:italic;">
+						<isset name="InstructionShipment" value="${shipment}" scope="pdict" />
+						<isscript>
+						var insmsg:String = pdict.InstructionShipment.custom.deliveryInstructions;
+						var insmsgarray:Array = insmsg.split('[#]');
+						</isscript>
+						<isloop items="${insmsgarray}" alias="ins">
+						<isprint value="${ins}" /><br>
+						</isloop>						
+					</td>
+				  </tr>
+				  </isif>
+				</table>
+				</isif>
+				 <isif condition="${pdict.ChilledDeliveryAvailability && 'deliveryInstructions' in shipment.custom}">
+				<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					 <isif condition="${brand.equals('mh')}">
+						 <isprint value="${deliveryInst.toUpperCase()}" /> 
+					  <iselse>
+					    <isprint value="${deliveryInst}" /> 
+					  </isif>
+				</span>
+                <table width="220" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+	                	<isset name="InstructionShipment" value="${shipment}" scope="pdict" />
+						<isscript>
+						var insmsg:String = pdict.InstructionShipment.custom.deliveryInstructions;
+						var insmsgarray:Array = insmsg.split('[#]');
+						</isscript>
+						<isloop items="${insmsgarray}" alias="ins">
+						<isprint value="${ins}" /><br>
+						</isloop>	
+						<br />
+                	</td>
+                  </tr>
+                </table>
+			
+				</isif>
+				<isif condition="${!empty(shipment.custom.requestedDeliveryDate)}" > 
+				<table width="220" border="0" cellspacing="0" cellpadding="0" >
+					<tr>
+					<td>
+						<span style="display:block;font-family:Arial,Helvetica,sans-serif;font-weight:normal;color:${color};margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.equalsIgnoreCase('MH')}">
+							 <isprint value="${deliveryDate.toUpperCase()}" /> 
+					 		 <iselse>
+					    	<isprint value="${deliveryDate}" /> 
+					 	 </isif> 
+					 	</span>
+				 	</td>
+				 	</tr>
+				 	<tr>
+				 	<td style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+			            <isprint value="${shipment.custom.requestedDeliveryDate}"  formatter="dd MMM YYYY"  />
+			            <isif condition="${'requestedDeliveryTimeSlot' in shipment.custom}" > <br/>
+			            <isprint value="${shipment.custom.requestedDeliveryTimeSlot}"/>
+			            </isif>
+		            </td>
+			        </tr>
+			        </table>
+			    </isif>
+			</td>
+			<td width="220" valign="top" style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left; ">
+				<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					 <isif condition="${brand.equals('mh')}">
+						 <isprint value="${deliverto.toUpperCase()}" /> 
+					 <iselse>
+					    <isprint value="${deliverto}" /> 
+					 </isif> 
+				</span><br />
+				<isminishippingaddressemail p_shipment="${shipment}" p_editable="${false}" p_showmethod="${false}" p_showpromos="${false}"/> 
+			</td>
+		</tr>
+	<isbreak/>
+	</isloop>
+	</table>
+	
+	<br /><br />
+		<isif condition="${!pdict.DeliveryPartner}"> 
+	<isset name="isReplacement" value="DEFAULT" scope="page"/>	
+	<isloop items="${Order.getPaymentInstruments()}" var="pInstrument" status="pInstrumentState">
+		<isif condition="${pInstrument.paymentMethod.equalsIgnoreCase('ORDER_REPLACEMENT')}">
+			<isset name="isReplacement" value="${pInstrument}" scope="page"/>	
+			<isbreak/>
+		</isif>
+	</isloop>
+	<isif condition="${!isReplacement.equalsIgnoreCase('ORDER_REPLACEMENT')}"> 
+	<iscomment>Billing and payment section</iscomment>
+ 	<span style="letter-spacing:2px;line-height:25px;">
+	  <isif condition="${brand.equals('mh')}">
+		 <isprint value="${billingandpaymentdetails.toUpperCase()}" /> 
+	 <iselse>
+	    <isprint value="${billingandpaymentdetails}" /> 
+	 </isif> 
+	</span>
+	<img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" />
+	
+	<table width="525" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="305" valign="top" style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+		   <isscript>
+			  var list:dw.util.List=new dw.util.ArrayList();
+			      list.add("ORDER_REPLACEMENT");
+			      list.add("ORDER_COMPLIMENTARY");
+			      
+			</isscript>
+			
+			<isloop items="${Order.getPaymentInstruments()}" var="pInstrument" status="pInstrumentState">
+				<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					
+				    <isif condition="${brand.equals('mh')}">
+						 <isprint value="${amountpaid.toUpperCase()}" /> 
+					 <iselse>
+					    <isprint value="${amountpaid}" /> 
+					</isif>
+				
+				</span><br />
+				<isprint value="${pInstrument.getPaymentTransaction().amount}" /><br />
+				<br />
+				<isif condition="${!list.contains(pInstrument.paymentMethod) }">
+					<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+						 <isif condition="${brand.equals('mh')}">
+							 <isprint value="${paymentMethod.toUpperCase()}" /> 
+						 <iselse>
+						    <isprint value="${paymentMethod}" /> 
+						 </isif> 
+					</span><br />
+		    		<isif condition="${pInstrument.paymentMethod.equalsIgnoreCase('PAYPAL')}">
+						<div>${dw.order.PaymentMgr.getPaymentMethod(pInstrument.paymentMethod).name}</div>
+					<iselseif condition="${pInstrument.paymentMethod.equalsIgnoreCase('ORDER_OTHER_MEANS')}">
+					 <div> <isprint value="${Order.custom.otherMeansPaymentType}" />  <br>
+					 </div>	
+					<iselse>				
+		  				<div style="text-transform: uppercase">${Resource.msgf('checkout.cardending','checkout',null,pInstrument.creditCardType)}</div><isprint value="${pInstrument.creditCardNumberLastDigits}" />
+	   				</isif>
+   				</isif>
+			<isbreak />
+			</isloop>
+			</td>
+			<td width="220" valign="top" style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-size:14px;line-height:22px;text-align:left;">
+				<span style="display:block;margin-bottom:3px;text-transform:uppercsase;font-size:13px;color:${color};letter-spacing:2px;">
+					<isif condition="${brand.equals('mh')}">
+						 <isprint value="${billingaddress.toUpperCase()}" /> 
+					 <iselse>
+					    <isprint value="${billingaddress}" /> 
+					 </isif> 
+				</span><br/>
+				<isminiaddressemail p_address="${Order.billingAddress}"/>
+			</td>
+		</tr>
+	</table>		
+	<br/><br/>
+	</isif>
+</isif>
+	<isif condition="${!pdict.DeliveryPartner }"> 
+	<iscomment>Products ordered section</iscomment>
+	<span style="letter-spacing:2px;line-height:25px;">
+      <isif condition="${brand.equals('mh')}">
+		 <isprint value="${itemsordered.toUpperCase()}" /> 
+	  <iselse>
+	    <isprint value="${itemsordered}" /> 
+	  </isif> 
+	 </span>
+	<img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" />		
+
+	<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+       
+       <isif condition="${shipment.productLineItems.size() > 0}">
+			
+			<table width="525" border="0" cellspacing="0" cellpadding="0">
+			
+			<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+         		
+         		<tr>
+         			<td width="118" align="center" valign="top">
+						<isif condition="${!empty(productLineItem.product.getImage('hi-res',0))}">
+                       		<isset name="image" value="${new ProductImage('order-detail', productLineItem.product, 0 )}" scope="page" />
+                       	<iselse>
+                       		<isset name="image" value="${null}" scope="page"/>
+                       	</isif>      
+                        <isif condition="${!empty(image)}"> 
+                           	<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" /> 
+                        <iselse> 
+                           	<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagesmall.png').http()}" scope="page" /> 
+                        </isif>
+						<img class="product-thumb" src="${thumbnailUrl}" alt="${productLineItem.productName}" width="60" />
+					</td>
+					
+					<td width="407" style="font-family:Arial,Helvetica,sans-serif;color:${color};font-size:13px;line-height:16px;text-align:left;">
+						<span style="letter-spacing:2px;line-height:30px;font-size:12px;padding-bottom:10px;display:block;">
+							<isif condition="${productLineItem.custom.associatedParentPosition != null }">
+                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}" />
+	                        <iselseif condition="${productLineItem.optionProductLineItems.size() > 0}">
+	                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+							<iselseif condition="${productLineItem.custom.engravingMessageLine1 !=null}">
+	                        	<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+	                        <iselse>
+								<isdisplayliproductemail p_productli="${productLineItem}" p_editable="${false}" p_hidsize="${true}"  p_hidepromo="${true}"/>
+							</isif>
+						</span><br /><br/>
+												
+						<iscomment> <isdisplayvariationvaluesemail product="${productLineItem.product}"/>  </iscomment>
+						
+						<isif condition="${productLineItem.product != null && productLineItem.product.isVariant()}">
+							<isloop items="${productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+								<isset name="SelectedVariationValue" value="${productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>
+								<span class="cSize" style="color:${color2};display:inline-block;margin-top:10px; padding-top:10px;">
+									<isif condition="${SelectedVariationValue != null}">
+										<isprint value="${SelectedVariationValue.displayValue}"/>
+										<span style="color:${color2};display:inline-block;margin:0 10px;">|</span>
+									</isif>
+								</span>
+							</isloop>
+						</isif>
+						
+						
+						<span style="display:inline-block;margin-top:3px;color:${color2};"><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" /> : <isprint value="${productLineItem.quantity}" /></span>
+						<span style="color:${color2};display:inline-block;margin:3px 10px; 0">|</span>
+						<isif condition="${productLineItem.bonusProductLineItem}">
+						  <span style="display:inline-block;margin-top:3px;color:${color2};">${Resource.msg('global.bonus','locale',null)}</span>
+					    <iselse>
+						<span style="display:inline-block;margin-top:3px;color:${color2};"><isset name="chilledprice" value="" scope="page" />				
+						<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.chilledDeliveryService }">
+								<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+									<isif condition="${oli.price > 0}"> 
+										<isif condition="${oli.price > oli.adjustedPrice}">
+										<isset name="chilledprice" value="${oli.adjustedPrice}" scope="page" />	
+										<iselse>
+										<isset name="chilledprice" value="${oli.price}" scope="page" />	
+										</isif>
+									</isif>
+								</isloop>
+						</isif>
+						   <isif condition="${setPriceZero == 'true'}" > 
+						    <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(0, currencyCode))}" />
+					        <iselse>
+						        <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(chilledprice+productLineItem.adjustedPrice, currencyCode))}" />
+						   </isif>
+						
+						</span>
+						</isif>
+					</td>
+				</tr>
+				
+				<tr>
+					<td colspan="2"><img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" /></td>
+				</tr>
+				
+				<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.engravingMessageLine1 !=null }">
+                	<tr>
+	                    <td colspan="2" style="background-color:#1b1923;border:1px solid #2B2637;padding:16px 12px;">
+	                        <span style="font-family:Arial,Helvetica,sans-serif;color:${color};letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;font-weight:bold;">
+	                        	<isprint value="${Resource.msg('global.personaliselabel','locale',null)}" /><br>
+	                        </span>
+	                        <span style="font-family:Arial,Helvetica,sans-serif;color:${color};letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;">
+	                        	<isprint value="${Resource.msg('global.personalisesublabel','locale',null)}" />
+	                        </span>
+	                        <span style="color:${color};font-family:Arial,Helvetica,sans-serif;display:inline-block;margin:0 5px;">
+                              <isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+                              	<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+                                	<isif condition="${oli.price > 0}"> 
+										<span style="color:${color};font-size:12px;font-family:Arial,Helvetica,sans-serif;display:inline-block;">
+                                        	<span style="display:inline-block;margin:0px 8px;">|</span> <isprint value="${oli.adjustedPrice}" />
+                                        </span>
+									</isif>
+                                 </isloop>
+                              </isif>
+                        	</span><br>
+                        	<span style="font-family:Arial,Helvetica,sans-serif;color:${color2};font-style:italic;letter-spacing:2px;line-height:30px;font-size:12px;margin-bottom:6px;display:block;">
+                     			<isprint value="${productLineItem.custom.engravingMessageLine1}" /> 
+                      		</span>
+                   		</td>
+              		</tr>
+              		<tr>
+                    	<td colspan="2"><img src="${URLUtils.staticURL('/css/'+brand+'/images/email-divider.png').http()}" width="525" height="34" /></td>
+               		</tr>
+            	</isif>	
+             
+			</isloop>
+			</table>
+		</isif>
+     
+       <table width="525" border="0" cellspacing="0" cellpadding="0">
+           <tr>
+		       <td width="118">&nbsp;</td>
+		       <td width="407">
+		            <isif condition="${Order.shipments.length > 1}">
+					<isemailordertotals
+						 p_lineitemctnr="${Order}" p_showshipmentinfo="${true}"
+						 p_shipmenteditable="${false}"
+						 p_totallabel="${Resource.msg('global.ordertotal','locale',null)}"
+			 />
+					<iselse>
+					<isemailordertotals
+						p_lineitemctnr="${Order}" p_showshipmentinfo="${false}"
+						p_shipmenteditable="${false}"
+						p_totallabel="${Resource.msg('global.ordertotal','locale',null)}"
+					/>
+				     </isif>
+		       </td>
+		   </tr>
+       </table>
+       
+	</isloop>
+	</isif>

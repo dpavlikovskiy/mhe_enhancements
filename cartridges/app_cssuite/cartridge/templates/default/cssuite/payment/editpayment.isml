@@ -1,0 +1,84 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<isinclude template="cssuite/utils/modules">
+
+<style>
+	.rowPad{
+		height:20px;
+		background: #eeeeee;
+	}
+</style>
+	
+	<form action="${URLUtils.httpsContinue()}" id="editPayment" onsubmit="return false;">
+		<!--- credit cards --->
+		<div id="method_CC" style="display:block;">
+			<table class="ui-dialoglistTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr class="ui-dialoglistTableHeader">
+				<td colspan="2">Credit Card</td>
+			</tr>
+			<isif condition="${!pdict.CurrentForms.csspayment.creditcards.newcreditcard.number.valid && !pdict.CurrentForms.csspayment.creditcards.newcreditcard.type.valid}">
+	        	<tr>
+	        		<td colspan="2">
+	          				<span class="warning">The card number does not match the card type you've defined.</span>
+	          			</td>
+				</tr>
+	           </isif>
+			<tr>
+				<isinputfield formfield="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.type}" type="select">
+			</tr>
+			<tr>
+				<isinputfield formfield="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.number}" p_dynamic="true" type="input" maxlength="16" size="17">
+			</tr>
+			<tr>
+				<td class="key">
+	           		<isif condition="${!pdict.CurrentForms.csspayment.creditcards.newcreditcard.year.valid || !pdict.CurrentForms.csspayment.creditcards.newcreditcard.month.valid}">
+	            		<span class="warning">${Resource.msg('cart.checkout_billing.024','cart',null)} ${Resource.msg('global.symbol.colon','cssuite',null)}</span>
+	            	<iselse>
+	            		<span>${Resource.msg('cssuite.billing.expirationdate','cssuite',null)} ${Resource.msg('global.symbol.colon','cssuite',null)}</span>
+	            	</isif>
+	          			<span class="required">${Resource.msg('global.symbol.asterisk','cssuite',null)}</span>
+	           		</span>
+	           	</td>
+	           	<td class="value">
+					<select class="selectbox month" name="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.month.htmlName}">
+					<isloop iterator="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.month.options}" alias="option">
+						<isif condition="${option.selected}">
+							<option label="${Resource.msg(option.label,'forms',null)}" value="${option.htmlValue}" selected="selected"><isprint value="${StringUtils.stringToHtml(Resource.msg(option.label,'forms',null))}" encoding="off"></option>
+						<iselse>
+							<option label="${Resource.msg(option.label,'forms',null)}" value="${option.htmlValue}"><isprint value="${StringUtils.stringToHtml(Resource.msg(option.label,'forms',null))}" encoding="off"></option>
+						</isif>
+					</isloop>
+					</select>
+					
+					<isselectyear css_class="selectbox year" formfield="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.year}">
+					
+					<isif condition="${!empty(pdict.CurrentForms.csspayment.creditcards.newcreditcard.month.error) || !empty(pdict.CurrentForms.csspayment.creditcards.newcreditcard.year.error)}">
+						<span class="errorcaption"><isprint value="${Resource.msg('cart.checkout_billing.028','cart',null)}"/></span>
+					</isif>
+	           	</td>
+			</tr>
+			<tr>
+				<isinputfield formfield="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.owner}" type="input" maxlength="40" size="40">
+			</tr>
+			<tr>
+				<isinputfield formfield="${pdict.CurrentForms.csspayment.creditcards.newcreditcard.cvn}" type="input" maxlength="5" size="5">
+			</tr>
+			<tr class="rowPad"><td colspan="2">&nbsp;</td></tr>
+			</table>
+			<script type="text/javascript">
+			<!--
+				Dialog.formDialog('Edit Payment', 
+					{
+						"Apply": function() { 
+							$(this).dialog("destroy");
+							Order.editPaymentInstrument('${pdict.CurrentForms.csspayment.creditcards.create.htmlName}');
+						},
+						"Cancel": function() { 
+							$(this).dialog("destroy");}
+					},
+					false, 'auto', 'auto'
+				);
+			//-->
+			</script>
+		</div>
+	</form>

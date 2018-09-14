@@ -1,0 +1,123 @@
+// =============================================================================
+// Typography
+// =============================================================================
+
+
+// Font weights ------------------------------------------------------------
+$light: 300;
+$regular: 400;
+$bold: 700;
+
+
+// Font variables ----------------------------------------------------------
+$base-font-family: sans-serif;
+$fixed-font-family: "futura-pt";
+$heading-font-family: "dearJoesmooth-Regular";
+$base-font-weight: $regular;
+$base-line-height: 1.5;
+$base-font-size: 16px; 
+$stand_first: 18px;
+$medium-font-size: 15px;
+$small_text: 14px;
+$small_heading: 13px;
+$very_small_text: 12px;
+$big_text: 20px;
+$center_align:center;
+
+
+// Heading styles ----------------------------------------------------------
+
+h1 {
+ 	line-height: 1.25;
+ 	letter-spacing:-1px;
+ 	&.secondary {
+ 		font-family: $fixed-font-family, $base-font-family;
+ 		font-size: 48px;
+ 		font-weight: $bold;
+ 		text-transform: uppercase;
+ 		letter-spacing: 4px;
+	}
+}
+h2 {
+ 	font-size: 72px;
+ 	line-height: 1.2;
+ 	letter-spacing:-1px;
+ 	&.secondary {
+ 		font-family: $fixed-font-family, $base-font-family;
+ 		font-size: 35px;
+ 		font-weight: $bold;
+ 		text-transform: uppercase;
+ 		letter-spacing: 3px;
+ 	}
+}
+h3 {
+ 	font-size:26px;
+ 	line-height: 1.5;
+ 	&.secondary {
+ 		font-family: $fixed-font-family, $base-font-family;
+ 		font-size: 18px;
+ 		font-weight: $bold;
+ 		text-transform: uppercase;
+ 		letter-spacing: 2px;
+ 		margin-bottom: 8px;
+ 	}
+}
+%text-shadow {
+	text-shadow: 1px 1px 1px $black;
+}
+
+
+// Body styles -------------------------------------------------------------
+p {
+	line-height: $base-line-height;
+	margin-bottom: 10px;
+}
+.small_text {
+	font-size: $small_text;
+}
+.standfirst {
+	font-size: $stand_first;
+	font-weight: $regular;
+	letter-spacing: 1px;
+}
+.uppercase {
+	text-transform: uppercase;
+	font-size: $small_heading;
+}
+.small_heading {
+	text-transform: uppercase;
+	font-size: $small_heading;
+	color: $lightergrey;
+}
+.error {
+	color: $error;
+	text-transform: uppercase;
+	font-weight: $bold;
+	font-size: $small_heading;
+}
+.strike{
+	position: relative;
+	&:before{
+		position: absolute;
+		content: "";
+		left: 0;
+		top: 50%;
+		right: 0;
+		border-top: 1px solid;
+		border-color: inherit;
+		-webkit-transform:rotate(-17deg);
+		-moz-transform:rotate(-17deg);
+		-ms-transform:rotate(-17deg);
+		-o-transform:rotate(-17deg);
+		transform:rotate(-17deg);
+	}
+}
+
+
+// Links -------------------------------------------------------------------
+strong{
+	font-weight:$bold;
+}
+.firstLetter{
+	text-transform:capitalize;
+}

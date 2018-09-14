@@ -1,0 +1,61 @@
+<!--- TEMPLATENAME: agegate.isml --->
+<isinclude template="util/modules"/>
+<isdecorate template="util/pt_empty">
+<div class="agegate_message">
+	<isif condition="${!empty(pdict.category)}">
+	<div class="logo_header">
+		<img src="${pdict.category.thumbnail.URL}" alt="${pdict.category.displayName}" class="logo" />
+	</div>
+	 </isif>
+		<iscontentasset aid="ca_agegate_message"/>
+	 	<div class="section-header">${Resource.msg('agegate.DOB','common',null)}</div>
+	<form action="${URLUtils.httpsContinue()}" method="post" id="agegate-form" name="${pdict.CurrentForms.agegate.htmlName}"> 
+		<div class="form-row date-header frAgeGate">
+			<isinputfield formfield="${pdict.CurrentForms.agegate.birthday}"  xhtmlclass="date-input of-legal-age" type="input" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.dateofbirth','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+			<button type="submit"  id="validageTest" class="button" value="${pdict.CurrentForms.agegate.login.htmlName}" name="${pdict.CurrentForms.agegate.login.htmlName}" >
+				<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+				<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+			</button>
+		</div>
+	</form> 
+</div>  
+
+</isdecorate>
+
+<script type="text/javascript">
+ /*$(document).ready(function(){
+
+	 app.validator.init();
+		
+	var cartformBtn = $("#validage");
+	var cartForm = $("#agegate-form");
+	cartformBtn.on("click", function(e) {
+
+		e.preventDefault();
+		var url = cartForm.attr("action");
+		var options = {
+			url: url,
+			data: cartForm.serialize(),
+			type: "POST"
+			
+		};
+		
+		//return false;
+		$.ajax(options).done(function(data){
+	
+			   if (data.success) {
+				   	app.dialog.close();
+				} else  {		
+					return false;
+				}
+		}); 	
+				//$("#deleteItem").html(data).parents(".ui-dialog").addClass("cartPrompts");
+				//app.validator.init();
+				//app.dialog.close();
+				
+			
+		
+	});
+ });	*/
+
+</script>

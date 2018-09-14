@@ -1,0 +1,149 @@
+<tr>
+	<td class="lic_quicktotals_contatiner left">
+		<!---  Set a counter for CSS row rendering --->
+		<isset name="counter" value="${1}" scope="page">
+
+		<table class="listTable" width="100%">
+	    	<tr class="listTableHeader">
+   				<td class="promotions_discounts_header" colspan="6">Promotions, Discounts and Coupons</td>
+   			</tr>
+   			<tr class="listTableHeaderLight">
+				<td colspan="2" class="price_adjustment coupon">
+					<span class="label">Apply Coupon:</span>
+					<span class="value"><input name="price_adjustment_coupon" type="text" value="" id="price_adjustment_coupon"/></span>
+					<span class="submit"><input type="image" value="OK" onclick="Order.addCoupon();" src="${URLUtils.staticURL('/cssuite/images/webdev/icontexto-webdev-ok-016x016.png')}"/></span>
+				</td>
+	            <td colspan="4" class="price_adjustment applyprice" width="100%">
+					<span class="label">Price Adjustment | </span>
+	            	&nbsp;
+	            	<span class="label">Reason:</span>
+	            	<span class="value"><input type="text" id="price_adjustment_callout_message" name="price_adjustment_callout_message" class="textbox_price_adjustmentreason"></textarea></span>
+  						&nbsp;
+  						<span class="label">Price:$</span>
+	            	<span class="value"><input type="text" value="" id="price_adjustment_value" name="price_adjustment_value" class="textbox_price_adjustmentvalue"/></span>
+	            	<span class="submit"><input type="image" value="OK" onclick="Order.addPriceAdjustment();" src="${URLUtils.staticURL('/cssuite/images/webdev/icontexto-webdev-ok-016x016.png')}"/></span>
+	            </td>
+			</tr>
+			<isloop iterator="${basket.priceAdjustments}" alias="pa">
+				<isif condition="${!pa.basedOnCoupon}">
+					<isset name="counter" value="${counter+1}" scope="page">
+					<tr class="${getRowClass(counter)}">
+			            <td class="column-icon-bullet">
+							<isif condition="${empty(pa.promotion)}">
+			                	<input type="image" value="Remove" onclick="Order.removePriceAdjustment_dlg('${pa.UUID}');" src="${URLUtils.staticURL('/cssuite/images/fam/cross.png')}"/>
+			                <iselse>
+			                	<img src="${URLUtils.staticURL('/cssuite/images/space.gif')}"/>
+			                </isif>
+			            </td>
+		        		<td class="ordercolumns promotion">Order Price Adjustment</td>
+		        		<td colspan="3" class="ordercolumns line-item-text" width="100%">${pa.lineItemText}</td>
+						<td class="ordercolumns price">
+							<span class="${pa.price.value < 0?'discount':'upcharge'}">
+								<isprint value="${pa.price}">
+							</span>
+						</td>
+					</tr>
+				</isif>
+			</isloop>
+
+			<isloop iterator="${basket.getCouponLineItems()}" alias="couponLineItem">
+				<isset name="counter" value="${counter+1}" scope="page">
+				<tr class="${getRowClass(counter)}">
+			        <td class="column-icon-bullet">
+			             <input type="image" value="Remove" onclick="Order.removeCoupon_dlg('${couponLineItem.couponCode}');" src="${URLUtils.staticURL('/cssuite/images/fam/cross.png')}"/>
+			        </td>
+	        		<td class="ordercolumns promotion">Coupon: ${couponLineItem.couponCode}</td>
+	        		<td colspan="3" class="ordercolumns line-item-text" width="100%">
+	        			${couponLineItem.promotion.calloutMsg}
+		       		</td>
+		       		<td class="ordercolumns price">
+	        		<isif condition="${!empty(couponLineItem.priceAdjustments)}">
+		        		<isloop iterator="${couponLineItem.priceAdjustments}" alias="pa" status="loopstatus">
+		        			<isif condition="${loopstatus.isFirst()}">
+										<span class="${pa.price.value < 0?'discount':'upcharge'}">
+											<isprint value="${pa.price}">
+										</span>
+									</td>
+						       	</tr>
+	        				<iselse>
+								<isset name="counter" value="${counter+1}" scope="page">
+								<tr class="${getRowClass(counter)}">
+							        <td class="column-icon-bullet">&nbsp;</td>
+					        		<td class="ordercolumns promotion">&nbsp;</td>
+					        		<td class="ordercolumns line-item-text" colspan="3">&nbsp;</td>
+						       		<td class="ordercolumns price">
+										<span class="${pa.price.value < 0?'discount':'upcharge'}">
+											<isprint value="${pa.price}">
+										</span>
+						       		</td>
+						       	</tr>
+	        				</isif>
+		        		</isloop>
+		        	<iselse>
+	        			<span class="coupon-not-applied">Coupon not applied.</span>
+							</td>
+				       	</tr>
+			        </isif>
+			</isloop>
+		</table>
+	</td>
+
+	<td class="lic_quicktotals_contatiner right">
+		<table class="lic_quicktotals_contatiner right table">
+
+			    <tr>
+		 	       <td class="quicktotals label">
+			            <span class="shippingtotal">Merchandize Total:</span>
+			        </td>
+			        <td class="quicktotals value">
+			            <span class="shippingtotal_value"><isprint value="${basket.merchandizeTotalPrice}"></span>
+			        </td>
+			    </tr>
+
+			    <tr>
+		 	       <td class="quicktotals label">
+			            <span class="shippingtotal">Shipping Total:</span>
+			        </td>
+			        <td class="quicktotals value">
+			            <span id="shippingpricetotal_edit">
+			            	<span class="shippingtotal_value"><isprint value="${basket.getAdjustedShippingTotalPrice()}"/></span>
+			            	<input type="image" value="Edit" onclick="_editfield('shippingpricetotal');" src="${URLUtils.staticURL('/cssuite/images/icon_plus_minus.png')}" />
+			            </span>
+						<span id="shippingpricetotal_span" style="display:none;">
+							<input type="text" value="${basket.getAdjustedShippingTotalPrice().value}" disabled="disabled" id="shippingpricetotal" />
+							<input type="image" value="Apply" onclick="Order.setShippingPrice();" src="${URLUtils.staticURL('/cssuite/images/fam/accept.png')}" />
+							<input type="image" value="Cancel" onclick="_hidefield('shippingpricetotal');document.getElementById('shippingpricetotal').value = ${basket.getAdjustedShippingTotalPrice().value};" src="${URLUtils.staticURL('/cssuite/images/fam/delete.png')}"/>
+						</span>
+			        </td>
+			    </tr>
+
+				<isloop iterator="${basket.priceAdjustments}" alias="pa">
+					<isset name="paClass" value="${pa.price.value < 0?'discount':'upcharge'}" scope="page">
+					<tr>
+		        		<td class="quicktotals label ${paClass}">${pa.price.value < 0?"Discount":"Upcharge"}:</td>
+						<td class="quicktotals value ${paClass}"><isprint value="${pa.price}"></td>
+					</tr>
+				</isloop>
+
+
+			    <tr>
+			        <td class="quicktotals label">
+			        	<span class="taxtotal">Tax Total:</span>
+			        </td>
+			        <td class="quicktotals value">
+			            <span class="taxtotal_value"><isprint value="${basket.totalTax}"></span>
+			        </td>
+			    </tr>
+
+			    <tr>
+			        <td class="quicktotals label">
+			        	<span class="order_total">Order Total:</span>
+			        </td>
+			        <td class="quicktotals value">
+		            <span class="order_total_value"><isprint value="${basket.totalGrossPrice}"></span>
+			        </td>
+			    </tr>
+		</table>
+
+	</td>
+</tr>

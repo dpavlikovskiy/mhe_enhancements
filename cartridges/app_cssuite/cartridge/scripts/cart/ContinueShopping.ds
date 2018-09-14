@@ -1,0 +1,32 @@
+/**
+* The script finds the last catalog click and returns it 
+* as the target for a redirect.
+*
+* @output Location : String
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+importPackage( dw.util );
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	// find the last catalog related click
+	var list : List = session.clickStream.clicks;
+	for( var i = list.size()-1; i >= 0; i-- )
+	{
+		var click : ClickStreamEntry = list[i];
+		switch( click.pipelineName )
+		{
+		case "Product-Show":
+		case "Search-Show":
+			// catalog related click, so return that last URL
+			pdict.Location = click.url;
+			return PIPELET_NEXT;			
+		}
+	}
+	
+	// nothing found, go to the home page
+	pdict.Location = URLUtils.url( "Default-Start" ).toString();
+    return PIPELET_NEXT;
+}

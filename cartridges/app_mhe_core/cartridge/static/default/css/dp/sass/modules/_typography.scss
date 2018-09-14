@@ -1,0 +1,67 @@
+.footer .footer-first .menu-footer{
+		text-align:left;
+		text-transform:uppercase;
+		letter-spacing:1px;
+ 	li{
+	font-size:$very_small_text;
+	}
+}
+.header {
+	header {
+		.menu-utility-user {
+			li {
+				font-size:$smaller_heading;
+				text-align:center;
+				.hidden-sub{
+					background-color: $bgbody;
+					border-left: 1px solid $brandBorder;
+					border-right: 1px solid $brandBorder;
+					border-bottom: 1px solid $brandBorder;
+					top:30px;
+					li {
+						text-align:left;
+						&.logout {
+							border-top: 1px solid $brandBorder;
+							a {
+								background-color: $nav_bg;
+							}
+						}
+						a {
+							color: $brandcolor;
+							&:hover {
+								color: $white;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	.header_right{
+		font-size:$smaller_heading;
+		.mini-cart {
+			margin-left: 15px;
+			position:relative;
+			border-left: 1px solid #333;
+		} 
+	}
+}
+.menu-category {
+	li {
+		font-size:$small_text;
+	}
+	.menu-wrapper{
+		width:384px;
+		margin-left:-192px;
+		background:url("img/icons/nav-hover-bg.png") repeat-x 0 0;
+		&:before{
+			content: '';
+		}
+		li{
+			width:50%;
+			a{
+				line-height:80px;
+			}
+		}
+	}
+}

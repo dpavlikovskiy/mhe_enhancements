@@ -1,0 +1,106 @@
+/**
+* This script provides a wrapper for Product Image API so transformation rules can be retrieved 
+* from preferences without having any effect on the actual code. That helps to easily adjust 
+* transformation settings and introduce new view types.
+*/
+importPackage ( dw.system );
+importPackage ( dw.web );
+var cvLogger : Logger = Logger.getLogger("DisImageSO.ds");
+
+/**
+* Initializes the ProductImage wrapper object
+*
+* @param viewType 		: String type of view (resolution) that should be generated (required) 
+* @param imageObject 	: Image Object is being send as argument
+*/
+function DisImage( viewType: String, imageObject : Object) : DisImage {
+
+	var thisObj = this;
+	//initialize the DIS config object from JSON
+	var disConfiguration : Object = null;
+	var disConfigurationJSON : String = dw.system.Site.getCurrent().getCustomPreferenceValue("disConfiguration");
+	if ( !empty( disConfigurationJSON ) ) {
+		disConfiguration = JSON.parse( disConfigurationJSON );
+	} else {
+		disConfiguration = {};
+	}
+
+	//init basic object attributes
+	// --> test image configuration
+	this.testImage = null;
+	// --> view type that should be rendered
+	this.viewType = viewType;
+		
+	// --> defines if the image needs to be scaled. That's not necessary if a product has an image for the given view type configured 
+	this.scaleImage = true;
+	
+	//check if test images should be used --> makes sense in cases where the product images haven't yet been configured
+	if ( disConfiguration.testImages && disConfiguration.testImages[viewType] ) {
+		this.testImage = disConfiguration.testImages[viewType];
+	}
+	this.transformationObj = ( empty(disConfiguration[viewType]) ) ? {} : disConfiguration[viewType];
+	
+		//the imageObject is assigned directly to the Image
+		this.image = imageObject;
+
+	// Check existence of the referenced image file.
+	if( disConfiguration.imageExistenceCheck ) {
+		if ( !empty(this.image) ) {
+			if ( !this.getMediaFile().exists() ) {
+				// Only log on non production instances.
+				if ( dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM ) {
+					cvLogger.error( "Image doesn´t exist: \"" + this.getMediaFile().path + "\". Image ID: \"" + imageObject ); 
+				}
+				this.image = null;
+			}
+		} else {
+			// Only log on non production instances.
+			if ( dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM ) {
+				cvLogger.error( "Image couldn´t be determined for Image ID: \"" + imageObject );
+			}
+			this.image = null;
+		}
+	}
+	/*************************************************************************************************
+	******************************** API Methods *****************************************************
+	*************************************************************************************************/
+
+	this.getURL = function(){
+		return this.getImageURL();
+	};
+	
+	this.getImageURL = function(){
+		if (empty(this.image)) {
+			if ( this.testImage ) {
+				var imageURL : URL = URLUtils.staticURL( URLUtils.CONTEXT_SITE, Site.current.ID, this.testImage); 
+				return imageURL;
+			}
+			if (this.viewType == 'swatch') {
+				return null;
+			} else {
+				return dw.web.URLUtils.staticURL('/images/noimage'+ this.viewType +'.png');
+			}
+		}
+		if ( this.scaleImage ) { 
+			return this.image.getImageURL(this.transformationObj);
+		} else {
+			return this.image.getURL();
+		}
+	};
+	
+	this.getAbsURL = function(){
+		if (empty(this.image)) {
+			if (this.viewType == 'swatch') {
+				return null;
+			} else {
+				return dw.web.URLUtils.absStatic('/images/noimage'+ this.viewType +'.png');
+			}
+		} 
+		if ( this.scaleImage ) { 
+			return this.image.getAbsImageURL(this.transformationObj);
+		} else {
+			return this.image.getAbsURL();
+		}
+	};
+
+}

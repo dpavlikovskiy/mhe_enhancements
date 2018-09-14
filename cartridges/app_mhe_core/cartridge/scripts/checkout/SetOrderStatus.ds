@@ -1,0 +1,52 @@
+/**
+* Set the order export status to EXPORT_STATUS_READY
+*
+* @input Order : dw.order.Order The order.
+* @input cardValidationStatus : String
+* @input billingForm : dw.web.FormGroup
+* @input replacementType : String
+*/
+importPackage( dw.order );
+
+/*Constant declaration*/
+var REJECT:String="REJECT";
+var CANCEL:String="CANCEL";
+var APPROVED:String="APPROVED";
+var REVIEW:String="REVIEW";
+var PENDING_RETURN:String="PENDING_RETURN";
+var PENDING_PAYMENT:String="PENDING_PAYMENT";
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // read pipeline dictionary input parameter
+    var paymentType :String= pdict.billingForm.paymentType.value;
+    var replacementProcess :String="";
+    if(paymentType=="replacement" ){
+      replacementProcess=pdict.billingForm.paymentMethods.replacement.process.value;
+    }
+    	 
+    var order : Order = pdict.Order;
+    var cardValidationStatus : String = pdict.cardValidationStatus;
+
+	if(!empty(cardValidationStatus) && cardValidationStatus.equalsIgnoreCase("REVIEW")){
+		order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+		order.custom.orderStatus = REVIEW;
+	}else if(replacementProcess =="No" ){
+		order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+		order.custom.orderStatus = PENDING_RETURN;
+	}else if(paymentType=="other"){
+		order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+		order.custom.orderStatus = PENDING_PAYMENT;
+	}else{
+		order.setExportStatus(Order.EXPORT_STATUS_READY);
+		order.custom.orderStatus = APPROVED;
+	}
+	
+	if(!empty(order.custom.orderStatus) && order.custom.orderStatus.equalsIgnoreCase("APPROVED")){
+        order.custom.cs_SettlementStatus="READY";
+    }
+
+
+   
+   	return PIPELET_NEXT;
+}

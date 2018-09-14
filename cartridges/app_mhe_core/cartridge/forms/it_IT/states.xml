@@ -1,0 +1,323 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="state" label="forms.province" type="string" mandatory="true" binding="stateCode" missing-error="forms.address.state.missing" value-error="forms.address.field.invalid">
+		<options>
+			
+			<option optionid="" 	label="forms.select" 		value=""/>
+				
+			
+			<option optionid="AG"	label="province.it.AG"	value="AG"/>
+			<option optionid="AL"	label="province.it.AL"	value="AL"/>
+			<option optionid="AN"	label="province.it.AN"	value="AN"/>
+			<option optionid="AO"	label="province.it.AO"	value="AO"/>
+			<option optionid="AQ"	label="province.it.AQ"	value="AQ"/>
+			<option optionid="AR"	label="province.it.AR"	value="AR"/>
+			<option optionid="AP"	label="province.it.AP"	value="AP"/>
+			<option optionid="AT"	label="province.it.AT"	value="AT"/>
+			<option optionid="AV"	label="province.it.AV"	value="AV"/>
+			<option optionid="BA"	label="province.it.BA"	value="BA"/>
+			<option optionid="BT"	label="province.it.BT"	value="BT"/>
+			<option optionid="BL"	label="province.it.BL"	value="BL"/>
+			<option optionid="BN"	label="province.it.BN"	value="BN"/>
+			<option optionid="BG"	label="province.it.BG"	value="BG"/>
+			<option optionid="BI"	label="province.it.BI"	value="BI"/>
+			<option optionid="BO"	label="province.it.BO"	value="BO"/>
+			<option optionid="BZ"	label="province.it.BZ"	value="BZ"/>
+			<option optionid="BS"	label="province.it.BS"	value="BS"/>
+			<option optionid="BR"	label="province.it.BR"	value="BR"/>
+			<option optionid="CA"	label="province.it.CA"	value="CA"/>
+			<option optionid="CL"	label="province.it.CL"	value="CL"/>
+			<option optionid="CB"	label="province.it.CB"	value="CB"/>
+			<option optionid="CI"	label="province.it.CI"	value="CI"/>
+			<option optionid="CE"	label="province.it.CE"	value="CE"/>
+			<option optionid="CT"	label="province.it.CT"	value="CT"/>
+			<option optionid="CZ"	label="province.it.CZ"	value="CZ"/>
+			<option optionid="CH"	label="province.it.CH"	value="CH"/>
+			<option optionid="CO"	label="province.it.CO"	value="CO"/>
+			<option optionid="CS"	label="province.it.CS"	value="CS"/>
+			<option optionid="CR"	label="province.it.CR"	value="CR"/>
+			<option optionid="KR"	label="province.it.KR"	value="KR"/>
+			<option optionid="CN"	label="province.it.CN"	value="CN"/>
+			<option optionid="EN"	label="province.it.EN"	value="EN"/>
+			<option optionid="FM"	label="province.it.FM"	value="FM"/>
+			<option optionid="FE"	label="province.it.FE"	value="FE"/>
+			<option optionid="FI"	label="province.it.FI"	value="FI"/>
+			<option optionid="FG"	label="province.it.FG"	value="FG"/>
+			<option optionid="FC"	label="province.it.FC"	value="FC"/>
+			<option optionid="FR"	label="province.it.FR"	value="FR"/>
+			<option optionid="GE"	label="province.it.GE"	value="GE"/>
+			<option optionid="GO"	label="province.it.GO"	value="GO"/>
+			<option optionid="GR"	label="province.it.GR"	value="GR"/>
+			<option optionid="IM"	label="province.it.IM"	value="IM"/>
+			<option optionid="IS"	label="province.it.IS"	value="IS"/>
+			<option optionid="SP"	label="province.it.SP"	value="SP"/>
+			<option optionid="LT"	label="province.it.LT"	value="LT"/>
+			<option optionid="LE"	label="province.it.LE"	value="LE"/>
+			<option optionid="LC"	label="province.it.LC"	value="LC"/>
+			<option optionid="LI"	label="province.it.LI"	value="LI"/>
+			<option optionid="LO"	label="province.it.LO"	value="LO"/>
+			<option optionid="LU"	label="province.it.LU"	value="LU"/>
+			<option optionid="MC"	label="province.it.MC"	value="MC"/>
+			<option optionid="MN"	label="province.it.MN"	value="MN"/>
+			<option optionid="MS"	label="province.it.MS"	value="MS"/>
+			<option optionid="MT"	label="province.it.MT"	value="MT"/>
+			<option optionid="VS"	label="province.it.VS"	value="VS"/>
+			<option optionid="ME"	label="province.it.ME"	value="ME"/>
+			<option optionid="MI"	label="province.it.MI"	value="MI"/>
+			<option optionid="MO"	label="province.it.MO"	value="MO"/>
+			<option optionid="MB"	label="province.it.MB"	value="MB"/>
+			<option optionid="NA"	label="province.it.NA"	value="NA"/>
+			<option optionid="NO"	label="province.it.NO"	value="NO"/>
+			<option optionid="NU"	label="province.it.NU"	value="NU"/>
+			<option optionid="OT"	label="province.it.OT"	value="OT"/>
+			<option optionid="OR"	label="province.it.OR"	value="OR"/>
+			<option optionid="PD"	label="province.it.PD"	value="PD"/>
+			<option optionid="PA"	label="province.it.PA"	value="PA"/>
+			<option optionid="PR"	label="province.it.PR"	value="PR"/>
+			<option optionid="PV"	label="province.it.PV"	value="PV"/>
+			<option optionid="PG"	label="province.it.PG"	value="PG"/>
+			<option optionid="PU"	label="province.it.PU"	value="PU"/>
+			<option optionid="PE"	label="province.it.PE"	value="PE"/>
+			<option optionid="PC"	label="province.it.PC"	value="PC"/>
+			<option optionid="PI"	label="province.it.PI"	value="PI"/>
+			<option optionid="PT"	label="province.it.PT"	value="PT"/>
+			<option optionid="PN"	label="province.it.PN"	value="PN"/>
+			<option optionid="PZ"	label="province.it.PZ"	value="PZ"/>
+			<option optionid="PO"	label="province.it.PO"	value="PO"/>
+			<option optionid="RG"	label="province.it.RG"	value="RG"/>
+			<option optionid="RA"	label="province.it.RA"	value="RA"/>
+			<option optionid="RC"	label="province.it.RC"	value="RC"/>
+			<option optionid="RE"	label="province.it.RE"	value="RE"/>
+			<option optionid="RI"	label="province.it.RI"	value="RI"/>
+			<option optionid="RN"	label="province.it.RN"	value="RN"/>
+			<option optionid="RM"	label="province.it.RM"	value="RM"/>
+			<option optionid="RO"	label="province.it.RO"	value="RO"/>
+			<option optionid="SA"	label="province.it.SA"	value="SA"/>
+			<option optionid="SS"	label="province.it.SS"	value="SS"/>
+			<option optionid="SV"	label="province.it.SV"	value="SV"/>
+			<option optionid="SI"	label="province.it.SI"	value="SI"/>
+			<option optionid="SR"	label="province.it.SR"	value="SR"/>
+			<option optionid="SO"	label="province.it.SO"	value="SO"/>
+			<option optionid="TA"	label="province.it.TA"	value="TA"/>
+			<option optionid="TE"	label="province.it.TE"	value="TE"/>
+			<option optionid="TR"	label="province.it.TR"	value="TR"/>
+			<option optionid="TO"	label="province.it.TO"	value="TO"/>
+			<option optionid="TP"	label="province.it.TP"	value="TP"/>
+			<option optionid="TN"	label="province.it.TN"	value="TN"/>
+			<option optionid="TV"	label="province.it.TV"	value="TV"/>
+			<option optionid="TS"	label="province.it.TS"	value="TS"/>
+			<option optionid="UD"	label="province.it.UD"	value="UD"/>
+			<option optionid="VA"	label="province.it.VA"	value="VA"/>
+			<option optionid="VE"	label="province.it.VE"	value="VE"/>
+			<option optionid="VB"	label="province.it.VB"	value="VB"/>
+			<option optionid="VC"	label="province.it.VC"	value="VC"/>
+			<option optionid="VR"	label="province.it.VR"	value="VR"/>
+			<option optionid="VV"	label="province.it.VV"	value="VV"/>
+			<option optionid="VI"	label="province.it.VI"	value="VI"/>
+			<option optionid="VT"	label="province.it.VT"	value="VT"/>
+
+
+			
+		</options>	
+	</field>
+	
+	
+	<field formid="stateUS" label="forms.state" type="string" mandatory="false" binding="stateCodeUS" missing-error="forms.address.state.missing" value-error="forms.address.field.invalid">
+		<options>
+			
+			<option optionid="" 	label="forms.select" 		value=""/>
+			
+			<!-- regular US states -->
+			<option optionid="AL" 	label="state.us.alabama" 		value="AL"/>
+			<option optionid="AK" 	label="state.us.alaska" 		value="AK"/>
+			<option optionid="AS" 	label="state.us.americansamoa" 	value="AS"/>
+			<option optionid="AZ" 	label="state.us.arizona" 		value="AZ"/>
+			<option optionid="AR" 	label="state.us.arkansas" 		value="AR"/>
+			<option optionid="CA" 	label="state.us.california" 	value="CA"/>
+			<option optionid="CO" 	label="state.us.colorado" 		value="CO"/>
+			<option optionid="CT" 	label="state.us.connecticut" 	value="CT"/>
+			<option optionid="DE" 	label="state.us.delaware" 		value="DE"/>
+			<option optionid="DC" 	label="state.us.dc" 			value="DC"/>
+			<option optionid="FL" 	label="state.us.florida" 		value="FL"/>
+			<option optionid="GA" 	label="state.us.georgia" 		value="GA"/>
+			<option optionid="GU" 	label="state.us.guam" 			value="GU"/>
+			<option optionid="HI" 	label="state.us.hawaii" 		value="HI"/>
+			<option optionid="ID" 	label="state.us.idaho" 			value="ID"/>
+			<option optionid="IL"	label="state.us.illinois" 		value="IL"/>
+			<option optionid="IN"	label="state.us.indiana" 		value="IN"/>
+			<option optionid="IA"	label="state.us.iowa" 			value="IA"/>
+			<option optionid="KS"	label="state.us.kansas" 		value="KS"/>
+			<option optionid="KY"	label="state.us.kentucky" 		value="KY"/>
+			<option optionid="LA"	label="state.us.louisiana" 		value="LA"/>
+			<option optionid="ME"	label="state.us.maine" 			value="ME"/>
+			<option optionid="MD"	label="state.us.maryland" 		value="MD"/>
+			<option optionid="MA"	label="state.us.massachusetts"	value="MA"/>
+			<option optionid="MI"	label="state.us.michigan" 		value="MI"/>
+			<option optionid="MN"	label="state.us.minnesota" 		value="MN"/>
+			<option optionid="MS"	label="state.us.mississippi" 	value="MS"/>
+			<option optionid="MO"	label="state.us.missouri" 		value="MO"/>
+			<option optionid="MT"	label="state.us.montana" 		value="MT"/>
+			<option optionid="NE"	label="state.us.nebraska" 		value="NE"/>
+			<option optionid="NV"	label="state.us.nevada" 		value="NV"/>
+			<option optionid="NH"	label="state.us.newhampshire" 	value="NH"/>
+			<option optionid="NJ"	label="state.us.newjersey" 		value="NJ"/>
+			<option optionid="NM"	label="state.us.newmexico" 		value="NM"/>
+			<option optionid="NY"	label="state.us.newyork" 		value="NY"/>
+			<option optionid="NC"	label="state.us.northcarolina" 	value="NC"/>
+			<option optionid="ND"	label="state.us.northdakota" 	value="ND"/>
+			<option optionid="OH"	label="state.us.ohio" 			value="OH"/>
+			<option optionid="OK"	label="state.us.oklahoma" 		value="OK"/>
+			<option optionid="OR"	label="state.us.oregon" 		value="OR"/>
+			<option optionid="PA"	label="state.us.pennsylvania" 	value="PA"/>
+			<option optionid="PR"	label="state.us.puertorico" 	value="PR"/>
+			<option optionid="RI"	label="state.us.rhodeisland" 	value="RI"/>
+			<option optionid="SC"	label="state.us.southcarolina" 	value="SC"/>
+			<option optionid="SD"	label="state.us.southdakota" 	value="SD"/>
+			<option optionid="TN" 	label="state.us.tennessee" 		value="TN"/>
+			<option optionid="TX" 	label="state.us.texas" 			value="TX"/>
+			<option optionid="UT" 	label="state.us.utah" 			value="UT"/>
+			<option optionid="VT" 	label="state.us.vermont" 		value="VT"/>
+			<option optionid="VI" 	label="state.us.virginislands"	value="VI"/>
+			<option optionid="VA" 	label="state.us.virginia" 		value="VA"/>
+			<option optionid="WA" 	label="state.us.washington" 	value="WA"/>
+			<option optionid="WV" 	label="state.us.westvirginia" 	value="WV"/>
+			<option optionid="WI" 	label="state.us.wisconsin" 		value="WI"/>
+			<option optionid="WY" 	label="state.us.wyoming" 		value="WY"/>
+
+			
+			<!-- APO/FPO -->
+			<option optionid="AE" 	label="state.us.armedforcesafrica" 		value="AE"/>
+			<option optionid="AA" 	label="state.us.armedforcesamerica" 	value="AA"/>
+			<option optionid="AE" 	label="state.us.armedforcescanada" 		value="AE"/>
+			<option optionid="AE" 	label="state.us.armedforceseurope" 		value="AE"/>
+			<option optionid="AE" 	label="state.us.armedforcesmiddleeast" 	value="AE"/>
+			<option optionid="AP" 	label="state.us.armedforcespacific" 	value="AP"/>	
+			
+		</options>	
+	</field>
+	
+	<field formid="stateCA" label="forms.province" type="string" mandatory="false" binding="stateCodeCA" missing-error="forms.address.state.missing" value-error="forms.address.field.invalid">
+		<options>
+			
+			<option optionid="" 	label="forms.select" 		value=""/>
+			
+			<!-- Canadian provinces and territories -->
+			
+			<option optionid="AB" 	label="state.ca.alberta" 				value="AB"/>
+			<option optionid="BC" 	label="state.ca.britishcolumbia" 		value="BC"/>
+			<option optionid="MB" 	label="state.ca.manitoba" 				value="MB"/>
+			<option optionid="NB" 	label="state.ca.newbrunswick" 			value="NB"/>
+			<option optionid="NL" 	label="state.ca.newfoundland" 			value="NL"/>
+			<option optionid="NT" 	label="state.ca.northwestterritories" 	value="NT"/>
+			<option optionid="NS" 	label="state.ca.novascotia" 			value="NS"/>
+			<option optionid="NU" 	label="state.ca.nunavut" 				value="NU"/>
+			<option optionid="ON" 	label="state.ca.ontario" 				value="ON"/>
+			<option optionid="PE" 	label="state.ca.princeedwardisland" 	value="PE"/>
+			<option optionid="QC" 	label="state.ca.quebec" 				value="QC"/>
+			<option optionid="SK" 	label="state.ca.saskatchewan" 			value="SK"/>
+			<option optionid="YT" 	label="state.ca.yukon" 					value="YT"/>
+			
+		</options>	
+	</field>
+	<field formid="stateUSCA" label="forms.stateprovince" type="string" mandatory="true" binding="stateCode" missing-error="forms.address.state.missing" value-error="forms.address.field.invalid">
+		<options>
+			
+			<option optionid="" 	label="forms.select" 		value=""/>
+			
+			<!-- regular US states -->
+			<option optionid="AL" 	label="state.us.alabama" 		value="AL"/>
+			<option optionid="AK" 	label="state.us.alaska" 		value="AK"/>
+			<option optionid="AS" 	label="state.us.americansamoa" 	value="AS"/>
+			<option optionid="AZ" 	label="state.us.arizona" 		value="AZ"/>
+			<option optionid="AR" 	label="state.us.arkansas" 		value="AR"/>
+			<option optionid="CA" 	label="state.us.california" 	value="CA"/>
+			<option optionid="CO" 	label="state.us.colorado" 		value="CO"/>
+			<option optionid="CT" 	label="state.us.connecticut" 	value="CT"/>
+			<option optionid="DE" 	label="state.us.delaware" 		value="DE"/>
+			<option optionid="DC" 	label="state.us.dc" 			value="DC"/>
+			<option optionid="FL" 	label="state.us.florida" 		value="FL"/>
+			<option optionid="GA" 	label="state.us.georgia" 		value="GA"/>
+			<option optionid="GU" 	label="state.us.guam" 			value="GU"/>
+			<option optionid="HI" 	label="state.us.hawaii" 		value="HI"/>
+			<option optionid="ID" 	label="state.us.idaho" 			value="ID"/>
+			<option optionid="IL"	label="state.us.illinois" 		value="IL"/>
+			<option optionid="IN"	label="state.us.indiana" 		value="IN"/>
+			<option optionid="IA"	label="state.us.iowa" 			value="IA"/>
+			<option optionid="KS"	label="state.us.kansas" 		value="KS"/>
+			<option optionid="KY"	label="state.us.kentucky" 		value="KY"/>
+			<option optionid="LA"	label="state.us.louisiana" 		value="LA"/>
+			<option optionid="ME"	label="state.us.maine" 			value="ME"/>
+			<option optionid="MD"	label="state.us.maryland" 		value="MD"/>
+			<option optionid="MA"	label="state.us.massachusetts"	value="MA"/>
+			<option optionid="MI"	label="state.us.michigan" 		value="MI"/>
+			<option optionid="MN"	label="state.us.minnesota" 		value="MN"/>
+			<option optionid="MS"	label="state.us.mississippi" 	value="MS"/>
+			<option optionid="MO"	label="state.us.missouri" 		value="MO"/>
+			<option optionid="MT"	label="state.us.montana" 		value="MT"/>
+			<option optionid="NE"	label="state.us.nebraska" 		value="NE"/>
+			<option optionid="NV"	label="state.us.nevada" 		value="NV"/>
+			<option optionid="NH"	label="state.us.newhampshire" 	value="NH"/>
+			<option optionid="NJ"	label="state.us.newjersey" 		value="NJ"/>
+			<option optionid="NM"	label="state.us.newmexico" 		value="NM"/>
+			<option optionid="NY"	label="state.us.newyork" 		value="NY"/>
+			<option optionid="NC"	label="state.us.northcarolina" 	value="NC"/>
+			<option optionid="ND"	label="state.us.northdakota" 	value="ND"/>
+			<option optionid="OH"	label="state.us.ohio" 			value="OH"/>
+			<option optionid="OK"	label="state.us.oklahoma" 		value="OK"/>
+			<option optionid="OR"	label="state.us.oregon" 		value="OR"/>
+			<option optionid="PA"	label="state.us.pennsylvania" 	value="PA"/>
+			<option optionid="PR"	label="state.us.puertorico" 	value="PR"/>
+			<option optionid="RI"	label="state.us.rhodeisland" 	value="RI"/>
+			<option optionid="SC"	label="state.us.southcarolina" 	value="SC"/>
+			<option optionid="SD"	label="state.us.southdakota" 	value="SD"/>
+			<option optionid="TN" 	label="state.us.tennessee" 		value="TN"/>
+			<option optionid="TX" 	label="state.us.texas" 			value="TX"/>
+			<option optionid="UT" 	label="state.us.utah" 			value="UT"/>
+			<option optionid="VT" 	label="state.us.vermont" 		value="VT"/>
+			<option optionid="VI" 	label="state.us.virginislands"	value="VI"/>
+			<option optionid="VA" 	label="state.us.virginia" 		value="VA"/>
+			<option optionid="WA" 	label="state.us.washington" 	value="WA"/>
+			<option optionid="WV" 	label="state.us.westvirginia" 	value="WV"/>
+			<option optionid="WI" 	label="state.us.wisconsin" 		value="WI"/>
+			<option optionid="WY" 	label="state.us.wyoming" 		value="WY"/>
+
+			
+			<!-- APO/FPO -->
+			<option optionid="AE" 	label="state.us.armedforcesafrica" 		value="AE"/>
+			<option optionid="AA" 	label="state.us.armedforcesamerica" 	value="AA"/>
+			<option optionid="AE" 	label="state.us.armedforcescanada" 		value="AE"/>
+			<option optionid="AE" 	label="state.us.armedforceseurope" 		value="AE"/>
+			<option optionid="AE" 	label="state.us.armedforcesmiddleeast" 	value="AE"/>
+			<option optionid="AP" 	label="state.us.armedforcespacific" 	value="AP"/>
+			
+			<!-- Canadian provinces and territories -->
+			<option optionid="AB" 	label="state.ca.alberta" 				value="AB"/>
+			<option optionid="BC" 	label="state.ca.britishcolumbia" 		value="BC"/>
+			<option optionid="MB" 	label="state.ca.manitoba" 				value="MB"/>
+			<option optionid="NB" 	label="state.ca.newbrunswick" 			value="NB"/>
+			<option optionid="NL" 	label="state.ca.newfoundland" 			value="NL"/>
+			<option optionid="NT" 	label="state.ca.northwestterritories" 	value="NT"/>
+			<option optionid="NS" 	label="state.ca.novascotia" 			value="NS"/>
+			<option optionid="NU" 	label="state.ca.nunavut" 				value="NU"/>
+			<option optionid="ON" 	label="state.ca.ontario" 				value="ON"/>
+			<option optionid="PE" 	label="state.ca.princeedwardisland" 	value="PE"/>
+			<option optionid="QC" 	label="state.ca.quebec" 				value="QC"/>
+			<option optionid="SK" 	label="state.ca.saskatchewan" 			value="SK"/>
+			<option optionid="YT" 	label="state.ca.yukon" 					value="YT"/>
+			
+			<!-- Other -->
+			<option optionid="OTHER" label="state.us.other" 				value="OTHER"/>
+			
+		</options>	
+	</field>
+	<field formid="stateDE" label="forms.state.other" type="string" mandatory="false" binding="stateCodeDE" missing-error="forms.address.state.missing" value-error="forms.address.field.invalid">
+		<options>
+			
+			<option optionid="" 	label="forms.select" 		value=""/>					
+			
+			<!-- Other -->
+			<option optionid="OTHER" label="state.us.other" 				value="OTHER"/>
+		</options>	
+	</field>
+	
+</form>

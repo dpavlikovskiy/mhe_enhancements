@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+  <type-extension type-id="OrganizationPreferences">
+    <custom-attribute-definitions>
+      <attribute-definition attribute-id="fileExchangeURL">
+        <display-name xml:lang="x-default">Base URL</display-name>
+        <description xml:lang="x-default">Base URL for file exchange</description>
+        <type>string</type>
+        <mandatory-flag>false</mandatory-flag>
+      </attribute-definition>
+      <attribute-definition attribute-id="fileExchangeUser">
+        <display-name xml:lang="x-default">User</display-name>
+        <description xml:lang="x-default">User name</description>
+        <type>string</type>
+        <mandatory-flag>false</mandatory-flag>
+      </attribute-definition>
+      <attribute-definition attribute-id="fileExchangePassword">
+        <display-name xml:lang="x-default">Password</display-name>
+        <description xml:lang="x-default">Password</description>
+        <type>string</type>
+        <mandatory-flag>false</mandatory-flag>
+      </attribute-definition>
+    </custom-attribute-definitions>
+    <group-definitions>
+      <attribute-group group-id="FileExchange">
+        <display-name xml:lang="x-default">FileExchange</display-name>
+        <display-name xml:lang="de-DE">FileExchange</display-name>
+        <attribute attribute-id="fileExchangeURL"/>
+        <attribute attribute-id="fileExchangeUser"/>
+        <attribute attribute-id="fileExchangePassword"/>
+      </attribute-group>
+    </group-definitions>
+  </type-extension>
+</metadata>

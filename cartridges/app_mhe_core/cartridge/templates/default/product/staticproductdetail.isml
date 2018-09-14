@@ -1,0 +1,22 @@
+<!--- TEMPLATENAME: staticproductdetail.isml --->
+<isset name="isQuickView" value="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || (pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist' && empty(pdict.CurrentHttpParameterMap.format))}" scope="page"/>
+<isset name="isDiscontinued" value="${pdict.Product.custom.discontinued}" scope="pdict"/>
+<isscript>  
+		importScript( "product/ProductUtils.ds" );					
+		var badgeValidity : Boolean = ProductUtils.displayBadge(pdict.Product); 
+</isscript>
+<isset name="isComingSoon" value="${(pdict.Product.custom.badge=='ComingSoon' && badgeValidity)?true:false}" scope="pdict"/>
+
+<isobject object="${pdict.Product}" view="detail">
+	<div id="pdpMain" class="container-pdp"  itemscope itemtype="http://schema.org/Product">				
+		<iscomment>Image and variation options are part of the include template</iscomment>
+						
+	
+		<isif condition="${pdict.Product.productSet || pdict.Product.bundle}">
+			<isinclude template="product/staticproducttopcontentPS" />
+		<iselse>
+			<isinclude template="product/staticproducttopcontent" />
+		</isif>
+		
+	</div><!--/pdpMain -->
+</isobject>

@@ -1,0 +1,113 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	var noParam = empty(pdict.CurrentHttpParameterMap.cgid.value) && empty(pdict.CurrentHttpParameterMap.cid.value)
+		&& empty(pdict.CurrentHttpParameterMap.fdid.value) && empty(pdict.CurrentHttpParameterMap.pmax.value)
+		&& empty(pdict.CurrentHttpParameterMap.pmin.value) && empty(pdict.CurrentHttpParameterMap.pid.value)
+		&& empty(pdict.CurrentHttpParameterMap.q.value);
+	if (noParam) {
+		var isAllProduct = 1;
+	} else {
+		var isAllProduct = 0;
+		var result = pdict.ProductSearchResult.getProducts();
+		var resultSize = pdict.ProductSearchResult.count;
+	}
+
+	var results = pdict.CurrentHttpParameterMap.results.intValue;
+</isscript>
+
+<div id="msg_container">
+	<span id="msg">${resultSize != '1' ? resultSize + ' matches found. ' : '1 match found. '}
+	${resultSize > results ? results + ' matches displayed.' : ''}
+	</span>
+</div><!-- END: msg_container -->
+
+<div class="producthits">
+	<h3>Refine</h3>
+	<table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tbody>
+			<tr>
+				<td class="refineNav_cell">
+					<div id="refineNav">
+						<isif condition="${isAllProduct == 0}">
+							<isinclude template="cssuite/product/refinements.isml">
+						<iselse>
+							<isinclude template="cssuite/product/listallcategories.isml">
+						</isif>
+					</div>
+			</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="searchresults">
+		<div class="searchresults_header">
+			<table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+				<thead>
+					<tr class="listTableHeaderLight">
+						<td>&nbsp;</td>
+						<td class="listTableHeaderCell" >id</td>
+						<td width="90%" class="listTableHeaderCell">Name</td>
+						<td class="listTableHeaderCell">&nbsp;</td>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="searchresults_content">
+			<table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tbody>
+					<isloop iterator="${result}" alias="product" status="loopstatus">
+						<isif condition="${loopstatus.count > results}">
+							<isbreak>
+						</isif>
+
+						<isscript>
+							var productName 		= product.getName();
+							var productPrice 		= product.priceModel.getPrice();
+							var productInventory 	= "Default In-Stock";
+							try {
+								if (!empty(product.availabilityModel) && !empty(product.availabilityModel.inventoryRecord) ) {
+									var productInventory = StringUtils.formatNumber(product.availabilityModel.inventoryRecord.allocation.value, '#');
+								}
+							} catch(e) {
+							}
+							var productCategory = "No category";
+							if (!empty(product.primaryCategory)) {
+								var productCategory = product.primaryCategory.displayName;
+							}
+
+						</isscript>
+
+						<tr class="${getRowClass(loopstatus)}" ondblclick="Order.addProduct('${product.getID()}');"
+								onclick="show_product_tooltip('${escape(productName)}', '${productCategory}', '${productPrice}', '${productInventory}')" >
+
+							<td class="listTableCell">
+							<img src="${URLUtils.staticURL('/cssuite/images/fam/package.png')}" alt="more info...">
+							</td>
+
+							<td class="listTableCell">
+							${product.getID()}
+							</td>
+
+							<td nowrap class="listTableCell">
+							${truncate(product.getName(),30)}
+							</td>
+
+							<td class="listTableCell">
+								<div style="cursor: pointer;">
+								<img src="${URLUtils.staticURL('/cssuite/images/fam/arrow_right.png')}" onclick="Order.addProduct('${product.getID()}');">
+								</div>
+							</td>
+						</tr>
+					</isloop>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div> <!-- producthits -->
+
+<div id="product_tooltip">
+</div>
+
+
+

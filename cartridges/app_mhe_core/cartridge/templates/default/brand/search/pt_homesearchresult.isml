@@ -1,0 +1,19 @@
+<body class="plp">
+
+	<div id="wrapper" class="pt_product-search-result">
+	
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		
+		<div id="main" role="main" class="clearfix main">
+			<isinclude template="components/browsertoolscheck"/>
+			<div id="primary" class="products-container primary-content">
+				<isreplace/>
+			</div>		
+		</div>
+		
+		<isinclude template="components/footer/footer"/>
+		<isinclude template="search/pt_productsearchresult_UI"/>
+		<isinclude template="search/pt_productsearchresult_VARS"/>		
+	</div>
+</body>
+</html>

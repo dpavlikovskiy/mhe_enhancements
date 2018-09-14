@@ -1,0 +1,51 @@
+<iscache type="relative" hour="24"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link href="${URLUtils.staticURL('/css/pdf.css')}" type="text/css" rel="stylesheet" />
+</head>
+<body>	
+	
+	<h1 class="productname"><isprint value="${pdict.Product.name}"/></h1>	
+	<isif condition="${! empty(pdict.Product.shortDescription)}"><h2>Description</h2><p>${pdict.Product.shortDescription}</p></isif>
+	<isif condition="${! empty(pdict.Product.longDescription)}"><h2>Details</h2><p>${pdict.Product.longDescription}</p></isif>
+	
+						
+						
+	<isset name="pam" value="${pdict.Product.getAttributeModel()}" scope="page"/>
+	<isset name="group" value="${pam.getAttributeGroup('mainAttributes')}" scope="page"/>
+	
+	<isloop items="${pam.getVisibleAttributeDefinitions(group)}" var="Definition" status="loopstate1">
+	<div class="attribute">
+		<span class="label"><isprint value="${Definition.getDisplayName()}"/>: </span>
+		<span class="value"><isprint value="${pam.getDisplayValue(Definition)}"/></span>
+	</div>
+	</isloop>		
+
+	<isset name="PriceModel" value="${pdict.Product.getPriceModel()}" scope="page"/>
+	<isset name="StandardPrice" value="${PriceModel.getPriceBookPrice('list-prices')}" scope="page"/>
+	<isset name="SalesPrice" value="${PriceModel.getPrice()}" scope="page"/>
+	
+	<h2>Our Price</h2>
+	<isinclude template="product/components/pricing"/>
+			
+	<img src="${pdict.Product.getImage('large',0).httpURL}"/>
+	
+	<isif condition="${pdict.Product.master}">
+	<div class="availablein">
+		<strong>Available in</strong>
+		
+		<isloop items="${pdict.Product.variationModel.productVariationAttributes}" var="VA" status="loopstatus0">
+			<table>
+			<tr>					
+			<td class="vahead"><isprint value="${VA.getAttributeID()}"/></td>
+			<isloop items="${pdict.Product.variationModel.getAllValues(VA)}" var="VV" status="loopstatus1">
+				<td class="${VA.getAttributeID()}"><isprint value="${VV.displayValue}"/></td>
+			</isloop>
+			</tr>
+			</table>
+		</isloop>
+				
+	</isif>
+</body>
+</html>

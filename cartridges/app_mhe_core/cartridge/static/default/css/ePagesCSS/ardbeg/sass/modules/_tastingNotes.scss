@@ -1,0 +1,78 @@
+.pdp-section-tabs {
+	background: $eModulesBgSecondary;
+	.tab {
+		a {
+			color: $white;
+			font: $smallFontSize $titleFont;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $brandColor;
+				border-bottom: $brandColor 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+			.col-hero {
+				.col-inner {
+					img {
+						margin-bottom: 0;
+					}
+					p.credit {
+						padding-bottom: 20px;
+					}
+				}
+			}
+		}
+		h2 {
+			color: $brandColor;
+			font: $largeFontSize $regularFont;
+			letter-spacing: 1px;
+			margin:40px 0;
+		}
+		h3 {
+			color: $brandColor;
+			font: $largeFontSize $titleFont;
+		}
+		.gamma-heading {
+			color: $brandColor;
+			font: $baseFont $titleFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:10px;
+		}
+		p {
+			color: $white;
+			font:Italic $mediumFontSize $regularFont;
+		}
+		p.credit {
+			padding-bottom: 20px !important;
+		}
+		&.characteristics {
+			p {
+				color: $white;
+				font:Italic $mediumFontSize $regularFont;
+			}
+		}
+		&.awards {
+			p {
+				color: $white;
+				font:Italic $mediumFontSize $regularFont;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $brandColor;
+			}
+			&:after {
+				color: $brandColor;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

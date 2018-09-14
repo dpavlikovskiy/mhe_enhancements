@@ -1,0 +1,409 @@
+
+.pt_checkout{
+	.ddmm{
+		.form-label-text {
+		    float:left;
+		    width: 240px;
+		    text-align:right;
+		    margin:0 10px 0 0;
+		    line-height:30px;
+		}
+		.sContainer{
+			display: inline-block;
+			.form-row{
+				display: inline-block;
+			    margin:0;
+			    width: 150px;
+			    .error {
+			    	width:148px;
+			    	&.form-caption{
+			    		width:300px;
+			    		margin-left:0;
+			    	}
+			    }
+			    &:after {
+			    	right:42px;
+			    }
+				span.selectHolder, select{
+					width:80px !important;
+					background-position:right -330px;
+				}
+				&.label-removed{
+					&.error{
+						border:0;
+						background:none;
+						padding:0;
+						&:before{
+							border:0;
+							background:none;
+						}
+						.form-caption {
+							margin-left:0;
+						}
+					}
+				}
+			}
+		}
+	}
+	.select-address,
+	.seperateBox{
+		.form-row{
+			label{
+				line-height:30px;
+			}
+		}
+	}
+	.acceptTerms{
+		color: $lightgrey;
+	    font-size:$small_text;
+	    letter-spacing:0;
+	    text-align: right;
+	    text-transform: none;
+	    padding:20px 0 0;
+		input[type="checkbox"] {
+		    &  + label span{
+		    	margin:0 8px 0 0;
+		    	vertical-align:middle;
+		    }
+		}
+		.form-row{
+			display:inline;
+			width:auto;
+			float:none;
+			label {
+				margin: 0;
+				float: none;
+				span{
+					margin: 0;
+				}
+			}
+		}
+		.error{
+			margin:10px 0 0;
+		}
+	}
+	.form-row{
+		font-size:$small_heading;
+		float:left;
+		width:550px;
+		input{
+			text-align:left;
+		}
+		input[type="text"], select{
+			letter-spacing:1px;
+			text-transform: none;
+		}
+		input[type="text"], input[type="password"]{
+			padding:0 8px;
+		}
+		input[type="text"] {
+			&.datepicker-display, &.datepicker {
+				padding:0;
+				border-style:none;
+			}
+		}
+		label{
+			float:left;
+			width:240px;
+			text-align:right;
+			margin:0 10px 0 0;
+			line-height: 30px;
+		}
+		input[type="checkbox"] {
+		    &  + label span{
+		    	margin:0 8px 0 0;
+		    	vertical-align:middle;
+		    }
+		}
+		&.required{
+			label{
+				line-height:30px;
+			}
+		}
+		&.hasAsset{
+			.content-asset{
+				float:left;
+				color:$lightergrey;
+				width:300px;
+				p{
+					margin:0;
+				}
+			}
+		}
+		&.radioBox, &.checkBox, &.payPal{
+			padding:0 0 0 250px;
+			width:auto;
+			float:none;
+			clear:both;
+			&:after{
+				display:none;
+			}
+			label{
+				text-align:left;
+				width:auto;
+				float:none;
+			}
+			&.rightSpace{
+				margin-right:150px;
+				label{
+					line-height:24px;
+					color:$white; 
+				}
+			}
+			.form-caption{
+				padding:0 0 0 33px;
+				font-size:10px;
+				line-height:14px;
+				display:block !important;
+			}
+		}
+		.error-tooltip, .error{
+			margin-left: 250px;
+			width:300px;
+			text-align:left;
+		}
+		&.error{
+			input{
+				border:1px solid $strongred;
+			}
+			.error{
+				&:before {
+					left:16px;
+				}
+			}
+		}
+		textarea{
+			width:300px;
+			height:100px;
+			font-size:12px;
+			letter-spacing: 1px;
+    		text-transform: none;
+    		padding:8px;
+		}
+		&.checkCount{
+			.char-count{
+				display: block;
+			    margin: 7px 0 0 252px;
+			    text-align: right;
+			    width: 300px;
+			}
+		}
+		&.cvn{
+			clear:both;
+			width:330px;
+			text-transform:uppercase;
+			.showPass{
+				display:none;
+			}
+			input{
+				width:80px;
+			}
+			&.form-row-error{
+				width:330px;
+			}
+		}
+		.optional{
+			font-size:11px;
+			display:block;
+			margin: 5px 0 0 0;
+		}
+		&.form-row-valid, &.form-row-error{
+			margin:0 35px 20px 0;
+		}
+		&.form-row-error{
+			width:550px;
+			&.radioBox {
+				width:auto !important;
+				&.active {
+					.datepicker-cnt .error {
+						display:inline-block !important;
+					}
+				}
+			}
+			.error {
+				text-align:left;
+			}
+			.datepicker-cnt .error{
+				display: none !important;
+			}
+		}
+		&.plainText{
+			line-height:30px;
+			width:auto;
+			clear:both;
+			.form-row{
+				margin:0 0 5px;
+			}
+		}
+		&.companyName{
+			&.required{
+				.optional{
+					display:none;
+				}
+			}
+		}
+		&.hideOptionalText{
+			.optional{
+				visibility:hidden;
+			}
+		}
+		.js-calendar{
+			.error{
+				margin-left:0;
+				display:none !important;
+				font-family:$fixed-font-family;
+			}
+		}
+	}
+	.absLabel{
+		position: absolute;
+	    text-align: right;
+	    width: 240px;
+	    line-height: 30px;
+	}
+	.sbHolder{
+		background:$black;
+	    border: 1px solid $darkgrey;
+	    display: inline-block;
+	    line-height:30px;
+	    width: 300px;
+	    font-size:$small_heading;
+	    position:relative;
+	    letter-spacing:0;
+	    z-index:99;
+	    .sbSelector{
+	    	display: block;
+		    line-height: 30px;
+		    padding: 0 0 0 5px;
+		    background-position:270px -49px;
+	    }
+	    .sbOptions {
+	    	background:$black;
+		    border: 1px solid $darkgrey;
+		    color: $darkgrey;
+		    left: -1px;
+		    padding: 10px;
+		    position: absolute;
+		    width: 300px;
+		}
+	}
+	.form-field-tooltip{
+		&.cvn-tip, &.cvn-tip-error{
+	    	.hiddenCVV{
+	    		@include opacity(0);
+	    		visibility:hidden;
+	    		width:0;
+	    		float:left;
+	    	}
+	    	.shwoCVV{
+	    		@include opacity(1);
+	    		visibility:visible;
+	    	}
+	    }
+	}
+	.form-field-tooltip{
+		float:left;
+		margin:5px 0 0 10px;
+		position:relative;
+		right:auto;
+		left:auto;
+		top:auto;
+		.tooltip{
+			position:relative;
+			display:inline-block;
+			.ptIcon{
+				width:20px;
+				height:20px;
+				background-position:-20px -440px;
+				display:inline-block;
+				cursor:pointer;
+			}
+			.tooltip-content{
+				position:absolute;
+				width:380px;
+				max-width: 380px;
+				top: 11px;
+				z-index:150;
+				text-align:left;
+				left:35px;
+				@include opacity(0);
+				visibility:hidden;
+				text-transform: none;
+				font-size:$small_text;
+				line-height:18px;
+				color:$lightergrey;
+				letter-spacing: 0;
+				&:before{
+					border-top:0;
+					border-bottom: 1px solid $mediumpurple;
+				    left: 0;
+				    top: 50%;
+				    margin-top:-7px;
+				}
+				> img{
+					width:75px;
+					height:auto;
+					float:left;
+					margin:0;
+				}
+				h4{
+					font: bold 13px futura-pt;
+				    letter-spacing: 2px;
+				    margin:0 0 0 85px;
+				    text-transform: uppercase;
+				}
+				p{
+					font-size: $small_text;
+				    line-height: 1.25em;
+				    margin: 0 0 0 85px;
+				    word-spacing: 1px;
+				}
+			}
+			&:hover{
+				.ptIcon{
+					background-position:0px -440px;
+				}
+				.tooltip-content{
+					@include opacity(1);
+					visibility:visible;
+				}
+			}
+		}
+	}
+	.selector {
+		display:block;
+		span.selectHolder{
+			padding:0 28px 0 8px;
+			letter-spacing:1px;
+			background-position: right -330px;
+			text-transform: none;
+			text-align: left;
+		}
+	}
+}
+
+.pt_checkout .form-row.form-row-error.radioBox.active .datepicker-cnt .error{
+	font-family: futura-pt, sans-serif;
+	margin-left: 0;
+}
+
+// IE8 -----------------------------------------------------------------
+.ie8{
+	.pt_checkout{
+		.form-row{
+			&.radioBox, &.checkBox{
+				.form-caption{
+					padding:0 0 0 17px;
+				}
+			}
+			&.payPal{
+				margin-top:-20px;
+			}
+		}
+		input[type="radio"] {
+		    visibility:visible;
+		    position:relative;
+		}
+	}
+}
+

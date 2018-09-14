@@ -1,0 +1,33 @@
+<!--- TEMPLATENAME: staticproduct.isml --->
+<iscomment>
+	Renders product detail page both quickview and normal view.
+	If the product is a product set or bundle, then it also includes subproduct template to 
+	render sub product details.
+</iscomment>
+
+<isset name="DecoratorTemplate" value="product/pt_staticofferPDP" scope="page"/>
+
+<isif condition="${'pagetype' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.pagetype == Resource.msg('pagename.heroPage','components',null) }">
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+</isif>
+
+<iscomment>pwr = power review write</iscomment>
+<isif condition="${pdict.CurrentHttpParameterMap.format.stringValue == 'ajax' || pdict.CurrentHttpParameterMap.pwr.stringValue == 'true' || pdict.CurrentHttpParameterMap.source.stringValue == 'search' || pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist' }">
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+</isif>
+
+<isdecorate template="${DecoratorTemplate}">
+<isif condition="${pdict.CurrentSession.userName.equalsIgnoreCase('storefront')}">
+	<isif condition="${'pagetype' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.pagetype == Resource.msg('pagename.heroPage','components',null)}">
+		<isinclude url="${URLUtils.url('Product-StaticDetail', 'pid', pdict.Product.ID, 'source', pdict.CurrentHttpParameterMap.source.stringValue,'pagetype',pdict.CurrentHttpParameterMap.pagetype)}"/>
+	<iselse>
+		<isinclude url="${URLUtils.url('Product-StaticDetail', 'pid', pdict.Product.ID, 'source', pdict.CurrentHttpParameterMap.source.stringValue)}"/>
+	</isif>
+<iselse>
+	<isif condition="${'pagetype' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.pagetype == Resource.msg('pagename.heroPage','components',null)}">
+		<isinclude url="${URLUtils.url('Product-StaticDetail', 'pid', pdict.Product.ID, 'source', pdict.CurrentHttpParameterMap.source.stringValue,'pagetype',pdict.CurrentHttpParameterMap.pagetype,'storefrontFlow','false')}"/>
+	<iselse>
+		<isinclude url="${URLUtils.url('Product-StaticDetail', 'pid', pdict.Product.ID, 'source', pdict.CurrentHttpParameterMap.source.stringValue,'storefrontFlow','false')}"/>
+	</isif>
+</isif>
+</isdecorate>

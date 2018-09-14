@@ -1,0 +1,43 @@
+<isscript>
+	var colspan = 4;
+	var _shipment = pdict.shipment;
+</isscript>
+
+
+<isloop iterator="${_shipment.getShippingPriceAdjustments()}" alias="sa">
+	<tr>
+	<td class="label_pricing_discountinfo" colspan="${colspan}">
+	${sa.lineItemText}
+	</td>
+	<td class="label_pricing_discounttotal">
+		<isprint value="${sa.netPrice}">
+	</td>
+	</tr>
+</isloop>
+
+<tr>
+	<td class="label_pricing_info" colspan="${colspan}">Shipping Total: </td>
+	<td class="label_pricing_total">
+		<isprint value="${_shipment.getAdjustedShippingTotalNetPrice()}">
+	</td>
+</tr>
+
+<tr>
+	<td class="label_pricing_info" colspan="${colspan}">Tax Total: </td>
+	<td class="label_pricing_total">
+		<isprint value="${_shipment.getTotalTax()}">
+	</td>
+</tr>
+
+<tr>
+	<td class="label_pricing_info" colspan="${colspan}">Shipment Total: </td>
+	<td class="label_pricing_total">
+		<isprint value="${_shipment.getTotalGrossPrice()}">
+	</td>
+</tr>
+
+<tr style="height:3px;">
+<td colspan="${colspan+1}"></td>
+</tr>
+
+

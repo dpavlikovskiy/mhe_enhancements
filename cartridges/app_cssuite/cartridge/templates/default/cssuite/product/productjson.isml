@@ -1,0 +1,51 @@
+
+{
+source: "${pdict.CurrentHttpParameterMap.source.stringValue}",
+name: "${ pdict.Product.name }",
+ID: "${ pdict.Product.ID }",
+productSet: ${ pdict.Product.productSet },
+bundle: ${ pdict.Product.bundle },
+bundled: ${ pdict.Product.bundled },
+productSetProduct: ${pdict.Product.productSetProduct},
+<isinclude template="cssuite/product/components/pricingjson"/>,
+<isif condition="${pdict.Product.isVariant() || pdict.Product.master}">variations: {attributes: [
+<isif condition="${pdict.CurrentVariationModel != null}">
+		<isset name="PVM" value="${pdict.CurrentVariationModel}" scope="page"/>
+	<iselse/>
+		<isset name="PVM" value="${pdict.Product.variationModel}" scope="page"/>
+	</isif>
+	<isloop items="${PVM.productVariationAttributes}" var="VA" status="loopstatus0">
+		<isset name="vaId" value="${VA.getAttributeID()}" scope="page">
+		{id: "${vaId}", name: "${VA.displayName}", 
+			vals: [<isloop items="${PVM.getAllValues(VA)}" var="VV" status="loopstatus">					
+				{val:<isif condition="${VV.displayValue != null}">"<isprint value="${VV.displayValue}">"<iselse/>"<isprint value="${VV.value}">"</isif>
+				<isif condition="${vaId == 'color'}">
+				,images: {
+					swatch: {url: '<isif condition="${!empty(VV.getImage('swatch'))}"><isprint value="${(VV.getImage('swatch')).url}"></isif>', alt: "<isif condition="${!empty(VV.getImage('swatch'))}"><isprint value="${(VV.getImage('swatch')).alt}"></isif>", title: "<isif condition="${!empty(VV.getImage('swatch'))}"><isprint value="${(VV.getImage('swatch')).title}"></isif>"},
+					large:[<isloop items="${VV.getImages('large')}" var="img" status="imgLStatusV">
+						{url: '<isprint value="${img.url}">', alt: "${img.alt}", title: "${img.title}"}<isif condition="${!imgLStatusV.last}">,</isif>
+					</isloop>], 
+					small: [<isloop items="${VV.getImages('small')}" var="img" status="imgSStatusV">
+						{url: '<isprint value="${img.url}">', alt: "${img.alt}", title: "${img.title}"}<isif condition="${!imgSStatusV.last}">,</isif>
+					</isloop>]
+					}
+				</isif>
+				}<isif condition="${!loopstatus.last}">,</isif>											
+				</isloop>]				
+		}<isif condition="${!loopstatus0.last}">,</isif>
+	</isloop>
+	]},</isif>
+master: ${ pdict.Product.isMaster() },
+isOption: ${ pdict.Product.optionProduct},
+variant: ${ pdict.Product.isVariant() },
+images: {
+large:[<isloop items="${pdict.Product.getImages('large')}" var="img" status="imgLStatus">
+	{url: '<isprint value="${img.url}">', alt: "${img.alt}", title: "${img.title}"}<isif condition="${!imgLStatus.last}">,</isif>
+</isloop>], 
+small: [<isloop items="${pdict.Product.getImages('small')}" var="img" status="imgSStatus">
+	{url: '<isprint value="${img.url}">', alt: "${img.alt}", title: "${img.title}"}<isif condition="${!imgSStatus.last}">,</isif>
+</isloop>]
+},
+<isset name="AVM" value="${pdict.Product.availabilityModel}" scope="page"/>
+<isinclude template="cssuite/product/components/availabilityjson"/>
+}

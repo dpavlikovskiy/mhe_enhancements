@@ -1,0 +1,25 @@
+<div class="clear"><!-- FLOAT CLEAR --></div>
+<isif condition="${dw.system.Site.getCurrent().preferences.custom.EnablePayPal}">
+	<form class="paypalcheckout" action="${URLUtils.httpsContinue()}" method="post" id="${pdict.CurrentForms.cart.dynamicHtmlName}">
+		<fieldset>
+			<iscomment>PayPal Button</iscomment>
+			<button class="textbutton" type="submit" name="${pdict.CurrentForms.cart.expressCheckout.htmlName}">
+				<img src="${URLUtils.staticURL('/images/paypal_btn_xpressCheckout.gif')}" />
+				<span></span>
+			</button>
+		</fieldset>
+	</form>
+</isif>
+<isif condition="${dw.system.Site.getCurrent().preferences.custom.EnableBML}">
+	<form class="bmlcheckout" action="${URLUtils.httpsContinue()}" method="post" id="${pdict.CurrentForms.cart.dynamicHtmlName}">
+		<fieldset>
+			<iscomment>BML Button</iscomment>
+			<input type="hidden" name="bml" value="true"/>
+			<button class="textbutton" type="submit" name="${pdict.CurrentForms.cart.expressCheckout.htmlName}">
+				<img src="${URLUtils.staticURL('/images/btn_bml_SM.png')}" />
+				<img src="${URLUtils.staticURL('/images/btn_bml_text.png')}" /> 
+				<span></span>
+			</button>
+		</fieldset>
+	</form>
+</isif>

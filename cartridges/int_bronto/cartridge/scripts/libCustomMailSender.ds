@@ -1,0 +1,47 @@
+/**
+*	This script provides utility functions for framework 
+*	Created by: Astound Commerce
+*/
+
+importPackage (dw.system);
+importPackage (dw.util);
+
+importScript ('Bronto/API.ds');
+
+function getMailSenderByTemplate (mailTemplate : String) : String {
+	var mailSender : String = null;	
+	var params : Array = [];
+	if (!empty(mailTemplate)) {	
+		params = getTemplateParams(mailTemplate);
+		if ( params.length > 0 ) {
+			mailSender = params[1];
+		}
+	}
+   return mailSender;
+}
+
+function getTemplateParams (mailTemplate : String) : Array
+{
+	var mailTemplates : List = getCustomPreferenceValue("CUSTOM_SEND_MAIL_TEMPLATE_SETTINGS");
+	var params : Array = [];
+	for each (var currMailTemplate : String in mailTemplates) {
+		var mailTemplateName : String = currMailTemplate.split(":")[0];
+		if (mailTemplateName.equals(mailTemplate)) {
+			params = currMailTemplate.split(":");
+		}
+	}
+   	
+   return params;
+}
+
+function getMailTemplatePath (mailTemplate : String) : String {
+	var templatePath : String = null;	
+	var params : Array = [];
+	if (!empty(mailTemplate)) {	
+		params = getTemplateParams(mailTemplate);
+		if (params.length > 0) {
+			templatePath = params[2];
+		}
+	}
+   return templatePath;	
+}

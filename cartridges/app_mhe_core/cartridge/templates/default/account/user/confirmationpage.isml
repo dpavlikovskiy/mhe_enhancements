@@ -1,0 +1,27 @@
+<!--- TEMPLATENAME: referafriend.isml --->
+<isset name="DecoratorTemplate" value="account/pt_account" scope="page"/>
+<isif condition="${pdict.CurrentHttpParameterMap.format.stringValue == 'ajax' || pdict.CurrentHttpParameterMap.pwr.stringValue == 'true' || pdict.CurrentHttpParameterMap.source.stringValue == 'search' || pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart'}">
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+</isif>
+<isinclude template="util/modules"/>
+<isdecorate template="${DecoratorTemplate}">
+<isinclude template="account/user/referralform" />
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	var $el = $("#leadForm");
+	
+	var userData = "<div class='popUp'><a href=${URLUtils.https('RegistrationFlow-ReferAFriend')} class='manualClose'>Manual Close</a> ${dw.web.Resource.msg('referafriend.dialog','account',null)} <br /><br /><a class='button secondary inviButton' href='${URLUtils.https('RegistrationFlow-ReferAFriend')}'><span class='face front'>${Resource.msg('leadgenerationinvite','account',null)}</span><span class='face back'>${Resource.msg('leadgenerationinvite','account',null)}</span></a></div>",
+		dlg = app.dialog.create({target:$("#leadFormDialog"),
+		options:{
+			width:500,
+			height:'auto'
+		}
+	});
+	$("#leadFormDialog").html(userData).parents(".ui-dialog").addClass("cartPrompts leadPopUp");
+	dlg.dialog("open");
+});
+</script>
+</isdecorate>
+
+

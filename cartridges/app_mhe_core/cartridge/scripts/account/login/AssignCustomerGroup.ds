@@ -1,0 +1,36 @@
+/**
+*   This script assigns the current customer to the Customer group which has binding to the specific source code.
+*   @input customObj : dw.object.CustomObject 
+*	@input currentCustomer : dw.customer.Customer
+*/
+importPackage( dw.system );
+importPackage( dw.customer );
+
+function execute( args : PipelineDictionary ) : Number
+{	
+	var custGroup : String =null;
+	var isAssigned: Boolean = false;
+	var defaultCustomerGroup=dw.system.Site.getCurrent().getCustomPreferenceValue('defaultCustomerGroup');
+	
+	if (session.sourceCodeInfo!=null && ("customerGroup" in session.sourceCodeInfo.group.custom)){
+		custGroup = session.sourceCodeInfo.group.custom.customerGroup ; 
+		if (!empty(CustomerMgr.getCustomerGroup(custGroup))){
+		CustomerMgr.getCustomerGroup(custGroup).assignCustomer(args.currentCustomer);
+		isAssigned=true;
+		}
+	} else if(args.customObj!=null && ("customerGroupID" in args.customObj.custom)){
+		custGroup = args.customObj.custom.customerGroupID ; 
+		if (!empty(CustomerMgr.getCustomerGroup(custGroup))){
+		CustomerMgr.getCustomerGroup(custGroup).assignCustomer(args.currentCustomer);
+		isAssigned=true;
+		}
+		
+	}
+	
+	if(!isAssigned && !empty(defaultCustomerGroup)&&!empty(CustomerMgr.getCustomerGroup(defaultCustomerGroup))){
+	CustomerMgr.getCustomerGroup(defaultCustomerGroup).assignCustomer(args.currentCustomer);
+	}
+	
+   return PIPELET_NEXT;
+}
+

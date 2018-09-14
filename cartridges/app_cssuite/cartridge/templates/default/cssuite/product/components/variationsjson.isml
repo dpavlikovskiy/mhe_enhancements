@@ -1,0 +1,43 @@
+<iscontent type="text/plain" charset="UTF-8" compact="true"/>
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+<iscomment>
+	Creates json containing variation data
+	{"variations": {"variants": [{id: "", "attributes": {"attrid": attrval...}}]}}
+</iscomment>
+
+<isif condition="${pdict.Product.isVariant() || pdict.Product.isMaster()}">
+	<isif condition="${pdict.CurrentVariationModel != null}">
+		<isset name="PVM" value="${pdict.CurrentVariationModel}" scope="page"/>
+	<iselse/>
+		<isset name="PVM" value="${pdict.Product.variationModel}" scope="page"/>
+	</isif>
+		
+{"variations": {
+	"variants": [
+		<isset name="OrigProduct" value="${pdict.Product}" scope="pdict"/>
+		<isloop items="${PVM.variants}" var="VAR" status="loopstatus">
+			{"id": "${VAR.ID}", "attributes": {
+			<isset name="VVM" value="${VAR.variationModel}" scope="page"/>
+				<isloop items="${VVM.productVariationAttributes}" var="VA" status="loopstatus1">
+					"${VA.getAttributeID()}":
+				<iscomment>
+						This step is time consuming and needs to improve if possible
+						the following code didn't help either
+							CurrentVariationModel.variants[0].getAttributeModel().getDisplayValue(CurrentVariationModel.attributeDefinitions[0])
+						but this one doesn't return display value at all!!!	
+				</iscomment>
+						<isset name="VAL" value="${VVM.getSelectedValue(VA)}" scope="page"/>
+						"<isif condition="${VAL != null && !empty(VAL.displayValue)}"><isprint value="${VAL.displayValue}"/><iselseif condition="${VAL != null && !empty(VAL.value)}"/><isprint value="${VAL.value}"/></isif>"
+					<isif condition="${!loopstatus1.last}">,</isif>
+				</isloop>},
+			
+			<isset name="AVM" value="${VAR.availabilityModel}" scope="page"/>
+			<isinclude template="cssuite/product/components/availabilityjson"/>,
+			<isset name="Product" value="${VAR}" scope="pdict"/>
+			<isinclude template="cssuite/product/components/pricingjson"/>
+			}<isif condition="${!loopstatus.last}">,</isif>
+	</isloop>
+	]
+		<isset name="Product" value="${pdict.OrigProduct}" scope="pdict"/>
+		}}
+</isif>

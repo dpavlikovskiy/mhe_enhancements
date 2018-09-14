@@ -1,0 +1,63 @@
+<isscript>
+	var colspan = 6;
+</isscript>
+<tr>
+<td class="alignRight" colspan="${colspan}">Shipping</td><td>&nbsp;</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedShippingTotalGrossPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedShippingTotalGrossPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedShippingTotalNetPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedShippingTotalNetPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedShippingTotalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedShippingTotalTax}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedShippingTotalPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedShippingTotalPrice}">
+	</td>
+</tr>
+
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">shippingPriceAdjustments: </td>
+	<td class="alignRight">
+		<isprint value="${basket.shippingPriceAdjustments}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">shippingTotalGrossPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.shippingTotalGrossPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">shippingTotalNetPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.shippingTotalNetPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow fav">
+	<td class="alignRight" colspan="${colspan}">shippingTotalPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.shippingTotalPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">shippingTotalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.shippingTotalTax}">
+	</td>
+</tr>
+
+

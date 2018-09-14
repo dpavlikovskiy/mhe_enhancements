@@ -1,0 +1,32 @@
+<!--- TEMPLATENAME: chechoutTnC.isml --->
+<isinclude template="util/modules"/>
+<div id="coshipping" class="checkoutTnC">
+	<form method="post"  id="tnc" action="${URLUtils.url('COShipping-Start')}"  name="${pdict.CurrentForms.cart.htmlName}">
+		<iscontentasset aid="ca_mh_tnc"/>
+		<div class="buttonSpace form-field-tooltip with-helper-text">
+			<a class="button secondary plain tooltip">
+				<span class="face front">I Accept</span>
+				<span class="face back">I Accept</span>
+				<div class="tooltip-content" style="display:none;" data-layout="small">
+						<iscontentasset aid="scroll-down"/>
+				</div>
+			</a>
+			
+			<button id="iaccept" type="submit" style="display:none;" name="accept" class="button">
+				<span class="face front">I Accept</span>
+				<span class="face back">I Accept</span>
+			</button>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	$(".nano .content").scroll(function(){
+		if($(this)[0].scrollHeight - $(this).scrollTop() === $(this).outerHeight())
+		{
+		    $(this).parents("#tnc").find("div.buttonSpace").find(".secondary").hide();
+		    $(this).parents("#tnc").find("div.buttonSpace").find("#iaccept").show();
+		}
+	});
+});
+</script>

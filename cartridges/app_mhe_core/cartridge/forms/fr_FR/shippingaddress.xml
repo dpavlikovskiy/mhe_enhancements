@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+    <field formid="addressName" label="profile.addressName" type="string" mandatory="false"   max-length="25"   parse-error="forms.customeraddress.addressid.parse-error" />
+    <field formid="salutation" type="string" mandatory="true" binding="salutation" max-length="12" missing-error="profile.salutation2.missing-error"/>
+    <field formid="firstName" label="profile.firstname" type="string" mandatory="true" binding="firstName" min-length="2" max-length="128" parse-error="forms.customeraddress.firstname.parse-error"  missing-error="forms.address.firstname.missing" range-error="forms.address.field.invalid" />
+	<field formid="lastName" label="profile.lastname" type="string" mandatory="true" binding="lastName" min-length="2" max-length="128" parse-error="forms.customeraddress.lastName.parse-error"  missing-error="forms.address.lastname.missing" range-error="forms.address.field.invalid" />
+	<field formid="companyName" label="forms.companyname" type="string" mandatory="false" binding="companyName" max-length="35"  parse-error="forms.customeraddress.companyName.parse-error" range-error="forms.address.field.invalid" />		    	
+	<field formid="address1" label="forms.checkoutaddress1" type="string" mandatory="true" binding="address1" max-length="35"  parse-error="forms.customeraddress.addressline1.parse-error" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+	<field formid="address2" label="" type="string" mandatory="false" binding="address2" max-length="35"  parse-error="forms.customeraddress.addressline2.parse-error" range-error="forms.address.field.invalid" />
+	<field formid="city" label="forms.citytown" type="string" mandatory="true" binding="city" min-length="0" max-length="35" parse-error="forms.customeraddress.city.parse-error" missing-error="forms.address.city.missing" range-error="forms.address.field.invalid" />
+	<field formid="zip" label="forms.postalcode" type="string" mandatory="true" min-length="5" max-length="5"   regexp="^\d{5}" binding="postalCode" missing-error="forms.errorzip" range-error="forms.address.field.invalid" parse-error="forms.address.field.invalid" />
+    <field formid="country" label="forms.country" type="string" mandatory="true" binding="countryCode" missing-error="forms.address.country.missing" value-error="forms.address.field.invalid"  />
+	
+	<!-- use set of supported shipping countries    
+	<field formid="country" label="forms.country" type="string" mandatory="true" binding="countryCode" missing-error="forms.address.country.missing" value-error="forms.address.field.invalid" default-value="GB">
+		<options>
+			<option optionid="" 	label="forms.select"	value=""/>
+			<option optionid="US" 	label="country.unitedstates"	value="US"/>
+			<option optionid="CA" 	label="country.canada"			value="CA"/>
+		</options>	
+	</field>
+   -->
+	<!-- use global state list 
+	<include formid="states" name="states"/>
+     -->
+     
+	<!-- phone is mandatory for shipping addresses -->
+	<field formid="phone" label="profile.phone"  type="string" mandatory="true" binding="phone" max-length="14" default-value="" regexp="[+]?[ 0-9]+" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" />
+	<field formid="mobilePhone" label="profile.mobilePhone"  type="string" mandatory="true" binding="phone"  default-value="+44" regexp="[+]?[ 0-9]+" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" />
+	<!-- actions provided by the edit shipping address dialog -->
+	<action formid="apply" valid-form="true"/>
+	<action formid="remove" valid-form="false"/>
+</form>

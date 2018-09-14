@@ -1,0 +1,44 @@
+// =============================================================================
+// PDP Notification module
+// =============================================================================
+
+.notification {
+	margin: 0 0 20px 0;
+	&:before {
+		content: '';
+		height: 100%;
+		width: 100%;
+	}
+	.notification_inner {
+		margin: 2px;
+		padding: 20px 45px;
+		text-align: center;
+	}
+	.beta-heading {
+		margin: 0;
+		padding: 0;
+	}
+	.message {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

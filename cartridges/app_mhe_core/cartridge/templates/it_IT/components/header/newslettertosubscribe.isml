@@ -1,0 +1,34 @@
+<iscomment>Creative - Replace below ajax call with JQuery AJAX</iscomment>
+ 
+	<div class="newsletter-signup">
+		<h2><isprint value="${StringUtils.format(Resource.msg('newsletter.title','components',null),pdict.CurrentCustomer.profile.email)}"/></h2>
+		<p><isprint value="${StringUtils.format(Resource.msg('newsletter.thanks','components',null),pdict.CurrentCustomer.profile.firstName)}"/> 
+		
+		</p>
+		<p><isprint value="${Resource.msg('newsletter.subscription','components',null)}"/>
+			<br><span class="email"><isprint value="${StringUtils.format(Resource.msg('newsletter.email','components',null),pdict.CurrentCustomer.profile.email)}"/></span>
+		</p>
+	
+		<iscomment>Run time error message display if failed to update the newsletter subscription covered in EDM Integration story by DEV Team</iscomment>
+		<iscomment>Creative - close pop-up if newsletterstatus returned as empty in this div </iscomment>
+		<div id="newsublinkerror" class="error" style="display:none"><isprint value="${Resource.msg('newsletter.subscribe.error','components',null)}" /></div>
+		
+		<iscomment>already subscribe message</iscomment>
+		<p>
+			<isif condition="${pdict.CurrentCustomer.profile.custom.isNewsLetterSubscribed}">
+				<isprint value="${Resource.msg('newsletter.alreadysubscribed','components',null)}"/><br>
+				<button class="button secondary clear inspire" name="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('newsletter.sendinformation','components',null)}" disabled="true">
+					<span class="face front"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+					<span class="face back"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+				</button>
+			<iselse>
+				<button id="js-subscribe" class="button secondary clear inspire" name="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('newsletter.sendinformation','components',null)}">
+					<span class="face front"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+					<span class="face back"><isprint value="${Resource.msg('newsletter.sendinformation','components',null)}" /></span>
+				</button>
+			</isif>
+			
+			<br>
+			<a id="js-close-newsletter" class="no-subscribe"><isprint value="${Resource.msg('newsletter.dontsendinformation','components',null)}"/></a>
+		</p>
+	</div>

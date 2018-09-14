@@ -1,0 +1,74 @@
+<!--- TEMPLATENAME: selectedpaymentform.isml --->
+ <isinclude template="util/modules"/>
+ <div style="height:1px; overflow:hidden;">
+ 	    <isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.owner}" type="hidden"   />
+	    <isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.number}" type="hidden"    />
+	 	<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.type}" type="hidden" rowclass="creditCardType"/>
+	    <isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.month}" type="hidden"  />
+		<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.year}" type="hidden"  />
+		</div>
+		<div class="form-row savedDetail">
+			<label>${Resource.msg('global.cardType','locale',null)}</label>
+			<isprint value="${dw.order.PaymentMgr.getPaymentCard(pdict.SelectedCreditCard.creditCardType).name}" />
+		</div>
+		<div class="form-row savedDetail">
+			<label>${Resource.msg('global.nameOnCard','locale',null)}</label>
+			<isprint value="${pdict.SelectedCreditCard.creditCardHolder}" />
+		</div>
+		<div class="form-row savedDetail">
+			<label>${Resource.msg('global.cardNumber','locale',null)}</label>
+			<isprint value="${pdict.SelectedCreditCard.maskedCreditCardNumber}" />
+		</div>
+		<div class="form-row savedDetail">
+			<label>${Resource.msg('global.expirationDate','locale',null)}</label>
+			<isprint value="${pdict.SelectedCreditCard.creditCardExpirationMonth}"  formatter="00" /> / <isprint value="${pdict.SelectedCreditCard.creditCardExpirationYear}" formatter="00"  />
+		</div>
+		
+		<isloop items="${pdict.CurrentForms.billing.paymentMethods.selectedPaymentMethodID.options}" var="paymentMethodType">
+			
+			<iscomment>Ignore GIFT_CERTIFICATE method, GCs are handled separately before other payment methods.</iscomment>
+			<isif condition="${paymentMethodType.value.equals(dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE)}"><iscontinue/></isif>
+			<isset name="radioID" value="${paymentMethodType.value}" scope="page"/>					
+			<isif condition="${!radioID.equalsIgnoreCase('paypal') &&  radioID.equalsIgnoreCase('CREDIT_CARD') }" >
+				<input type="radio" class="input-radio" checked=checked name="${pdict.CurrentForms.billing.paymentMethods.selectedPaymentMethodID.htmlName}" value="${paymentMethodType.htmlValue}" id="is-${radioID}" style="visibility: hidden"/>
+			</isif>
+												
+		</isloop>
+
+		<isif condition="${pdict.SelectedCreditCard.creditCardType==Resource.msg('creditcard.amex','forms',null)}" >
+		    	<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn}" type="password" rowclass="cvn" attribute1="autocomplete" value1="off" attribute2="placeholder" value2="${Resource.msg('billing.cvn2.example','checkout',null)}" requiredtext="${Resource.msg('creditcard.cvnmissingerror','forms',null)}" />
+				    <isif condition="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn.error == null}">
+				    	<div class="form-field-tooltip cvn-tip">
+				    <iselse>
+				    	<div class="form-field-tooltip cvn-tip-error">
+				    </isif>
+		    	<span id="cv2" class="tooltip left ">
+			     	<span class="ptIcon"></span>
+			     	<div class="tooltip-content" data-layout="small tooltip-cvn">
+			     		<img src="${URLUtils.staticURL('/images/amex.png')}" />
+			     		<h4>${Resource.msg('billing.cvv2Heading','checkout',null)}</h4>
+			     		<p>${Resource.msg('billing.cvv2Paragraph','checkout',null)}</p>
+			     	</div>
+			     </span>
+			   <iselse>  
+			   	  <isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn}" type="password" rowclass="cvn" attribute1="autocomplete" value1="off" attribute2="placeholder" value2="${Resource.msg('billing.cvn.example','checkout',null)}" requiredtext="${Resource.msg('creditcard.cvnmissingerror','forms',null)}" />
+				    <isif condition="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn.error == null}">
+				    	<div class="form-field-tooltip cvn-tip">
+				    <iselse>
+				    	<div class="form-field-tooltip cvn-tip-error">
+				    </isif>
+			     <span id="cvv" class="tooltip left">
+			     	<span class="ptIcon"></span>
+			     	<div class="tooltip-content" data-layout="small tooltip-cvn">
+			     		<img src="${URLUtils.staticURL('/images/visa-master.png')}" />
+			     		<h4>${Resource.msg('billing.cvvHeading','checkout',null)}</h4>
+			     		<p>${Resource.msg('billing.cvvParagraph','checkout',null)}</p>
+			     	</div>
+			     </span>
+			     </isif>	   
+		    </div>	
+		    <div style = "clear:both;"></div>
+		     <div class = "ca-legal-label-billing">
+					<iscontentasset aid="ca_legal_label_billing"/>
+				</div>
+		  

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="true">
+	<field formid="email" label="profile.email" type="string" mandatory="true" regexp="^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$" parse-error="profile.emailparseerror"   min-length="2" max-length="128" value-error="profile.usernametaken" missing-error="login.username.missing-error"/>
+	<field formid="password" label="label.password"  type="string" mandatory="true" min-length="8" max-length="255"  range-error="password.format.error-message" missing-error="login.password.missing-error"/>	
+ 	<field formid="title" label="profile.salutation" type="string" mandatory="false"   max-length="5" missing-error="profile.salutation.missing-error"/>
+	<field formid="salutation" type="string" mandatory="false"  max-length="10" missing-error="profile.salutation2.missing-error"/>    
+	<field formid="firstname" label="profile.firstname"  type="string" mandatory="true"   min-length="2" max-length="128" missing-error="forms.customeraddress.firstname.missing-error" range-error="forms.name.range-error" />
+	<field formid="lastname" label="profile.lastname" type="string" mandatory="true"   min-length="2" max-length="128" missing-error="forms.customeraddress.lastname.missing-error" range-error="forms.name.range-error" />
+	<field formid="originCountry" type="string" mandatory="true"   min-length="2"  missing-error="profile.originCountry.missing-error"/>
+	<field formid="birthday" label="profile.dob" type="date" mandatory="true" format="dd/MM/yyyy" max="now" max-length="10" missing-error="login.dob.missing-error" value-error="agegate.error.message" parse-error="profile.dob.error-message"/>		
+	<field formid="gender" label="profile.gender" type="string" mandatory="false" parse-error="forms.customeraddress.addressline1.parse-error" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+	<field formid="address1" label="forms.regaddress1" type="string" mandatory="true"    max-length="35"  parse-error="forms.customeraddress.addressline1.parse-error" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+	<field formid="address2" label="forms.regaddress2" type="string" mandatory="false"     max-length="35" parse-error="forms.customeraddress.addressline2.parse-error" range-error="forms.address.field.invalid"/>
+	<field formid="city" label="forms.citytown" type="string" mandatory="true"   min-length="0" max-length="35"  parse-error="forms.customeraddress.city.parse-error" missing-error="forms.address.city.missing" range-error="forms.address.field.invalid" />
+	<field formid="zip" label="forms.postalcode" type="string" mandatory="true"   min-length="5" max-length="5"   regexp="^\d{5}"     missing-error="forms.errorzip" range-error="forms.address.field.invalid" parse-error="forms.address.field.invalid" />
+	<field formid="addtoemaillist" label="profile.SubscribetoNewsletters"  type="boolean"  mandatory="false"  />
+	<action formid="join" valid-form="false"/>
+</form>

@@ -1,0 +1,38 @@
+/**********************************************************************************************************************************************************************************************
+*
+* TITLE:  
+*
+*	Remove PayPal Payment Instruments
+*
+* DESCRIPTION:
+*
+*	Removes PayPal payment intrsument
+*
+* INPUT PARAMETERS:
+*
+* 	@input Basket : dw.order.Basket The basket.
+* 	@input PaymentType : String the type of the payment instrument.
+*
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( args : PipelineDictionary ) : Number
+{
+
+	// get paypal payment instruments
+	var basket : Basket = args.Basket;
+	var paymentType : String = args.PaymentType;
+	var ccPaymentInstrs : Collection = basket.getPaymentInstruments( paymentType );
+	var iter : Iterator = ccPaymentInstrs.iterator();
+	var existingPI : OrderPaymentInstrument = null;
+
+	// remove them
+	while( iter.hasNext() )
+	{
+		existingPI = iter.next();
+		basket.removePaymentInstrument( existingPI );
+	}
+    return PIPELET_NEXT;
+}

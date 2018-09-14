@@ -1,0 +1,117 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+
+<!---
+	field
+--->
+<ismodule template="util/field.isml"
+	name="field"
+	attribute="baseid"
+	attribute="defaultvalue"
+	attribute="name"
+	attribute="value"
+>
+
+<ismodule template="cssuite/payment/paymentinstrument.isml"
+	name="paymentinstrument"
+	attribute="instrument"
+>
+
+<ismodule template="cssuite/payment/paymenttransaction.isml"
+	name="paymenttransaction"
+	attribute="transaction"
+>
+
+<ismodule template="cssuite/address/address.isml"
+	name="address"
+	attribute="OrderAddress"
+	attribute="AddressType"
+	attribute="TypeId"
+>
+
+<!--- define reusable address view --->
+<!--- The prefix 'p_' avoids clashes with loop or other variables --->
+<ismodule template="cssuite/user/miniaddress.isml"
+	name="miniaddress"
+	attribute="p_address"
+    attribute="p_productlist"
+>
+
+<ismodule template="cssuite/shipment/pagecomponent/shipment.isml"
+	name="shipment"
+	attribute="shipment"
+>
+
+<ismodule template="cssuite/shipment/pagecomponent/shipmenttotals.isml"
+	name="shipmenttotals"
+	attribute="shipment"
+>
+
+<ismodule template="cssuite/shipment/pagecomponent/shipmentid.isml"
+	name="shipmentid"
+	attribute="p_shipment"
+>
+<!--- define reusable profile input field --->
+<!-- The field "required" only marks the input on the GUI as required.
+But it actually does not do the required validation! -->
+<ismodule template="cssuite/utils/inputfield.isml"
+	name="inputfield"
+	attribute="formfield"
+	attribute="type"
+	attribute="required"
+	attribute="hideAsterisk"
+	attribute="maxlength"
+	attribute="size"
+	attribute="xhtmlclass"
+	attribute="label"
+	attribute="p_dynamic"
+	attribute="attribute1"
+	attribute="value1"
+	attribute="attribute2"
+	attribute="value2"
+	attribute="attribute3"
+	attribute="value3"
+>
+
+<!-- The selectyear module is for creating a generated select box, starting with the current year -->
+<ismodule template="cssuite/utils/selectyear.isml"
+	name="selectyear"
+	attribute="css_class"
+	attribute="formfield"
+	attribute="start"	
+	attribute="range"
+	attribute="descending"
+>
+
+<iscomment>
+	Creates a div containing name value pairs of selected variation attributes values.
+	product : the product
+</iscomment>
+<ismodule template="product/components/displayvariationvalues"
+	name="displayvariationvalues"
+	attribute="product"
+>
+
+<iscomment>
+	Creates a div containing name value pairs of selected option values.
+
+	product : the product
+</iscomment>
+<ismodule template="product/components/displayoptionvalues"
+	name="displayoptionvalues"
+	attribute="productlistitem"
+>
+
+<iscomment>
+	Creates a div rendering product availability.
+	p_productli           : the product list item to render
+	p_displayinstock      : a boolean that controls if the 'in stock' message should be rendered.
+	p_displaypreorder     : a boolean that controls if the 'pre order' message should be rendered.
+	p_displaybackorder    : a boolean that controls if the 'back ordered' message should be rendered.
+</iscomment>
+<ismodule template="cssuite/product/components/displayproductavailability"
+	name="displayproductavailability"
+	attribute="p_productli"
+	attribute="p_displayinstock"
+	attribute="p_displaypreorder"
+	attribute="p_displaybackorder"
+>

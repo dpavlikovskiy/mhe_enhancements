@@ -1,0 +1,36 @@
+.nano{
+	width:291px;
+	height:500px;
+	position:relative;
+	overflow:hidden;
+	.content{
+		overflow-x:hidden;
+		overflow-y:scroll;
+		position:absolute;
+		top:0;
+		bottom:0;
+		right:0;
+		left:0;
+	}
+	.pane{
+		position:absolute;
+		width:6px;
+		right:5px;
+		top:0;
+		bottom:0;
+		-webkit-transition:.2s;
+		-moz-transition:.2s;
+		-o-transition:.2s;
+		transition:.2s;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+		border-radius:5px;
+		.slider{
+			background: $mediumpurple;
+			position:relative;
+			-moz-border-radius:3px;
+			-webkit-border-radius:3px;
+			border-radius:3px;
+		}
+	}
+}

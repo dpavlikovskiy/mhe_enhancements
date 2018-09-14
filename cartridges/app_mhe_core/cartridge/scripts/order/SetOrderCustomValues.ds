@@ -1,0 +1,214 @@
+/**
+* 
+* This script sets all the custom values on the order required by back end system
+*
+*
+*   @input Order : dw.order.Order 
+*	@input staticCategoryID : String 
+* 	@output LogoImageABSUrl : String
+*   @input billingForm : dw.web.FormGroup
+*
+*/
+importPackage( dw.system );
+importPackage( dw.customer );
+importPackage( dw.order );
+importPackage( dw.util);
+importPackage( dw.net );
+importPackage( dw.catalog );
+importPackage(dw.web);
+importScript("product/ProductUtils.ds");
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+   var paymentType:String= pdict.billingForm.paymentType.value;
+   var sapCustomerId:String  =  null ;
+   var emailMarketting : boolean = false ;
+
+   var productLineItem  = pdict.Order.productLineItems;
+   pdict.LogoImageABSUrl=URLUtils.staticURL('/images/global/selection-logo.png').http().toString();
+   
+   if(customer.registered){
+		if(Site.getCurrent().getCustomPreferenceValue("ignoreCustomerGroupSAPID")){
+			if ('sapCustomerId' in customer.profile.custom){
+				sapCustomerId = customer.profile.custom.sapCustomerId ;
+			} 
+		}else {
+			var customerGroups: Collection = customer.customerGroups;
+			var iter: Iterator  = customerGroups.iterator();
+			while (iter.hasNext())
+			{
+				var customerGroup : CustomerGroup = iter.next();
+				if ('sapCustomerID' in customerGroup.custom && !customerGroup.ruleBased){
+					sapCustomerId = customerGroup.custom.sapCustomerID ;
+					break;
+				} 
+			}
+		}
+
+   		if ('isNewsLetterSubscribed' in customer.profile.custom){
+   			emailMarketting = customer.profile.custom.isNewsLetterSubscribed ;
+   		}
+   }else {
+   		var productCategories: Collection = productLineItem[productLineItem.size()-1].product.categories;
+   		var finalcategory:Category=null;
+		if(!empty(session.custom.brand) && session.custom.brand.equals("mh")){
+			pdict.Order.custom.orderSource = "epage_"+dw.system.Site.getCurrent().name;
+		}
+		
+		if(!empty(pdict.staticCategoryID)){
+		finalcategory= CatalogMgr.getCategory(pdict.staticCategoryID);
+		}
+		
+		if(empty(finalcategory)){		
+   		for(var i=0;i<productCategories.length;i++){
+   			var category:Category=productCategories[i]; 
+   			if(category.custom.isStatic){
+   				finalcategory=category;
+   				break;
+   			 }
+   			}
+   		}
+   	 			if(!empty(finalcategory)){	
+   	 			pdict.Order.custom.staticCategoryId = finalcategory.ID;
+   	 			if('brandPackagingInfo' in finalcategory.custom){
+   	 			pdict.Order.custom.brandPackagingInfo = finalcategory.custom.brandPackagingInfo;
+   	 			}
+				if(!Site.getCurrent().getCustomPreferenceValue("ignoreCustomerGroupSAPID")){
+					if("customerGroupID" in finalcategory.custom){
+					var customerGroup = CustomerMgr.getCustomerGroup(finalcategory.custom.customerGroupID);
+						if (null!=customerGroup && 'sapCustomerID' in customerGroup.custom){
+							sapCustomerId = customerGroup.custom.sapCustomerID ;
+						} 
+					}
+				}
+   	 			//get the category thumbnail image url	
+   	 			if(!empty(finalcategory.thumbnail)){
+   	 			pdict.LogoImageABSUrl= finalcategory.thumbnail.httpURL.toString();
+   	 			}
+   			}
+   }
+ 
+ 	if('photoBoothImageID' in session.custom && !empty(session.custom.photoBoothImageID)){
+   	 	pdict.Order.custom.brandPackagingInfo= "PhotoBooths " + session.custom.photoBoothImageID;
+   	 }
+   
+   if(empty(sapCustomerId)){   	
+   		sapCustomerId = Site.getCurrent().getCustomPreferenceValue("defaultSapCustomerId");
+   }
+   if(empty(pdict.Order.custom.orderSource)){  
+   	pdict.Order.custom.orderSource = dw.system.Site.getCurrent().name;
+   }
+     
+    var shipment : Shipment =pdict.Order.defaultShipment;
+	   	if (shipment.isGift()){
+           shipment.setGiftMessage((shipment.getGiftMessage()).replace(new RegExp("\\n","g"), "[#]"));
+	   	}
+         if(!empty(shipment.custom.deliveryInstructions)){
+           shipment.custom.deliveryInstructions = (shipment.custom.deliveryInstructions).replace(new RegExp("\\n","g"), "[#]");
+         }
+     
+   pdict.Order.custom.sapCustomerId = sapCustomerId ; 
+   pdict.Order.custom.emailMarketting = emailMarketting ;
+   pdict.Order.custom.orderChannel = "WEB" ;
+   //pdict.Order.custom.orderStatus = pdict.Order.paymentInstruments[0].paymentTransaction.custom.paymentAuthorizationStatus ;
+   
+   //Set Carirer name  
+   //
+     
+   try{
+    var sendcarrier : Boolean = dw.system.Site.getCurrent().preferences.custom.sendCarrier;
+   if(sendcarrier){ 
+	   var shipment : Shipment =pdict.Order.defaultShipment;
+	   var shippingmethods : Array = dw.system.Site.getCurrent().preferences.custom.carrierSelectionShippingMethod;
+	   var shippingmeth:ArrayList =new ArrayList();
+	   for (var i=0; i < shippingmethods.length; i++) {
+	       shippingmeth.add(shippingmethods[i].getValue());
+	   }
+	   //Set Carirer name based on shippment method 
+	   if(shippingmeth.contains(shipment.shippingMethod.ID)){ 		
+		   shipment.custom.carriername=dw.system.Site.getCurrent().preferences.custom.carrier1;			 	
+	   }else{
+	     var stdBottle:Number=0;	
+	     var carrierBinded:Boolean=false;
+	     var productLineItem  = pdict.Order.productLineItems;
+	     var product:Product=null;
+	     var bottelSize:String="";
+	     var bottelSizeArray : Array = dw.system.Site.getCurrent().preferences.custom.sizeBottelEqv;
+	     var bottelSizeList:ArrayList =new ArrayList();
+	     var bottelSizeMap:Map=new HashMap();
+	     var caseMultiplier:Number =1;
+	     var caseSize : Number=1;
+	     for (var i=0; i < bottelSizeArray.length; i++) {
+	       bottelSizeMap.put(bottelSizeArray[i].getValue(),bottelSizeArray[i].getDisplayValue());
+	     }
+	     for(var i=0;i<productLineItem.length;i++){
+	     		caseMultiplier=1;
+	     		caseSize=1; 
+		   	    product = productLineItem[i].product; 
+		   	    if(product.unit =="CA"){
+		   	    	caseSize= parseInt(product.custom.caseSize);
+		   	    }
+		   	    if (!empty(product.custom.size)){
+					bottelSize=bottelSizeMap.get(product.custom.size);
+				} else {
+					bottelSize="";
+				}
+		   	    if(product.custom.carrierBinded){
+		   	    	 carrierBinded=product.custom.carrierBinded; 
+		   	    }	    
+		   	    if(product.unit =="CA" && caseSize >1){
+		   	    	caseMultiplier=caseMultiplier*caseSize;
+		   	    }
+		   	    if(!empty(bottelSize)){ 
+		   	    	stdBottle= stdBottle + parseInt(bottelSize)*caseMultiplier*productLineItem[i].getQuantityValue(); 
+		   	    }
+		   	    
+		   	  
+	     } 
+	     //Set Carrier based on size info and custom attiribut carrierBinded 
+	   	 if(!carrierBinded && stdBottle < 6){
+		    shipment.custom.carriername=dw.system.Site.getCurrent().preferences.custom.carrier2;	
+	   	  }else{
+		    shipment.custom.carriername=dw.system.Site.getCurrent().preferences.custom.carrier3;	 	
+	     }
+	  } 
+     }
+     
+     if(paymentType == "replacement"){
+     	var orderNo:String=pdict.billingForm.paymentMethods.replacement.order.value;
+        pdict.Order.custom.replacedOrderNumber=orderNo;
+        var order1:Order = OrderMgr.getOrder(orderNo);
+        var replacementList:List=new ArrayList();
+		var arr:Array = order1.custom.replacementOrders;
+	    for(var i=0;i<arr.length;i++){
+		  replacementList.add(arr[i]);
+		} 	
+		replacementList.add(pdict.Order.orderNo);
+		order1.custom.replacementOrders=replacementList; 
+	    order1.setStatus(Order.ORDER_STATUS_REPLACED);
+	    pdict.Order.custom.reason=pdict.billingForm.paymentMethods.replacement.reason.value;
+	    if(!empty(pdict.billingForm.paymentMethods.replacement.details)){
+	    pdict.Order.addNote("order placement", pdict.billingForm.paymentMethods.replacement.details.value);
+	    }
+	    
+      }else if(paymentType == "complimentary"){
+     	pdict.Order.custom.reason=pdict.billingForm.paymentMethods.complimentary.reason.value;
+       	
+      }else if(paymentType == "other"){
+     	  pdict.Order.custom.otherMeansPaymentType=pdict.billingForm.paymentMethods.othermeans.type.value;
+     	  pdict.Order.addNote("order placement",pdict.billingForm.paymentMethods.othermeans.details.value);
+      }
+      
+      if(null != paymentType && paymentType.equalsIgnoreCase("complimentary") && !Site.getCurrent().getCustomPreferenceValue("complimentorySapCustomerId").equalsIgnoreCase("")){
+   		pdict.Order.custom.sapCustomerId = Site.getCurrent().getCustomPreferenceValue("complimentorySapCustomerId") ; 
+   	  } 
+
+    }catch(e){
+      var er:String=e.message;
+    }
+    
+    
+    
+    
+   return PIPELET_NEXT;
+}

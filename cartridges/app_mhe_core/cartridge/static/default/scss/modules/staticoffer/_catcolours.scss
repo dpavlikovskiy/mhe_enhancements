@@ -1,0 +1,423 @@
+// =============================================================================
+// Static Offer - Category Specific Colours
+// =============================================================================
+
+.static-offer .cartPrompts .button .face.back {
+	color: $black;
+}
+
+.staticoffer-moetchandon {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $moetChandon;
+		}
+		.carousel-indicators li.active {
+			border-color: $moetChandon;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $moetChandon;
+	}
+	.cartPrompts {
+		border: 1px solid $moetChandon;
+		.button {
+			.face {
+				color: $moetChandon;
+				border-color: $moetChandon;
+				&.back {
+					background-color: $moetChandon;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-krug {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $krug;
+		}
+		.carousel-indicators li.active {
+			border-color: $krug;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $krug;
+	}
+	.cartPrompts {
+		border: 1px solid $krug;
+		.button {
+			.face {
+				color: $krug;
+				border-color: $krug;
+				&.back {
+					background-color: $krug;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-mercier {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $mercier;
+		}
+		.carousel-indicators li.active {
+			border-color: $mercier;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $mercier;
+	}
+	.cartPrompts {
+		border: 1px solid $mercier;
+		.button {
+			.face {
+				color: $mercier;
+				border-color: $mercier;
+				&.back {
+					background-color: $mercier;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-domperignon {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $domPerignon;
+		}
+		.carousel-indicators li.active {
+			border-color: $domPerignon;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $domPerignon;
+	}
+	.cartPrompts {
+		border: 1px solid $domPerignon;
+		.button {
+			.face {
+				color: $domPerignon;
+				border-color: $domPerignon;
+				&.back {
+					background-color: $domPerignon;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-veuveclicquot {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $veuveClicquot;
+		}
+		.carousel-indicators li.active {
+			border-color: $veuveClicquot;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $veuveClicquot;
+	}
+	.cartPrompts {
+		border: 1px solid $veuveClicquot;
+		.button {
+			.face {
+				color: $veuveClicquot;
+				border-color: $veuveClicquot;
+				&.back {
+					background-color: $veuveClicquot;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-ruinart {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $ruinart;
+		}
+		.carousel-indicators li.active {
+			border-color: $ruinart;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $ruinart;
+	}
+	.cartPrompts {
+		border: 1px solid $ruinart;
+		.button {
+			.face {
+				color: $ruinart;
+				border-color: $ruinart;
+				&.back {
+					background-color: $ruinart;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-capementelle {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $capeMentelle;
+		}
+		.carousel-indicators li.active {
+			border-color: $capeMentelle;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $capeMentelle;
+	}
+	.cartPrompts {
+		border: 1px solid $capeMentelle;
+		.button {
+			.face {
+				color: $capeMentelle;
+				border-color: $capeMentelle;
+				&.back {
+					background-color: $capeMentelle;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-chevalandes {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $chevalAndes;
+		}
+		.carousel-indicators li.active {
+			border-color: $chevalAndes;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $chevalAndes;
+	}
+	.cartPrompts {
+		border: 1px solid $chevalAndes;
+		.button {
+			.face {
+				color: $chevalAndes;
+				border-color: $chevalAndes;
+				&.back {
+					background-color: $chevalAndes;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-cloudybay {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $cloudyBay;
+		}
+		.carousel-indicators li.active {
+			border-color: $cloudyBay;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $cloudyBay;
+	}
+	.cartPrompts {
+		border: 1px solid $cloudyBay;
+		.button {
+			.face {
+				color: $cloudyBay;
+				border-color: $cloudyBay;
+				&.back {
+					background-color: $cloudyBay;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-newton {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $newton;
+		}
+		.carousel-indicators li.active {
+			border-color: $newton;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $newton;
+	}
+	.cartPrompts {
+		border: 1px solid $newton;
+		.button {
+			.face {
+				color: $newton;
+				border-color: $newton;
+				&.back {
+					background-color: $newton;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-numanthia {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $numanthia;
+		}
+		.carousel-indicators li.active {
+			border-color: $numanthia;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $numanthia;
+	}
+	.cartPrompts {
+		border: 1px solid $numanthia;
+		.button {
+			.face {
+				color: $numanthia;
+				border-color: $numanthia;
+				&.back {
+					background-color: $numanthia;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-terrazas {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $terrazas;
+		}
+		.carousel-indicators li.active {
+			border-color: $terrazas;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $terrazas;
+	}
+	.cartPrompts {
+		border: 1px solid $terrazas;
+		.button {
+			.face {
+				color: $terrazas;
+				border-color: $terrazas;
+				&.back {
+					background-color: $terrazas;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-ardberg {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $ardberg;
+		}
+		.carousel-indicators li.active {
+			border-color: $ardberg;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $ardberg;
+	}
+	.cartPrompts {
+		border: 1px solid $ardberg;
+		.button {
+			.face {
+				color: $ardberg;
+				border-color: $ardberg;
+				&.back {
+					background-color: $ardberg;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-belvedere {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $belvedere;
+		}
+		.carousel-indicators li.active {
+			border-color: $belvedere;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $belvedere;
+	}
+	.cartPrompts {
+		border: 1px solid $belvedere;
+		.button {
+			.face {
+				color: $belvedere;
+				border-color: $belvedere;
+				&.back {
+					background-color: $belvedere;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-glenmorangie {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $glenmorangie;
+		}
+		.carousel-indicators li.active {
+			border-color: $glenmorangie;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $glenmorangie;
+	}
+	.cartPrompts {
+		border: 1px solid $glenmorangie;
+		.button {
+			.face {
+				color: $glenmorangie;
+				border-color: $glenmorangie;
+				&.back {
+					background-color: $glenmorangie;
+				}
+			}
+		}
+	}
+}
+
+.staticoffer-hennessey {
+	.bootCaro {
+		.carousel-control:hover {
+			color: $hennessey;
+		}
+		.carousel-indicators li.active {
+			border-color: $hennessey;
+		}
+	}
+	.pdp-section-video .video-facade:hover span {
+		background: $hennessey;
+	}
+	.cartPrompts {
+		border: 1px solid $hennessey;
+		.button {
+			.face {
+				color: $hennessey;
+				border-color: $hennessey;
+				&.back {
+					background-color: $hennessey;
+				}
+			}
+		}
+	}
+}

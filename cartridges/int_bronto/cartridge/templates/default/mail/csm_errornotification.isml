@@ -1,0 +1,6 @@
+<!--- TEMPLATENAME: csm_errornotification.isml --->
+<iscomment>This template is used for email, which notifies site administrator about error while sending order confirmaiton email</iscomment>
+<body>
+	<p><isprint value="${pdict.Log}"/></p>	
+	<p>${Resource.msg('error.mailtext','error',null)}</p>
+</body>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <field formid="referreremail"  type="string" mandatory="true" binding="custom.referrerEmail" label="profile.email" regexp="^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$" parse-error="profile.emailparseerror" min-length="2" max-length="128" value-error="profile.usernametaken" missing-error="login.username.missing-error"/>
+    <field formid="referrertitle"  type="string" label="profile.title" max-length="10"/>
+	<field formid="referrersalutation"  type="string" mandatory="true"  label="profile.salutation" max-length="5" missing-error="profile.salutation2.missing-error"/>
+	<field formid="referrerfname"  type="string" mandatory="true"  binding="custom.referrerFName" label="profile.firstname" min-length="2" max-length="128" missing-error="forms.referafriend.firstname.missingerror" range-error="forms.name.range-error" />
+	<field formid="referrerlname"  type="string" mandatory="true"  binding="custom.referrerLName" label="profile.lastname" min-length="2" max-length="128" missing-error="forms.referafriend.lastname.missingerror" range-error="forms.name.range-error" />
+	
+   	<field formid="refereeemail"  type="string" mandatory="true" binding="custom.refereeEmail"  label="profile.email"  regexp="^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$" parse-error="profile.emailparseerror" min-length="2" max-length="128" value-error="profile.usernametaken" missing-error="login.username.missing-error"/>
+	<field formid="refereetitle"  type="string" mandatory="false" binding="custom.refereeTitle" label="profile.title" max-length="10"/>
+	<field formid="refereesalutation"  type="string" mandatory="true" binding="custom.refereeSalutation" label="profile.salutation" max-length="5" missing-error="profile.salutation2.missing-error"/>
+	<field formid="refereefname"  type="string" mandatory="true" binding="custom.refereeFName"  label="profile.firstname" min-length="2" max-length="128" missing-error="forms.customeraddress.firstname.missing-error" range-error="forms.name.range-error" />
+	<field formid="refereelname"  type="string" mandatory="true" binding="custom.refereeLName" label="profile.lastname" min-length="2" max-length="128" missing-error="forms.customeraddress.lastname.missing-error" range-error="forms.name.range-error" />
+	
+	<field formid="message"  type="string" mandatory="false" binding="custom.message"  label="refer.message"/>
+	<field formid="company"  type="string" mandatory="false"  label="refer.company"/>
+	
+	<field formid="rememberme" label="login.rememberme" type="boolean" mandatory="false" />
+	<field formid="refereeRegistered"  type="string" mandatory="false" binding="custom.refereeRegistered"  label="Registered"/>
+	
+	<action formid="confirm" valid-form="true"/>
+	
+</form>

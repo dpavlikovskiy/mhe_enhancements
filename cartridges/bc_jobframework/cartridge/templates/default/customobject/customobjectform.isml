@@ -1,0 +1,62 @@
+<!--- TEMPLATENAME: customobjectlisting.isml --->
+<isdecorate template="application/MenuFrame">
+
+	<iscontent type="text/html" charset="UTF-8" compact="true">
+	<isinclude template="util/bmmodules">
+			
+	<isif condition="${empty(pdict.CustomObject)}">
+		<isset name="mode" value="${'Create'}" scope="PAGE">
+	<iselse>
+		<isset name="mode" value="${'Edit'}" scope="PAGE">
+	</isif>
+
+	<table border="0" cellpadding="0" cellspacing="0" width="100%">
+		<isscript>
+			var typeDefinitions : dw.util.ArrayList =  new dw.util.ArrayList();
+			var typeGroups =  dw.object.CustomObjectMgr.describe(pdict.Type).getAttributeGroups();
+		</isscript>
+		<tr>
+			<td class="table_title aldi" width="100%">
+				<isprint value="${mode + ' ' + pdict.Type}">
+			</td>
+		</tr>
+
+		<tr>
+			<td class="table_title_description e s w" style="text-align: center; ">
+			<form action="${dw.web.URLUtils.continueURL()}" method="POST">
+				<table class="n s e w" style="margin: auto;">
+					<isloop iterator="${typeGroups}" alias="typeGroup" status="loopstate">
+						<tr>
+							<td class="table_header aldi" colspan="2">${typeGroup.displayName}</td>
+						</tr>
+						<isloop iterator="${typeGroup.getAttributeDefinitions()}" alias="typeAttribute" status="loopstate">
+							<isif condition="${!(typeAttribute.isSystem())}">
+								<tr>
+									<td class="fielditem2">${typeAttribute.displayName}</td>
+									<isscript>
+										var fieldName = typeAttribute.ID;
+										var isReadOnly = 'false';
+										var value = '';
+										if (!empty(pdict.CustomObject)) {
+											value = pdict.CustomObject.custom[typeAttribute.ID];
+										}
+									</isscript>
+									<td class="inputfield_en"><isbminputfield fieldtype="${typeAttribute.valueTypeCode}" fieldvalue="${value}" fieldname="${fieldName}" enumvalues="${typeAttribute.values}" readonly="${isReadOnly}"></td>
+								</tr>
+							</isif>
+						</isloop>
+					</isloop>
+							<tr>
+								<td class="table_header aldi" colspan="2" style="text-align: right;">
+									<input type="submit" class="button" value="Cancel" name="cancel">
+									<input type="submit" id="apply" class="button" value="Apply changes" name="apply">
+									<input type="submit" class="button" value="Save & exit" name="save">
+								</td>
+							</tr>
+						</table>
+					</form>
+				</tr>
+			</table>
+   
+<!--- End: extension/exportresult.isml --->
+</isdecorate>

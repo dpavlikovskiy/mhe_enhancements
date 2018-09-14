@@ -1,0 +1,1 @@
+<isprint value="${Resource.msgf('account.heading','account',null,pdict.CurrentCustomer.profile.salutation,pdict.CurrentCustomer.profile.lastName.substring(0, 1).toUpperCase()+pdict.CurrentCustomer.profile.lastName.substring(1)+',',pdict.pageheader)}"/>

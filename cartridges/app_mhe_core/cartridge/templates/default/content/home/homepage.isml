@@ -1,0 +1,137 @@
+<iscache type="relative" hour="24"/>
+<isdecorate template="content/home/pt_storefront">
+<isinclude template="util/modules"/>
+
+<iscomment>this is the template rendering the homepage</iscomment>
+<!-- +1.888.553.9216 --><!--This phone is a requirement to support existing Gomez monitor of SiteGenesis. Demadware customers can remove this.-->
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+	var url = window.location.href;
+	
+	if(url.indexOf('passwordchanged=true') != -1){
+		
+		$(window).load(function(){
+			var dlg = app.dialog.create({target:$("#deleteItem"), options:{
+				width:600,
+				height:'auto',
+				title:this.title,
+				open:function() {
+					app.registerInterest.init();
+					app.validator.init();
+				}
+			}});
+
+			var thisData = $("div").find("#pwdChangeConfirm").clone(true).removeAttr( "hidden");
+			$("#deleteItem").html(thisData).parents(".ui-dialog").addClass("cartPrompts passConfirm");
+		
+			dlg.dialog("open");
+		});
+		
+		$("#js-closeConfirm").on("click", function(){
+			$(".ui-widget-overlay, .passConfirm").remove();
+		});
+		
+	}
+});
+	
+</script>
+	<isif condition="${pdict.CurrentHttpParameterMap.passwordchanged.stringValue == 'true'}">
+		<div id="pwdChangeConfirm" class="change-password" hidden="true">
+			<iscontentasset aid="passwordChangedConfirmDialog"/>
+		</div>	
+	</isif>
+	<iscomment> 
+		################################ FOR UI Developers ###############################
+		# Use this attribute (enableParallax) to enable/disable parallax on the homepage #
+		################################ FOR UI Developers ###############################
+	</iscomment>
+	<isset name="enableParallax" value="${!('enableCEOnHomePage' in dw.system.Site.current.preferences.custom) || !dw.system.Site.current.preferences.custom.enableCEOnHomePage}" scope="page" />
+	<div class="row clearfix homepage-indie-cols" id="homePageCols" data-parallax-enabled="${enableParallax}" data-indie-columns='{"innerColClass" : "js-col-inner", "panelSpotClass" : "content-slot"}'>
+		<!-- First Column -->
+		<div class="col col-1-3 col-01" data-stellar-ratio="${dw.system.Site.current.preferences.custom.homePageFirstColumnScrolling}">
+			<div class="js-col-inner">
+				<div class="hero_banner content-slot">
+					<isslot id="Home-Hero-Panel-Clone" description="Home Hero Panel Clone" context="global" />
+				</div>
+				<div class="stickyHeader">
+					
+						<isslot id="Home-First-Column-Title" description="Home First Column Title" context="global" />
+					
+				</div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-1" description="Home First Column Slot 1" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-2" description="Home First Column Slot 2" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-3" description="Home First Column Slot 3" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-4" description="Home First Column Slot 4" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-5" description="Home First Column Slot 5" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-6" description="Home First Column Slot 6" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-7" description="Home First Column Slot 7" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-8" description="Home First Column Slot 8" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-9" description="Home First Column Slot 9" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-10" description="Home First Column Slot 10" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-First-Column-Slot-11" description="Home First Column Slot 11" context="global" /></div>
+			</div>
+		</div>
+		
+		<!-- Second Column -->
+		<div class="col col-1-3 col-02" data-stellar-ratio="${dw.system.Site.current.preferences.custom.homePageSecondColumnScrolling}">
+			<div class="js-col-inner">
+				<div class="hero_banner content-slot">
+					<isslot id="Home-Hero-Panel" description="Home Hero Panel" context="global" />
+				</div>
+				<div class="stickyHeader">
+					
+						<isslot id="Home-Second-Column-Title" description="Home Second Column Title" context="global" />
+					
+				</div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-1" description="Home Second Column Slot 1" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-2" description="Home Second Column Slot 2" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-3" description="Home Second Column Slot 3" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-4" description="Home Second Column Slot 4" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-5" description="Home Second Column Slot 5" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-6" description="Home Second Column Slot 6" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-7" description="Home Second Column Slot 7" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-8" description="Home Second Column Slot 8" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-9" description="Home Second Column Slot 9" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-10" description="Home Second Column Slot 10" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Second-Column-Slot-11" description="Home Second Column Slot 11" context="global" /></div>
+			</div>
+		</div>
+		<!-- Third Column -->
+		<div class="col col-1-3 col-03" data-stellar-ratio="${dw.system.Site.current.preferences.custom.homePageThirdColumnScrolling}">
+			<div class="js-col-inner">
+				<div class="hero_banner content-slot">
+					<isslot id="Home-Hero-Panel-Clone" description="Home Hero Panel Clone" context="global" />
+				</div>
+				<div class="stickyHeader">
+					
+						<isslot id="Home-Third-Column-Title" description="Home Third Column Title" context="global" />
+					
+				</div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-1" description="Home Third Column Slot 1" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-2" description="Home Third Column Slot 2" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-3" description="Home Third Column Slot 3" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-4" description="Home Third Column Slot 4" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-5" description="Home Third Column Slot 5" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-6" description="Home Third Column Slot 6" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-7" description="Home Third Column Slot 7" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-8" description="Home Third Column Slot 8" context="global" /></div>
+				<div class="content-slot"><isslot id="Home-Third-Column-Slot-9" description="Home Third Column Slot 9" context="global" /></div>
+			</div>
+		</div>
+		
+		<!-- Back to Top -->
+		<div class="back-top" data-back-to-top='{"particleClass":"particles", "triggerClass":"trigger", "pulseClass":"pulse-once"}'>
+			<a href="#top" class="trigger">
+				<span class="particles">
+					<img src="${URLUtils.staticURL('/css/img/common/particles-01.png')}" />
+					<img src="${URLUtils.staticURL('/css/img/common/particles-02.png')}" />
+				</span>
+				<span class="arrow"></span>
+			</a>
+		</div>
+		
+	</div><!-- /END row -->
+	
+</isdecorate>

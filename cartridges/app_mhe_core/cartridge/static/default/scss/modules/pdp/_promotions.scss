@@ -1,0 +1,25 @@
+// =============================================================================
+// PDP Promotions
+// =============================================================================
+.promotion {
+	text-align: center;
+	.promotion-title {
+		display: none;
+	}
+	.promotion-callout {
+		p {
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+		.cta {
+			padding: 0 0 0 15px;
+			font-size: 14px;
+			font-weight: normal;
+			text-transform: capitalize;
+		}
+	}
+}
+
+.promo-overlay {
+	display: none;
+}

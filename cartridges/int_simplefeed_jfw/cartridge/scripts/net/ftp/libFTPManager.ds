@@ -1,0 +1,580 @@
+/**
+ *  
+ */
+
+importPackage(dw.system);
+importPackage(dw.net);
+importPackage(dw.io);
+importPackage(dw.util);
+
+function FTPManager(host : String, user : String, password : String, port : Number) {
+
+	var host : String = host;
+	var user : String = user;
+	var password : String = password;
+	var port : Number = port;
+	var binary : Boolean = true;
+	var encoding : String = "UTF-8";
+	
+	var mgrName : String = "FTPManager: ";	
+	var client : FTPClient = new FTPClient();
+
+	/**
+	 * Get a file from the FTP server and stores it on the DW server in the specified
+	 * local directory under the same name and directory, if specified.
+	 */
+	this.getFile = function(file : String, localDir : File, maxGetSize : Number) : Boolean {
+	
+		if (empty(file)) {
+			logError("The specified parameter 'File' is null or an empty string.");
+			return false;
+		}
+		if (localDir == null) {
+			logError("The specified parameter 'LocalDir' is null.");
+			return false;
+		}
+		if (!localDir.exists()) {
+			localDir.mkdirs();
+		}
+		
+		var success : Boolean = false;
+		
+		try {
+				
+			connect();	
+				
+			success = get(file, localDir, maxGetSize);
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server or get the File: " + e + " Host: '" + host + "'; File: '" + file + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;
+	}
+
+	/**
+	 * Get a file from the FTP server and stores it on the DW server in the specified
+	 * local directory under the same name and directory, if specified.
+	 * Afterwards, the file is removed from the FTP Server.
+	 */	
+	this.getAndDeleteFile = function(file : String, localDir : File, maxGetSize : Number) : Boolean {
+		if (empty(file)) {
+			logError("The specified parameter 'File' is null or an empty string.");
+			return false;
+		}
+		if (localDir == null) {
+			logError("The specified parameter 'LocalDir' is null.");
+			return false;
+		}
+		if (!localDir.exists()) {
+			localDir.mkdirs();
+		}
+		
+		var success : Boolean = false;
+		
+		try {
+				
+			connect();	
+				
+			success = get(file, localDir, maxGetSize);
+				
+			if (success) {
+				success &= del(file);
+			}
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server: " + e + " Host: '" + host + "'; File: '" + file + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;		
+	}
+
+	/**
+	 * Get all files of a directory from the FTP server and stores it on the DW server in the specified
+	 * local directory under the same name and directory path. If the files should be retrieved recursive,
+	 * the whole directory structure will be copied from the FTP server. Otherwise, only the files will
+	 * be transfered.
+	 */	
+	this.getFilesFromDirectory = function(dir : String, localDir : File, recursive : Boolean, maxGetSize : Number) {
+		
+		if (empty(dir)) {
+			logError("The specified parameter 'Dir' is null or an empty string.");
+			return false;
+		}
+		if (localDir == null) {
+			logError("The specified parameter 'LocalDir' is null.");
+			return false;
+		}
+		if (!localDir.exists()) {
+			localDir.mkdirs();
+		}
+		
+		var success : Boolean = false;
+		
+		try {
+				
+			connect();
+			
+			success = getFiles(dir, localDir, recursive, maxGetSize);
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server or get the File: " + e + " Host: '" + host + "'; Directory: '" + dir + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;		
+		
+	}
+
+	/**
+	 * Get all files of a directory from the FTP server and stores it on the DW server in the specified
+	 * local directory under the same name and directory path. If the files should be retrieved recursive,
+	 * the whole directory structure will be copied from the FTP server. Otherwise, only the files will
+	 * be transfered.
+	 * Afterwards, the files will be deleted on the FTP server. If recursive, the full directory structure
+	 * will be removed, otherwise the files in the current directory only.
+	 */	
+	this.getAndDeleteFilesFromDirectory = function(dir : String, localDir : File, recursive : Boolean, maxGetSize : Number) {
+		
+		if (empty(dir)) {
+			logError("The specified parameter 'Dir' is null or an empty string.");
+			return false;
+		}
+		if (localDir == null) {
+			logError("The specified parameter 'LocalDir' is null.");
+			return false;
+		}
+		if (!localDir.exists()) {
+			localDir.mkdirs();
+		}
+		
+		var success : Boolean = false;
+		
+		try {
+				
+			connect();
+			
+			// get the files
+			success = getFiles(dir, localDir, recursive, maxGetSize);
+			
+			// delete the files, after successful transfer of all files
+			if (success) {
+				success &= deleteFiles(dir, recursive);
+			}
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server or get the File: " + e + " Host: '" + host + "'; Directory: '" + dir + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;		
+	}
+	
+	/**
+	 *
+	 */
+	this.putFile = function(file : File, remoteDir : String) : Boolean {
+		if (file == null || !file.exists()) {
+			logError("The specified parameter 'File' is null or doesn't exist.");
+			return false;
+		}
+		
+		var success : Boolean = false;
+		
+		try {
+				
+			connect();	
+				
+			mkRemoteDirs(remoteDir);	
+			
+			success = put(file, remoteDir);
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server or put the File: " + e + " Host: '" + host + "'; File: '" + file + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;		
+	}
+	
+	this.putFiles = function(directory : File, remoteDir : String, recursive : Boolean) : Boolean {
+		if (directory == null || !directory.exists()) {
+			logError("The specified parameter 'Directory' is null or doesn't exist.");
+			return false;
+		}
+		if (remoteDir == null) {
+			logError("The specified parameter 'RemoteDir' is null or an empty string.");
+			return false;
+		}
+		
+		var success : Boolean = true;
+		
+		try {
+				
+			connect();
+			
+			mkRemoteDirs(remoteDir);	
+				
+			if (recursive) {
+				success &= putFilesRecursive(directory, remoteDir);
+			}
+			else {
+				
+				var files : List = directory.listFiles();
+				var file : File;
+				for each (file in files) {
+					if (file.isFile()) {
+						success &= put(file, remoteDir);
+					}
+				}				
+			}
+			
+			disconnect();
+		}
+		catch (e) {
+			logError("Error connecting to FTP Server or put the File: " + e + " Host: '" + host + "'; Directory: '" + remoteDir + "'");
+			disconnect();
+			return false;
+		}
+		
+		return success;				
+	}
+	
+	/**
+	 * Sets the binary or text mode.
+	 */
+	this.setBinary = function(binary : Boolean) {
+		binary = binary;
+	}
+	
+	/**
+	 * Sets the encoding.
+	 */
+	this.setEncoding = function(encoding : String) {
+		encoding = encoding;
+	}
+	
+	
+	/**
+	 * PRIVATE FUNCTIONS
+	 */
+	
+	/**
+	 * Connects the FTPClient.
+	 */
+	var connect = function() {
+			
+		logDebug("******** Connect to: " + host);
+			
+		if (empty(user) && empty(password)) {
+			if (empty(port)) {
+				client.connect(host);
+			}
+			else {
+				client.connect(host, port);
+			}
+		}
+		else {
+			if (empty(port)) {
+				client.connect(host, user, password);
+			}
+			else {
+				client.connect(host, user, password);
+			}
+		}	
+	}
+	
+	/**
+	 * Disconnects the FTPClient.
+	 */
+	var disconnect = function() {
+		if (client.connected) {
+			client.disconnect();
+		}
+	}
+	
+	/**
+	 * Get the file from the server, but doesn't connect or disconnect.
+	 */
+	var get = function(file : String, localDir : File, maxGetSize : Number) : Boolean {
+		
+		var success : Boolean = false;
+		if (empty(maxGetSize)) {
+			maxGetSize = FTPClient.DEFAULT_GET_FILE_SIZE;
+		}
+			
+		if (client.connected) {	
+			
+			logDebug("******** Connected to: " + host + " get File " + file);
+			
+			var localFile : File = mkLocalDirs(file, localDir);
+			
+			if (binary) {
+				success = client.getBinary(file, localFile, maxGetSize);
+			}
+			else {
+				success = client.get(file, this.encoding, localFile, maxGetSize);
+			}
+			
+			logDebug("***** Success to get the file: " + success + " Msg: " + client.replyMessage + " Code " + client.replyCode);
+			
+			// Remove the created local file if the FTP file could not be transferred
+			if (!success) {
+				localFile.remove();
+			}
+		}	
+		else {
+			logError("FTPClient ist not connected to Host: " + host);
+		}
+		
+		return success;		
+	}
+	
+	/**
+	 * Gets the files from a directory. If recursive, all subdirectories are transferred.
+	 */
+	var getFiles = function(dir : String, localDir : File, recursive : Boolean, maxGetSize : Number) : Boolean {
+		
+		var success : Boolean = true;
+			
+		if (dir.lastIndexOf("/") != dir.length-1) {
+			dir += "/";
+		}	
+		
+		if (recursive) {
+			success &= getFilesRecursive(dir, localDir, maxGetSize);
+		}
+		else {
+			var fileInfos : Array = client.list(dir);
+			var fileInfo : FTPFileInfo;
+			for each (fileInfo in fileInfos) {
+				if (!fileInfo.directory) {
+					success &= get(dir + fileInfo.getName(), localDir, maxGetSize);
+				}
+			}				
+		}	
+		
+		return success;	
+	}
+	
+	/**
+	 * Helper function to get the files recursively.
+	 */
+	var getFilesRecursive = function(dir : String, localDir : File, maxGetSize : Number) : Boolean {
+		
+		var success : Boolean = true;
+		
+		if (dir.lastIndexOf("/") != dir.length-1) {
+			dir += "/";
+		}
+		
+		var fileInfos : Array = client.list(dir);
+		
+		var fileInfo : FTPFileInfo;
+		for each (fileInfo in fileInfos) {
+			if (fileInfo.name.indexOf("..") == -1) {
+				if (fileInfo.directory) {
+					success &= getFilesRecursive(dir + fileInfo.getName(), localDir, maxGetSize);
+				}
+				else {
+					success &= get(dir + fileInfo.getName(), localDir, maxGetSize);
+				}
+			}
+		}
+		
+		return success;
+	}
+	
+	/**
+	 * Deletes the file on the server, but doesn't connect or disconnect.
+	 */
+	var del = function(file : String) : Boolean {
+		
+		var success : Boolean = false;
+		
+		if (client.connected) {
+			logDebug("***** Remove file: " + file);
+			
+			success = client.del(file);
+			
+			logDebug("***** Success to delete the file: " + success + " Msg: " + client.replyMessage + " Code " + client.replyCode);
+		}
+		else {
+			logError("FTPClient ist not connected to Host: " + host);
+		}
+		
+		return success;
+	}
+	
+	/**
+	 * Deletes the files of a directory on the server. If recursive, the files
+	 * of all subdirectories are removed as well.
+	 */
+	var deleteFiles = function(dir : String, recursive : Boolean) : Boolean {
+		
+		var success : Boolean = true;	
+			
+		if (dir.lastIndexOf("/") != dir.length-1) {
+			dir += "/";
+		}
+		
+		if (recursive) {
+			success &= deleteFilesRecursive(dir);
+		}
+		else {
+			var fileInfos : Array = client.list(dir);
+			var fileInfo : FTPFileInfo;
+			for each (fileInfo in fileInfos) {
+				if (!fileInfo.directory) {
+					success &= del(dir + fileInfo.name);
+				}
+			}					
+		}
+		
+		return success;			
+	}
+	
+	/**
+	 * Helper function to remove files recursively.
+	 */
+	var deleteFilesRecursive = function(dir : String) : Boolean {
+			
+		var success : Boolean = true;
+		
+		if (dir.lastIndexOf("/") != dir.length-1) {
+			dir += "/";
+		}
+		
+		var fileInfos : Array = client.list(dir);
+		
+		var fileInfo : FTPFileInfo;
+		for each (fileInfo in fileInfos) {
+			if (fileInfo.name.indexOf("..") == -1) {
+				if (fileInfo.directory) {
+					success &= deleteFilesRecursive(dir + fileInfo.getName());
+				}
+				else {
+					success &= del(dir + fileInfo.name);
+				}
+			}
+		}
+		
+		return success;		
+	}
+	
+	/**
+	 * Puts the file to the remote directory.
+	 */
+	var put = function(file : File, remoteDir : String) : Boolean {
+		
+		var success : Boolean = false;
+		
+		if (client.connected) {	
+			
+			logDebug("******** Connected to: " + host + " put File " + file.fullPath + " to " + remoteDir + "/" + file.getName());
+			
+			success = client.putBinary(remoteDir + "/" + file.getName(), file);
+			
+			logDebug("***** Success to put the file: " + success + " Msg: " + client.replyMessage + " Code " + client.replyCode);
+
+		}	
+		else {
+			logError("FTPClient ist not connected to Host: " + host);
+		}
+	}
+	
+	var putFilesRecursive = function(directory : File, remoteDir : String) : Boolean {
+		var success : Boolean = true;
+		
+		var files : List = directory.listFiles();
+		var file : File;
+		for each (file in files) {
+			if (file.isDirectory()) {
+				mkRemoteDirs(remoteDir + "/" + file.getName());
+				success &= putFilesRecursive(file, remoteDir + "/" + file.getName());
+			}
+			else {
+				success &= put(file, remoteDir);
+			}
+		}		
+		
+		return success;
+	}
+	
+	/**
+	 * Creates the local directories and file.
+	 */
+	var mkLocalDirs = function(file : String, localDir : File) : File {
+		var localFile : File = null;
+		if (file.indexOf("/") != -1) {
+			// create the local directories
+			var dir : String = file.substring(0, file.lastIndexOf("/"));
+			var locDir : File = new File(localDir, dir);
+			locDir.mkdirs();
+			
+			// create the local file
+			localFile = new File(locDir, file.substring(file.lastIndexOf("/")));
+			localFile.createNewFile();	
+		}
+		else {
+			// create the local file
+			localFile = new File(localDir, file);
+			localFile.createNewFile();				
+		}
+		
+		return localFile;		
+	}
+	
+	var mkRemoteDirs = function(remoteDir : String) {
+		if (client.connected) {	
+			client.mkdir(remoteDir);
+			
+			// permission denied, try to upload
+			if (client.replyCode == 550) {
+				var localDir : File = new File(File.TEMP + "/" + remoteDir);
+				localDir.mkdirs();
+				
+				client.putBinary(host, localDir);
+				localDir.remove();
+			}
+			
+			logDebug("***** Directory " + remoteDir + " created - Msg: " + client.replyMessage + " Code " + client.replyCode);			
+		}	
+		else {
+			logError("FTPClient ist not connected to Host: " + host);
+		}		
+	}
+	
+	/**
+	 * Logs a debug message.
+	 */
+	var logDebug = function(msg : String) {
+		if (Logger.isDebugEnabled()) {
+			Logger.debug(mgrName + msg);
+		}			
+	}
+	
+	/**
+	 * Logs an error message.
+	 */
+	var logError = function(msg : String) {
+		Logger.error(mgrName + msg);
+	}
+}

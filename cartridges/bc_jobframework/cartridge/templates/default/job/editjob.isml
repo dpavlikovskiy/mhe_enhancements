@@ -1,0 +1,116 @@
+<!--- TEMPLATENAME: editjob.isml --->
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<!-- Page Navigator -->
+<isset name="TOP_URL"   value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'customsitemenuextension_id01')}" scope="PAGE">
+<isbreadcrumb name1="Manage Job Configurations" name2="Edit Job">
+<!-- EO Page Navigator -->
+
+<isset name="currentJobForm" value="${pdict.CurrentForms.jobupdate}" scope="page" />
+
+<form action="${URLUtils.continueURL()}" method="post" name="${currentJobForm.htmlName}">
+	<table id="jobEditor" width="100%" style="margin:30px 0px;">
+		<tr>
+			<td class="fielditem2" align="right" width="200px;"><label for="${currentJobForm.jobID.htmlName}">${Resource.msg('job.edit.ID','jobs',null)}:<span class="star">*</span></label></td>
+			<td><input id="${currentJobForm.jobID.htmlName}" class="w100" type="text" name="${currentJobForm.jobID.htmlName}" value="${currentJobForm.jobID.value}" readonly="readonly" maxlength="400" /></td>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobName.htmlName}">${Resource.msg('job.edit.Name','jobs',null)}:<span class="star">*</span></label></td>
+			<td><input id="${currentJobForm.jobName.htmlName}" class="w100" type="text" name="${currentJobForm.jobName.htmlName}" value="${currentJobForm.jobName.value}" maxlength="4000" width="100%" /></td>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobFileLogging.htmlName}">${Resource.msg('job.edit.fileLogging','jobs',null)}:<span class="star">*</span></label></td>
+			<td>
+				<select id="${currentJobForm.jobFileLogging.htmlName}" name="${currentJobForm.jobFileLogging.htmlName}">
+					<option value="None"${(currentJobForm.jobFileLogging.value == 'None') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.fileLogging.None','jobs',null)}</option>
+					<option value="Job Based"${(currentJobForm.jobFileLogging.value == 'Job Based') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.fileLogging.JobBased','jobs',null)}</option>
+					<option value="Task Based"${(currentJobForm.jobFileLogging.value == 'Task Based') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.fileLogging.TaskBased','jobs',null)}</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobLogLevel.htmlName}">${Resource.msg('job.edit.logLevel','jobs',null)}:<span class="star">*</span></label></td>
+			<td>
+				<select id="${currentJobForm.jobLogLevel.htmlName}" name="${currentJobForm.jobLogLevel.htmlName}">
+					<option value="fatal"${(currentJobForm.jobLogLevel.value == 'fatal') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.logLevel.fatal','jobs',null)}</option>
+					<option value="error"${(currentJobForm.jobLogLevel.value == 'error') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.logLevel.error','jobs',null)}</option>
+					<option value="debug"${(currentJobForm.jobLogLevel.value == 'debug') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.logLevel.debug','jobs',null)}</option>
+					<option value="info"${(currentJobForm.jobLogLevel.value == 'info') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.logLevel.info','jobs',null)}</option>
+				</select>
+			</td>
+		</tr>
+	
+		<isset name="firstIteration" value="${true}" scope="page" />
+		<isloop items="${currentJobForm.jobProcessSites.value}" var="processSites">
+			<isif condition="${firstIteration}">
+				<tr><td class="fielditem2" align="right">${Resource.msg('job.edit.processSites','jobs',null)}</td><td><input class="w100 jobProcessSites" type="text" value="${processSites}"  name="${currentJobForm.jobProcessSites.htmlName}"/></td></tr>
+				<isset name="firstIteration" value="${false}" scope="page" />
+			<iselse>
+				<tr><td></td><td><input class="w100 jobProcessSites" type="text" value="${processSites}" name="${currentJobForm.jobProcessSites.htmlName}"/></td></tr>
+			</iselse>
+			</isif>
+		</isloop>
+	
+		<isset name="firstIteration" value="${true}" scope="page" />
+		<isset name="counter" value="${0}" scope="page" />
+		<isloop items="${currentJobForm.jobTasks.value}" var="task" >
+			<isif condition="${firstIteration}">
+				<tr>
+					<td class="fielditem2" align="right">
+						${Resource.msg('job.edit.tasks','jobs',null)}
+					</td>
+					<td>
+						<input class="w100" type="text" name="${currentJobForm.jobTasks.htmlName}_${counter}" value="${task}" />
+					</td>
+				</tr>
+				<isset name="firstIteration" value="${false}" scope="page" />
+			<iselse>
+				<tr>
+					<td>&nbsp;</td>
+					<td>
+						<input class="w100" type="text" name="${currentJobForm.jobTasks.htmlName}_${counter}" value="${task}" />
+					</td>
+				</tr>
+			</iselse>
+			</isif>
+			<isset name="counter" value="${counter+1}" scope="page" />
+		</isloop>
+	
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobSuccessEmail.htmlName}">${Resource.msg('job.edit.SuccessEmail','jobs',null)}:</label></td>
+			<td><input id="${currentJobForm.jobSuccessEmail.htmlName}" class="w100" type="text" name="${currentJobForm.jobSuccessEmail.htmlName}" value="${currentJobForm.jobSuccessEmail.value}" maxlength="400" /></td>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobErrorEmail.htmlName}">${Resource.msg('job.edit.ErrorEmail','jobs',null)}:</label></td>
+			<td><input id="${currentJobForm.jobErrorEmail.htmlName}" class="w100" type="text" name="${currentJobForm.jobErrorEmail.htmlName}" value="${currentJobForm.jobErrorEmail.value}" maxlength="400" /></td>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobFollowUpJob.htmlName}">${Resource.msg('job.edit.FollowUpJob','jobs',null)}:</label></td>
+			<isif condition="${!empty(currentJobForm.jobFollowUpJob.value)}">
+				<td><input id="${currentJobForm.jobFollowUpJob.htmlName}" class="w100" type="text" name="${currentJobForm.jobFollowUpJob.htmlName}" value="${currentJobForm.jobFollowUpJob.value}" maxlength="400" /></td>
+			<iselse>
+				<td><input id="${currentJobForm.jobFollowUpJob.htmlName}" class="w100" type="text" name="${currentJobForm.jobFollowUpJob.htmlName}" maxlength="400" /></td>
+			</iselse>
+			</isif>
+		</tr>
+		<tr>
+			<td class="fielditem2" align="right"><label for="${currentJobForm.jobOnTemporaryError.htmlName}">${Resource.msg('job.edit.onTemporaryError','jobs',null)}:<span class="star">*</span></label></td>
+			<td>
+				<select id="${currentJobForm.jobOnTemporaryError.htmlName}" name="${currentJobForm.jobOnTemporaryError.htmlName}">
+					<option value="CONTINUE"${(currentJobForm.jobOnTemporaryError.value == 'CONTINUE') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.onTemporaryError.continue','jobs',null)}</option>
+					<option value="FAIL"${(currentJobForm.jobOnTemporaryError.value == 'FAIL') ? ' selected="selected"' : ''}>${Resource.msg('job.edit.onTemporaryError.fail','jobs',null)}</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<input type="submit" id="${currentJobForm.update.htmlName}" name="${currentJobForm.update.htmlName}" value="${Resource.msg('job.edit.updateButton','jobs',null)}" class="button" />
+	<input type="submit" id="${currentJobForm.cancel.htmlName}" name="${currentJobForm.cancel.htmlName}" value="${Resource.msg('job.edit.cancelButton','jobs',null)}" class="button" />
+</form>
+<script type="text/javascript">
+<!--
+	document.getElementById('${"#"}jobEditor').style.backgroundColor='blue';
+-->
+</script>
+</isdecorate>

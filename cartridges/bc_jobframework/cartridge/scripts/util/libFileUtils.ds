@@ -1,0 +1,36 @@
+
+importPackage( dw.io );
+importPackage( dw.system );
+
+function FileUtils(){
+
+}
+
+/**
+ * Copy source file to target location. All directories will be created if is necessary.
+ *
+ * @param	source
+ * @param	target
+ */
+FileUtils.copyFile = function(source : String, target : String){
+
+	var sourceFile : File = new File(source);
+	var targetZipped : File = new File(target + ".zip");
+	sourceFile.zip(targetZipped);
+	var targetDirectory = new File(targetZipped.fullPath.replace(targetZipped.getName(),''));
+	targetZipped.unzip(targetDirectory);
+	
+	Logger.debug("File '" + source + "' is copied to '" + target + "'");
+}
+
+/**
+ * Ensures existence of file directories
+ * 
+ * @param	targetFile
+ */
+FileUtils.ensureFileDirectories = function(targetFile : File){
+	var targetFilePath : String = targetFile.fullPath;
+	var index : Number = targetFilePath.lastIndexOf(File.SEPARATOR);
+	var directoryFilePath = targetFilePath.substr(0, index);
+	new File(directoryFilePath).mkdirs();
+}

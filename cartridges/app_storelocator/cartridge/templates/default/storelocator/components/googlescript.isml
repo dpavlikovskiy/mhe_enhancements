@@ -1,0 +1,42 @@
+<!--- TEMPLATENAME: googlescript.isml --->
+<script src="https://www.google.com/jsapi" type="text/javascript"></script>
+	
+<script type="text/javascript"
+    src="https://maps.google.com/maps/api/js?sensor=true">
+</script>
+
+<script type="text/javascript"
+    src="${URLUtils.staticURL('/js/storelocator.js')}">
+</script>
+
+<iscomment>
+The script block below loads several server dependent variables
+and uses them to initialize the google map storelocator 
+</iscomment>
+
+<script language="Javascript" type="text/javascript">
+//<![CDATA[
+                      
+var zoomradius		= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorZoomRadius")}" encoding="off">';           
+var storeurl		= '<isprint value="${URLUtils.url("Stores-Details") + "?StoreID="}">';
+var lodgeurl 		= '<isprint value="${URLUtils.absStatic("images/lodge.png")}">';
+var queryurl 		= '<isprint value="${URLUtils.url("Stores-GetNearestStores")}">';
+var cookieurl		= '<isprint value="${URLUtils.url("Stores-SetGeoLocation")}">';
+var cookiename		= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorCookieName")}">';
+var defaultlocation	= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorDefaultCountry")}">';
+var maptype			= '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeLocatorMapType").value}">';
+var serachrefineurl	= '<isprint value="${URLUtils.url("Stores-GetNearestStores")}">';
+var findStore		= '<isprint value="${pdict.CurrentHttpParameterMap.findStore}">';
+var searchparam		= '<isprint value="${pdict.CurrentHttpParameterMap.searchparam}">';
+var defaultStoreVenueFilter = '<isprint value="${dw.system.Site.current.getCustomPreferenceValue("defaultStoreVenueFilter")}">';
+var defaultZoom		=	'<isprint value="${dw.system.Site.current.getCustomPreferenceValue("storeDefaultZoom")}" encoding="off">'; 
+var store			= '<isprint value="${pdict.Store}">';
+
+
+	jQuery(document).ready(function(){
+		StoreLocator.init(zoomradius, storeurl, lodgeurl, queryurl, cookieurl, cookiename, defaultlocation, maptype,serachrefineurl,findStore,searchparam,defaultStoreVenueFilter,defaultZoom);
+	});
+
+
+//]]>
+</script>

@@ -1,0 +1,37 @@
+/**
+*   ValidatePassword.ds
+*   This script takes pipelinename and checks that pipeline called belongs to My Account.
+
+*   @input pipelinename : String 
+* 
+*	@output accountpipeline: Number
+*
+*/
+importPackage( dw.system );
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+	pdict.accountpipeline = 0;
+	if (!empty(pdict.pipelinename)){
+		
+		if ((pdict.pipelinename).equals("Account-EditProfile"))
+		{
+		  pdict.accountpipeline = 1;
+		}
+		if ((pdict.pipelinename).equals("Order-History"))
+		{
+		  pdict.accountpipeline = 1;
+		}
+		if ((pdict.pipelinename).equals("Address-List"))
+		{
+		  pdict.accountpipeline = 1;
+		}
+		if ((pdict.pipelinename).equals("PaymentInstruments-List"))
+		{
+		  pdict.accountpipeline = 1;
+		}
+	}
+	 return PIPELET_NEXT;
+}	
+	
+  

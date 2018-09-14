@@ -1,0 +1,73 @@
+.header {
+	header {
+		.menu-utility-user {
+			li {
+				font-size:$smaller_heading;
+				.hidden-sub{
+					background-color: $bgbody;
+					border-left: 1px solid $brandBorder;
+					border-right: 1px solid $brandBorder;
+					border-bottom: 1px solid $brandBorder;
+					li {
+						&.logout {
+							border-top: 1px solid $brandBorder;
+							a {
+								background-color: $nav_bg;
+							}
+						}
+						a {
+							color: $brandcolor;
+							&:hover {
+								color: $white;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	.header_right{
+		font-size:$smaller_heading;
+		.mini-cart {
+			margin-left: 15px;
+			position:relative; 
+		} 
+	}
+}
+.header{
+	.menu-category {
+		margin:0px;
+		float:left;
+			li {
+			font-size:$very_small_text;
+			font-family: $heading-font-family;
+				.menu-wrapper{
+					width:205px;
+					margin-left:-74px;
+					background:#222;
+					&:before{
+						
+					}
+					li{
+						margin-left: 34px;
+						min-width: 200px;
+						a{
+							font-size: $very_small_text;
+							font-family: $heading-font-family;
+							width:auto;
+							float: left;
+    						line-height: 50px;
+    						&:hover {
+    							color: $brandcolor;
+    						}
+						}
+					}
+				}
+				&.items > a{
+					 background-image: url("../img/sprites/sprite_main.png");
+					 background-position: right -303px;
+					 background-repeat: no-repeat;
+				}			
+			}
+	}
+}	

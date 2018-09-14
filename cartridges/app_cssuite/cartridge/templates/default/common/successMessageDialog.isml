@@ -1,0 +1,21 @@
+<isscript>
+	importPackage(dw.util);
+	var successMessage : String =!empty(pdict.SuccessMessage) ? StringUtils.stringToHtml(pdict.SuccessMessage) : "";
+	var successMessageTitle : String = !empty(pdict.SuccessMessageTitle) ? StringUtils.stringToHtml(pdict.SuccessMessageTitle) : "Message";
+	var successAction : String = !empty(pdict.SuccessJSAction) ? pdict.SuccessJSAction : "";
+</isscript>
+<isif condition="${!empty(pdict.SuccessMessage)}">
+	<script type="text/javascript">
+	<!--
+		Dialog.message('<isprint value="${successMessageTitle}" encoding="off">',
+			'<isprint value="${successMessage}" encoding="off">',
+			function(){<isprint value="${successAction}" encoding="off">});
+	//-->
+	</script>
+<iselseif condition="${!empty(pdict.SuccessJSAction)}">
+	<script type="text/javascript">
+<!--
+	<isprint value="${successAction}" encoding="off">
+//-->
+</script>
+</isif>

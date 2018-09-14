@@ -1,0 +1,119 @@
+.picnicEvents{
+	width:1280px;
+	background:$eModulesBg;
+	margin:0 auto 10px;
+	position:relative;
+	#hoverContent{
+	min-height:310px;
+		}
+	.picnicProducts{
+		text-align:center;
+		min-height:340px;
+		li{
+			display:inline-block;
+			width:310px;
+			height:320px;
+			vertical-align:top;
+			border-bottom: 5px solid $greyBorder;
+			height:337px;
+			a{
+				color:$darkblack;
+			}
+			h3.secondary{
+				font:$very_small_text $titleFont;
+				color:$darkblack;
+				margin:0;
+			}
+			.price{
+				display:block;
+				font:$big_text $regularFont;
+				margin:0 0 10px;
+			}
+			.pImage{
+				height:190px;
+				margin:20px 0 10px;
+				border-right:1px solid $picnicBorder;
+			}
+			&:last-child{
+				.pImage{
+					border-right:0;
+				}
+			}
+			&:hover{
+				.hiddenContent{
+					@include opacity(1);
+					visibility:visible;
+				}
+				&:before{
+					@include opacity(1);
+				}
+			}
+			&:before{
+				content:" ";
+				width:28px;
+				height:14px;
+				background:url(images/event-arrow.png);
+				top:296px;
+				margin-left:-10px;
+				position:absolute;
+				z-index:99;
+				@include transition-property(opacity);
+				@include transition-duration(.5s);
+				@include opacity(0);
+			}
+		}
+	}
+	.button{
+		.face{
+			border:1px solid $brandcolor;
+			background:$brandcolor;
+			color:$white;
+		}
+	}
+	.content{
+		position:absolute;
+		left:200px;
+		right:200px;
+		top:60px;
+		text-align:center;
+		p, h4{
+			font:$stand_first $regularFont;
+			text-shadow:1px 1px 1px $black;
+		}
+		p.bold{
+			font-weight:bold;
+		}
+		h2{
+			font:$basket_big_text $titleFont;
+			color:$brandcolor;
+			text-transform:uppercase;
+			text-shadow:1px 1px 1px $black;
+		}
+		h3{
+			font:$normal-font-size $titleFont;
+			color:$brandcolor;
+			text-transform:uppercase;
+			text-shadow:1px 1px 1px $black;
+		}
+	}
+	.hiddenContent{
+		position:absolute;
+		left:0;
+		top:0;
+		@include transition-property(opacity);
+		@include transition-duration(.5s);
+		@include opacity(0);
+		visibility:hidden;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

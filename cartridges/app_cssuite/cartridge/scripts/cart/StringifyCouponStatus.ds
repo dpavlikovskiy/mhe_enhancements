@@ -1,0 +1,35 @@
+/**
+* This script builds an string for the status messages returned by the AddCouponToBasket pipelet.
+* @input Status : dw.system.Status The status
+* @output Message : String error message of the status.
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.campaign );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var status : Status = pdict.Status;
+	if (status.code == "COUPON_ALREADY_APPLIED") {
+		pdict.Message = "The coupon is already applied in the basket";
+		Logger.error(pdict.Message);
+	}
+	else if (status.code == "COUPON_ALREADY_REDEEMED") {
+		pdict.Message = "The coupon is already redeemed.";
+		Logger.error(pdict.Message);
+	}
+	else if (status.code == "COUPON_NOT_REDEEMABLE") {
+		pdict.Message = "The coupon can currently not redeemed.";
+		Logger.error(pdict.Message);
+	}
+	else if (status.code == "COUPON_UNKNOWN") {
+		pdict.Message = "The coupon is unknown.";
+		Logger.error(pdict.Message);
+	}
+	else {
+		pdict.Message = "The coupon status is unknown.";
+		Logger.error(pdict.Message);
+	}
+	
+    return PIPELET_NEXT;
+}

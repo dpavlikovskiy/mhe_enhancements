@@ -1,0 +1,64 @@
+/**
+* Demandware Script File To Update Product custom attribute childIs 
+*
+*
+*    @input  ProductLineItem:dw.order.ProductLineItem
+*    @input  Basket:dw.order.Basket
+ 
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+function execute( pdict : PipelineDictionary ) : Number
+{
+	 try{
+		     // read pipeline dictionary input parameter
+		    var pli =pdict.ProductLineItem;
+		    var basket =pdict.Basket;
+		    var parentPosition : String = pli.custom.associatedParentPosition;
+		    var accessoryId : String = pli.productID; 
+		    var plis : dw.util.Collection = null;
+		    var productLineItems : Iterator = null;
+		    var plItem : dw.order.ProductLineItem = null;
+            if (!empty(parentPosition)) {
+					plis = basket.getAllProductLineItems();
+			    	if (!empty(plis)) {
+			    		productLineItems = plis.iterator();
+			    		while(productLineItems.hasNext())
+						{
+							plItem = productLineItems.next();
+							//var pliPosition:String=plItem.position;
+							var pliPosition:String=plItem.custom.pliPosition;
+							var pliChildId:String=plItem.custom.associatedAccessoryId;
+							 if (pliPosition==parentPosition) {
+							    if (!empty(pliChildId)) {
+							        var accessories : dw.util.List = new dw.util.ArrayList(pliChildId.split(","));
+									accessories.remove(accessoryId);
+									var newChildIds:String=null;
+									if (!empty(accessories)) {
+							    		var accessoriesList : Iterator = accessories.iterator();
+							    		while(accessoriesList.hasNext())
+										{
+											if(newChildIds==null){
+											   newChildIds=accessoriesList.next();
+											}else{
+											   newChildIds=newChildIds+","+accessoriesList.next();
+											}
+										}
+									}
+							        plItem.custom.associatedAccessoryId= newChildIds;
+							  }else{
+							  	Logger.debug("Accessory child id can not be null, associatedAccessoryId=", pliChildId);
+							  	return PIPELET_ERROR;
+							 }
+							}
+						}
+			    	}			
+				}
+		
+		}catch(e){
+		   Logger.error("Error in updating childId ", e.message);
+		   return PIPELET_ERROR;
+ 		}
+   return PIPELET_NEXT;
+}

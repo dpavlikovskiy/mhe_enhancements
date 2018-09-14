@@ -1,0 +1,154 @@
+.footer .footer-first .menu-footer li{
+	font-size:$small_heading;
+	text-transform:uppercase;
+}
+.header {
+	header {
+		.menu-utility-user {
+			li {
+				font-size: $header_fontsize;
+				letter-spacing: $letter_spacing;
+				text-transform:uppercase;
+				.hidden-sub{
+					background-color: $bgbody;
+					border-left: 1px solid $border_dark;
+					border-right: 1px solid $border_dark;
+					border-bottom: 1px solid $border_dark;
+					li {
+						&.logout {
+							border-top: 1px solid $border_dark;
+							a {
+								background-color: $nav_bg;
+							}
+						}
+						a {
+							color: $lightergrey;
+							&:hover {
+								color: #ffffff;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	.header_right{
+		width:35%;
+		.mini-cart {
+			margin-right: 15px;
+			position:relative;
+			border-right: 1px solid $headerDivider;
+		}
+		.mini-cart-total{
+			letter-spacing: $letter_spacing;
+			text-transform: uppercase;
+			font-size: $header_fontsize;
+		}
+	}
+}
+.menu-category {
+	li {
+		font-size: 13px;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		.menu-wrapper{
+			width:384px;
+			margin-left:-192px;
+			background:url("images/nav-hover-bg.png") repeat-x 0 0;
+			&:before{
+				content: '';
+			}
+			li{
+				width:50%;
+				a{
+					line-height:80px;
+				}
+			}
+		}
+		
+	}
+	.womh{
+		margin:19px 0 0 15px;
+		padding:0 0 0 30px;
+		z-index:12;
+		a{
+			line-height:12px;
+			padding:0 30px 0 0;
+		}
+	}
+}
+.pdp-section-recommendations{
+	.beta-heading{
+		font-family: $fixed-font-family;
+		font-weight: $bold;
+		font-size: 16px;
+		color: $violet01;
+		text-transform: uppercase;
+	}
+	.recommendations-list{
+		background-image: url(../img/bg/products-grid.png);
+		background-position: 0 378px;
+		.analytics,
+		.product-name {
+			font-family: $fixed-font-family;
+			font-size: 14px;
+			text-transform: uppercase;
+			color: $lightergrey;
+			a {
+				color: $lightergrey;
+			}
+		}
+		.product-price {
+			font-size: 32px;
+			color: $lightergrey;
+		}
+	}
+}
+.pdp-section-tabs {
+	.tab-content {
+		h1, h2, h3, h4, h5, h6 {
+			color: $brandcolor;
+			}
+		.pdp-quotes{
+			clear:both;
+		}
+			p{
+				text-transform:none;
+			}
+		
+				blockquote {
+			&:before,
+			&:after {
+				font-size: 35px;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+			p {
+				font-family: $fixed-font-family;
+				font-size: 24px;
+			}
+		
+		}
+				.credit {
+					font-family:$base-font-family;
+					font-size: 12px;
+					text-transform: uppercase;
+					text-align: center;
+				}
+		
+	}	
+}  
+.plp-promo{
+	.promo-text{
+		b {
+			font-family: $heading-font-family; 
+		}
+	}
+}

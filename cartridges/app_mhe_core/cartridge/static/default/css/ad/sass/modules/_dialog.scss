@@ -1,0 +1,58 @@
+.ui-dialog{
+	border:2px solid $lightboxBorder;
+	background:$overlayBg;
+    &.popUpForms{
+		letter-spacing: 0;
+	    text-transform: none;
+	    text-align:center;
+	    .ui-dialog-titlebar-close{
+	    	right:15px;
+	    	top:20px;
+	    	.ui-icon{
+				&:before{
+					color: $white;
+				    height: 20px;
+				    left: 0;
+				    opacity: 1;
+				    overflow: hidden;
+				    position: absolute;
+				    text-indent: 0;
+				    top: 0;
+				    width: 20px;
+				}
+			}
+	    }
+	    .logo{
+	    	width:190px;
+	    	height:auto;
+	    	margin:0 auto 25px;
+	    	display:block;
+	    	padding:0;
+	    }
+	    .form-row{
+	    	width:300px;
+	    	margin:0 auto 20px;
+	    	label{
+	    		display:none;
+	    	}
+	    	&.label-inline{
+	    		label{
+		    		display:inline;
+		    	}
+	    	}
+	    }
+	    .actions{
+	    	width:300px;
+	    	margin:0 auto 20px;
+	    	padding:0 0 20px;
+	    	.form-row{
+	    		float:left;
+	    		width:auto;
+	    		margin:0;
+		    	label{
+		    		display:inline;
+		    	}
+		    }
+	    }
+    }
+}

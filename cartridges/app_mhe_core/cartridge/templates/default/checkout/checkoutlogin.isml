@@ -1,0 +1,60 @@
+
+<isinclude template="util/modules"/>
+
+<iscomment>Report this checkout step</iscomment>
+<isreportcheckout checkoutstep="${1}" checkoutname="${'CheckoutMethod'}"/>
+
+<div class="confirmLogin">
+	<div class="cLogo"><img src="${URLUtils.staticURL('/images/global/selection-logo.png')}" alt="Logo" /></div>
+	<p>${Resource.msg('logininclude.registered','account',null)}</p>
+	<div id="error" class="error-form error" style="display:none;">${Resource.msg('logininclude.loginerror','account',null)}</div>
+	<form action="${URLUtils.httpsContinue()}" method="post" id="loginformid"  class="clearfix" name="${pdict.CurrentForms.login.htmlName}">
+		<isinputfield formfield="${pdict.CurrentForms.login.username}"  type="input" xhtmlclass="email-input" p_dynamic="true" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhusername','forms',null)}" />
+		<isinputfield formfield="${pdict.CurrentForms.login.password}" type="password" xhtmlclass="input-text-pw" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+		<iscontentasset aid="over18text"/>
+		<div class="form-row form-row-button">
+			<button id="loginsubmit" class="button" type="button" value="${Resource.msg('global.confirm','locale',null)}" name="${pdict.CurrentForms.login.login.htmlName}">
+				<span class="face front">${Resource.msg('global.confirm','locale',null)}</span>
+				<span class="face back">${Resource.msg('global.confirm','locale',null)}</span>
+			</button>
+		</div> 
+		<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+	</form>
+</div>
+
+<script>
+$(document).ready(function(){
+	var loginform = $("#loginformid");
+	//alert(loginform);
+	    loginform.on("click", "#loginsubmit", function(e) {
+	    //alert('hiii');
+		var url = app.util.appendParamsToUrl(loginform.attr('action'),{format:"ajax"});
+		var applyName = loginform.find('#loginsubmit').attr('name');
+		var options = {
+			url: url,
+			data: loginform.serialize()+"&"+applyName+'=x',
+			type: "POST",
+			dataType:"json"
+		};
+		  
+		 $.ajax( options ).done(function(data){
+			   if(data.success){
+				   if(data.redirect == "orderhistory"){
+					   app.page.redirect(app.urls.orderhistoryRedirect);
+				     }else if(data.redirect == "wallet"){
+					   app.page.redirect(app.urls.paymentInstRedirect);
+				     }else if(data.redirect == "addressbook"){
+					   app.page.redirect(app.urls.addressBookRedirect);
+				     }else if(data.redirect == "profile"){
+					   app.page.redirect(app.urls.profileRedirect);
+				     }else{
+					   app.page.redirect(app.urls.shippingAuthentication);
+				     }
+					
+			   }else{
+				  $("#error").show();
+			   }
+			});
+	});	
+});	
+</script>

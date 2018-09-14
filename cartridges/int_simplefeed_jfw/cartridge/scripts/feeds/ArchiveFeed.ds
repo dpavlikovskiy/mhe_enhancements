@@ -1,0 +1,201 @@
+/**
+ * Move local file into archive folder. If no archive folder is specified, the file is
+ * just deleted.
+ *
+ * Inside the archive folder day specific subfolders with yyyyMMdd naming convention
+ * are created. Feeds are moved into these subfolders. The UTC day is used as reference.
+ * Day specific subfoldes are deleted after a week.
+ *
+ * If ArchiveFolder does not exist it is created.
+ *
+ * @input File : String  mandatory, name of the local file to archive, relative to the Impex share, src folder
+ * @input ArchiveFolder : String  optional, e.g. "archive", folder is underneath Impex share, src folder, no archiving if not provided
+ */
+
+importPackage( dw.io );
+importPackage( dw.system );
+importPackage( dw.util );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// read parameters
+	var fileString : String = args.File;
+	var archiveFolderString : String = args.ArchiveFolder;
+
+    // check parameters
+    if ( empty( fileString ) )
+    {
+    	cvLogger.error( "ArchiveFeed: Parameter File empty" );
+    	return PIPELET_ERROR;
+    }
+	
+    cvLogger.debug( "ArchiveFeed: File: " + fileString + ", ArchiveFolder: " + ( !empty( archiveFolderString ) ? archiveFolderString : "(empty)" ) );
+	
+	// locate file
+	var file : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + fileString );
+
+	if ( !file.exists() )
+	{
+    	cvLogger.error( "ArchiveFeed: File " + file.fullPath + " does not exist.");
+    	return PIPELET_ERROR;
+	}
+
+	// no archiving if ArchiveFolder is empty, just delete
+	if ( empty( archiveFolderString ) )
+	{
+		cvLogger.debug( "ArchiveFeed: Removing file " + file.fullPath );
+		
+		var result : boolean = file.remove();
+		if ( !result )
+		{
+	    	cvLogger.error( "ArchiveFeed: Error deleting " + file.fullPath );
+			return PIPELET_ERROR;
+		}
+		
+		return PIPELET_NEXT;
+	}
+
+	// create archive folder
+	if ( !createFolder( archiveFolderString ) )
+	{
+		// error message written in createFolder
+		return PIPELET_ERROR;
+	}
+
+	// create archive day folder
+	var archiveDayFolderString : String = archiveFolderString + File.SEPARATOR + getCurrentDateString();
+	if ( !createFolder( archiveDayFolderString ) )
+	{
+		// error message written in createFolder
+		return PIPELET_ERROR;
+	}	
+	
+	var archiveFileString : String = archiveDayFolderString + File.SEPARATOR + file.name;
+	var archiveFile : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + archiveFileString );
+	
+	cvLogger.debug( "ArchiveFeed: Moving " + file.fullPath + " to " + archiveFile.fullPath );
+	
+	var result : boolean = file.renameTo( archiveFile );
+	if ( !result )
+	{
+		cvLogger.error( "ArchiveFeed: Couldn't move " + file.fullPath + " to " + archiveFile.fullPath );
+		return PIPELET_ERROR;
+	}
+	
+	// We siliently ignore errors during archive cleanup. Errors may occur
+	// when multiple cleanup processes run at the same time.
+	cleanupArchive( archiveFolderString );
+
+    return PIPELET_NEXT;
+}
+
+function createFolder( folder : String ) : boolean
+{
+	var localFolder : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + folder );
+
+	if ( localFolder.exists() )
+	{
+		// nothing to do
+		return true;
+	}
+
+	cvLogger.debug( "ArchiveFeed: Creating folder " + localFolder.fullPath );
+
+	// create folder	
+	var result : boolean = localFolder.mkdirs();
+	if ( !result )
+	{
+		cvLogger.error( "ArchiveFeed: Error creating folder " + localFolder.fullPath );
+		return false;
+	}
+	
+	return true;
+}
+
+/*
+ * Returns the current GMT date in yyyy-MM-dd format.
+ */
+function getCurrentDateString() : String
+{
+	// current date/time
+	var calendar : Calendar = new Calendar();
+	// for data exchanges we always use GMT
+	calendar.timeZone = "GMT";
+	
+	var dateString : String = StringUtils.formatCalendar(calendar, "yyyyMMdd");
+	
+	return dateString;
+}
+
+function cleanupArchive( archiveFolder : String ) : boolean
+{
+	var localArchiveFolder : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + archiveFolder );
+
+	if ( !localArchiveFolder.exists() )
+	{
+		cvLogger.error( "ArchiveFeed: Folder " + localArchiveFolder.fullPath + " does not exist." );			
+		return false;	
+	}
+	
+	cvLogger.debug( "ArchiveFeed: Cleaning up folder " + localArchiveFolder.fullPath );
+	
+	// everything that's older than purgeDate gets deleted
+	var purgeDate : Calendar = new Calendar();
+	purgeDate.timeZone = "GMT";
+	
+	// keep archives for specified amount of days as present in SitePreference 'archiveFeedDuration'
+	var archiveFeedDuration:Number=dw.system.Site.getCurrent().getCustomPreferenceValue('archiveFeedDuration');
+	purgeDate.add(Calendar.DATE, -archiveFeedDuration);
+	
+	cvLogger.debug( "ArchiveFeed: Purging archives before " + StringUtils.formatCalendar( purgeDate, "yyyyMMdd" ) );
+	
+	var calendar : Calendar = new Calendar();
+	calendar.timeZone = "GMT";
+
+	// iterate over archiveDayFolders	
+	for each ( var archiveDayName : String in localArchiveFolder.list() )
+	{
+		try
+		{		
+			calendar.parseByFormat( archiveDayName, "yyyyMMdd" );
+		}
+		catch ( ex )
+		{
+			cvLogger.warn( "ArchiveFeed: Unexpected name format in folder " + localArchiveFolder.fullPath + ": " + archiveDayName );
+			continue;
+		}
+		
+		if ( calendar.before( purgeDate ) )
+		{
+			var archiveDayString : String = archiveFolder + File.SEPARATOR + archiveDayName;
+			var archiveDayFolder : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + archiveDayString );
+		
+			cvLogger.debug( "ArchiveFeed: Purging folder " + archiveDayFolder.fullPath );
+			
+		 	// Delete files in folder. We do not expect subfolders in that folder.
+			for each ( var filename : String in archiveDayFolder.list() )
+			{
+				var file : File = new File(
+					File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR +
+					archiveDayString + File.SEPARATOR + filename );
+				if ( !file.remove() )
+				{
+					cvLogger.error( "ArchiveFeed: Couldn't delete file " + file.fullPath );
+					return false;
+				}
+			}		 	
+		 	
+		 	// delete the empty folder
+		 	if ( !archiveDayFolder.remove() )
+		 	{
+		 		cvLogger.error( "ArchiveFeed: Couldn't delete folder " + archiveDayFolder.fullPath );
+		 		return false;
+		 	}
+		}
+	}
+	
+	return true;
+}

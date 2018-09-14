@@ -1,0 +1,425 @@
+/**
+ * Upload a local file to a WebDAV or SFTP folder.
+ *
+ * @input File : String  mandatory, name of the local file to upload, relative to the Impex share, src folder
+ * @input RemoteFolderURL : String  mandatory, URL to WebDAV or SFTP folder, e.g. "https://www.myserver.com/folder/", "sftp://sftp.myserver.com:22/folder/"
+ * @input RemoteFile : String  mandatory, File inside RemoteFolderURL, e.g. "feed.xml"
+ * @input RemoteLogin : String  optional, login for Basic Authentication or Digest Autentication
+ * @input RemotePassword : String  optional, password for Basic Authentication or Digest Autentication
+ * @input BypassRemoteUpload : Boolean optional,bypass file transfer to Axway
+ */
+
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.system );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// read parameters
+	var bypassRemoteUpload : String=args.BypassRemoteUpload;
+	if(bypassRemoteUpload!=null)
+	{
+		if(bypassRemoteUpload==true){
+			return PIPELET_NEXT;
+		}
+	}
+	var fileString : String = args.File;
+	var remoteFolderURL : String = args.RemoteFolderURL;
+	var remoteFile : String = (empty( args.RemoteFile)) ? fileString.replace(new RegExp('.*/', 'i'), '') : args.RemoteFile;
+ 	var remoteLogin : String = args.RemoteLogin;
+ 	var remotePassword : String = args.RemotePassword;
+
+    // check parameters
+    if ( empty( fileString ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter File empty" );
+    	return PIPELET_ERROR;
+    }
+
+    if ( empty( remoteFolderURL ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemoteFolderURL empty" );
+    	return PIPELET_ERROR;
+    }
+
+    if ( empty( remoteFile ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemoteFile empty" );
+    	return PIPELET_ERROR;
+    }
+
+    cvLogger.debug( "UploadFeed: " +
+    	"File: " + fileString + ", " +
+    	"RemoteFolderURL: " + remoteFolderURL + ", " +
+    	"RemoteFile: " + remoteFile + ", " +
+    	"RemoteLogin: " + ( !empty( remoteLogin ) ? remoteLogin : "(empty)" ) + ", " +
+    	"RemotePassword: " + ( !empty( remotePassword ) ? "(provided)" : "(empty)" ) );
+
+	// locate file
+	var file : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + fileString );
+
+	if ( !file.exists() )
+	{
+    	cvLogger.error( "UploadFeed: File " + file.fullPath + " does not exist.");
+    	return PIPELET_ERROR;
+	}
+
+	var result : boolean;
+
+	if ( remoteFolderURL.indexOf( "sftp://" ) == 0 )
+	{
+		result = uploadFileSFTP( file, remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}
+/** We are only using sftp, hence commenting the code
+	else if ( remoteFolderURL.indexOf( "ftp://" ) == 0 ) 
+	{
+		result = uploadFileFTP( file, remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}
+	else
+	{
+		result = uploadFileWebDAV( file, remoteFolderURL, remoteFile, remoteLogin, remotePassword );
+	}
+*/	
+	if ( !result )
+	{
+		return PIPELET_ERROR;
+	}
+	
+	return PIPELET_NEXT;
+}
+
+function uploadFileWebDAV( file : File, remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{
+	// connect
+	var webDAVClient : WebDAVClient;
+	
+	if ( !empty( remoteLogin ) && !empty( remotePassword ) )
+	{
+		// use authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL, remoteLogin, remotePassword );
+	}
+	else
+	{
+		// no authentication
+		webDAVClient = new WebDAVClient( remoteFolderURL );
+	}
+
+	// upload
+	var tmpRemoteFile : String = remoteFile + ".tmp";
+	
+	try
+	{
+		webDAVClient.put( tmpRemoteFile, file );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + remoteFolderURL + tmpRemoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !webDAVClient.succeeded() )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + remoteFolderURL + tmpRemoteFile + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+		return false;
+	}
+	
+	// delete
+	try {
+		webDAVClient.del( remoteFile );
+	}
+	catch( ex ) {
+	}
+	
+	// rename
+	try
+	{
+		webDAVClient.move( tmpRemoteFile, remoteFile );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while renaming " + 
+			remoteFolderURL + tmpRemoteFile + " to " + remoteFolderURL + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !webDAVClient.succeeded() )
+	{
+		cvLogger.error( "UploadFeed: Error while renaming " + 
+			remoteFolderURL + tmpRemoteFile + " to " + remoteFolderURL + remoteFile + ": " +
+			webDAVClient.statusCode + " " + webDAVClient.statusText );		
+		return false;
+	}
+	
+	// disconnect
+	webDAVClient.close();
+	
+    return true;
+}
+
+function uploadFileSFTP( file : File, remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{
+    // for SFTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemoteLogin empty (required for SFTP)" );
+    	return false;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemotePassword empty (required for SFTP)" );
+    	return false;
+    }
+
+    // parse URL, e.g. "sftp://sftp.myserver.com:22/folder/"
+	var params : Array = /^sftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "UploadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = params[3];
+	
+	// connect
+	var sftpClient : SFTPClient = new SFTPClient();
+	var result : boolean;
+	
+	try
+	{
+		if ( port != null )
+		{
+			result = sftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = sftpClient.connect( host, remoteLogin, remotePassword );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "UploadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + sftpClient.errorMessage );		
+		return false;
+	}
+
+	//testing existence of destination path
+	try {
+		result = sftpClient.cd( path );
+	} catch ( ex ) {
+		cvLogger.error( "UploadFeed: Error while changing path to " + path + ": " + ex );		
+		result = false;
+	}
+/**  Recursive creation of folders is commented as we will not be having the permission to create folders
+	//recursive creation of destination paths
+	if (!result) {
+		var pathDirectories : Array = path.split('/');
+		var tmpPath : String = '/'; 
+		for each (var directory : String in pathDirectories) {
+			tmpPath += directory + '/';
+			try {
+				result = sftpClient.cd( tmpPath );
+			} catch ( ex ) {
+				result = false;
+			}
+			if (!result) {
+				try {
+					sftpClient.mkdir(tmpPath);
+				} catch ( ex ) {
+					cvLogger.error( "UploadFeed: Error while creating remote path " + 
+						tmpPath + ": " + ex );		
+				}
+			}
+		}
+	}
+*/
+
+	// upload
+	var tmpRemoteFile : String = remoteFile; //+ ".tmp";
+	
+	try
+	{
+		result = sftpClient.putBinary( path + tmpRemoteFile, file );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + path + tmpRemoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + 
+			path + tmpRemoteFile + ": " + sftpClient.errorMessage );		
+		return false;
+	}
+	
+  /*
+   // delete
+	try {
+		sftpClient.del( path + remoteFile );
+	}
+	catch( ex ) {
+	}
+	
+	// rename
+	try
+	{
+		if(new File(path + tmpRemoteFile).exists()){
+			result = sftpClient.rename( path + tmpRemoteFile, path + remoteFile );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while renaming " + 
+			path + tmpRemoteFile + " to " + path + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "UploadFeed: Error while renaming " + 
+			path + tmpRemoteFile + " to " + path + remoteFile + ": " + sftpClient.errorMessage );		
+		return false;
+	}*/
+	
+	// disconnect
+	sftpClient.disconnect();
+	
+    return true;
+}
+
+function uploadFileFTP( file : File, remoteFolderURL : String, remoteFile : String, remoteLogin : String, remotePassword : String ) : boolean
+{
+    // for FTP remoteLogin and remotePassword are required
+    if ( empty( remoteLogin ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemoteLogin empty (required for FTP)" );
+    	return false;
+    }
+
+    if ( empty( remotePassword ) )
+    {
+    	cvLogger.error( "UploadFeed: Parameter RemotePassword empty (required for FTP)" );
+    	return false;
+    }
+
+    // parse URL, e.g. "ftp://ftp.myserver.com:22/folder/"
+	var params : Array = /^ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( remoteFolderURL );
+
+	if ( params == null || params.length != 4 )
+	{
+    	cvLogger.error( "UploadFeed: Parameter RemoteFolderURL not recognized, RemoteFolderURL: " + remoteFolderURL );
+    	return null;
+	}
+
+	var host : String = params[1];
+	var port : Number = null;
+	// params[2] is undefined if there was no port provided
+	if ( params[2] != undefined )
+	{
+		port = new Number( params[2] );
+	}
+	var path : String = params[3];
+	
+	// connect
+	var ftpClient : FTPClient = new FTPClient();
+	var result : boolean;
+	
+	try
+	{
+		if ( port != null )
+		{
+			result = ftpClient.connect( host, port, remoteLogin, remotePassword );
+		}
+		else
+		{
+			// use default port
+			result = ftpClient.connect( host, remoteLogin, remotePassword );
+		}
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "UploadFeed: Error while connecting to " +
+			host + ( ( port != null ) ? ( ":" + port ) : "" ) + ": " + ftpClient.replyMessage );		
+		return false;
+	}
+
+	// upload
+	var tmpRemoteFile : String = remoteFile + ".tmp";
+	
+	try
+	{
+		result = ftpClient.putBinary( path + tmpRemoteFile, file );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + 
+			path + tmpRemoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		cvLogger.error( "UploadFeed: Error while uploading " + 
+			path + tmpRemoteFile + ": " + ftpClient.replyMessage );		
+		return false;
+	}
+	
+	// delete
+	try {
+		ftpClient.del( path + remoteFile );
+	}
+	catch( ex ) {
+	}
+	
+	// rename
+	try
+	{
+		result = ftpClient.rename( path + tmpRemoteFile, path + remoteFile );
+	}
+	catch ( ex )
+	{
+		cvLogger.error( "UploadFeed: Error while renaming " + 
+			path + tmpRemoteFile + " to " + path + remoteFile + ": " + ex );		
+		return false;
+	}
+
+	if ( !result )
+	{
+		Logger.getLogger("simplefeeds").error( "UploadFeed: Error while renaming " + 
+			path + tmpRemoteFile + " to " + path + remoteFile + ": " + ftpClient.replyMessage );		
+		return false;
+	}
+	
+	// disconnect
+	ftpClient.disconnect();
+	
+    return true;
+}

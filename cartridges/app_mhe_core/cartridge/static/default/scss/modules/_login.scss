@@ -1,0 +1,209 @@
+$login_h2:17px;
+$login_greet:18px;
+
+
+.loginRegister{
+	width:100%;
+	.selector{
+		height:auto;
+		overflow:visible;
+	}
+	.loginSlot{
+		position:relative;
+		text-align:center;
+		.copy{
+			position:absolute;
+			height:250px;
+			left:50%;
+			margin:-125px 0 0 -300px;
+			width:600px;
+			z-index:2;
+			top:50%;
+			span{
+				@include border-radius(50%);
+				width:5px; height:5px;
+				background:$white;
+				display:inline-block;
+				margin-bottom: 15px;
+				p{
+					margin:0 100px;
+				}
+			}
+		}
+		img{
+			display:block;
+			width:100%;
+			height:auto;
+		}
+	}
+	.main{
+		padding:0 0 100px;;
+		width:auto;
+		max-width:none;
+		.loginAreaCont{
+			position:relative;
+			.small_text a{
+				font-style:italic;
+				&:hover{color:$hover_color;}
+			}
+			.smallBotText{
+				padding:0 25px;
+			}
+			.loginArea{
+				background-size:100% auto;
+				background-position:top center;
+				background-repeat:no-repeat;
+				background-color:#040203;
+				.date-input {
+					font-size:12px;
+				}
+				.logo{
+					padding:61px 0 20px;
+					a{
+						width:300px;
+						height:106px;
+						background:url(../images/global/selection-logo.png) no-repeat center top;
+						display:block;
+					}
+				}
+
+			}
+			.error-form {
+				margin-bottom:1em;
+				color: #FF5252;
+			    font-size: 13px;
+			    font-weight: 700;
+			    letter-spacing: 1px;
+			    line-height: 19px;
+			    text-transform: uppercase;
+			}
+			.lRBox{
+				width:300px;
+				margin:auto;
+				text-align:$center_align;
+				padding:0 0 10px;
+				color:$border_light;
+				.box600{
+					width:600px;
+					margin-left:-150px;
+					&.whiteBox{
+						color:$white;
+					}
+				}
+				.box400{
+					width:400px;
+					margin-left:-50px;
+				}
+				.form-row {
+					label {
+						position:absolute;
+						left:-999em;
+					}
+				}
+				.noPosition{
+					label{
+						position:relative;
+						left:auto;
+						font-size:18px;
+						color:$lightergrey;
+					}
+				}
+				.actions{
+					border-bottom:1px solid $input_border;
+					margin:0 0 20px;
+					.form-row{
+						float:left;
+						label{
+							line-height:42px;
+							display:block;
+        					font-size:16px;
+        					position:static;
+						}
+					}
+				}
+			}
+			.lRBoxBottom{
+				bottom:80px;
+				position:absolute;
+				left:50%;
+				margin:0 0 0 -150px;
+			}
+			.smallBotText {
+				p {
+					font-size:14px;
+					line-height:1.5em;
+				}
+			}
+		}
+	}
+	.cloned{
+		background-repeat:no-repeat;
+		background-position: center top;
+	    background-size: 100% auto;
+	    background-color:#040203;
+	}
+	button{
+		margin:0 0 18px;
+		.face{ 
+			background:$input_background;
+		}
+	}
+	.loginActions input[type="checkbox"] + label span{
+		float:left;
+		margin-top:10px;
+	}
+	.greet{
+		color:$white;
+		margin:0 0 18px;
+		font-size:$login_greet;
+		visibility:hidden;
+		@include opacity(0);
+		@include transition-property(opacity);
+		@include transition-duration(0.5s);
+		&.greet-visible {
+			visibility:visible;
+			@include opacity(1);
+		}
+		.content-asset{
+			display:inline;
+		}
+	}
+}
+
+p.discoverMoet{
+	background:$black;
+	cursor:pointer;
+	position:relative;
+	text-transform:uppercase;
+	text-align:$center_align;
+	line-height:30px;
+	margin:0;
+	font-size:$small_heading;
+	color:$lightergrey;
+	letter-spacing:2px;
+	img{
+		position:absolute;
+		bottom:-27px;
+		left:50%;
+		margin-left:-28px;
+		z-index:3;
+	}
+
+}
+
+.hiddenItems{
+	display:none;
+}
+
+.ie8 .loginRegister .main .loginAreaCont .lRBox .actions .form-row label{
+	display:inline;
+}
+.checkoutWrapper {
+	.login-box {
+		.login-box-content {
+			#registerClicked {
+				padding-bottom: 20px;
+			}
+		}
+	}
+}

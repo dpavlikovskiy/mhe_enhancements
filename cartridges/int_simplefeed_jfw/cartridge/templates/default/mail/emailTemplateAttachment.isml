@@ -1,0 +1,54 @@
+<iscontent type="multipart/mixed; boundary=------------000001030701020908040900" compact="false" charset="UTF-8">
+<isinclude template="util/modules"/>
+<isscript>
+	importPackage( dw.util );
+	importPackage( dw.system );
+	importScript( 'bc_jobframework:mail/libFileAttachments.ds' );
+	importScript( "email/stringReplace.ds" );
+	var base64FileMap : Map = getBase64EncodedAttachments( pdict.logFiles ); 
+	var regExp = new RegExp("(<&).*(&>)");
+	var regExpOrderNumber = new RegExp("(<&orderNumber&>)");
+	var instanceName : String = !empty( System.getInstanceHostname() ) ? System.getInstanceHostname() : "(unknown)";
+	var envName = instanceName.split(".");
+	var emailSubject : String = StringUtils.decodeString(pdict.MailSubject, StringUtils.ENCODE_TYPE_HTML);
+	var emailContent : String = StringUtils.decodeString(pdict.MailContent, StringUtils.ENCODE_TYPE_HTML);
+	var mailContent1 : String = "";
+	var mailContent2 : String = "";
+	var orderIndex : Number = emailContent.indexOf("<&orderdetailemail&>");
+	var orderNumberIndex : Number=emailSubject.indexOf("<&orderNumber&>");
+
+	if (orderIndex>=0) {
+		mailContent1 = emailContent.substring(0, orderIndex);
+		mailContent2 = emailContent.substring(orderIndex+20);
+	} 
+	else {
+		mailContent1 = emailContent;
+	}
+	 if (!empty(pdict.Order) && orderNumberIndex>=0 ){
+	emailSubject=replaceAll(emailSubject, regExpOrderNumber, pdict.Order.orderNo);
+	}
+	mailContent1 = replaceAll(mailContent1, regExp, "");   
+	mailContent2 = replaceAll(mailContent2, regExp, "");  
+	
+</isscript>
+<subject><isif condition="${!pdict.InstanceReqd}">=?UTF-8?B?</isif><isif condition="${pdict.InstanceReqd}">${dw.system.Site.getCurrent().ID}- </isif><isif condition="${!pdict.InstanceReqd}"><isprint value="${dw.util.StringUtils.encodeBase64(emailSubject)}" encoding="off"/><iselse><isprint value="${(emailSubject)}" encoding="off"/></isif><isif condition="${pdict.InstanceReqd}">- ${envName[0]}</isif><isif condition="${!pdict.InstanceReqd}">?=</isif></subject>
+This is a multi-part message in MIME format.
+--------------000001030701020908040900
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<isprint value="${mailContent1}" encoding="off"/>
+<isif condition="${orderIndex >= 0}">
+	<isemailorderdetails order="${pdict.Order}"/>
+</isif>
+<isprint value="${mailContent2}" encoding="off"/>
+
+<isif condition="${ !empty(base64FileMap) }">
+<isloop items="${ base64FileMap.keySet() }" var="key">
+<isset name="fileContent" value="${ base64FileMap.get(key) }" scope="page"/>--------------000001030701020908040900
+Content-Description: ${key}
+Content-Disposition: attachment; filename="${key}"; size=${fileContent.length}; creation-date="${(new Date()).toISOString()}"; modification-date="${(new Date()).toISOString()}"
+Content-Transfer-Encoding: base64
+
+${fileContent}</isloop>
+</isif>--------------000001030701020908040900--

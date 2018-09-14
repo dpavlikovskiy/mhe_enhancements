@@ -1,0 +1,39 @@
+/**
+* This script initializes the JobInfo object. It takes the error exit if there 
+* is any obvious error, or nothing to execute.
+*
+* @input JobConfig : String JSON config for the job 
+* @output JobMonitor : Object 
+*/
+importPackage( dw.system );
+importScript('job/JobMonitor.ds');
+
+function execute( args : PipelineDictionary ) : Number {
+	
+	//check existence of JobConfig
+	if ( empty(args.JobConfig) ) {
+		Logger.error('JobConfiguration not provided!');
+		return PIPELET_ERROR;
+	}
+	
+	//init JobInfo object
+	var jobMonitor : Object = null;
+	//try {
+	    //Added cleanUpJobMonitor() method for multiple sites 
+	    cleanUpJobMonitor();
+		jobMonitor = getJobMonitor(args.JobConfig);
+	/*} catch(e) {
+		Logger.error('JobMonitor initilization failed!', e);
+		return PIPELET_ERROR;
+	}*/
+	
+	args.JobMonitor = jobMonitor;
+	
+	//check if it is executable
+	if ( !jobMonitor.isExecutable() ) {
+		Logger.error('Job cannot be executed!');
+		return PIPELET_ERROR;
+	}
+	
+    return PIPELET_NEXT;
+}

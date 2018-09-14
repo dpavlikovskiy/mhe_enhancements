@@ -1,0 +1,79 @@
+<iscomment>
+	This template renders the billing address and a list of all payment
+	methods (more precessively payment instruments) used for the payment
+	of the basket. It is displayed in the order summary at the right hand
+	side in the checkout process.
+</iscomment>
+<isset name="billingAddress" value="${pdict.Basket.billingAddress}" scope="page"/>
+<isset name="paymentInstruments" value="${pdict.Basket.paymentInstruments}" scope="page"/>
+
+<isif condition="${!empty(billingAddress)}">
+	<div class="checkModule reviewMod">
+
+		<h3 class="section-header">
+			<a href="${URLUtils.https('COBilling-Start')}">${Resource.msg('minibillinginfo.billingaddress','checkout',null)}</a>
+		</h3>
+
+		<div class="details">
+			<h4><isprint value="${billingAddress.salutation}"/> <isprint value="${billingAddress.title}"/> <isprint value="${billingAddress.firstName}"/> <isprint value="${billingAddress.lastName}"/></h4>
+			<isif condition="${!empty(billingAddress.companyName)}">
+				<div><isprint value="${billingAddress.companyName}"/></div>
+			</isif>
+			<div><isprint value="${billingAddress.address1}"/></div>
+			<isif condition="${!empty(billingAddress.address2)}">
+				<div><isprint value="${billingAddress.address2}"/></div>
+			</isif>
+			<div><isprint value="${billingAddress.postalCode}"/>, <isprint value="${billingAddress.city}"/> <isprint value="${billingAddress.stateCode}"/> </div>
+			<div>		 
+				  <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==billingAddress.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+          		    </isloop>
+		
+			</div>
+		</div>
+
+	</div>
+</isif>
+
+<isscript>
+  var pmethod:String=pdict.Basket.paymentInstruments[0].paymentMethod;
+  var list:dw.util.List=new dw.util.ArrayList();
+      list.add("ORDER_REPLACEMENT");
+      list.add("ORDER_COMPLIMENTARY");
+    
+</isscript>
+<isif condition="${!empty(paymentInstruments) && !list.contains(pmethod) }">
+	<iscomment>render a box per payment instrument</iscomment>
+	<isloop items="${paymentInstruments}" var="paymentInstr" status="loopstate">
+		<div class="checkModule reviewMod <isif condition="${loopstate.first}"> first <iselseif condition="${loopstate.last}"> last</isif>">
+
+			<h3 class="section-header">
+				<isif condition="${loopstate.first}"><span>${Resource.msg('minibillinginfo.paymentdetails','checkout',null)}</span></isif>
+			</h3>
+
+			<div class="details">
+				<iscomment>
+					dynamically render the detail section depending on the type of the payment instrument
+				</iscomment>
+				<isif condition="${dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE.equals(paymentInstr.paymentMethod)}">
+					<div>${dw.order.PaymentMgr.getPaymentMethod(paymentInstr.paymentMethod).name}: <isprint value="${paymentInstr.maskedGiftCertificateCode}"/></div>
+				<iselseif condition="${paymentInstr.paymentMethod.equalsIgnoreCase('PAYPAL')}">
+					<div>${dw.order.PaymentMgr.getPaymentMethod(paymentInstr.paymentMethod).name}</div>
+				<iselseif condition="${paymentInstr.paymentMethod.equalsIgnoreCase('ORDER_OTHER_MEANS')}">
+					<div> ${pdict.CurrentForms.billing.paymentMethods.othermeans.type.value} <br>
+					      ${pdict.CurrentForms.billing.paymentMethods.othermeans.details.value} 
+					</div>
+				<iselse>	
+				    <h4><isprint value="${Resource.msgf('checkout.cardending','checkout',null,paymentInstr.creditCardType)}" /> <isprint value="${paymentInstr.creditCardNumberLastDigits}" /></h4> 
+				    <iscomment>
+				      <div><isprint value="${billingAddress.title}"/> <isprint value="${billingAddress.firstName}"/> <isprint value="${billingAddress.lastName}"/></div><!-- END: payment-amount -->
+				     </iscomment> 
+				    <div><isprint value="${paymentInstr.creditCardHolder}" /></div>
+				</isif>
+			</div>
+		</div>
+	</isloop>
+</isif>

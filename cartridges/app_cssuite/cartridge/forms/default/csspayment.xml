@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<!-- remove payment instruments list (need for CSSuite) -->
+	<list formid="paymentinstruments">
+		<action formid="removePaymentInstrument" valid-form="false"/>
+	</list>
+	<field formid="selectedpm" type="string" default-value="CreditCard">
+		<options>
+			<option value="CreditCard"/>
+		</options>
+	</field>
+	<group formid="creditcards">
+		<include formid="newcreditcard" name="creditcard"/>
+		<action formid="create" valid-form="true"/>
+	</group>	
+	<group formid="paymentMethods">
+		
+		<!-- 
+			the selected payment method, e.g. "CREDIT_CARD" or "PayPal", this field is
+			used to transport the payment method selection; validations then can be 
+			made on the proper form group which defines the actual payment method attributes
+		-->	
+		<field formid="selectedPaymentMethodID" type="string" default-value="CREDIT_CARD">
+			<options optionid-binding="ID" value-binding="ID" label-binding="name"/>
+		</field>
+	
+		<!-- fields for CreditCard selection -->
+		<include formid="creditCard" name="creditcard"/>
+		
+		<!-- fields for BML selection -->
+		<include formid="bml" name="bml"/>
+	
+	</group>
+</form>

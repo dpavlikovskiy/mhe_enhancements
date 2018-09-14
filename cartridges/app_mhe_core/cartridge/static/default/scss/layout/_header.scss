@@ -1,0 +1,359 @@
+// =============================================================================
+// Header
+// =============================================================================
+
+$header_fontsize: 11px;
+$letter_spacing: 2px;
+
+.header {
+	position: relative;
+	z-index: 199;
+	// Fixed Header and Menu ---------------------------------------
+	&.stickyHeaderNew {
+		position: fixed;
+		width: 100%;
+		top:0;
+	} 
+	header {
+		margin: 0 auto;
+		width: $max-container;
+		padding: 10px 0;
+		position: relative;
+		z-index:200;
+		.menu-utility-user{ 
+			float: left;
+			margin: 0;
+			li {
+				position: relative;
+				text-align:left;
+				float: left;
+				padding-bottom: 12px;
+				@include opacity(0);
+				@include transition-property(opacity);
+				@include transition-duration(0.5s);
+				&.greet-visible {
+					visibility:visible;
+					@include opacity(1);
+				}
+				.arrow {
+					display: inline-block;
+					padding-right: 13px;
+					background-position: right -236px;
+				}
+				&:hover {
+					.arrow {
+						background-position: right -266px;
+					}
+				}
+				.hidden-sub {
+					display: none;
+					min-width: 200px;
+					position: absolute;
+					top: 20px;
+					z-index:3;
+					li {
+						float: none;
+						padding-bottom: 0;
+						@include opacity(1);
+						&.logout {
+							margin-top: 10px;
+							a {
+								padding: 18px 20px;
+							}
+						}
+						a {
+							display: block;
+							padding: 10px 20px;
+							@include transition(all 0.2s ease-out);
+						}
+					}
+				}
+			}
+		}
+		.header_right {
+			float: right;
+			margin: 0;
+			position:relative;
+			z-index:6;
+			.newsletter-cont {
+				float: right;
+				padding: 0 15px;
+				text-transform: uppercase;
+				font-size: $header_fontsize;
+				letter-spacing: $letter_spacing;
+				a {
+					@include transition(all 0.2s ease-out);
+				}
+			}
+			.mini-cart {
+				float: right;
+				padding: 0 15px;
+				position:relative;
+				.mini-cart-total {
+					.mini-cart-label {
+						display: inline-block;
+						margin-right: 3px;
+					}
+				}
+			}
+			&.static-cart {
+				.mini-cart {
+					border-right: none;
+				}
+			}
+			.search_icon_cont {
+				float: right;
+				width: 20px;
+				margin-top: -4px;
+				span.search_icon {
+					width: 20px;
+					height: 20px;
+					text-indent: -9000px;
+					display: block;
+					background-position:-27px -164px;
+					cursor:pointer;
+					&:hover {
+						background-position: -27px -194px;
+					}
+				}
+			}
+		}
+		.logo_header {
+			.title-wrap {
+				margin: 0 auto;
+				padding: 0;
+				position: relative;
+				a {
+					display: block;
+					color: $white;
+				}
+				span {
+					display: block;
+				}
+				.main-title {
+					margin: 0;
+					padding: 0;
+					top: 0;
+					font-size: 35px;
+					z-index: 2;
+					position: relative;
+					text-align: center;
+				}
+				.sub-heading {
+					margin: -13px 0 0 0;
+					padding: 0;
+					z-index: 1;
+					top: 1px;
+					overflow: hidden;
+					text-align: center;
+					display: block;
+					img {
+						display: block;
+						margin: 0 auto;
+					}
+					&.js-hide {
+						-webkit-animation: animA;
+						-webkit-animation-duration: 0.7s;
+						-webkit-animation-delay: 0s;
+						-webkit-animation-fill-mode: forwards;
+						-moz-animation: animA;
+						-moz-animation-duration: 0.7s;
+						-moz-animation-delay: 0s;
+						-moz-animation-fill-mode: forwards;
+						-o-animation: animA;
+						-o-animation-duration: 0.7s;
+						-o-animation-delay: 0s;
+						-o-animation-fill-mode: forwards;
+						animation: animA;
+						animation-duration: 0.7s;
+						animation-delay: 0s;
+						animation-fill-mode: forwards;
+					}
+					&.js-show {
+						-webkit-animation: animB;
+						-webkit-animation-duration: 0.7s;
+						-webkit-animation-delay: 0s;
+						-webkit-animation-fill-mode: forwards;
+						-moz-animation: animB;
+						-moz-animation-duration: 0.7s;
+						-moz-animation-delay: 0s;
+						-moz-animation-fill-mode: forwards;
+						-o-animation: animB;
+						-o-animation-duration: 0.7s;
+						-o-animation-delay: 0s;
+						-o-animation-fill-mode: forwards;
+						animation: animB;
+						animation-duration: 0.7s;
+						animation-delay: 0s;
+						animation-fill-mode: forwards;
+					}
+				}
+			}
+		}
+		.side-module {
+			margin: 5px 0 0 0;
+		}
+	}
+}
+
+/*
+TODO
+THIS & THE TWO RULES REALTED TO IT ALL NEED MOVING TO A MIXIN BUT AM CURRENTLY STRUGGLING TO GET THE COMPASS PLUGING INSTALLED ON PC.
+NEED TO MOVE ONTO THE NEXT STORY NOW BUT WILL COME BACK TO THIS...OR AT LEAST I INTEND TO...
+*/
+$logoHeight : 15px;
+
+@-webkit-keyframes animA {
+	0% {
+		height: $logoHeight;
+	}
+	100% {
+		height: 0;
+	}
+}
+@-moz-keyframes animA {
+	0% {
+		height: $logoHeight;
+	}
+	100% {
+		height: 0;
+	}
+}
+@-o-keyframes animA {
+	0% {
+		height: $logoHeight;
+	}
+	100% {
+		height: 0;
+	}
+}
+@keyframes animA {
+	0% {
+		height: $logoHeight;
+	}
+	100% {
+		height: 0;
+	}
+}
+
+@-webkit-keyframes animB {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: $logoHeight;
+	}
+}
+@-moz-keyframes animB {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: $logoHeight;
+	}
+}
+@-o-keyframes animB {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: $logoHeight;
+	}
+}
+@keyframes animB {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: $logoHeight;
+	}
+}
+/*
+TODO
+THIS ALL NEEDS MOVING TO A MIXIN BUT AM CURRENTLY STRUGGLING TO GET THE COMPASS PLUGING INSTALLED ON PC.
+NEED TO MOVE ONTO THE NEXT STORY NOW BUT WILL COME BACK TO THIS...OR AT LEAST I INTEND TO...
+*/
+
+// IE8 & IE9 -----------------------------------------------------------------------------------------------------
+.ie8 {
+	.header {
+		background: transparent url('./img/ie/ie_header_bg.png') 0 0 repeat-x;
+	}
+}
+.ie8,
+.ie9 {
+	// THIS IS STUPIDLY NESTED, NOT MY DOING, BUT IM BEING FORCED TO DO THIS BY THE MENTALNESS ABOVE
+	.header {
+		header{
+			.logo_header {
+				.title-wrap {
+					.sub-heading {
+						&.js-hide {
+							display: none;
+						}
+						&.js-show {
+							display: block;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+
+@media print {
+	.header {
+		header {
+			.logo_header {
+				.title-wrap {
+					.sub-heading {
+						&:after {
+							content:url('img/logos/by_hennessy_print.png');
+						}
+						.logo {
+							display:none;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+.cookieBanner { 
+	background:#131314;
+	width:100%;
+	position: relative;
+	z-index: 999;
+		p {
+			padding:15px 80px; 
+			font-family: $base-font-family; 
+			font-size: $very_small_text; 
+			color: $lightergrey;
+			margin:0;
+			word-spacing:1px;
+			span {
+				background: url('img/icons/sprite.png') no-repeat -40px -440px;
+				width:20px;
+				height:20px;
+				position:absolute;
+				left:40px;
+				top:18px;
+			}
+		}
+		input[type="button"] {
+			background: url('img/icons/sprite.png') no-repeat 0px -204px;
+			width:12px;
+			height:12px;
+			position:absolute;
+			right:40px;
+			top:20px;
+			border:0;
+		}
+}
+#ePages {
+	.cookieBanner {
+		position: fixed;
+	}
+}

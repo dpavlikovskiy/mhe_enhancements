@@ -1,0 +1,70 @@
+// =============================================================================
+// Section for PNG Sprite
+// =============================================================================
+div.arrow,
+span.glow,
+.selector span.selectHolder,
+.breadcrumb li a,
+.artFilters li.active,
+.closeThis,
+.sIcon,
+.searchBox .close,
+.searchBox .arrow,
+.rAction .button-text,
+.rAction .openPrompt,
+.arrowTop,
+.customSelect span,
+.cart-coupon-code button,
+.cart-actions .button-text,
+.cartPrompts .ui-dialog-titlebar-close span,
+.bootCaro .pause,
+.bootCaro .play,
+.checkActions .checkBack a,
+.pt_checkout .sbSelector,
+.pt_checkout .checkModule.mSummaryCont h4 span,
+.tooltip .ptIcon,
+.removeOffer .textbutton,
+.popUp .closeBar .close,
+.paymentMethods h3  {
+	background-image:url(img/icons/sprite.png);
+	background-repeat:no-repeat;
+	background-position:0 0;
+}
+
+.search_icon_cont,
+span.search_icon,
+ul.menu-utility-user li .arrow {
+	background-image:url(img/sprites/sprite_main.png);
+	background-repeat:no-repeat;
+	background-position:0 0;
+}
+
+.sprite_divider_dot {
+	background-image: url('./img/sprites/sprite_bullet_circle.png');
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+.moetCaro .controls,
+.changeCaro .controls span.next,
+.changeCaro .controls span.prev,
+.overlay,
+.mover {
+	background:url(img/common/blank.png);
+}
+.cursorReplaceArea{
+	&:hover{
+		cursor: none;
+	}
+}
+
+%section_divider_01 {
+	display: block;
+	content: '';
+	background-image: url(img/sprites/divider_01.png);
+	background-repeat: repeat-x;
+	height: 1px;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	z-index: 20;
+}

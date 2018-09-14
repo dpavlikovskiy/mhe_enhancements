@@ -1,0 +1,254 @@
+.pdp-section-recommendations{
+	background:$pdpReccomBg;
+	.moetCaro {
+		max-width:989px;
+		position: relative;
+		margin:0 auto;
+		.box {
+			height: 400px;
+			overflow: hidden;
+			position: relative;
+			margin:0 0 50px;
+		}
+		.pagination{
+			position:absolute;
+			bottom:0;
+			width:100%;
+			text-align:center;
+			span{
+				border:1px solid $brandBorder;
+				width:11px;
+				height:11px;
+				display:inline-block;
+				text-indent:-999em;
+				overflow:hidden;
+				border-radius: 10px;
+				margin:0 10px 0 0;
+				&.active{
+					background:$white;
+					border:1px solid $white;
+				}
+			}
+		}
+		.slider {
+			position: absolute;
+			min-width: 989px;
+			text-align: center;
+			li {
+				display: inline-block;
+				width: 495px;
+				height: 400px;
+				vertical-align:top;
+				&:last-child{
+					a{
+						border-right:0;
+					}
+				}
+			}
+			.product-image{
+				a{
+					display:block;
+					border-right:1px solid #353533;
+				}
+			}
+			
+			
+		}
+		.controls {
+			position: absolute;
+			top:30%;
+			width:100%;
+			background:none;
+			a {
+				display: inline-block;
+				padding: 0;
+				font-size: 50px;
+				font-family: icomoon;
+				height:46px;
+				width:40px;
+				z-index: 9;
+				line-height:46px;
+				float:left;
+				text-align:center;
+				overflow:hidden;
+				position:relative;
+				color:$white;
+				&:before{
+					content:"\e616";
+				}
+				&.next{
+					float:right;
+					&:before{
+						content: "\e617";
+					}
+				}
+			}
+			.disable {
+				@include opacity(0.5);
+				cursor: default;
+			}
+			.disabledLayer{
+				height: 40px;
+			    position: absolute;
+			    width: 100%;
+			    z-index: 10;
+			    display:none;
+			}
+		}
+		// Product Module -----------------------------------------------
+		.product-info {
+			width: 300px;
+			overflow: hidden;
+			position: relative;
+			display: inline-block;
+			text-align: center;
+			img.homeBadge{
+				height: auto;
+			    left: 154px;
+			    position: absolute;
+			    top: 92px;
+			    width: 120px;
+			    z-index:10;
+			}
+			&:hover{
+				h2, h3, .price *{
+					color:$white;
+				}
+			}
+			h2, h3 {
+				font-size: 11px;
+				text-transform: uppercase;
+			}
+			h2 {
+				font-weight: $bold;
+				margin-bottom: 5px;
+			}
+			h3 {
+				font-weight: $regular;
+				margin-bottom: 14px;
+			}
+			.price {
+				color: $white;
+				font-size: $stand_first;
+				font-weight:$bold;
+				letter-spacing:1px;
+			}
+			.pImage{
+				height:440px;
+				.noImg{
+					padding:185px 0 0;
+					img{
+						height:auto;
+						width:auto;
+					}
+				}
+			}
+			img {
+				z-index: 3;
+				width: 300px;
+				position: relative;
+			}
+			.hr-line {
+				z-index: 2;
+				position: absolute;
+				background-color: $darkpurple;
+				width: 300px;
+				height: 1px;
+				top: 368px;
+				left:0;
+			}
+			.overlay_anim {
+				@include opacity(0);
+				background: url('./img/common/radial-gradient.png') 0 0 no-repeat;
+				z-index: 1;
+				position: absolute;
+				width: 300px;
+				height: 130px;
+				top: 238px;
+				left:0;
+				@include transition(all 0.3s ease-out);
+			}
+			&:hover .overlay_anim {
+				@include opacity(1);
+			}
+		}
+		.promo-msg {
+			color:#9980c2 !important; // TODO: change this, with * selector above
+			font-weight:700;
+			font-size:13px;
+			letter-spacing:2px;
+			text-overflow:ellipsis;
+			white-space:nowrap;
+			overflow:hidden;
+			display:inline-block;
+			text-transform:uppercase;
+		}
+	}
+}
+
+.pdp-section-recommendations{
+	.beta-heading{
+		font-family: $secondary-font-family;
+		font-size: $small_text;
+		color: $brandcolor;
+		text-transform: uppercase;
+		letter-spacing:1px;
+	}
+	.recommendations-list{
+		.analytics,
+		.product-name {
+			font-family: $secondary-font-family;
+			font-size: $small_text;
+			text-transform: uppercase;
+			color: $brandcolor;
+			a {
+				color: $brandcolor;
+			}
+		}
+		.product-name {
+			margin:15px 0 0;
+		}
+		.product-price {
+			font-size: 20px;
+			color: $white;
+		}
+	}
+}
+
+.bootCaro{
+	&.brandCaro{
+		height:400px;
+		margin:0 auto 50px;
+		.bootCaro-caption h2{
+			font-size:40px;
+		}
+		p.title{
+			color:$brandcolor;
+			font-weight:bold;
+		}
+		.carousel-indicators li{
+			border-color:$brandBorder;
+			background:none;
+			&.active{
+				border-color:$white;
+				background:$white;
+			}
+		}
+	}
+	.carousel-indicators{
+        left: 50%;
+		margin-left: -30%;
+		width: 60%;	
+		bottom: 10px;	
+	} 
+}
+
+
+
+
+
+
+
+
+
+

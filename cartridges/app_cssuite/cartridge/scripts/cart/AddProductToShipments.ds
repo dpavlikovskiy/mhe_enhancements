@@ -1,0 +1,79 @@
+/**
+* This script adds a product – given by SKU – to specified shipments – given by id.
+* 
+* @input map : dw.web.HttpParameterMap
+* @input basket : dw.order.Basket
+* @input Product : dw.catalog.Product
+* @input ProductOptionModel : dw.catalog.ProductOptionModel
+* @output tmp : Object
+*
+*/
+importPackage( dw.system );
+importPackage(dw.order);
+importPackage(dw.web);
+importPackage(dw.catalog);
+importPackage(dw.util);
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var map = pdict.map;
+	var basket = pdict.basket;
+	
+	var shipmentDelimiter = "shipment_";
+
+	var product : Product = pdict.Product;	
+
+	var productOptionModel : ProductOptionModel = pdict.ProductOptionModel;
+	
+	//parse the shipments
+	var params = map.getParameterNames();
+
+	for(var i=0; i<params.length; i++){
+		
+		//if the paramater starts with shipment_
+		//get the qty and assign the product to it
+		if(params[i].substr(0,shipmentDelimiter.length) == shipmentDelimiter){
+			
+			var qty = map.get(params[i]);
+			
+			//not a number or smaller than 0
+			if((isNaN(qty)) || (qty<1)){
+				continue;
+			} else {
+				
+				//get the shipment id
+				var shipID = params[i].substr(shipmentDelimiter.length);
+				//get the shipment
+				var shipment : Shipment = basket.getShipment(shipID);
+				
+				//create a product line item 
+				var pli : ProductLineItem = basket.createProductLineItem(product, productOptionModel,shipment);
+				
+				//set the quantity
+				var quantityValue = Number(qty);
+				pli.setQuantityValue(quantityValue);
+				pli.custom.sku=product.manufacturerSKU;
+				pli.custom.ean=product.EAN;
+				if("mheBrand" in product.custom){
+				pli.custom.brand=product.custom.mheBrand;
+				}
+				pli.custom.pliPosition=pli.position;	
+			
+			
+			}
+			
+		}
+		
+	}
+	
+/*
+	if(!map.address1.empty) address.address1 = map.address1.value;
+	if(!map.address2.empty) address.address2 = map.address2.value;
+	if(!map.city.empty) address.city = map.city.value;
+*/
+	
+    pdict.tmp = pli;
+    
+    return PIPELET_NEXT;
+}
+

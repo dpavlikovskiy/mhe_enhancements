@@ -1,0 +1,859 @@
+<certification>
+	<cartridgeInfo>
+		<name>Cybersource</name>
+		<version>2.0.0</version>
+		<implementer>Sapient</implementer>
+	</cartridgeInfo>
+	<certificationInfo>
+		<certificationID>108</certificationID>
+		<certifiedby>
+			Kilic Beg
+		</certifiedby>
+		<date>
+			06/10/2013
+		</date>
+		<platform>
+			<version>13.1</version>
+			<storefront>SG2</storefront>
+		</platform>
+		<usecases>
+			<usecase>
+				<description>
+					checkout with Cybersource guest user.
+				</description>
+				<steps>
+					1. add item to cart
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. review order confirmation screen
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					checkout using BML
+				</description>
+				<steps>
+					1. add item to cart
+					2. go through checkout 
+					3. checkout using BML
+					4. sumbit order
+					5. review order confirmation screen
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					test tax
+				</description>
+				<steps>
+					1. add item to cart
+					2. go through checkout 
+					3. enter shipping address
+					4. review tax value 
+					5. change shipping address for different state
+					6. review that the tax value changed					
+					7. change shipping address for different state
+					8. review that the tax value changed
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					checkout with Cybersource registrered users.
+				</description>
+				<steps>
+					1. add item to cart
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. review order confirmation screen
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					add credit card to Payment Setting List
+				</description>
+				<steps>
+					1. login
+					2. go to Account Payment Setting screen
+					3. add a credit card to your account
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					checkout using saved CC 
+				</description>
+				<steps>
+					1. login
+					2. add item to cart
+					3. go through checkout 
+					4. checkout using saved Credit Card
+					5. sumbit order
+					6. review order confirmation screen
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					test reason code 203
+				</description>
+				<steps>
+					1. add item to cart of $164.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					test reason code 150
+				</description>
+				<steps>
+					1. add item to cart of $2000.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>			
+			<usecase>
+				<description>
+					test reason code 231
+				</description>
+				<steps>
+					1. add item to cart of $2201.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>		
+			<usecase>
+				<description>
+					test reason code 233
+				</description>
+				<steps>
+					1. add item to cart of $2225.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>		
+			<usecase>
+				<description>
+					test reason code 150
+				</description>
+				<steps>
+					1. add item to cart of $2236.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>					
+			<usecase>
+				<description>
+					test reason code 231
+				</description>
+				<steps>
+					1. add item to cart of $2304.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>					
+			<usecase>
+				<description>
+					test reason code 100
+				</description>
+				<steps>
+					1. add item to cart of $2521.66.00 value (including tax and shipping)
+					2. go through checkout 
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected (can be checked with the debugger)
+				</steps>
+			</usecase>					
+			<usecase>
+				<description>
+					set up cybersource decission manager rule for review 
+				</description>
+				<steps>
+					1. add item to cart 
+					2. go through checkout (add values that fires the decission manager rule like firstname = review)
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is flages as review
+				</steps>
+			</usecase>					
+			<usecase>
+				<description>
+					set up cybersource decission manager rule for reject 
+				</description>
+				<steps>
+					1. add item to cart 
+					2. go through checkout (add values that fires the decission manager rule like firstname = reject)
+					3. checkout using Credit Card
+					4. sumbit order
+					5. order is rejected
+				</steps>
+			</usecase>					
+		</usecases>
+	</certificationInfo>
+	<contentInfo>
+		<file>
+			<hash>C614BBEE4D35FB67E43995DBCBB6801D</hash>
+			<name>cartridge\forms\default\ap.xml</name>
+		</file>
+		<file>
+			<hash>AB046E326376EE203B01C74E4FBD409D</hash>
+			<name>cartridge\forms\default\subscription.xml</name>
+		</file>
+		<file>
+			<hash>F83D89B1F8E0EC8C8185873A3B2A191E</hash>
+			<name>cartridge\int_cybersource.properties</name>
+		</file>
+		<file>
+			<hash>BB1159794F11CA18EAF1449B86D1A939</hash>
+			<name>cartridge\pipelines\cybersource.xml</name>
+		</file>
+		<file>
+			<hash>6422B7DBB362246AE027C4B2D3A096A5</hash>
+			<name>cartridge\pipelines\cybersource_services.xml</name>
+		</file>
+		<file>
+			<hash>603F5065B6A1051B8C6CC9EEA8AB1587</hash>
+			<name>cartridge\pipelines\cybersource_subscription.xml</name>
+		</file>
+		<file>
+			<hash>48115913207F344DADEA7CCFCD9BBCFE</hash>
+			<name>cartridge\pipelines\cybersourcedata.xml</name>
+		</file>
+		<file>
+			<hash>85D0232941955366B1C666827E0C39EE</hash>
+			<name>cartridge\pipelines\cybersourcehp.xml</name>
+		</file>
+		<file>
+			<hash>C4D65C174FBC9347DC4A7A3148142B13</hash>
+			<name>cartridge\pipelines\cybersourceunittesting.xml</name>
+		</file>
+		<file>
+			<hash>A19A21E289D050D35A00563ABF33A8DF</hash>
+			<name>cartridge\pipelines\cybersourceutil.xml</name>
+		</file>
+		<file>
+			<hash>C3790E02F0DE71355FD692BFFAF18C34</hash>
+			<name>cartridge\pipelines\cybersourcevme.xml</name>
+		</file>
+		<file>
+			<hash>9B344DF77984A3823E5411645A909C12</hash>
+			<name>cartridge\scripts\cybersource\ap\createcybersourceapobject.ds</name>
+		</file>
+		<file>
+			<hash>DA726D63F9419DAA997D1249C711863D</hash>
+			<name>cartridge\scripts\cybersource\ap\createcybersourceapobjectinitiate.ds</name>
+		</file>
+		<file>
+			<hash>B270974CBD59E0648F19B6D531598260</hash>
+			<name>cartridge\scripts\cybersource\billto\createcybersourcebilltoobject.ds</name>
+		</file>
+		<file>
+			<hash>76A17DA001AC46166A923E472957374C</hash>
+			<name>cartridge\scripts\cybersource\bml\createcybersourcebmlobject.ds</name>
+		</file>
+		<file>
+			<hash>4008D6D564CBD405475C4397ECFD6C21</hash>
+			<name>cartridge\scripts\cybersource\bmlauthrequest.ds</name>
+		</file>
+		<file>
+			<hash>B62CA8348D676ABD2A7F00B8126BEF3C</hash>
+			<name>cartridge\scripts\cybersource\ccauthrequest.ds</name>
+		</file>
+		<file>
+			<hash>3C96A81733E9A7C59909514D16018C74</hash>
+			<name>cartridge\scripts\cybersource\cccapturerequest.ds</name>
+		</file>
+		<file>
+			<hash>EEF279B51C639D6A9FEFFB501EA386D4</hash>
+			<name>cartridge\scripts\cybersource\cccreditrequest.ds</name>
+		</file>
+		<file>
+			<hash>38302F825F1F6C229C89E7137EB726B4</hash>
+			<name>cartridge\scripts\cybersource\conversiondetailreport.ds</name>
+		</file>
+		<file>
+			<hash>E4B86664ECC3ED8098D80CC14075E67B</hash>
+			<name>cartridge\scripts\cybersource\createcartstatestring.ds</name>
+		</file>
+		<file>
+			<hash>EDF282355B2BE663DC654529B3E74787</hash>
+			<name>cartridge\scripts\cybersource\creditcardinfo.ds</name>
+		</file>
+		<file>
+			<hash>ABFF61E8A6758D424E722143B6EC98C8</hash>
+			<name>cartridge\scripts\cybersource\cybersource_ap_object.ds</name>
+		</file>
+		<file>
+			<hash>98BEFB404707CAAED86E30FD5FA164DB</hash>
+			<name>cartridge\scripts\cybersource\cybersource_billto_object.ds</name>
+		</file>
+		<file>
+			<hash>344DC2F4F39083C485649E8DB030D43E</hash>
+			<name>cartridge\scripts\cybersource\cybersource_bml_object.ds</name>
+		</file>
+		<file>
+			<hash>033F9F2DD846F2DCDC45F91E377F1485</hash>
+			<name>cartridge\scripts\cybersource\cybersource_card_object.ds</name>
+		</file>
+		<file>
+			<hash>77D318EBEFBC2925B4127C218B0BF26B</hash>
+			<name>cartridge\scripts\cybersource\cybersource_item_object.ds</name>
+		</file>
+		<file>
+			<hash>94B1029C37287780A67B23338939D3C2</hash>
+			<name>cartridge\scripts\cybersource\cybersource_payerauthenrollservice_object.ds</name>
+		</file>
+		<file>
+			<hash>C74BB13147D1DD0918D42CA163F47F8E</hash>
+			<name>cartridge\scripts\cybersource\cybersource_purchasetotals_object.ds</name>
+		</file>
+		<file>
+			<hash>3E0F2C5208D511A967B70984F4457A23</hash>
+			<name>cartridge\scripts\cybersource\cybersource_shipfrom_object.ds</name>
+		</file>
+		<file>
+			<hash>62FBAC23379B4F200A448D9587169472</hash>
+			<name>cartridge\scripts\cybersource\cybersource_shipto_object.ds</name>
+		</file>
+		<file>
+			<hash>E6B287AB3AC7A47267DAF12BBA899331</hash>
+			<name>cartridge\scripts\cybersource\cybersource_taxrequest_object.ds</name>
+		</file>
+		<file>
+			<hash>0F2EA8ACC6A44AFB5D7F42C7AE5155E4</hash>
+			<name>cartridge\scripts\cybersource\davrequest.ds</name>
+		</file>
+		<file>
+			<hash>B6B4786695E772274441F2F0C88A0D95</hash>
+			<name>cartridge\scripts\cybersource\debug.ds</name>
+		</file>
+		<file>
+			<hash>F2DBB103F9F9B33F2F0E3DE3C20FED45</hash>
+			<name>cartridge\scripts\cybersource\determinenewdecision.ds</name>
+		</file>
+		<file>
+			<hash>D32EF21A8334747C84B914D23B1F4605</hash>
+			<name>cartridge\scripts\cybersource\getcybersourcehelper.ds</name>
+		</file>
+		<file>
+			<hash>227CFCA6E60924E16C00A1B9763CE41E</hash>
+			<name>cartridge\scripts\cybersource\getpaymentinstrument.ds</name>
+		</file>
+		<file>
+			<hash>9AF6D29A79A8642EC2180AF835C07635</hash>
+			<name>cartridge\scripts\cybersource\item\createcybersourceitemobject.ds</name>
+		</file>
+		<file>
+			<hash>6B6DDDBE281A9BCF9DE0E1F08BDF67B1</hash>
+			<name>cartridge\scripts\cybersource\libcybersource.ds</name>
+		</file>
+		<file>
+			<hash>C1AC50767D358D1AB11B2CD7BBC2420F</hash>
+			<name>cartridge\scripts\cybersource\payerauthenable.ds</name>
+		</file>
+		<file>
+			<hash>6324651E1CF2FFB32A38F73D14CB9D8A</hash>
+			<name>cartridge\scripts\cybersource\payerauthenrollcheck.ds</name>
+		</file>
+		<file>
+			<hash>549BAA8A9485513DE018BCB9C260EEC1</hash>
+			<name>cartridge\scripts\cybersource\payerauthvalidation.ds</name>
+		</file>
+		<file>
+			<hash>26FB89BCA25E4B2E7AA520D3AB15765F</hash>
+			<name>cartridge\scripts\cybersource\paymentcard\createcybersourcebmlpaymentcardobject.ds</name>
+		</file>
+		<file>
+			<hash>953D3CC2F2EB97577B8ADF3BCBEFB663</hash>
+			<name>cartridge\scripts\cybersource\paymentcard\createcybersourcepaymentcardobject.ds</name>
+		</file>
+		<file>
+			<hash>16F6437BDA970851CBE730FA57BA39AF</hash>
+			<name>cartridge\scripts\cybersource\purchasetotals\createcybersourcepurchasetotalsobject.ds</name>
+		</file>
+		<file>
+			<hash>148F75C9F200E4D293CE76047B406C01</hash>
+			<name>cartridge\scripts\cybersource\purchasetotals\createcybersourcepurchasetotalsobjectinitiate.ds</name>
+		</file>
+		<file>
+			<hash>1E21F9EAF4851D1CBF3148960FEE2952</hash>
+			<name>cartridge\scripts\cybersource\services\createcapture.ds</name>
+		</file>
+		<file>
+			<hash>D97DBFB2306CDFA88FF9DFF4F41A3C7E</hash>
+			<name>cartridge\scripts\cybersource\services\createreversal.ds</name>
+		</file>
+		<file>
+			<hash>8E598D0BB4D00295410B81E53C57DFA1</hash>
+			<name>cartridge\scripts\cybersource\shipfrom\createcybersourceshipfromobject.ds</name>
+		</file>
+		<file>
+			<hash>836873B2BBBB438D7242B94B18606FA0</hash>
+			<name>cartridge\scripts\cybersource\shipto\createcybersourceshiptoobject.ds</name>
+		</file>
+		<file>
+			<hash>462C225885DEB086C6A1E27DF3B6081E</hash>
+			<name>cartridge\scripts\cybersource\subscription\createcybersourcebilltoobject_userdata.ds</name>
+		</file>
+		<file>
+			<hash>9EDA2C7298200C7BBAB38C42AA56F950</hash>
+			<name>cartridge\scripts\cybersource\subscription\createcybersourcepaymentcardobject_userdata.ds</name>
+		</file>
+		<file>
+			<hash>D2550C35D7C032DA0D370416ACA230AA</hash>
+			<name>cartridge\scripts\cybersource\subscription\createcybersourcepurchasetotalsobject_userdata.ds</name>
+		</file>
+		<file>
+			<hash>6AEC1BDBDA4D7E5F0BA5813258F7238A</hash>
+			<name>cartridge\scripts\cybersource\subscription\createsubscription.ds</name>
+		</file>
+		<file>
+			<hash>459EAE086FB5C9E7D9121E1D8CD9A7A3</hash>
+			<name>cartridge\scripts\cybersource\subscription\deletesubscription.ds</name>
+		</file>
+		<file>
+			<hash>2587574F1E54E9449FFD51A1ECC16749</hash>
+			<name>cartridge\scripts\cybersource\subscription\ondemandsubscription.ds</name>
+		</file>
+		<file>
+			<hash>7FF930B62369F4895D485B2D76A262A6</hash>
+			<name>cartridge\scripts\cybersource\subscription\updatesubscription.ds</name>
+		</file>
+		<file>
+			<hash>9F501A9A159FAF37DC64BF0BAD74E353</hash>
+			<name>cartridge\scripts\cybersource\subscription\viewsubscription.ds</name>
+		</file>
+		<file>
+			<hash>F2E2994BD8E81C8C7EFC45AC354D6B6D</hash>
+			<name>cartridge\scripts\cybersource\taxation\createcybersourcetaxationitemsobject.ds</name>
+		</file>
+		<file>
+			<hash>333217A7BE7DDF337D48383B9655E66D</hash>
+			<name>cartridge\scripts\cybersource\taxation\createcybersourcetaxationpurchasetotalsobject.ds</name>
+		</file>
+		<file>
+			<hash>F053FB87179CDC252A08702866E76D01</hash>
+			<name>cartridge\scripts\cybersource\taxation\createcybersourcetaxrequestobject.ds</name>
+		</file>
+		<file>
+			<hash>9E34DCC5C08D98AE06B0E8A056237AFC</hash>
+			<name>cartridge\scripts\cybersource\taxationrequest.ds</name>
+		</file>
+		<file>
+			<hash>B9F65BE331C613117041CAD5C270E88A</hash>
+			<name>cartridge\scripts\cybersource\updateordershippingaddress.ds</name>
+		</file>
+		<file>
+			<hash>A817037F30A5285B85D756324B0D5ABB</hash>
+			<name>cartridge\scripts\cybersource\updatetaxforgiftcertificate.ds</name>
+		</file>
+		<file>
+			<hash>277075E3F296B39D92EB5503C6DAE01A</hash>
+			<name>cartridge\scripts\cybersource\vmeauthorize.ds</name>
+		</file>
+		<file>
+			<hash>024707AA9DF119D49E7C02C0530C6072</hash>
+			<name>cartridge\scripts\cybersource\vmeauthreversalrequest.ds</name>
+		</file>
+		<file>
+			<hash>B6273E615B3541540F895F42EA4C8835</hash>
+			<name>cartridge\scripts\cybersource\vmeconfirmpurchaserequest.ds</name>
+		</file>
+		<file>
+			<hash>2ADB2809C579E7B4CC4AC657A5FCE5EF</hash>
+			<name>cartridge\scripts\cybersource\vmegetcheckoutdetails.ds</name>
+		</file>
+		<file>
+			<hash>F306E356514BCDA4A3AD3CE6ECFAEA82</hash>
+			<name>cartridge\scripts\cybersource\vmeinitiateservice.ds</name>
+		</file>
+		<file>
+			<hash>4590C681121CBFB136716710AB3B28C7</hash>
+			<name>cartridge\scripts\cybersource_unittesting\ap\createcybersourceapobject.ds</name>
+		</file>
+		<file>
+			<hash>698CB0775D970A7D53A0CC82B40124B5</hash>
+			<name>cartridge\scripts\cybersource_unittesting\billingaddress\createcybersourcebilltoobject.ds</name>
+		</file>
+		<file>
+			<hash>2BA730E6087A74F0598050AAA6D2100A</hash>
+			<name>cartridge\scripts\cybersource_unittesting\billingaddress\populatebillingaddress.ds</name>
+		</file>
+		<file>
+			<hash>4A7D9BCE8B7960FD2D148F5EEE2DC6DF</hash>
+			<name>cartridge\scripts\cybersource_unittesting\bml\createcybersourcebmlobject.ds</name>
+		</file>
+		<file>
+			<hash>982851DD64134000A5D279F81BD21422</hash>
+			<name>cartridge\scripts\cybersource_unittesting\dav\createmockcybersourcebilltoobject.ds</name>
+		</file>
+		<file>
+			<hash>304524BABC2174B11678A3D942AE2A4C</hash>
+			<name>cartridge\scripts\cybersource_unittesting\dav\createmockcybersourceshiptoobject.ds</name>
+		</file>
+		<file>
+			<hash>DBBF75B13073489CF36AA8894F2F18AF</hash>
+			<name>cartridge\scripts\cybersource_unittesting\lineitemobject.ds</name>
+		</file>
+		<file>
+			<hash>C19C650EC7DAD3BD1EEAA1522C0BFE03</hash>
+			<name>cartridge\scripts\cybersource_unittesting\payment\createcreditcarddata.ds</name>
+		</file>
+		<file>
+			<hash>63B24023F1C6E5D2EF7DAC926D79F0D8</hash>
+			<name>cartridge\scripts\cybersource_unittesting\payment\createcybersourcebmlpaymentcard.ds</name>
+		</file>
+		<file>
+			<hash>46285900C8BA82641738A7876097D668</hash>
+			<name>cartridge\scripts\cybersource_unittesting\payment\createcybersourcepaymentcardobject.ds</name>
+		</file>
+		<file>
+			<hash>C74B96A7DB79F5F6016EBE07D7220606</hash>
+			<name>cartridge\scripts\cybersource_unittesting\payment\createcybersourcepurchasetotalsobject.ds</name>
+		</file>
+		<file>
+			<hash>EF0E4FF8BDF1ECF8CFB54EFEC57A0D09</hash>
+			<name>cartridge\scripts\cybersource_unittesting\payment\createpaymentinstrument.ds</name>
+		</file>
+		<file>
+			<hash>131F855080EBC37EEBC92843D9FCDFFB</hash>
+			<name>cartridge\scripts\cybersource_unittesting\shipping\createbasketshipment.ds</name>
+		</file>
+		<file>
+			<hash>E1A9712150E88FF98B1F18BF82ED4BB4</hash>
+			<name>cartridge\scripts\cybersource_unittesting\shipping\createcybersourceshiptoobject.ds</name>
+		</file>
+		<file>
+			<hash>473DE0CB4B904179BE3F72A02B2270C2</hash>
+			<name>cartridge\scripts\cybersource_unittesting\shipping\populateshippingaddress.ds</name>
+		</file>
+		<file>
+			<hash>ABAEB64A338229638B6D815B98E89173</hash>
+			<name>cartridge\scripts\cybersource_unittesting\showallresponsefields.ds</name>
+		</file>
+		<file>
+			<hash>553A6101CADE2A5CE1874BC30BEA1115</hash>
+			<name>cartridge\scripts\cybersource_unittesting\taxation\createcybersourcetaxationitems.ds</name>
+		</file>
+		<file>
+			<hash>929872E7DC4E515B0A2A6B2E970A875C</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testbml.ds</name>
+		</file>
+		<file>
+			<hash>2ABBF81A25E043EAFE1992227EE75C9A</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testccauth.ds</name>
+		</file>
+		<file>
+			<hash>A01E6F503848F04654DAC4563B7124DC</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testcreatesubscription.ds</name>
+		</file>
+		<file>
+			<hash>25C967B7A98C340383201FC445DC9B21</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testdavrequest.ds</name>
+		</file>
+		<file>
+			<hash>DE0AA78D40DC1D71854183B5D3BC2EB6</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testondemandsubscription.ds</name>
+		</file>
+		<file>
+			<hash>4F8945B847E0529DA97BEB8D55D40E7E</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testpayerauthenrollcheck.ds</name>
+		</file>
+		<file>
+			<hash>8B191899354B1491A2528732DD91E671</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testpayerauthvalidation.ds</name>
+		</file>
+		<file>
+			<hash>D4630AA044B4EE5F1F4F1569CA223A05</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testtax.ds</name>
+		</file>
+		<file>
+			<hash>DD5727DD136EE20E616C87E21D61FAB6</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmeauth.ds</name>
+		</file>
+		<file>
+			<hash>2D630D1FDF9A3B70CB6C539DA0D9329E</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmeauthreversalrequest.ds</name>
+		</file>
+		<file>
+			<hash>2B9BA2ED25C8C33720D2A7BBD26616B9</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmecapturerequest.ds</name>
+		</file>
+		<file>
+			<hash>365E4B5EACE08942511B354BC07A8A39</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmeconfirmpurchaserequest.ds</name>
+		</file>
+		<file>
+			<hash>0EF98704FF28329E36042057B1C69C15</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmegetcheckoutdetails.ds</name>
+		</file>
+		<file>
+			<hash>21C67C2E25187D11D85BA8FDFCF9D65A</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmegettransactiondetails.ds</name>
+		</file>
+		<file>
+			<hash>5B8128B9523674CEE26C12AA9263038E</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmeinitiateservice.ds</name>
+		</file>
+		<file>
+			<hash>A1F223D477F3D8C166566CE8AA98B85D</hash>
+			<name>cartridge\scripts\cybersource_unittesting\testvmerefundrequest.ds</name>
+		</file>
+		<file>
+			<hash>798CF353A9EFD21A84306E3595C6A4C4</hash>
+			<name>cartridge\scripts\file\getfilesfromdirectory.ds</name>
+		</file>
+		<file>
+			<hash>72C336ACC36BC955981C4D63BAD90E56</hash>
+			<name>cartridge\scripts\file\readfile.ds</name>
+		</file>
+		<file>
+			<hash>85F93AFBA6B4BFF1EF34D39D1AD09A85</hash>
+			<name>cartridge\scripts\file\writefile.ds</name>
+		</file>
+		<file>
+			<hash>2B8FBB5066FBD7215BE373B78961DC5C</hash>
+			<name>cartridge\scripts\utils\nullendpoint.ds</name>
+		</file>
+		<file>
+			<hash>4C90B12ABCA4942F08EE087F15F1641E</hash>
+			<name>cartridge\templates\default\cart\fingerprint.isml</name>
+		</file>
+		<file>
+			<hash>673EE865FF1B1D85CABDD2887FEFF02B</hash>
+			<name>cartridge\templates\default\cart\fingerprintredirect.isml</name>
+		</file>
+		<file>
+			<hash>A1C98E2C22451CA8750AE6C90F94902D</hash>
+			<name>cartridge\templates\default\cart\payerauthentication.isml</name>
+		</file>
+		<file>
+			<hash>A2FB936660963664E9BA2EF70030394E</hash>
+			<name>cartridge\templates\default\cart\payerauthenticationredirect.isml</name>
+		</file>
+		<file>
+			<hash>6EA214E325C262D11E23CB87725E8B0C</hash>
+			<name>cartridge\templates\default\cart\payerauthenticationtest.isml</name>
+		</file>
+		<file>
+			<hash>3361E23D57FCFAD6E9A5BD9D61019D56</hash>
+			<name>cartridge\templates\default\common\http_200.isml</name>
+		</file>
+		<file>
+			<hash>392806BD01B127E5D702C319DE07C212</hash>
+			<name>cartridge\templates\default\common\http_500.isml</name>
+		</file>
+		<file>
+			<hash>D0EEB23E803E318F27075B9EC0D7A8C4</hash>
+			<name>cartridge\templates\default\custom\apauthreversalunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>320337CDBE12B5C5552B0F6779E0BBD1</hash>
+			<name>cartridge\templates\default\custom\apauthunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>31F92CBFCDD548A37C8B0FF76633537F</hash>
+			<name>cartridge\templates\default\custom\apcaptureunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>03272F0000459007E633095F851E0CEC</hash>
+			<name>cartridge\templates\default\custom\apconfirmpurchaseunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>EE8AD863794146E6605E512457A637BE</hash>
+			<name>cartridge\templates\default\custom\apgetcheckoutunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>C6B3B2BF2847D993C57F7A684BD2F8A2</hash>
+			<name>cartridge\templates\default\custom\apinitiateserviceunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>2A4065D4A66CC71BCE4C6EFDDBB11C51</hash>
+			<name>cartridge\templates\default\custom\aprefundunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>6722F18791C367172BE15F03503468B2</hash>
+			<name>cartridge\templates\default\custom\aptransactiondetailsunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>59E0A2968FF8EDB6766004A055ECC163</hash>
+			<name>cartridge\templates\default\custom\billingaddress.isml</name>
+		</file>
+		<file>
+			<hash>47B798079996D9B97FCD7FBA2B6BCA1C</hash>
+			<name>cartridge\templates\default\custom\bmlunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>D1ECDEDFB0ACDE8341FB69B8D2E3989F</hash>
+			<name>cartridge\templates\default\custom\ccauthunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>CB88FD170CA0AF95117BF42F2E4F3EF9</hash>
+			<name>cartridge\templates\default\custom\fingerprintredirect.isml</name>
+		</file>
+		<file>
+			<hash>4E34C62E90A2D03EF45461F856A9F396</hash>
+			<name>cartridge\templates\default\custom\patestresult.isml</name>
+		</file>
+		<file>
+			<hash>8E128231C49DB315E4E5BBF7DC223E07</hash>
+			<name>cartridge\templates\default\custom\scripterror.isml</name>
+		</file>
+		<file>
+			<hash>865C131B5EE68959F22602B6FC7743AB</hash>
+			<name>cartridge\templates\default\custom\shippingaddress.isml</name>
+		</file>
+		<file>
+			<hash>4ECB9A92FB9089E044742AF1624727CD</hash>
+			<name>cartridge\templates\default\custom\standardizedaddress.isml</name>
+		</file>
+		<file>
+			<hash>6D824629464543E81DFD2BE4A7B112B0</hash>
+			<name>cartridge\templates\default\custom\taxunittestresults.isml</name>
+		</file>
+		<file>
+			<hash>ED7017AC29F3193B15B6EF2C01F979DA</hash>
+			<name>cartridge\templates\default\custom\testdavcheckresults.isml</name>
+		</file>
+		<file>
+			<hash>389DD2CA4ED7A5048D486C71A1643BDD</hash>
+			<name>cartridge\templates\default\payerauthentication\pt_payerauthentication.isml</name>
+		</file>
+		<file>
+			<hash>23B76BDB1755EC1579343A4158A0277E</hash>
+			<name>cartridge\templates\default\services\apauthform.isml</name>
+		</file>
+		<file>
+			<hash>08B643C9E6898673845A340C33833199</hash>
+			<name>cartridge\templates\default\services\apauthreversalform.isml</name>
+		</file>
+		<file>
+			<hash>76943BE797A2278A9B0455189E9F7C20</hash>
+			<name>cartridge\templates\default\services\apcheckoutdetailsform.isml</name>
+		</file>
+		<file>
+			<hash>3EA6AB18AB2DB09E390FC3DE1AB89580</hash>
+			<name>cartridge\templates\default\services\apconfirmpurchaseform.isml</name>
+		</file>
+		<file>
+			<hash>83FBD95D92641295306C068B5D29A5EF</hash>
+			<name>cartridge\templates\default\services\aprefundform.isml</name>
+		</file>
+		<file>
+			<hash>34A580F9671A1C3C5A845607212C2092</hash>
+			<name>cartridge\templates\default\services\apservices.isml</name>
+		</file>
+		<file>
+			<hash>2725D8707D7CC52BFA7FDF46D34379C8</hash>
+			<name>cartridge\templates\default\services\aptransactiondetailsform.isml</name>
+		</file>
+		<file>
+			<hash>0D37D2C8E90A2591D66D2932AFE37141</hash>
+			<name>cartridge\templates\default\services\reversalform.isml</name>
+		</file>
+		<file>
+			<hash>F66FCA5FCB05539062BDEE3C28226195</hash>
+			<name>cartridge\templates\default\services\reversalresult.isml</name>
+		</file>
+		<file>
+			<hash>82008CF95961CDDF10B547E78D6A2F31</hash>
+			<name>cartridge\templates\default\services\services.isml</name>
+		</file>
+		<file>
+			<hash>9142A312E2C821A1BEC7BE8BA8E12F06</hash>
+			<name>cartridge\templates\default\subscription\createsubscription.isml</name>
+		</file>
+		<file>
+			<hash>04E811A5CCE44C914FA01D92CD21B2A2</hash>
+			<name>cartridge\templates\default\subscription\createsubscriptionresult.isml</name>
+		</file>
+		<file>
+			<hash>367232508624B2B309FD72DA49F6DD8E</hash>
+			<name>cartridge\templates\default\subscription\deletesubscriptionresult.isml</name>
+		</file>
+		<file>
+			<hash>815318F69F2572F6CEC61EEB54D01B81</hash>
+			<name>cartridge\templates\default\subscription\ondemandsubscriptionform.isml</name>
+		</file>
+		<file>
+			<hash>80413036B6F1D5EBAF436745B3F1A09B</hash>
+			<name>cartridge\templates\default\subscription\ondemandsubscriptionresult.isml</name>
+		</file>
+		<file>
+			<hash>97C3B5A3C3CA3E419BE6CC09A2981E65</hash>
+			<name>cartridge\templates\default\subscription\subscription.isml</name>
+		</file>
+		<file>
+			<hash>5332519438553CE40D18EA6436369929</hash>
+			<name>cartridge\templates\default\subscription\updatesubscriptionform.isml</name>
+		</file>
+		<file>
+			<hash>309EF3EF2EEFFAE2853BCEBBA93FF534</hash>
+			<name>cartridge\templates\default\subscription\updatesubscriptionresult.isml</name>
+		</file>
+		<file>
+			<hash>E837F98F642AA143C0B752E3CDADB797</hash>
+			<name>cartridge\templates\default\subscription\viewsubscriptionform.isml</name>
+		</file>
+		<file>
+			<hash>EE235FA4DE5EC4CB43A8A9436BE041EA</hash>
+			<name>cartridge\templates\default\subscription\viewsubscriptionresult.isml</name>
+		</file>
+		<file>
+			<hash>F74B07F5E8596B50AD82A752799DC2E6</hash>
+			<name>cartridge\webreferences\cybersourcetransaction.wsdl</name>
+		</file>
+		<file>
+			<hash>1916FFC55D1F96B09FB0A40394298057</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.26.xsd</name>
+		</file>
+		<file>
+			<hash>E004585E662824F0243EE720F4017874</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.75.xsd</name>
+		</file>
+		<file>
+			<hash>2A442F8ADDDE688DEA3D10C189470446</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.78.xsd</name>
+		</file>
+		<file>
+			<hash>17827E16F8EE8B01A1D1CF2032419732</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.79.xsd</name>
+		</file>
+		<file>
+			<hash>204E4362CEBD2F1438D7B125866A8B61</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.80.xsd</name>
+		</file>
+		<file>
+			<hash>1897004BCF5859751279A6D50EF085BC</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.84.wsdl</name>
+		</file>
+		<file>
+			<hash>F9FCC8BD1F3708BB3DB308366980190C</hash>
+			<name>cartridge\webreferences\cybersourcetransaction_1.84.xsd</name>
+		</file>
+		<file>
+			<hash>C8061C6E1064D8758B5C7F8142503C74</hash>
+			<name>cartridge\webreferences\cybersourcetransactionqa.wsdl</name>
+		</file>
+		<file>
+			<hash>C6542CBFE23E2B9C60A2807687B479A8</hash>
+			<name>hash.txt</name>
+		</file>
+		<file>
+			<hash>B9975EF9300242D455E15628B94237BF</hash>
+			<name>master_hash.txt</name>
+		</file>
+	</contentInfo>
+</certification>
+		

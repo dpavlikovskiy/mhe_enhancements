@@ -1,0 +1,479 @@
+a {
+	text-decoration: none;
+	color: $link_color;
+	cursor: pointer;
+	&:visited { color: $link_color; }
+	&:hover { text-decoration: none; color: $hover_color; }
+	&:focus { outline: thin dotted; color: $focus_color; }
+}
+.button{
+	.face{
+		border:1px solid $brandBorder;
+		background-color: $brandBg;
+		color: $white;
+		font-weight:$bold;
+		&.back { 
+			background: none;
+	    	border: 1px solid $brandBorder;
+	    	color: $brandcolor;
+		}
+	}
+	&.fill {
+    	.face {
+    		background-color: $brandBg;
+    		color: $white;
+    		&.back {
+    			background:none;
+    			border-color: $brandBg;
+    			color: $brandcolor;
+    		}
+    	}
+    }
+    &.darkfill {
+    	.face {
+    		background-color: $black;
+    	}
+    }
+    &.grey {
+    	.face {
+    		border-color: $brandBg;
+    		color: $white;
+    		&.back {
+    			background:none;
+    			border-color:$brandBg;
+    			color: $brandcolor;
+    		}
+    	}
+    }
+    &.trans {
+    	.face {
+    		background: $black;
+    		background: rgba(0,0,0,0.5);
+    	}
+    }
+    &.hero {
+    	.face {
+    		border-color: $brandBg;
+    		color: $white;
+			&.front {
+				background: $blackgrey;
+    			background: rgba(22,21,28,0.2);
+			}
+			&.back {
+				background:none;
+				border-color: $brandBg;
+				color: $brandcolor;
+			}
+		}
+    }
+}
+input[type="text"],
+input[type="password"] {
+    background:$input_background;
+    border:1px solid $inputBorder;
+    color:$input_color;
+}
+textarea {
+    background-color: $black;
+    border: 1px solid $greyText;
+    color: $greyText;
+}
+.pt_checkout{
+	 h1{
+		color:$brandcolor;
+		font-size: $basket_big_text;
+		.main-title{
+			color: white;
+			}
+		}
+		
+		h3{
+		color:$brandcolor;
+		.main-title{
+			color: white;
+		}
+	}
+	.checkHeader{
+		h3{
+			color:$white;
+			font-size:$normal-font-size;
+		}
+	
+	}
+}
+.checkActions{
+	border-top:3px solid $headerDivider;
+	.checkBack a{
+		background-position:0 -251px;
+		color:$lightergrey;
+		&:hover{
+			color:$white;
+		}
+	}
+}
+.step{
+	&.inactive{
+		a, span.disabled{
+			border-bottom:3px solid $headerDivider;
+		}
+	}
+	&.active{
+		a, span.disabled{
+			border-bottom:3px solid $brandcolor;
+			color:$greyText;
+		}
+	}
+	&.current a, &.current span.disabled{
+		background:url(images/checkout-glow.png) no-repeat center bottom;
+		color:$white!important;
+	}
+}
+
+
+.mini-address-location{
+	color:$greyText;
+}
+.mini-address-title{
+	h2, strong.placeName{
+		color:$white;
+	}
+}
+.form-row label{
+	color:$white;
+	.optional{
+		color:$greyText;
+	}
+}
+.products-container .sort-by .sbHolder a{
+	color:$greyText;
+	&:hover{
+		color:$white;
+	}
+}
+
+.breadcrumb{
+		font-size:$very_small_text;
+		li{
+			 a{
+				color: $lightGreyText;
+				background-position: right -99px;
+				
+			}
+		&:last-child{
+			a{
+			background:none;
+				}
+			}	
+		}
+}
+.pdp-section-hero{
+	.product-price{
+		color: $white;
+			.price-sales{
+				font-size:24px;
+			}
+	}
+		.product-store-locator {
+			.gamma-heading {
+				font-size: $stand_first;
+				color: $brandcolor;
+				font-family: $heading-font-family;
+				text-transform: uppercase;
+				letter-spacing: 0px;
+				font-weight: $regular;
+				}
+				.strapline {
+				font-size: 24px;
+				font-family:$secondary-font-family;
+				 text-transform: none;
+				}
+				.cta-store-locator a {
+					color:$bodycolor;
+					font-family:$base-font-family;
+						.icon-locator_01 {
+							color:$brandcolor;
+					}
+				}
+			}
+	.column-details {
+		.product-sup-info{
+		text-transform:none;
+			}
+				}
+	.lead-copy, .limited-para, .keep-me-updated{
+		color:$greyText;
+		font-family:$base-font-family;
+		font-size:$medium-font-size;
+		text-transform:none;
+		margin: 0 0 25px;
+		.limit-para-trigger {
+			color: $white;
+		}
+	}
+	.promotion-callout p{
+		color:$brandcolor;
+		a{
+			color:$white;
+		}
+	}
+	.sup-info a{
+		color:$greyText;
+		text-transform:none;
+		font-size:$smaller_heading;
+		font-family:$base-font-family;
+	}
+	.column-personalisation p{
+		color:$white;
+	}
+	.alpha-heading{
+		color:$brandcolor;
+		font-size:$slightly_big_text;
+		font-weight:$light;
+	}
+}
+.accessory-list{
+	.product-name, .product-price{
+		color:$greyText;
+	}
+}
+.accessories-section{
+	.beta-heading{
+		color:$accessoryHead;
+	}
+}
+
+.pt_cart{
+	text-transform:uppercase;
+	h1{
+		font-size: $basket_big_text;
+		font-family: $heading-font-family;
+		color:$brandcolor;
+	}
+	
+	.basketHead {
+				p{
+					color:$lightgrey;
+					span{
+						color:$white;
+						&.sTotal{
+						font:$big_text $fixed-font-family;	
+								}
+						}
+				}
+	}
+	.basketContent{
+				.section-header th{
+					font-size:$very_small_text;
+				}
+				.item-details{
+					h3{
+						font-size: $small_text;
+						font-family: $heading-font-family;
+						color:$white;
+					}
+					h4{
+						font-size: $small_text;
+						font-family: $heading-font-family;
+						text-transform:none;
+					}
+				}
+				.item-total, .item-price{
+						font:$big_text $heading-font-family;
+				}
+	}
+	.cart-footer{
+				.cart-order-totals{
+						.order-totals-table{
+								.order-subtotal{
+										.first{
+												font:$small_heading $fixed-font-family;
+												span{ 
+													font:$smaller_heading $fixed-font-family;
+												}
+										}
+										.last{
+												font:$big_text $fixed-font-family;		
+										}
+								}
+								td{
+										font-size:$small_heading;
+										padding-top:15px;
+								}
+								.last{
+										font:$big_text $fixed-font-family;
+								}
+						}
+						.order-total{
+							font-family: $fixed-font-family;
+							.first{
+								font-size:$small_text;
+								font-weight:$bold;
+								padding: 20px 0;
+							}
+							.last{
+								font-size:$slightly_big_text;
+							}
+								
+							
+						}
+						
+				}
+			
+	}
+	.cart-actions{
+				.button-text {
+							font-size: $very_small_text;
+				}
+	}
+}
+
+
+.personaldetails .personaldetails a,
+.orderhistory .orderhistory a ,
+.paymentinformationlist .paymentinformationlist a,
+.mysavedaddresses .mysavedaddresses a,
+.mybillingaddresses .mybillingaddresses a,
+.referafriend .referafriend a  {
+	color:#fff;
+}
+.uppercase {
+	color: $lightergrey;
+}
+.pdp-section-hero {
+	.product-store-locator{
+		background: url("../img/sprites/divider_01.png") repeat-x scroll 0 bottom rgba(0, 0, 0, 0);
+		padding-bottom: 20px !important;
+	}
+	.product-store-social {
+    	margin-top: 25px;
+    	padding-top: 0px;
+    	position: relative;
+    	margin-bottom: 50px;
+    	.social-icons {
+    		text-align: center;
+    		li {
+    			border-right: 1px solid $searchText;
+    			display: inline-block;
+    			height: 12px;
+    			padding: 0 7px 0 4px;
+			}
+			li:last-child {
+			border: medium none;
+			}
+			.icon{
+			background: url("images/pdp-social.png") no-repeat;
+			display:block;
+			margin-top: -2px;
+			}
+			.email {
+   				 background-position: -2px -53px;
+    			 height: 16px;
+    			 width: 22px;
+			}
+			.instagram {
+    		background-position: -2px 0;
+    		height: 16px;
+    		width: 17px;
+			}
+			.facebook {
+    		background-position: -2px -26px;
+    		height: 16px;
+    		width: 12px;
+			}
+			.pintrest {
+    		background-position: -2px -80px;
+    		height: 16px;
+    		width: 20px;
+			}
+			.twitter {
+    		background-position: -2px -107px;
+    		height: 16px;
+    		width: 19px;
+			}
+		}
+    .gamma-heading {
+    	color: $brandcolor;
+    	font-family: $heading-font-family;
+    	font-size: 18px;
+    	font-weight: 400;
+    	letter-spacing: 0;
+    	text-align: center;
+    	text-transform: uppercase;
+		}
+    
+	} 
+}	
+.articleContentArea{
+	.product-store-social {
+    	position: relative;
+    	float:right;
+    	width:540px;
+    	padding-top: 25px;
+    	border-top:1px solid #bcbcbc;
+    	.social-icons {
+    		    display: inline-block;
+    			float: right;
+    			 padding-top: 7px;
+    		li {
+    			border-right: 1px solid $searchText;
+    			display: inline-block;
+    			height: 12px;
+    			padding: 0 7px 0 4px;
+			}
+			li:last-child {
+			border: medium none;
+			}
+			.icon{
+			background: url("images/pdp-social.png") no-repeat;
+			display:block;
+			margin-top: -2px;
+			}
+			.email {
+   				 background-position: -22px -53px;
+    			 height: 16px;
+    			 width: 22px;
+			}
+			.instagram {
+    		background-position: -22px 0;
+    		height: 16px;
+    		width: 17px;
+			}
+			.facebook {
+    		background-position: -22px -26px;
+    		height: 16px;
+    		width: 12px;
+			}
+			.pintrest {
+    		background-position: -22px -80px;
+    		height: 16px;
+    		width: 20px;
+			}
+			.twitter {
+    		background-position: -22px -107px;
+    		height: 16px;
+    		width: 19px;
+			}
+		}
+    .social-heading {
+    	color: $brandcolor;
+    	font-family: $secondary-font-family;
+    	font-size: 18px;
+    	font-weight: 400;
+    	letter-spacing: 0;
+    	text-align: left;
+    	text-transform: uppercase;
+    	display:inline-block;
+		}
+    
+	} 
+}
+
+.mini-cart-content {
+	.mini-cart-totals{
+		 .miniSummary{
+			 .mini-cart-totals{
+				border-top:1px solid $mc_border;
+			}
+		}
+	}
+}

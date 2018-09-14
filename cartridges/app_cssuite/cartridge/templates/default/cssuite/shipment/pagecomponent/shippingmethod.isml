@@ -1,0 +1,116 @@
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	
+	var _edit=false;
+	try{
+		 _edit = edit; //coming from parent form
+	} catch(e){
+		//xerror(e);
+	}
+	
+	var shippingMethodID;
+	try{
+		shippingMethodID = shipment.getShippingMethodID();
+	} catch(e) {
+		//xerror(e);
+	}
+</isscript>
+
+<table class="listTable shippingMethod" cellpadding="0" cellspacing="0" border="0" width="100%">
+	<tbody>
+		<tr class="listTableHeader">
+			<td colspan="2" class="listTableHeaderCell">Shipping Method</td>
+		</tr>
+
+		<tr class="rowPad"><td colspan="2">&nbsp;</td></tr>
+<script>
+			$(document).ready(function(){
+			  $("#shipmentMethod").change(function() {
+
+				var label =   $('#shippingMethod').find("option:selected").data('show');
+				  
+				  if(label){
+					  $("#deliveryDate").show(); 
+					  $("#deliveryDateVal").show(); 
+				  }else{
+					  $("#deliveryDate").hide();
+					  $("#deliveryDateVal").hide(); 
+				  }
+			  })
+			
+			  var label =   $('#shippingMethod').find("option:selected").data('show');			
+			  if(label){ 		  
+				  $("#deliveryDate").show(); 
+				  $("#deliveryDateVal").show(); 
+			  }else{
+				  $("#deliveryDate").hide();
+				  $("#deliveryDateVal").hide(); 
+			  }
+			});
+			
+		</script>
+		<tr>
+			
+
+			<td id="shippingMethodsCS" style="max-width:500px;">
+			   <isif condition="${!(pdict.CurrentForms.csshipping.deliveryDate.valid)}">
+							<div class="form-caption error">									
+								${Resource.msg('singleshipping.shipment.nominatedDeliveryDateNotSelected','checkout',null)}						
+							</div>
+						</isif>
+			        <isloop iterator="${pdict.CurrentForms.csshipping.shippingMethods.options}" alias="method">
+				        <div class="formRowCS">
+					        <input class="input-radio" type="radio" name="${pdict.CurrentForms.csshipping.shippingMethodID.htmlName}" id="${method.object.key.ID}" value="${method.object.key.ID}"<isif condition="${(empty(pdict.CurrentForms.csshipping.shippingMethodID.value) && method.object.key.defaultMethod)|| (pdict.CurrentForms.csshipping.shippingMethodID.value == method.object.key.ID)}">checked="checked"</isif> />	 							
+							<label for="${method.object.key.ID}"><isprint value="${method.object.key.ID}"/><br/><isprint value="${method.object.key.description}"/></label>
+						
+							                
+			         <isif condition="${method.object.key.custom.showCalendar==true}">
+			         
+							<iscomment>Datepicker static markup - needs integrating with BM</iscomment>
+							<isset name="startDay" value="${method.object.key.custom.startDay}" scope="PAGE"/> 
+							<isset name="endDay" value="${method.object.key.custom.endDay}" scope="PAGE"/> 
+    						<isset name="hlist" value="" scope="PAGE"/>
+    				 		 <isloop iterator="${method.object.key.custom.holidaysList}" alias="holiday" status="loopstate">
+     					 			 <isif condition="${loopstate.last}" > 
+							 		<isset name="hlist" value="${hlist+holiday}" scope="PAGE"/> 
+						  		<iselse> 
+									 <isset name="hlist" value="${hlist+holiday+','}" scope="PAGE"/>
+						  		</isif>  	
+						 	 </isloop>	
+						 	   
+			               <div class="js-calendar datepicker-cnt">
+							<label for="${pdict.CurrentForms.csshipping.deliveryDate.htmlName}"><span class="fName">${Resource.msg('checkout.deliverydate','checkout',null)}</span></label>
+							<input class="datepicker" type="text" 
+								data-range-start="${startDay}" 
+								data-range-end="${endDay}" 
+								data-cutoff-hours="23"
+								data-cutoff-mins="59" 
+								data-days-off="${hlist}"
+								data-title="${Resource.msg('singleshipping.datepickertitle','checkout',null)}" 
+								data-copy="${dw.util.StringUtils.decodeString(Resource.msgf('singleshipping.datepickercopy','checkout',null,startDay.toString(),endDay.toString()),dw.util.StringUtils.ENCODE_TYPE_HTML)}"
+								data-change-date="${Resource.msg('singleshipping.datepickerchangedate','checkout',null)}"
+								value="Select a Date" />
+							
+							
+							
+							<iscomment><input class="datepicker-display input-datepicker" name="requestedDelivery" type="text" value="${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}" readonly />
+							<span class="datepicker-select">${Resource.msg('singleshipping.datepickerchoosedate','checkout',null)}</span><br>
+							</iscomment>
+						
+						
+					  </div>
+			           	 </isif>
+			           	 </div>
+			        </isloop>
+			        
+			    <isif condition="${pdict.CurrentForms.csshipping.deliveryDate.value=='null'}">
+			    <input id="getDate" name="dwfrm_csshipping_deliveryDate" type="hidden"/>
+			    <iselse>
+				   <input id="getDate" name="dwfrm_csshipping_deliveryDate" type="hidden" value="${pdict.CurrentForms.csshipping.deliveryDate.value}"/>
+				</isif>
+			</td>
+		</tr>	
+
+		
+			</tbody>
+</table>

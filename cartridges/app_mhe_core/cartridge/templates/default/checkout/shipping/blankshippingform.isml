@@ -1,0 +1,56 @@
+<!--- TEMPLATENAME: blankshippingForm.isml --->
+<isinclude template="util/modules"/>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.addressName}" type="input"   />
+<iscomment>Add address to Address Book</iscomment>
+<isif condition="${pdict.CurrentCustomer.authenticated}">
+	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addToAddressBook}" type="checkbox"  attribute1="checked" value1="checked"   rowclass="form-indent checkBox label-inline"/>
+</isif>
+<isscript>
+ 	importScript('checkout/Utils.ds');
+ 	var titleMap : dw.util.Map = getTitleMap();					
+</isscript>
+<div class="form-row required" data-required-text="${Resource.msg('profile.salutation.missing-error','forms',null)}">
+	<label>${Resource.msg('profile.title','forms',null)}</label>
+	<select id="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.title.htmlName}" name="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.title.htmlName}" class="input-text required">
+		<option  value="">${Resource.msg('profile.title','forms',null)}</option>
+		<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">	
+			<isif condition="${!empty(pdict.CurrentForms.singleshipping.shippingAddress.addressFields.title.value) && (pdict.CurrentForms.singleshipping.shippingAddress.addressFields.title.value).equals(titleMap.get(key))}">							 
+				<option selected="selected" value="${key}">${titleMap.get(key)}</option>
+			<iselse>
+				<option  value="${key}">${titleMap.get(key)}</option>
+			</isif>
+		</isloop>
+	</select>
+</div>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.firstName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.firstname.missing','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.lastName}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.address.lastname.missing','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.companyName}" type="input" />
+ <isif condition="${pdict.Basket.custom.chilledDeliveryProductAvailability}" >
+    <div id="chilledInfo" class="chilledInfo">	<iscontentasset aid="CA_ShippingChilledInfo"/> </div>
+    <iscontentasset aid="CA_ChilledDelivery_Overlay"/>
+ </isif>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address1}" type="input"  requiredtext="${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address2}" type="input"  rowclass="hideOptionalText" />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.country}" type="hidden"  />
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.zip}" type="input" xhtmlclass="postcode-input" requiredtext="${Resource.msg('forms.errorzip','forms',null)}" />
+<div id="postcodeerror" class="chilledError"></div>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.city}" type="input" requiredtext="${Resource.msg('forms.address.city.missing','forms',null)}" />
+<div class="form-row plainText"> <label>${Resource.msg('forms.country','forms',null)}:</label> 
+<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+  <isprint value="${country.getDisplayValue()}"/> 
+  <isbreak />		 
+  </isloop>
+</div>
+<div class="form-field-tooltip">
+  <span class="tooltip left">
+  	<span class="ptIcon"></span>
+  	<div class="tooltip-content">${Resource.msg('tooltip.country','forms',null)}</div>
+  </span>
+</div>
+<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.phone}" type="input" xhtmlclass="phone-input" requiredtext="${Resource.msg('forms.address.phone.missing','forms',null)}"/>
+<div class="form-field-tooltip">
+  <span class="tooltip left">
+  	<span class="ptIcon"></span>
+  	<div class="tooltip-content">${Resource.msg('tooltip.phone','forms',null)}</div>
+  </span>
+</div>

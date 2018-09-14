@@ -1,0 +1,44 @@
+<!-- category refinement for all online products, which assigned to a pattern -->
+
+<isscript>
+	function toggleDIVClassID() {
+		if (divClassID == 'right') {
+			divClassID = 'left';
+		} else {
+			divClassID = 'right';
+		}
+		return divClassID;
+	}
+
+	function resetDIVClassID() {
+		divClassID = 'right';
+	}
+	resetDIVClassID();
+</isscript>
+
+<div class="twocolumns">
+	<div class="${toggleDIVClassID()}">
+		<!--- always display root  --->
+		<ul class="topRefinement">
+			<li class="selected">
+				<h2>
+					<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxCategory('CSProduct-Show')}')">
+						All categories
+					</a>
+				</h2>
+				<!--- rendering 1st level categories  --->
+				<ul>
+					<isloop iterator="${dw.catalog.CatalogMgr.getSiteCatalog().root.onlineSubCategories}" alias="firstlevelcat">
+						<li>
+							<h2>
+								<a href="javascript:CSSuite.searchProduct('${dw.web.URLUtils.url('CSProduct-Show', 'cgid', firstlevelcat.ID)}')">
+									${firstlevelcat.displayName}
+								</a>
+							</h2>
+						</li>
+					</isloop>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,27 @@
+/**
+* This script removes a coupon from the basket.
+* @input Basket : dw.order.Basket : The basket.
+* @input CouponCode : String The coupon code.
+* @output ErrorMessage : String error message in case of error.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var couponCode : String = pdict.CouponCode;
+	if (empty(couponCode)) {
+		pdict.ErrorMessage = "The coupon code must be given.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;		
+	}
+	var couponLineItem : CouponLineItem = basket.getCouponLineItem(couponCode);
+	if (Logger.isDebugEnabled()) {
+		Logger.debug("Removing coupon [{0}]", couponCode);
+	}
+	basket.removeCouponLineItem(couponLineItem);
+
+    return PIPELET_NEXT;
+}

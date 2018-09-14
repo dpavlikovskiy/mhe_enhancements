@@ -1,0 +1,20 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<!--- TEMPLATENAME: order/order.isml --->
+<isinclude template="util/modules"/>
+<div class="orderdetails refapp">
+	<isif condition="${!empty(pdict.Order)}">
+		<isorderdetails order="${pdict.Order}" orderstatus="true">
+	</isif>
+</div><!-- END: orderdetails -->
+<div class="clear"></div><br/>
+<script type="text/javascript">
+<!--
+	Dialog.formDialog('Order Details: ${pdict.Order.orderNo}', 
+		{
+			"Close": function() { 
+				$(this).dialog("destroy");}
+		}, false, 'auto', 'auto'
+	);
+//-->
+</script>
+<!--- End: order/order --->

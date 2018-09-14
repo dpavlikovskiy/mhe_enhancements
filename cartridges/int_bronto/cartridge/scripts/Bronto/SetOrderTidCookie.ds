@@ -1,0 +1,24 @@
+/**
+* This script File is used to writ TID cookie value into Order custom attribute
+*   @input CurrentRequest : dw.system.Request
+*	@input OrderNo : String
+**/
+
+importPackage( dw.system );
+importPackage( dw.order );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var request : Request = args.CurrentRequest;
+	var cookies = request.httpCookies;
+	var order : Order = OrderMgr.getOrder(args.OrderNo);
+    
+    for each (var cookie : Cookie in cookies){
+    	// if cookie name starts with 'tid_'
+    	if (cookie.name.indexOf('tid_') == 0){
+    		order.custom["bronto_tid"] = cookie.value;
+    		break;
+    	}
+    }
+   return PIPELET_NEXT;
+}

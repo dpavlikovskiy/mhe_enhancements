@@ -1,0 +1,69 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head> 
+<isif condition="${!empty(pdict.Product)}">
+<isscript>
+		var pageContext={title:(pdict.Product.name || 'Product Detail'), type:'product', ns:'product'};</isscript>
+</isif>
+	<isinclude template="components/header/htmlhead"/>
+
+	<isinclude template="product/pt_productdetails_UI"/>
+	
+<isif condition="${!empty(pdict.Product)}">
+	<link rel="canonical" href="${URLUtils.url('Product-StaticShow','pid', pdict.Product.ID)}"/>
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('DP'))}">
+		<link rel="alternate" href="${URLUtils.url('Product-StaticShow','pid', pdict.Product.ID)}" hreflang="${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}" />
+	</isif>
+	<meta property="og:description" content="pdict.Product.longDescription" />
+	<isif condition="${!empty(pdict.Product.getImage('hi-res', 0))}">
+	<meta property="og:description" content="${pdict.Product.getImage('hi-res', 0).getURL()}" />
+<iselse>
+	<meta property="og:description" content="${URLUtils.staticURL('/images/noimagelarge.png')}" />
+</isif>
+	<meta property="og:image" content="thumbnail_image" />
+	</isif>
+	<isscript>
+		importScript("product/ProductUtils.ds");
+		if(empty(pdict.CurrentHttpParameterMap.cgid.stringValue)){ 
+		var category : dw.catalog.Category = ProductUtils.getProductCategoryForStaticPDP(pdict.ProductSearchResult, pdict.Product);
+	}
+	else{
+		var category : dw.catalog.Category =dw.catalog.CatalogMgr.getCategory(pdict.CurrentHttpParameterMap.cgid.stringValue);
+	}	
+		
+		var pid : String= (null!=pdict.Product)?pdict.Product.ID:null;
+	</isscript>	
+	<isif condition="${'customCSSFile' in category.custom && empty(pid) }" >
+	<link rel="stylesheet" href="${category.custom.customCSSFile.absURL}" />
+	 </isif>
+</head>
+
+<body class="static-offer ${category.ID}">
+	<isinclude url="${URLUtils.url('Page-DisplayCookieBanner')}">
+	<isset name="templatename" value="pt_staticOffer" scope="pdict" >
+	<isinclude url="${URLUtils.url('Login-InvalidateCustomerSession','isAuthenticated',pdict.CurrentCustomer.authenticated,'cgid',category.ID)}"/>
+	<isinclude url="${URLUtils.url('Home-IncludeStaticCheckoutHeader','cgid',category.ID,'templatename',pdict.templatename,'pid',pid)}"/>
+	<div id="wrapper" class="ptStaticOffers">
+
+		<div id="main" role="main" class="full-width main clearfix">
+					
+			<isinclude template="components/browsertoolscheck"/>								
+			<isinclude template="components/staticofferproductbreadcrumbs"/>
+			
+			<div id="primary" class="primary-content">
+				<isreplace/>
+			</div><!-- /primary-content -->
+			
+		</div> <!-- /main -->
+		
+		<isinclude template="components/footer/footer-staticoffer"/>
+		<isinclude template="product/pt_productdetails_VARS"/>				
+	</div><!-- /pt_staticofferpage -->
+	
+</body>
+</html>

@@ -1,0 +1,110 @@
+// =============================================================================
+// BLP products grid
+// =============================================================================
+.blpSlot{
+	.bootCaro{
+		margin-top:-121px;
+		height:auto;
+		.bootCaro-caption{
+			top:250px;
+		}
+		.carousel-control{
+			margin-top:35px;
+		}
+	}
+}
+.blp-products { 
+	.products { 
+		width:1136px;
+		background-image:url(img/bg/products-grid-blp.png);
+		background-position:0 670px;
+		.products-tile {
+			@extend .cols2-col;
+			height:923px;
+			.product-image {
+				height:747px;
+				.product-image-badge {
+					top:170px;
+					left:304px;
+					width:165px;
+					z-index:2;
+				}
+				.thumb-link{
+					img{
+						position:absolute;
+						left:50%;
+						margin-left:-233px;
+						bottom:30px;
+					}
+				}
+				.noImage{
+					.thumb-link{
+						img{
+							margin:0 0 0 -70px;
+						}
+					}
+				}
+			}
+			&.products-tile-inner-gift {
+				width: 100%;
+				.product-image {
+					.thumb-link{
+						img{
+							position:static;
+							left:0;
+							margin-left:0;
+						}
+					}
+				}
+			}
+			.products-tile-bg {
+				bottom:278px;
+				background-image:url(img/bg/gradient-magnum.png);
+				background-repeat: no-repeat;
+				background-position: center bottom;
+				width: 100%;
+				height: 200px;
+				background-size: 100%;
+				left: 0;
+			}
+		}
+	}
+	.products .products-tile .product-swatches li .swatch .tooltip-content {
+		max-width: none;
+		margin-left:50%;
+	}
+}
+.oldie {
+	.blp-products { 
+	.products {
+		.products-tile-bg { 
+		background: url(img/bg/gradient-magnum-large.png) bottom center no-repeat;
+		bottom:252px;
+		}
+	}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

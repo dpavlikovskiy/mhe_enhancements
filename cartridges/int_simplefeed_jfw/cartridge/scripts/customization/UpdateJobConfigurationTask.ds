@@ -1,0 +1,50 @@
+/**
+* Demandware Script File
+* Update last processed file timestamp in job configuration
+*
+*   @input JobConfigID : String 
+*   @input Filename : String This is a sample comment.
+*   @output LastProcessedFileTimestamp : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.io );
+importPackage( dw.util );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+function execute( args : PipelineDictionary ) : Number
+{
+	var jobConfigID : String = args.JobConfigID;
+	var filename : String = args.Filename;
+	
+	try{
+	
+		var fileTime : Array = null;
+		var filenameArray : Array = null;
+		if (!empty(filename)) {
+			
+				filenameArray = filename.split("_");
+				fileTime = filenameArray[filenameArray.length-1].split(".");
+				setLastProcessedFile(fileTime[0],jobConfigID);
+		}
+		args.LastProcessedFileTimestamp = fileTime[0];
+		
+	}catch(ex){
+		 cvLogger.error( "Error after import in retriving timestamp from feed file to set custom attribute lastProcessedFileTimestamp." + ex.message );	 
+		 return PIPELET_ERROR;
+    }
+   return PIPELET_NEXT;
+ }
+
+
+ //set custom attribute lastProcessedFileTimestamp of job config
+ function setLastProcessedFile(fleName:String, jobConfigID : String){
+	  
+	  var  jobConfigurationObj:CustomObject = CustomObjectMgr.getCustomObject('JobConfiguration', jobConfigID) ;
+       if(!empty(jobConfigurationObj)){     
+           jobConfigurationObj.custom.lastProcessedFileTimestamp=fleName;
+       }
+	
+ }
+

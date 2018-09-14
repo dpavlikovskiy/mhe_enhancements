@@ -1,0 +1,8 @@
+<b> Warning </b>
+<br>
+No Orders have have been committed in the last  
+<isprint value="${pdict.faultvalue.toFixed()}" /> job runs.
+<br>
+Last Order Number : <isprint value="${pdict.orderNumber}"/>
+
+ 

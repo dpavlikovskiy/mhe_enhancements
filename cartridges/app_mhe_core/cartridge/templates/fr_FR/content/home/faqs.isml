@@ -1,0 +1,130 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+<!--- TEMPLATENAME: faqs.isml --->
+<isinclude template="util/modules"/>
+
+<!--
+/* @license
+ * MyFonts Webfont Build ID 2693926, 2013-11-22T10:55:07-0500
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: dearJoe 4 Smooth Pro by JOEBOB graphics
+ * URL: http://www.myfonts.com/fonts/joebob/dear-joe-4/smooth-pro/
+ * Copyright: &#x00A9; 2011 JOEBOB graphics - www.joebob.nl
+ * Licensed pageviews: 20,000
+ * 
+ * 
+ * License: http://www.myfonts.com/viewlicense?type=web&buildid=2693926
+ * 
+ * � 2013 MyFonts Inc
+*/
+
+-->
+
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/color.css')}" />
+<!-- Typekit Font -->
+<script type="text/javascript" src="//use.typekit.net/jow0zyl.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+
+<body>
+
+	<div id="js-help-faq" class="help-faq-cont">
+	
+		<div class="footerlinks_header"> 
+			<isif condition="${('logoURL' in pdict.CurrentSession.custom)}" >
+	
+			<span class="title">
+				<img src="${pdict.CurrentSession.custom.logoURL}" alt="Moet Hennessy" class="logo" />
+			</span>
+		
+	 
+		<iselse>
+			<iscontentasset aid="CA_Faq_Header"/>	
+			</isif>
+		</div>
+		
+		<div  class="footerlinks_title">
+			<iscontentasset aid="CA_Faq_Title"/>
+		</div>	
+		
+		<div class="clearfix">
+			<div id="leftnavigator" class="footerlinks_left_nav">
+				<iscontentasset aid="faqs"/>
+			</div>
+			
+		    <div id="rightnavigator" class="footerlinks_right_content">
+			    <isif condition="${(dw.content.ContentMgr.getContent(pdict.CurrentHttpParameterMap.secid.stringValue))!=null}" />  
+					<iscontentasset aid="${pdict.CurrentHttpParameterMap.secid.stringValue}"/>
+					<iselse>
+					<iscontentasset aid="CA_Faq_Overview"/>
+				</isif>
+			</div>
+		</div>
+		
+		<div class="footerlinks_footer">
+	        <iscontentasset aid="CA_Faq_Footer"/>
+	    </div>
+	    
+	</div>
+
+<!-- Add jQuery as this page is not using the global site footer -->
+<script src="${URLUtils.staticURL('/lib/jquery/jquery-1.9.1.min.js')}" type="text/javascript"></script>
+<script src="${URLUtils.staticURL('/lib/jquery/bootstrap.min.js')}" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	
+	$(function() {
+	  var loc = window.location.href; // returns the full URL
+	  if(/ca-faq-overview/.test(loc)) {
+		$('li.overview a').addClass('active');
+	  }
+	  else if(/terms/.test(loc)) {
+	    $('li.terms a').addClass('active');
+	  }
+	  else if(/privacy-policy/.test(loc)) {
+	    $('li.privacy a').addClass('active');
+	  }
+	  else if(/delivery-payments-returns/.test(loc)) {
+	    $('li.delivery a').addClass('active');
+	  }
+	  else if(/about-us/.test(loc)) {
+		    $('li.about a').addClass('active');
+		  }
+		else if(/affiliates-partners/.test(loc)) {
+		    $('li.affiliates a').addClass('active');
+		  }
+	else if(/websitecondition/.test(loc)) {
+		    $('li.websitecondition a').addClass('active');
+		  }
+	});
+	
+});
+
+</script>
+	<iscomment>The below code is responsible for sending data to Google Analytics.</iscomment>
+		<isif condition="${'enableGoogleAnalytics' in dw.system.Site.getCurrent().preferences.custom && dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalytics}" >
+			<isinclude template="util/gamodule"/>
+	 		<isGoogleAnalytics trackingid="${dw.system.Site.getCurrent().preferences.custom.trackingIdGoogleAnalytics}" 
+	 				domain="${dw.system.Site.getCurrent().preferences.custom.domainNameForGoogleAnalytics}" 
+	 				gaenabled="${dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalytics}" 
+	 				eventtrackingenabled="${dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalyticsEventTagging}" 
+	 				 />
+		</isif>
+
+</body>
+</html>

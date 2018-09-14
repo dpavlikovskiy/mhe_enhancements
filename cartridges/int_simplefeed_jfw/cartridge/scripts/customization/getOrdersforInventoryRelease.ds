@@ -1,0 +1,40 @@
+/**
+* Demandware Script File
+* To define input and output parameters, create entries of the form:
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+* For example:
+*
+*    @output Orders : dw.util.Iterator
+*
+*/
+importPackage( dw.system );
+importPackage(dw.order);
+importPackage(dw.util);
+
+// subtract the given minutes from the given date and return modified date
+function subtractMinutesFromDate(date: Date, minutes : Number) : Date {	
+	var newDateTime : Number = date.getTime() - (minutes * 60 * 1000); // convert minutes into milliseconds	
+	return new Date(newDateTime);
+}
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var minutes : Number = dw.system.Site.getCurrent().getCustomPreferenceValue("minutesToInventoryRelease");
+	var currentDateAndTime : Date = new Date(); 
+	var query : String = "status = {0} AND creationDate <= {1}" ;
+	var orderStatus : Order = dw.order.Order.ORDER_STATUS_CREATED;
+	var dateAndTimeToCompare : Date = subtractMinutesFromDate(currentDateAndTime,minutes);
+
+	var orderIterator : SeekableIterator = OrderMgr.queryOrders(query, "orderNo desc", orderStatus, dateAndTimeToCompare);
+	args.Orders=orderIterator;
+	
+   return PIPELET_NEXT;
+}

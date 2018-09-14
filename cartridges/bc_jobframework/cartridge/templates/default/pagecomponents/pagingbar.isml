@@ -1,0 +1,100 @@
+
+
+
+<isif condition="${pdict.pagingmodel && !pdict.pagingmodel.empty}">
+	<isscript>
+		current = pdict.pagingmodel.start;
+		totalCount = pdict.pagingmodel.count;
+		pageSize = pdict.pagingmodel.pageSize;
+		pageURL = pdict.pageurl;
+		currentPage = pdict.pagingmodel.currentPage;
+		maxPage = pdict.pagingmodel.maxPage;
+		rewriteURL = pdict.enablerewrite != 'false';
+
+		lr = 1; // number of explicit page links to the left and right
+		if ( maxPage <= 2*lr )
+		{
+			rangeBegin = 0;
+			rangeEnd = maxPage;
+		}
+		else
+		{
+			rangeBegin = Math.max( Math.min( currentPage - lr, maxPage - 2*lr ), 0 );
+			rangeEnd = Math.min( rangeBegin + 2*lr, maxPage );
+
+			if ( rangeBegin == 1 ) rangeBegin = 0;
+			if ( (maxPage - rangeEnd) == 1 ) rangeEnd = maxPage;
+		}
+		
+		function createNavigationLink( index ) 
+		{
+			var result = pdict.pagingmodel.appendPaging( pageURL, index);
+			
+			if(rewriteURL)
+			{
+				result = CatalogUrlHelper.appendRequiredParameters(result);
+			}
+			
+			if(pdict.CurrentHttpParameterMap.isParameterSubmitted('prefine') && pdict.CurrentHttpParameterMap.prefine.booleanValue == true)
+			{
+				result = CatalogUrlHelper.appendParameters(result.toString(),'prefine', 'true');
+			}
+			
+			if(pdict.CurrentHttpParameterMap.isParameterSubmitted('orderableOnly'))
+			{
+				result = CatalogUrlHelper.appendParameters(result.toString(), 'orderableOnly', pdict.CurrentHttpParameterMap.orderableOnly.booleanValue);
+			}
+			
+			return result;
+		}		
+	</isscript>
+
+	<!--- Avoid empty paging div or empty div with empty ul --->
+	<isif condition="${pdict.pagingmodel.pageCount > 1}">
+		<div class="pagination">
+			<ul>
+				<isif condition="${currentPage > 0}">
+					<li class="previouspage">
+						<a href="${createNavigationLink( current - pageSize )}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;">&laquo;</a>
+						<!--- ${Resource.msg('global.symbol.doublegreater','global',null)} --->
+					</li>
+				</isif>
+
+				<isif condition="${maxPage >= 1}">
+					<isif condition="${rangeBegin >= 2}">
+						<li>
+							<a href="${createNavigationLink( 0 )}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;">first</a>
+							<a href="${createNavigationLink( current - (3 * pageSize))}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;"><span class="spacer">...</span></a>
+						</li>
+					</isif>
+
+					<isloop status="i" begin="${rangeBegin}" end="${rangeEnd}">
+						<isif condition="${i.index != currentPage}">
+							<li>
+								<!--- This long line is needed to avoid extra whitespaces in the link text --->
+								<a href="${createNavigationLink( current + (i.index - currentPage) * pageSize)}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;"><isprint value="${i.index + 1}" style="0"/></a>
+							</li>
+						<iselse>
+							<li class="currentpage">
+								<span><isprint value="${i.index + 1}" style="0"/></span>
+							</li>
+						</isif>
+					</isloop>
+
+					<isif condition="${maxPage - rangeEnd >= 2}">
+						<li>
+							<a href="${createNavigationLink( current + (3 * pageSize))}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;"><span class="spacer">...</span></a>
+							<a href="${createNavigationLink(  current + (maxPage - currentPage) * pageSize )}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;"><isprint value="${maxPage + 1}" style="0"/>
+							</a>
+						</li>
+					</isif>
+
+					<isif condition="${current < totalCount - pageSize}">
+						<li class="nextpage">
+							<a href="${createNavigationLink( current + pageSize )}" onclick="JSUtils.refineParameterAppend(this.href, JSParameterMap);return false;">&raquo;</a>
+							<!--- ${Resource.msg('global.symbol.doublelesser','global',null)} --->
+						</li>
+					</isif>
+				</isif>
+			</ul>
+		</div></isif></isif>

@@ -1,0 +1,25 @@
+/**
+* 
+* 
+*  @input File : dw.io.File
+* 
+*
+*/
+
+importPackage( dw.io );
+
+
+
+function execute( args : PipelineDictionary ) : Number
+{
+	try
+	{
+		args.File.remove();		
+	}
+	catch(e)
+	{
+		Logger.error(String(e));
+		return PIPELET_ERROR;
+	}
+    return PIPELET_NEXT;
+}

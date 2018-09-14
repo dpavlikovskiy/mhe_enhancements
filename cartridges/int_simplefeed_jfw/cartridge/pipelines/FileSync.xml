@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="ImpEx" type="process">
+  <description>Syncronizes files between a remote location and Demandware</description>
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>This Task can be used to download files from a remote to a local directory:
+
+Task Example:
+{ 
+  &quot;name&quot; 			: &quot;Sync Product Images&quot;, 
+  &quot;pipeline&quot; 			: &quot;FileSync-DownloadFiles&quot;, 
+  &quot;type&quot; 			: &quot;fileexchange&quot;, 
+  &quot;downloadDir&quot; 		: &quot;/CATALOGS/apparel-catalog/default/newimages&quot;, 
+  &quot;remoteFolderUrl&quot; 		: &quot;images/&quot;, 
+  &quot;remoteFilePattern&quot; 		: &quot;^.*\\.jpg$&quot;,
+  &quot;remoteArchiveDir&quot; 		: &quot;/home/goalsconnect_org/archive/images&quot;, 
+  &quot;recursive&quot; 			: true,
+  &quot;binaryMode&quot; 		: true,
+  &quot;deleteAfterDownload&quot; 	: true
+}</description>
+        </text-node>
+        <node-display width="3" x="1" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="DownloadFiles">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="DownloadFiles" secure="false"/>
+        <node-display x="1" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="net/pipelets/DownloadFiles.ds"/>
+          <config-property key="Timeout" value="3600"/>
+          <key-binding alias="ScriptLog" key="ScriptLog"/>
+          <key-binding alias="dw.system.System.getPreferences().custom['ftsURL']" key="URL"/>
+          <key-binding alias="Task.getParameter(&quot;remoteLogin&quot;)" key="User"/>
+          <key-binding alias="Task.getParameter(&quot;remotePassword&quot;)" key="Password"/>
+          <key-binding alias="Task.getParameter(&quot;remoteArchiveDir&quot;)" key="ArchiveDir"/>
+          <key-binding alias="Task.getParameter(&quot;remoteFolderUrl&quot;)" key="RemoteFolderURL"/>
+          <key-binding alias="Task.getParameter(&quot;downloadDir&quot;)" key="DownloadDir"/>
+          <key-binding alias="Task.getParameter(&quot;encoding&quot;, 'UTF8')" key="Encoding"/>
+          <key-binding alias="Task.getParameter(&quot;recursive&quot;, false)" key="Recursive"/>
+          <key-binding alias="Task.getParameter(&quot;remoteFilePattern&quot;)" key="Pattern"/>
+          <key-binding alias="Task.getParameter(&quot;deleteAfterDownload&quot;)" key="DeleteAfterDownload"/>
+          <key-binding alias="Task.getParameter(&quot;binaryMode&quot;)" key="BinaryMode"/>
+          <key-binding alias="Task.getParameter(&quot;remoteArchiveDir&quot;)" key="RemoteArchiveDir"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="2" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Task.setErrorStatusMessage()" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="true"/>
+                <config-property key="Expression" value="Task.setErrorStatusMessage(&quot;Failed to download files: &quot; + ScriptLog)"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

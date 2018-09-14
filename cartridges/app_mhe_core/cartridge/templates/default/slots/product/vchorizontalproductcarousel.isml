@@ -1,0 +1,20 @@
+<!--- TEMPLATENAME: dpproductcarousel.isml --->
+
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+
+<isinclude template="util/modules"/>
+<div class="homePage brandBottomCaro">
+	<isprint value="${slotcontent.calloutMsg}" encoding="off" />
+	<div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+		<div class="box">
+			<ul class="slider">
+				<isloop items="${slotcontent.content}" var="product"><li><isvcproducttile product="${product}" showswatches="${true}" showpricing="${true}" showpromotion="${true}" showrating="${true}"/></li></isloop>
+			</ul>
+			<div class="controls">
+	            <a href="#" class="prev icon-cntr-left"></a>
+	            <a href="#" class="next icon-cntr-right"></a>
+	            <div class="disabledLayer"></div>
+	        </div>
+		</div>
+	</div>
+</div>

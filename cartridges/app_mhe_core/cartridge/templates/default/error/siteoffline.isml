@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title> 
+<isprint value="${Resource.msg('siteoffline.header','error',null)}" />
+<isprint value="${Resource.msg("global.pipe","locale",null)}" />
+<isprint value="${Resource.msg("global.siteName","locale",null)}" />
+</title>
+<link href="${URLUtils.staticURL('/images/favicon.ico')}" rel="shortcut icon" />
+</head>
+<body>
+<div class="site-offline">
+<isset name="content" value="${dw.content.ContentMgr.getContent('ca_mhe_maintenance').custom.body}" scope="page"/> 
+<isprint value="${content}" encoding="off"/>
+</div>
+</body>
+
+
+

@@ -1,0 +1,90 @@
+.pdp-section-tabs {
+	background: #000;
+	.tab {
+		a {
+			color: $white;
+			font: $mediumFontSize $titleFont;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $brandColor;
+				border-bottom: $brandColor 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+			.col-hero {
+				.col-inner {
+					img {
+						margin-bottom: 0;
+					}
+					p.credit {
+						padding-bottom:20px;
+					}
+				}
+			}
+		}
+		h2 {
+			color: $brandColor;
+			font: $largeFontSize $regularFont;
+			letter-spacing: 1px;
+			margin:40px 0;
+		}
+		h3 {
+			color: $brandColor;
+			font: $largeFontSize $titleFont;
+		}
+		.gamma-heading {
+			color: $brandColor;
+			font: $largeFontSize $titleFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:10px;
+		}
+		p {
+			color: $white;
+			font:Italic $mediumFontSize $regularFont;
+			line-height: 18px;
+			letter-spacing: 1.5px;
+		}
+		p.credit {
+			padding-bottom: 20px !important;
+		}
+		&.characteristics {
+			p {
+				color: $white;
+				font:Italic $mediumFontSize $regularFont;
+				line-height: 18px;
+				letter-spacing: 1.5px;
+			}
+		}
+		&.awards {
+			p {
+				color: $white;
+				font:Italic $mediumFontSize $regularFont;
+				line-height: 18px;
+				letter-spacing: 1.5px;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $brandColor;
+			}
+			&:after {
+				color: $brandColor;
+			}
+			p {
+				font:Italic $forthHeading $regularFont;
+				line-height: 24px;
+				margin: -10px 0 5px 0;
+				letter-spacing: 2px;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

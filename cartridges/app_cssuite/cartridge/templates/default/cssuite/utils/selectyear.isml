@@ -1,0 +1,58 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<!-- Start: util/selectyear -->
+
+<!---
+	Displays a generated select box with a selection of years.
+
+	css_class : String The css class to use for this select box.
+	formfield : dw.web.FormField The DW field for this select box.
+	
+	start : Number The year on which the select box should start
+	range : Number The range - how many years from start should be displayed - default is 10.
+	descending : Boolean If this is set to true, the options will be sorted descending, else ascending
+ --->
+
+<select <isif condition="${!empty(pdict.css_class)}">class="${pdict.css_class}"</isif> name="${pdict.formfield.htmlName}">
+	<isscript>
+		
+		var year : Number = new dw.util.Calendar().get(dw.util.Calendar.YEAR);
+		
+		if (!empty(pdict.start))
+			year = new Number(pdict.start);
+		
+		var range : Number = new Number(20);
+		if (!empty(pdict.range))
+			range = new Number(pdict.range);
+		
+		var ascending : Boolean = true;
+		if (pdict.descending != null && pdict.descending == "true")
+			ascending = false;
+	</isscript>
+	<option value="">${Resource.msg('forms.global.year','forms',null)}</option>
+	<isif condition="${ascending}">
+		<isloop begin="0" end="${range}" step="1" status="age">
+			<isscript>
+				var current : String = new Number(year + age.index).toFixed();
+			</isscript>
+
+			<isif condition="${!empty(pdict.formfield.value) && (current == pdict.formfield.value)}">
+				<option label="${current}" value="${current}" selected="selected">${current}</option>
+			<iselse>
+				<option label="${current}" value="${current}">${current}</option>
+			</isif>
+		</isloop>
+	<iselse>
+		<isloop begin="0" end="${range}" step="1" status="age">
+			<isscript>
+				var current : String = new Number(year - age.index).toFixed();
+			</isscript>
+			<isif condition="${!empty(pdict.formfield.value) && (current == pdict.formfield.value)}">
+				<option label="${current}" value="${current}" selected="selected">${current}</option>
+			<iselse>
+				<option label="${current}" value="${current}">${current}</option>
+			</isif>
+		</isloop>
+	</isif>
+</select>
+
+<!-- End: util/selectyear -->

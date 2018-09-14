@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="true">
+	<field formid="username"  label="profile.email"  type="string" mandatory="true" missing-error="login.username.missing-error" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" parse-error="profile.emailparseerror"/>
+	<field formid="password" label="label.password" type="string" mandatory="true" missing-error="login.password.missing-error" min-length="1" range-error="login.passwordrange.error" />
+	
+	<field formid="birthday"  label="profile.dob" type="date" mandatory="true" format="dd/MM/yyyy" max="now" binding="birthday" max-length="10" missing-error="login.dob.missing-error"  parse-error="profile.dob.error-message" value-error="agegate.error.message"/>
+	
+	<!--  checkbox if the user wants to be remembered on this machine  -->
+	<field formid="rememberme" label="login.rememberme" type="boolean" mandatory="false" />
+	
+	<!-- this is a dummy field used to provide the loginpanel template with the
+	     information that login failed -->
+	<field formid="loginsucceeded" type="boolean" mandatory="false"/>
+	<field formid="passwordMatch" type="boolean" mandatory="false"/>
+
+	<action formid="login" valid-form="true"/>
+	<action formid="register" valid-form="false"/>
+	<action formid="forgotpassword" valid-form="false"/>
+<action formid="unregistered" valid-form="true"/>
+</form>

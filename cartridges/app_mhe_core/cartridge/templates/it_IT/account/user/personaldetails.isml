@@ -1,0 +1,137 @@
+<isdecorate template="account/pt_account">
+	<isinclude template="util/modules"/>
+	<isslot id="account-banner" description="Banner for My Account pages" context="global" />
+		
+	<iscomment>Builds a registration page for the user. It provides all input fields for names and address</iscomment>
+    
+    <iscomment>Displays the string for successfully updated profile details</iscomment>
+	
+	<div class="account-nav personaldetails">
+		<isinclude url="${URLUtils.url('Account-IncludeNavigation')}"/>			
+	</div>
+	<isif condition="${pdict.CurrentCustomer.authenticated}"> 
+	<div class="account-content">
+	    
+	    <div class="errors-total errors-total-personal">
+			<div class="errors-total-inner">
+				<iscomment>All validation errors listed at the top of the form</iscomment>
+			</div>
+		</div>
+	    
+	    <isif condition="${(pdict.ProfileUpdated==true)}">
+			<div class="success success-personal">
+				<isprint value="${Resource.msg('profile.success','forms',null)}"/>
+			</div>
+		</isif>
+	   
+		<form action="${URLUtils.httpsContinue()}" method="post" id="RegistrationForm">
+		
+			<div class="account-module" id="js-personal-details">
+		
+				<h2>${Resource.msg('account.personaldetails','account',null)}</h2>
+	
+				<fieldset class="account-form">
+					<isinputfield rowclass="form-row-leftalign" formfield="${pdict.CurrentForms.profile.customer.firstname}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}"/>
+					
+					<isinputfield rowclass="form-row-leftalign" formfield="${pdict.CurrentForms.profile.customer.lastname}" type="input" xhtmlclass="name-input" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"/>
+			       
+			        <isinputfield rowclass="form-row-leftalign" formfield="${pdict.CurrentForms.profile.customer.email}" type="input" attribute1="readonly" value1="true"/>
+			        
+			        <isinputfield rowclass="form-row-leftalign" formfield="${pdict.CurrentForms.profile.customer.birthday}" xhtmlclass="date-input of-legal-age" type="input" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}"  />
+			        
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList').length==1}"> 
+						<div class="form-row form-row-leftalign required" data-required-text="${Resource.msg('profile.originCountry.missing-error','forms',null)}">
+						<label><isprint value="${Resource.msg('forms.country','forms',null)}" /></label>
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList')}" var="country" status="loopstatus">  
+								<isprint value="${country.getDisplayValue()}"/>
+			 	 				<isinputfield formfield="${pdict.CurrentForms.profile.customer.originCountry}" type="hidden" value="${country.getDisplayValue()}"/>
+                 				<isbreak/>	
+          	  				</isloop>
+          	  			</div> 
+					<iselse>
+					  <div class="form-row form-row-leftalign required" data-required-text="${Resource.msg('profile.originCountry.missing-error','forms',null)}">
+						<label><isprint value="${Resource.msg('forms.country','forms',null)}" /></label>
+						<select id="${pdict.CurrentForms.profile.customer.originCountry.htmlName}" name="${pdict.CurrentForms.profile.customer.originCountry.htmlName}" class="input-text required ">
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList')}" var="country" status="loopstatus">	
+								<isif condition="${!empty(pdict.CurrentCustomer.profile.custom.originCountry) && pdict.CurrentCustomer.profile.custom.originCountry.equals(country.getValue())}">							 
+							  		<option selected="selected" value="${country.getValue()}">${country.getDisplayValue()}</option>
+								<iselse>
+									<option value="${country.getValue()}">${country.getDisplayValue()}</option>
+								</isif>			                            				
+							</isloop>
+						</select>
+					</div>
+					</isif>
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.addtoemaillist}" type="checkbox" rowclass="form-row-indent label-inline"/>
+								
+				</fieldset>
+			
+			</div>
+			
+			<div class="account-module account-module-password" id="js-change-password" data-expanded="${pdict.ShowPasswordDiv}">
+			
+				<h2>${Resource.msg('account.password','account',null)}</h2>
+				
+				<div class="form-row form-row-button">
+					<button type="button" class="button secondary plain clear change-password">
+						<span class="face front">${Resource.msg('account.changepassword','account',null)}</span>
+						<span class="face back">${Resource.msg('account.changepassword','account',null)}</span>
+					</button>
+				</div>
+						
+				
+				<div class="password-fields" id="js-password-fields">
+					<fieldset class="account-form">
+						
+					    <isinputfield formfield="${pdict.CurrentForms.profile.login.oldpassword}"  rowclass="form-row-leftalign" type="password" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+					    <isinputfield formfield="${pdict.CurrentForms.profile.login.password}"  rowclass="form-row-leftalign" type="password"  requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+					    <isinputfield formfield="${pdict.CurrentForms.profile.login.passwordconfirm}"  rowclass="form-row-leftalign" type="password" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+						
+						<input type="hidden" name="${pdict.CurrentForms.profile.secureKeyHtmlName}" value="${pdict.CurrentForms.profile.secureKeyValue}"/>	
+			     
+					</fieldset>
+					
+					<label id="js-new-password-subtitle" style="display:none;">${Resource.msg('account.passwordlength','account',null)}</label>
+				</div>
+			
+			</div>
+			
+			<div class="account-submit">
+				<button type="submit" class="button secondary clear save-changes" value="${Resource.msg('global.apply','locale',null)}" name="${pdict.CurrentForms.profile.confirm.htmlName}">
+					<span class="face front">${Resource.msg('global.savechanges','locale',null)}</span>
+					<span class="face back">${Resource.msg('global.savechanges','locale',null)}</span>
+				</button>
+			</div>
+		
+			
+		</form>
+	</div>
+	
+	<iselseif condition="${pdict.CurrentCustomer.registered}">
+				<iscomment>Login Popup </iscomment>
+				<div id="authlogindialog" style="display:none"> Login </div> 
+		</isif>
+</isdecorate>
+<script type="text/javascript">
+$( document ).ready(function() {
+	
+			var url=app.util.appendParamsToUrl(app.urls.accountLoginAuthenticate,{format:"ajax",authlogin:"profile"});
+			
+			var options = {
+					url: url,
+					type: "POST"
+				};
+				$.ajax( options ).done(function(data){
+					 	var $authlogin = $("#authlogindialog");
+					
+					 	$authlogin.html(data);
+					 	$authlogin.dialog({ width:600 });
+						var $dialog = $authlogin.closest('.ui-dialog');
+						$dialog.addClass('cartPrompts popUpForms');
+						$dialog.find(".ui-dialog-titlebar").hide();
+						app.validator.init();
+						globalFormsCtrl.initGlobalForms();
+				});
+		   });
+
+</script>

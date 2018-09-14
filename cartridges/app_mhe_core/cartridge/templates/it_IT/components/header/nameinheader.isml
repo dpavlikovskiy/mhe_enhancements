@@ -1,0 +1,3 @@
+<isif condition="${pdict.CurrentCustomer.registered}">
+  <isprint value="${pdict.CurrentCustomer.profile.firstName}"/>
+</isif>

@@ -1,0 +1,87 @@
+/**
+* Demandware Script File
+* Used for creation of Bronto email subscription
+*
+* @input flowFrom : String   
+* @input subscribe : Boolean
+* @input profile : dw.customer.Profile
+* @input customData : dw.util.Map
+*/
+importPackage (dw.customer);
+importPackage (dw.net);
+importPackage (dw.order);
+importPackage (dw.rpc);
+importPackage (dw.system);
+importPackage (dw.util);
+importPackage (dw.web);
+
+importScript ('Bronto/API.ds');
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var newsSubStatus:Boolean= false ;
+	var updateStatusFlag:Boolean=false;
+ 	// get and validate email
+	var customerProfile : dw.customer.Profile = args.profile;
+	var flowFrom : String = args.flowFrom;
+	
+    var invoke:boolean = false ;
+  
+    if( flowFrom == "registration"){
+    	
+    	newsSubStatus=true;
+    	invoke = true ; 
+    		
+    }else if(flowFrom=="popup"){
+        newsSubStatus=true;
+        updateStatusFlag =true;
+    	invoke = true ; 
+       
+    }else {//Comments plz
+  		 var formSubStatus : Boolean = args.subscribe;
+  		 if(formSubStatus != customerProfile.custom.isNewsLetterSubscribed ){
+          		newsSubStatus = formSubStatus ;
+          		if(newsSubStatus){
+			   	   updateStatusFlag =true;
+			   	}
+          		invoke =  true;          		
+        	}     	
+    }	
+    	
+	var email : String = null;
+	if(null!=customerProfile){
+	 email = customerProfile.email;
+	}else {
+	email=args.customData.get("email");
+	}
+//	var mailRegexp : RegExp = new RegExp("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$");
+//	var ifEmailOk : Boolean = mailRegexp.test(email);
+	//if (!ifEmailOk) {
+		//return PIPELET_ERROR;
+	//}
+	// end of email validation
+	
+	// Autorize API
+	var map = authorizeAPI();
+
+	// Prepare contact for OptIn
+	var contactFilter = createContactFilter(map.ref, email);
+	var contactId;
+	
+	var idMap : HashMap = getFieldList(map);
+
+	// Do the job 
+	try	{
+		if (invoke){
+			contactId = getContactId(contactFilter, map,customerProfile,idMap,updateStatusFlag, args.customData);		
+			if( !newsSubStatus ){			
+			    updateContactStatus(contactId, map, "Unsub", true);
+			}
+		}
+		
+	} catch (e) {
+		handleError(e, 'Email OptIn trying to update customer data');
+	}
+	
+   return PIPELET_NEXT;
+}

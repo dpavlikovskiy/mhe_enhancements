@@ -1,0 +1,57 @@
+<iscache type="relative" hour="24"/>
+<isinclude url="${URLUtils.url('Page-DisplayCookieBanner')}">
+<div id="header" class="header" role="banner">
+	<isslot id="header_promo" description="Complimentary Gift Packing" context="global" /> 
+	<header class="clearfix">
+	
+		<isinclude url="${URLUtils.url('SegmentPricing-AssignPriceBook')}"/> 
+		<ul class="menu-utility-user side-module hdr-help">
+	<li><span class="arrow "><a href="#">${Resource.msg('epage.needhelp','account',null)}</a></span></li>
+	<li><a class="ajaxData" href="" data-href="${URLUtils.https('Account-EstoreNewsletterToSubscribe')}" id="newsletterClicked">${Resource.msg('epage.signup','account',null)}</a></li>
+</ul>
+		
+	    <div class="header_right side-module">
+	    	<ul>
+	    		<li class="lRLi">
+	    	
+		    		<isinclude url="${URLUtils.url('Home-IncludeHeaderCustomerInfo')}"/> 
+		    		
+	    			
+	    		</li>
+	    		
+	    		<li class="lRLi2">
+	    			<div id="mini-cart" class="mini-cart">
+				    	<isinclude url="${URLUtils.url('Cart-MiniCart')}"/>
+				    </div>
+	    		</li>
+	    		<li>
+	    			<div class="textSearch" id="header-search">
+						<form role="search" action="${URLUtils.url('Search-Show')}" method="get" name="simpleSearch" id="searchQuery">
+							<input type="text" id="q" name="q" value="" placeholder="${Resource.msg('global.search','locale',null)}" /><input type="submit" value="&nbsp;" class="sIcon" <isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM}">onclick="dataLayer.push({'query' : $('#q').val()});"</isif>/>
+						</form>
+						<div class="suggestions"></div>
+					</div>
+				</li>
+	    	</ul>
+		</div>
+		<div class="logo_header" id="headerLogo" data-main-logo-anim='{"hideClass":"js-hide","showClass":"js-show","targetElement":"js-hide-target","scrollSwitchPoint":200}'>
+			<h1 class="title-wrap">
+				<a href="${URLUtils.http('Home-Show')}">
+					<img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" />
+				</a>
+			</h1>
+		</div>
+	</header>
+	
+	<isinclude template="brand/contactus"/>
+	<div id="navigation" class="navigation" role="navigation">
+		<nav>
+			<!--<h1 class="visually-hidden navigation-header">Catalog Navigation</h1>-->
+			<!--  category navigation -->
+			<iscomment>INCLUDE: category menu</iscomment>
+			<isinclude url="${URLUtils.url('Home-IncludeHeaderMenu')}"/>
+		</nav>
+	</div><!-- /navigation -->
+</div><!-- /header -->
+
+

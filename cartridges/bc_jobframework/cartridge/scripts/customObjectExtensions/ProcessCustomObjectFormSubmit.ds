@@ -1,0 +1,76 @@
+/**
+*
+* @input CustomObject : dw.object.CustomObject
+* @input CurrentHttpParameterMap : dw.web.HttpParameterMap
+* @input Type : String
+*
+*/
+
+importPackage( dw.system );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var typeDefinitions : dw.util.ArrayList =  new dw.util.ArrayList();
+	var typeGroups =  dw.object.CustomObjectMgr.describe(pdict.Type).getAttributeGroups();
+	for each ( var group in typeGroups ) {
+		for each ( var property in group.getAttributeDefinitions() ) {
+			typeDefinitions.add(property);
+		}
+	}
+
+	for each ( var typeDefinition in typeDefinitions ) {
+		if ( !typeDefinition.isSystem() ) {
+			if ( typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_STRING || 
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_TEXT || 
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_EMAIL || 
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_ENUM_OF_STRING ||
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_PASSWORD ) {
+				pdict.CustomObject.custom[typeDefinition.ID] = pdict.CurrentHttpParameterMap[typeDefinition.ID].value;
+			}
+
+			if ( typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_INT || 
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_ENUM_OF_INT ) {
+				pdict.CustomObject.custom[typeDefinition.ID] = pdict.CurrentHttpParameterMap[typeDefinition.ID].intValue;
+			}
+
+			if ( typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_DATE || 
+				 typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_DATETIME ){
+				pdict.CustomObject.custom[typeDefinition.ID] = pdict.CurrentHttpParameterMap[typeDefinition.ID].dateValue;
+			}
+
+			if ( typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_BOOLEAN ) {
+				if ( pdict.CurrentHttpParameterMap[typeDefinition.ID].submitted ) {
+					pdict.CustomObject.custom[typeDefinition.ID] = pdict.CurrentHttpParameterMap[typeDefinition.ID].booleanValue;
+				} else {
+					pdict.CustomObject.custom[typeDefinition.ID] = false;
+				}
+			}
+
+			if ( typeDefinition.valueTypeCode == dw.object.ObjectAttributeDefinition.VALUE_TYPE_SET_OF_STRING ) {
+				var setOfStringArray : Array = new Array();
+				var subMap : dw.web.HttpParameterMap  = pdict.CurrentHttpParameterMap.getParameterMap(typeDefinition.ID);
+				var mapNamesSet : dw.util.Set = subMap.getParameterNames();
+				var mapNamesIterator : dw.util.Iterator  = mapNamesSet.iterator();
+				var sortedNames : dw.util.SortedSet = new dw.util.SortedSet ( function (e1, e2) {
+					if ( e1 != null && e2 != null ) {
+						var e1Index = parseInt(e1.replace('_',''));
+						var e2Index = parseInt(e2.replace('_',''));
+						return e1Index > e2Index ? 1 : e1Index < e2Index ? -1 : 0;
+					}
+				});
+				while ( mapNamesIterator.hasNext() ) {
+					sortedNames.add1(mapNamesIterator.next());
+				}
+				mapNamesIterator  = sortedNames.iterator();
+				var paramStringValue : String = '';
+				while(mapNamesIterator.hasNext() ) {
+					paramStringValue = subMap.get(mapNamesIterator.next()).getStringValue();
+					if (!empty(paramStringValue))
+						setOfStringArray.push(paramStringValue);
+				}
+				pdict.CustomObject.custom[typeDefinition.ID] = setOfStringArray;
+			}
+		}
+	}
+    return PIPELET_NEXT;
+}

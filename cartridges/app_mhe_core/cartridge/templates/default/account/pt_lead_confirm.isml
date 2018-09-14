@@ -1,0 +1,23 @@
+<!doctype html>
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+	<isinclude template="util/modules"/>
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="account/pt_account_UI"/>
+	<isinclude template="util/robotscrawling"/>
+</head>
+<body class="leadPage leadPageConfirm">
+	<div id="wrapper" class="wrapper">
+		<div id="main" role="main" class="page-content main clearfix">
+			<isinclude template="components/browsertoolscheck"/>
+			<isreplace/>
+		</div>
+		<div class="leadFooter">
+			<iscontentasset aid="lead-footer-copy"/>
+		</div>
+		<isinclude template="components/footer/footer_UI"/>
+	</div><!-- /main -->
+</body>
+</html>

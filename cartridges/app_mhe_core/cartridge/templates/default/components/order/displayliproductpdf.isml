@@ -1,0 +1,121 @@
+
+<iscomment>
+	Creates a div rendering a product and product line item information.
+	p_productli : the product line item to render
+	p_formli 	: the form line item
+	p_editable  : boolean indicating if the pli is editable or not
+	p_hideprice : boolean to hide price
+	p_hidepromo : boolean to hide promotional message(s)
+</iscomment>
+
+<iscomment> SITE DEV - TODO INLINE STYLING AS THIS ISML WILL BE USED TO RENDER PRODUCTS IN EMAILS ONLY </iscomment>
+
+<iscomment>Create page variable representing the product line item</iscomment>
+<isset name="productLineItem" value="${pdict.p_productli}" scope="page"/>
+<isset name="brand" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.toLowerCase()}" scope="page"/> 
+<isset name="color" value="${'#888888'}" scope="page"/>
+<isset name="color2" value="${'#333'}" scope="page"/>
+<isif condition="${brand.equalsIgnoreCase('dp')}" >
+<isset name="color" value="${'#9e8a59'}" scope="page"/>
+<isset name="color2" value="${'#333'}" scope="page"/>
+<iselseif condition="${brand.equalsIgnoreCase('vc')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+<isset name="color2" value="${'#333'}" scope="page"/>
+<iselseif condition="${brand.equalsIgnoreCase('ad')}" >
+<isset name="color" value="${'#888888'}" scope="page"/>
+<isset name="color2" value="${'#333'}" scope="page"/>
+</isif>
+<isif condition="${empty(pdict.p_hidesize) || pdict.p_hidesize==null}" > 
+   <isset name="p_hidesize" value="${false}" scope="page"/>
+ <iselse>
+   <isset name="p_hidesize" value="${pdict.p_hidesize}" scope="page"/>
+</isif>
+
+<iscomment>Create page variable representing the form line item</iscomment>
+<isset name="formLineItem" value="${pdict.p_formli}" scope="page"/>	
+
+<div style="font-weight:bold; color:#333; font-size:11px; width:auto; padding-right:200px; position:relative; letter-spacing:2px; padding-bottom:5px; text-transform:uppercase;">
+
+	<isset name="product" value="${productLineItem.getProduct()}" scope="page"  >
+	<isset name="prodId" value="${product.variant?product.masterProduct.ID:product.ID}" scope="page"  >
+	
+	<isset name="URLAction" value="${new dw.web.URLAction('Product-Show', dw.system.Site.current.ID)}" scope="page"  >
+	<isset name="StaticURLAction" value="${new dw.web.URLAction('Product-StaticShow', dw.system.Site.current.ID)}" scope="page"  >
+	<isset name="ProdURL" value="${URLUtils.abs(URLAction).http().toString()}" scope="page" />
+	<isset name="StaticProdURL" value="${URLUtils.abs(StaticURLAction).http().toString()}" scope="page" />
+		
+	<isif condition="${!product.isVariant()}" >
+	    	 <isprint value="${product.custom.mheBrand}" />
+	  	<iselse>
+		 	<isprint value="${product.masterProduct.custom.mheBrand}" />
+	</isif>
+	<isscript>
+		importScript("product/ProductUtils.ds");
+		
+		/* Get Top Level category, to create the key for getting Serving and Volume Info */
+		var rootCategory : dw.catalog.Category = ProductUtils.getRootCategory(product);	
+	</isscript>
+	<span style="color: ${color}; font-size: 11px; font-weight: bold; letter-spacing: 1px; position: absolute; right:0; text-align: right; width: 100%;">  
+	<isif condition="${!(Resource.msg('invoice.show', 'account', null) == 'uk')} "> 
+		<isif condition="${'invoiceCategory' in product.custom}" >
+	        <isprint value="${product.custom.invoiceCategory}" /><br/>
+		<iselseif condition="${product.isVariant()}" >
+		    <isprint value="${product.masterProduct.custom.invoiceCategory}" /><br/>
+		</isif>
+	</isif>
+	<isif condition="${(Resource.msg('invoice.show', 'account', null) == 'fr')}"> 
+		<isif condition="${'alcohol' in product.custom}" >
+	    	<isprint value="${product.custom.alcohol}" />
+		<iselseif condition="${product.isVariant()}" >
+		 	<isprint value="${product.masterProduct.custom.alcohol}" />
+		</isif>
+	<iselse>
+		<isif condition="${'alcohol' in product.custom}" >
+	    	<isprint value="${product.custom.alcohol}" />
+		<iselseif condition="${product.isVariant()}" >
+		 	<isprint value="${product.masterProduct.custom.alcohol}" />
+		</isif>	
+	</isif>
+	</span>
+</div>
+<iscomment>See if the items is part of the site catalog, and online prior to rendering link</iscomment>
+<isif condition="${productLineItem.product == null || (productLineItem.product != null && (!productLineItem.product.assignedToSiteCatalog || !productLineItem.product.online))}">
+	<div style="padding-bottom:15px; color:${color2}; font-size:11px; letter-spacing:1px; text-transform:uppercase;"><isprint value="${productLineItem.productName}"/></div>
+<iselse>
+	<div style="padding-bottom:15px; color:${color2}; font-size:11px; letter-spacing:1px; text-transform:uppercase;">
+		<isif condition="${productLineItem.categoryID != null}">
+            <isif condition="${empty(productLineItem.custom.associatedParentPosition)}">
+		 	 	<a style="text-decoration:none; color:${color2};" href="${ProdURL+'?pid='+ prodId+'&cgid='+ productLineItem.categoryID)}"><isprint value="${productLineItem.productName}"/></a>
+		   	<iselse>
+				<isprint value="${productLineItem.productName}"/> 
+		  	</isif>
+		<iselseif condition="${!empty(pdict.Basket) && ('staticOfferCategory' in pdict.Basket.custom)}">
+			<a style="text-decoration:none; color:${color2};" href="${StaticProdURL+'?pid='+ prodId}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselseif condition="${!empty(pdict.Order) && ('staticCategoryId' in pdict.Order.custom)}" >
+			<a style="text-decoration:none; color:${color2};" href="${StaticProdURL+'?pid='+ prodId}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselseif condition="${productLineItem.bonusProductLineItem}">
+			<a style="text-decoration:none; color:${color2};" href="${ProdURL+'?pid='+ prodId+'&productType=bonus'}"><isprint value="${productLineItem.lineItemText}"/></a>
+		<iselse>
+			<isif condition="${empty(productLineItem.custom.associatedParentPosition)}">
+	    		<a style="text-decoration:none; color:${color2};" href="${ProdURL+'?pid='+ prodId}"><isprint value="${productLineItem.lineItemText}"/></a>
+		   	<iselse>
+				<isprint value="${productLineItem.productName}"/> 
+		  	</isif>
+		</isif>
+	
+	<iscomment> <isprint value="${productLineItem.productName}" />  </iscomment>	
+	</div>
+</isif>
+<isif condition="${empty(pdict.p_hidepromo) || !pdict.p_hidepromo}">
+	<iscomment>promotional messaging</iscomment>
+	<isloop items="${productLineItem.priceAdjustments}" var="pli" status="loopstate">
+		<span class="promo <isif condition="${loopstate.first}"> first <iselseif condition="${loopstate.last}"> last</isif>">- <isprint value="${pli.promotion.calloutMsg}"/></span>
+	</isloop>
+</isif>
+
+<iscomment>variations
+<isdisplayvariationvaluesemail product="${productLineItem.product}"/>
+</iscomment>
+
+<iscomment>product list info</iscomment>
+

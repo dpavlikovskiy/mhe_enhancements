@@ -1,0 +1,42 @@
+/**
+* Addes a note to the notes laying in the session ('OrderNotes').
+'
+*   @input CurrentSession : dw.system.Session The current session.
+*	@input CurrentUserName : String The name of the current user
+*	@input Subject : String The subject of the note.
+*	@input Text : String The text of the note.
+*	@input Type : Number The type of the note. Valid values are '1' for history entries (systematically generated) and '2' for actual notes (explicite CSR notes). If the value is not provided it defaults to '2'.
+*
+*/
+importPackage( dw.system );
+importPackage( dw.customer );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var subject : String = pdict.Subject;
+	var text : String = pdict.Text;
+	var userName : String = pdict.CurrentUserName;
+	var noteType : Number = pdict.Type;
+	
+	if (empty(subject) || empty(text) || empty(userName)) {
+		return PIPELET_ERROR;
+	}
+	
+	if (empty(noteType) || (noteType != 1))
+	{
+		noteType = 2;
+	}
+    
+    var noteObject : Object = new Object();
+    noteObject["createdBy"] = userName;
+	noteObject["creationDate"] = new Date().getTime();
+	noteObject["subject"] = subject;
+	noteObject["text"] = text;
+	noteObject["orderNo"] = "";
+	noteObject["new"] = new Boolean(true);
+	noteObject["commentType"] = noteType;
+	
+	pdict.CurrentSession.privacy["OrderNotes"].addAt(0, noteObject);
+    
+    return PIPELET_NEXT;
+}

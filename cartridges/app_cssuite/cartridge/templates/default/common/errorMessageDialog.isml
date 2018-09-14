@@ -1,0 +1,26 @@
+<isscript>
+	importPackage(dw.util);
+	var errorMessage : String = !empty(pdict.ErrorMessage)?StringUtils.stringToHtml(pdict.ErrorMessage):"An error occured.";
+	var errorMessageTitle : String = !empty(pdict.ErrorMessageTitle)?StringUtils.stringToHtml(pdict.ErrorMessageTitle):"Error";
+	var errorAction : String = !empty(pdict.ErrorJSAction)?pdict.ErrorJSAction:"";
+	if ( !empty(pdict.ErrorText) )
+	{
+		errorMessage += "<br/><br/>Error Text:<br/>";
+		errorMessage += StringUtils.stringToHtml(pdict.ErrorText);		
+	}
+</isscript>
+<isif condition="${!empty(errorMessage)}">
+	<script type="text/javascript">
+	<!--
+		Dialog.message('<isprint value="${errorMessageTitle}" encoding="off">',
+			'<isprint value="${errorMessage}" encoding="off">',
+			function(){<isprint value="${errorAction}" encoding="off">});
+	//-->
+	</script>
+<iselseif condition="${!empty(pdict.ErrorJSAction)}">
+	<script type="text/javascript">
+<!--
+	<isprint value="${errorAction}" encoding="off">
+//-->
+</script>
+</isif>

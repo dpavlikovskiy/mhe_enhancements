@@ -1,0 +1,69 @@
+<iscache type="relative" hour="24" varyby="price_promotion"/>
+<isinclude template="util/modules"/>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+	importScript("product/ProductUtils.ds");
+</isscript>
+<iscomment>
+	This template renders a product in the Brand Landing Page using a ProductSearchHit object.
+</iscomment>
+
+<isif condition="${!empty(pdict.Product) && pdict.Product.priceModel.minPrice>0}">
+
+<isset name="product" value="${pdict.Product}" scope="page" />
+	<!-- dwMarker="product" dwContentID="${product.UUID}" -->
+	<a href="${URLUtils.http('Product-Show','pid', product.ID)}">
+		
+		
+		<iscomment>Check for a product in the dictionary, if no product found. This section is skipped.</iscomment>
+	 
+         <isif condition="${ProductUtils.getBadgeImage(product.custom.badge) != null}">
+              	<img src="${ProductUtils.getBadgeImage(product.custom.badge)}" class="artiBadge"/>
+		 </isif>
+     
+
+		<isif condition="${!empty(product.getImage('hi-res',0))}">
+			<isset name="image" value="${new ProductImage('home-product-tile', product, 0 )}" scope="page" />
+			<isset name="thumbnailUrl" value="${image.getURL()}" scope="page" /> 
+			<isset name="thumbnailAlt" value="${product.name}" scope="page" /> 
+			<isset name="thumbnailTitle" value="${product.name}" scope="page" />
+
+		 	<iscomment>
+		 		<img src="${product.getImage('large',0).getURL()}" alt="${product.name}" />
+		 	</iscomment>
+		<iselse> 
+			<isset name="thumbnailUrl" value="${URLUtils.staticURL('/images/noimagemedium.png')}" scope="page" /> 
+			<isset name="thumbnailAlt" value="${product.name}" scope="page" /> 
+			<isset name="thumbnailTitle" value="${product.name}" scope="page" />
+		</isif>
+	 	<div class="prod"><img src="${thumbnailUrl}" alt="${thumbnailAlt}" /></div>
+	 	
+	 	
+     	<h4 class="uppercase"><isprint value="${product.custom.mheBrand}"/></h4>
+	    <p class="uppercase"><isprint value="${product.name}"/></p>
+	     <span class="price"><isinclude template="product/components/pricing"/></span>
+	            
+	 	<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(product)}"	scope="page"/>
+		<isif condition="${!empty(promos)}">
+			<div class="product-promo">
+				<isloop items="${promos}" var="promo" status="promoloopstate">
+					<isprint value="${promo.calloutMsg}" encoding="off" />
+				</isloop>
+			</div>
+	   </isif>
+   	</a> 
+	<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+		<div class="shop-now">
+			<a class="name-link button" href="${URLUtils.url('Product-Show','pid',product.ID)}" >
+				<span class="face front">
+					<isprint value="${Resource.msg('epage.shopnow','locale',null)}" />
+				</span>
+				<span class="face back">
+					<isprint value="${Resource.msg('epage.shopnow','locale',null)}" />
+				</span>
+			</a>
+		</div>
+	</isif>
+</isif>
+
+ 

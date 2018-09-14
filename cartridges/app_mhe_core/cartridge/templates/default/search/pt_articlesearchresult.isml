@@ -1,0 +1,52 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+	<isscript>var pageContext={title:'Content Search Results',type:'search',ns:'search'};</isscript>
+	<isinclude template="util/modules"/>
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="search/pt_contentsearchresult_UI"/>
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+<body>
+	<div id="wrapper" class="pt_content-search-result articlePages">
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		<div id="main" role="main" class="page-content main clearfix">
+			<isinclude template="components/browsertoolscheck"/>		 
+			<isif condition="${!empty(pdict.ContentSearchResult.folder)}">
+			<isif condition="${pdict.ContentSearchResult.folder.parent.ID=='root'}"> 
+				<isbreadcrumbs bctext1="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.ID).displayName}"/> 
+			<iselse>
+				<isbreadcrumbs bcurl1="${URLUtils.url('Search-ShowContent','fdid',pdict.ContentSearchResult.folder.parent.ID)}" bctext1="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.parent.ID).displayName}" bctext2="${pdict.ContentSearchResult.folder.displayName}" />
+			</isif>
+			</isif>
+			<div class="sectionHeader">
+			<isif condition="${!empty(pdict.ContentSearchResult.folder)}">
+				<isif condition="${pdict.ContentSearchResult.folder.parent.ID=='root'}"> 
+					<isprint value="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.ID).description}" encoding="off" />
+				<iselse>
+					<isprint value="${dw.content.ContentMgr.getFolder(pdict.ContentSearchResult.folder.parent.ID).description}" encoding="off" />
+				</isif>
+			</isif>	
+				<iscomment>Dkum37: this div doesn't end here</iscomment>
+				<div class="womhContent">
+			<iscomment>Display article navigation</iscomment>
+			<isinclude template="content/articlenavigation"/>
+			<div id="primary" class="primary-content">
+				<isreplace/>
+			</div>
+		</div>
+
+		<isinclude template="components/footer/footer"/>
+
+		<isinclude template="search/pt_contentsearchresult_VARS"/>
+		
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,24 @@
+/**
+* Demandware Script File
+* Update custom attribute of PLI - engravingText from CurrentHttpParameterMap
+* 
+*   
+ * 
+ * @input pid:  String
+ * @output productId : String
+* 
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+function execute( pdict : PipelineDictionary ) : Number
+{	
+	  
+     if(pdict.pid.indexOf("-")>0){
+     pdict.productId=pdict.pid.substring(0, pdict.pid.indexOf("-"));
+     }else{
+     pdict.productId=pdict.pid;
+     }
+     
+   return PIPELET_NEXT;
+}

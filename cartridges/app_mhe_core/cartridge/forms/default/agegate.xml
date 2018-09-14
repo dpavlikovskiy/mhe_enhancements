@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+  
+   <field formid="country"  type="string" default-value="UK" />
+   <field formid="birthday"  type="date" mandatory="true" format="dd/MM/yyyy" max="now"  max-length="10" missing-error="login.dob.missing-error"  parse-error="profile.dob.error-message" value-error="agegate.error.message"/> 
+		
+	<action formid="login" valid-form="true"/>
+	
+</form>

@@ -1,0 +1,62 @@
+// =============================================================================
+// Home Parallax Category Link Module
+// =============================================================================
+
+.module.category{
+	h3 {
+		position: absolute;
+		z-index: 2;
+		top: 40%;
+		width: 100%;
+		margin-top: -24px;
+		font-size: 48px;
+		text-align: center;
+		letter-spacing: 4px;
+		font-weight: $bold;
+		@extend %text-shadow;
+	}
+	.overlay {
+		button {
+			position: absolute;
+			bottom: 55px;
+			width: 290px;
+			left: 50%;
+			margin-left: -145px;
+		}
+		.info {
+			display: block;
+			padding: 0 30px;
+			width: 100%;
+			position: absolute;
+			top: 45px;
+			text-align: center;
+			.logo {
+				width: 175px;
+				height: 100px;
+				display: block;
+				margin: 0 auto 85px;
+			}
+			h4,
+			time {
+				font-size: $small_heading;
+				letter-spacing: 3px;
+				text-transform: uppercase;
+			}
+			h4 {
+				font-family: $fixed-font-family, $base-font-family;
+				font-weight: $regular;
+				line-height: 1.6;
+			}
+			time {
+				font-weight: $bold;
+			}
+			.dot {
+				@extend .sprite_divider_dot;
+				width: 7px;
+				height: 7px;
+				display: block;
+				margin:0 auto 20px;
+			}
+		}
+	}
+}

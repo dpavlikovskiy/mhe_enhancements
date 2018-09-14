@@ -1,0 +1,173 @@
+.pt-storelocator{
+	h1{
+		font-size:80px;
+	}
+	.breadcrumb{
+		margin-top:0;
+	}
+	.page-content{
+		padding:10px 0 0;
+	}
+
+	.storeResults{
+		position:relative;
+		color:$lightergrey;
+		@include opacity(0);
+		visibility:hidden;
+		.closeThis{
+			position:absolute;
+			top:20px;
+			right:20px;
+			background-position:-55px -50px;
+			height:16px;
+			width:16px;
+			overflow:hidden;
+			text-indent:-999em;
+			z-index:12;
+			cursor:pointer;
+		}
+		h4{
+			font:bold 13px $fixed-font-family;
+			text-transform:uppercase;
+			text-shadow:0 0 0;
+			letter-spacing:2px;
+			margin:0 0 10px;
+		}
+		.address{
+			margin:0 0 10px;
+			line-height:18px;
+		}
+		a{
+			color:$lightergrey;
+			&.details{
+				font-style:italic;
+			}
+		}
+		.map_location{
+			color:$darkgrey;
+			h3{
+				color:$darkgrey;
+				text-shadow:0 0 0;
+			}
+		}
+		.hidden{
+			position:absolute !important;
+			left:-9999em;
+			top:-9999em;
+		}
+		.scrollPanel{
+			float:left;
+			border:1px solid $darkpurple;
+			background:$background_color;
+			width:291px;
+			height:600px;
+		}
+		.scroll-content{
+			text-align:center;
+			li{
+				list-style:upper-alpha;
+				margin:30px 25px 0 36px;
+				padding:0 0 30px;
+				border-bottom:1px solid $mediumpurple;
+				@include transition (color 0.3s);
+				&.selected, &:hover{
+					@include transition (color 0.3s);
+					background:url(img/bg/store-shadow.png) no-repeat center bottom;
+					color:$white;
+					a{
+						color:$white;
+					}
+					h4 a{
+						color:$lightpurple;
+					}
+				}
+			}
+		}
+		.store-details{
+			position:relative;
+			.storeContent{
+				width:605px;
+				float:left;
+				padding:50px 100px 20px 50px;
+			}
+			.store-info{
+				width:290px;
+				margin:50px 0;
+				padding:0 50px;
+				float:right;
+				background:url(img/icons/vertline.png) repeat-y 0 0;
+			}
+			.infoBox{
+				text-align:center;
+				margin:0 0 40px;
+				font-size:$small_text;
+
+				ul.serves {
+					li {
+						margin-bottom: 4px;
+						&.head {
+							color: $lightergrey;
+							margin-top: 14px;
+							margin-bottom: 7px;
+							text-transform: uppercase;
+						}
+						a {
+							color: $darkgrey;
+							&:hover {
+								color:$lightpurple;
+							}
+						}
+					}
+				}
+				.oHours{
+					span{
+						display:inline-block;
+						text-align:left;
+						&.day{
+							width:40px;
+						}
+					}
+				}
+			}
+			h4{
+				color:$lightpurple;
+			}
+		}
+		.map_canvas{
+			width:897px;
+			float:right;
+			height:600px;
+			position:relative;
+			.mapContent{
+				min-height:115px;
+			}
+			h1{
+				color:$darkgrey;
+				font:normal 16px $fixed-font-family;
+				margin:0 0 10px;
+				text-shadow: 0 0 0;
+				text-transform: uppercase;
+				letter-spacing:1px;
+				min-width:200px;
+			}
+			p{
+				font:14px/16px $fixed-font-family;
+				margin:0 0 5px;
+			}
+		}
+		.map_location{
+			background:$white;
+			width:897px;
+			float:right;
+		}
+	}
+}
+.ie8{
+	.pt-storelocator{
+		button.button{
+			.face{
+				top:-14px;
+			}
+		}
+	}
+}

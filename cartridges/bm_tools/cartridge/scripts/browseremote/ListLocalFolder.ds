@@ -1,0 +1,125 @@
+/**
+* Lists a local folder
+*
+* @input BasePath: String The base path for the local folder
+* @input RelativePath: String The relative path for the local folder
+* @input SiteID: String The Site ID which is required for library access
+* @input CatalogID: String The Site ID which is required for library access
+* @input AnalyticType: String Defines how the directory should be analyzed
+* @output Status : Object Status of the response
+* @output ObjectList : Object List of objects that where found in the remote location
+* @output AnalyzerResult: Object Defines if the directory should be analyzed
+*/
+importPackage( dw.io );
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.web );
+importScript( 'directoryanalyzer/libFileMonitoringHelper.ds' );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var basePath : String = args.BasePath;
+	var relativePath : String = args.RelativePath;
+	var siteID : String = args.SiteID;
+	var catalogID : String = args.CatalogID;
+	var analyzeDirectory : String = args.AnalyticType;
+	
+	if ( !basePath ) {
+		Logger.error("BasePath not available");
+		basePath = File.TEMP;
+	}
+	
+	var absolutePath : String = basePath; 
+
+	if ( basePath == 'LIBRARIES' ) {
+		if ( siteID ) {
+			siteID = siteID.replace(/\//g, '');
+			absolutePath += '/' + siteID;
+		}
+	} else if ( basePath == 'CATALOGS' ) {
+		if ( catalogID ) {
+			catalogID = catalogID.replace(/\//g, '');
+			absolutePath += '/' + catalogID;
+		}
+	}
+
+	var status : Status = null;
+	if( relativePath ) {
+		absolutePath += relativePath;		
+	}
+
+	var result : Object = {"directories":[], "numberOfDirectories":0,"files":[], "numberOfFiles":0};
+	var directory : File = new File( absolutePath );
+
+	if ( !directory.exists() ) {
+		status = new Status( Status.ERROR, 'Directory \'' + absolutePath + '\' does not exist!');
+	} else {
+		
+		var fileInfos : Array = directory.listFiles();
+		if ( relativePath && relativePath.length > 1 ) {
+			result.directories.push( { name : '..', size : 0, lastModified : StringUtils.formatDate(new Date(directory.lastModified()), 'dd.MM.yyyy HH:mm:ss')} );
+		}
+		if ( !empty(fileInfos) ) {
+			for each ( var fileInfo : File in fileInfos) {
+				var fileInfoSO : Object = {};
+				fileInfoSO.name = fileInfo.name;
+				fileInfoSO.size = fileInfo.length();
+				fileInfoSO.lastModified = StringUtils.formatDate(new Date(fileInfo.lastModified()), 'dd.MM.yyyy HH:mm:ss');
+				if (fileInfo.directory) {
+					//work around quota limitation
+					if ( result.directories.length < 2000 ) {
+						result.directories.push(fileInfoSO);
+					}
+					result.numberOfDirectories++;
+				} else {
+					//work around quota limitation
+					if ( result.files.length < 2000 ) {
+						fileInfoSO.path = fileInfo.fullPath;
+						result.files.push(fileInfoSO);
+					}
+					result.numberOfFiles++;
+				}
+			}
+		} 
+		result.directories.sort(sortFilesByName);
+		result.files.sort(sortFilesByName);
+		
+		if ( !empty(analyzeDirectory) ) {
+			var directoryAnalyzer = getDirectoryAnalyzer( analyzeDirectory, directory );
+			args.AnalyzerResult = directoryAnalyzer.generateReport();;
+		}
+		
+	}
+
+	args.ObjectList = result;
+	args.Status = status;
+
+    return PIPELET_NEXT;
+}
+
+function sortFilesByName( fileInfo1 : Object, fileInfo2 : Object) : Number {
+	if ( fileInfo1.name && fileInfo2.name ) {
+		if ( fileInfo1.name > fileInfo2.name ) {
+			return 1
+		} else if ( fileInfo1.name < fileInfo2.name ) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+}
+
+function sortAnalyzedDirectories( e1 : Object, e2 : Object) : Number {
+	if ( e1[0] == e2[0] ) {
+		if ( e1[1] > e2[1]) {
+			return 1;
+		} else {
+			return -1;
+		}
+	} else if ( e1[0] > e2[0]) {
+		return 1;
+	} else if ( e1[0] < e2[0]) {
+		return -1;
+	}
+	return 0;
+}

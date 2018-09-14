@@ -1,0 +1,288 @@
+// =============================================================================
+// Filters
+// =============================================================================
+
+.filters-container {
+	max-height:0;
+	overflow:hidden;
+	position:relative;
+	width:100%;
+	&.filters-transitions {
+		@include transition-property(max-height, opacity);
+		@include transition-duration(.75s, .75s);
+		@include transition-timing-function( $easeOutSine, linear );
+		@include opacity(0);
+	}
+	&.filters-open {
+		@include opacity(1);
+	}
+}
+
+
+
+.filters {
+	display:none;
+	margin:0 auto;
+	background-color:#0e0e0e;
+	text-align:center;
+	padding:31px 0 0;
+	box-shadow: inset 0 5px 7px -2px rgba(0, 0, 0, 0.5);
+	width:100%;
+	&.filters-init {
+		display:block;
+	}
+	.filters-buttons {
+		padding:24px 0 44px;
+		button {
+			&:first-child {
+				margin-right:16px;
+			}
+		}
+	}
+	.refinement-header {
+		display:none;
+	}
+	.refinement {
+		display:inline-block;
+		vertical-align:top;
+		margin-right:130px;
+		text-align:left;
+
+		// Bottle sizes ---------------------------------------------------------
+		&.sizeDisplayValue {
+			margin-right:0;
+			@extend .clearfix;
+			&:nth-child(2) {
+				visibility:hidden;
+			}
+			h3 {
+				padding-left:5px;
+			}
+			ul {
+				width:210px;
+				float:left;
+				li {
+					padding-right:40px;
+					margin-left:-40px;
+					min-height:2em;
+					margin-bottom:1em;
+					&.size-half { @extend .icon-size-half;  }
+					&.size-s { @extend .icon-size-sl;  }
+					&.size-mg { @extend .icon-size-mg;  }
+					&.size-mg2 { @extend .size-1_75l;  }
+					&.size-j { @extend .icon-size-j;  }
+					&.size-mt { @extend .icon-size-mt;  }
+					&.size-m { @extend .icon-size-m;  }
+					&.size-st { @extend .icon-size-s;  }
+					&.size-b { @extend .icon-size-b;  }
+					&.size-n { @extend .icon-size-n;  }
+					&.selected { padding-left:0; }
+					&:before {
+						@include icon;
+						@include bordered-icon(#4b415f);
+						@include transition(all 0.3s);
+						color:#4b415f;
+						font-size:36px;
+						position:absolute;
+						left:0;
+						top:0;
+					}
+					&:hover {
+						&:before {
+							color:#fff !important;
+							border-color:#fff !important;
+						}
+					}
+					a {
+						display:inline-block;
+						position:absolute;
+						z-index:10;
+						padding:0 40px 0 45px;
+						line-height:1.375em;
+						min-height:36px;
+						span {
+							@include transition(color 0.3s);
+						}
+						&:hover {
+							:after {
+								color:#fff;
+								color:rgba(255,255,255,0.9);
+							}
+							span {
+								color:#fff;
+								&.size-serves {
+									color:#7d6ca0;
+								}
+							}
+						}
+					}
+					&.selected {
+						:after {
+							color:#fff;
+							color:rgba(255,255,255,0.9);
+						}
+						span {
+							color:#fff;
+							&.size-serves {
+								color:#7d6ca0;
+							}
+						}
+					}
+				}
+			}
+		}
+		h3 {
+			font-family:$fixed-font-family;
+			font-size:12px;
+			font-weight:700;
+			text-transform:uppercase;
+			color:#888;
+			letter-spacing:2px;
+			margin-bottom:12px;
+		}
+		li {
+			line-height:1.375em;
+			position:relative;
+			&.selected {
+				color:#fff;
+				margin-left:-1em;
+				padding-left:1em;
+				&:before {
+					content:"\00B7";
+					width:1em;
+					position:absolute;
+					left:-0.25em;
+				}
+				a {
+					color:#fff;
+				}
+			}
+			&.inactive {
+				&:before {
+					visibility:hidden;
+				}
+				a {
+					color:#333333;
+					cursor:none;
+					pointer-events:none;
+				}
+			}
+		}
+		a {
+			color:#888;
+			font-size:12px;
+			text-transform:uppercase;
+			letter-spacing:1px;
+			@include transition(color 0.3s);
+			&:hover {
+				color:#fff;
+			}
+		}
+	}
+}
+
+
+// IE 8 -------------------------------------------------------------------------
+
+.ie8 {
+	.show-filters {
+		&.button {
+			&.secondary {
+				min-height:50px;
+			}
+		}
+	}
+	.filters {
+		.refinement {
+			li {
+				&.selected{
+					&:before {
+						content:'';
+					}
+				}
+				a {
+					background-image:url(img/bg/transparent.png);
+				}
+			}
+		}
+	}
+	.size-s:before {
+		content: "\e602" !important;
+	}
+	.size-st:before {
+		content: "\e603" !important;
+	}
+	.size-n:before {
+		content: "\e604" !important;
+	}
+	.size-mt:before {
+		content: "\e605" !important;
+	}
+	.size-mg:before {
+		content: "\e606" !important;
+	}
+	.size-m:before {
+		content: "\e607" !important;
+	}
+	.size-j:before {
+		content: "\e608" !important;
+	}
+	.size-half:before {
+		content: "\e609" !important;
+	}
+	.size-b:before {
+		content: "\e60a" !important;
+	}
+}
+
+.ie8 {
+	.show-filters {
+		overflow: visible;
+		&.show-filters-active {
+			&:before {
+				content: '';
+				display: block;
+				position: absolute;
+				background-image: url(img/sprites/bgnd_tooltip_arrows_01.png);
+				background-repeat: no-repeat;
+				background-position: 0 -36px;
+				background-color: none;
+				height: 11px;
+				width: 16px;
+				left: 44%;
+				bottom: 13px;
+			}
+
+			&:after {
+				display: none;
+			}
+		}
+	}
+}
+.ie9 {
+	.show-filters {
+		overflow: visible;
+		&.show-filters-active {
+			&:after {
+				bottom: -2px;
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

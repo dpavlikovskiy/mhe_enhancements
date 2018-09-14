@@ -1,0 +1,13 @@
+<iscache type="relative" minute="30" varyby="price_promotion"/>
+<isinclude template="util/modules"/>
+<isif condition="${!empty(slotcontent.custom) && 'headerDescription' in slotcontent.custom }">
+	<div class="getName">
+		<span class="bmValue">${slotcontent.custom.headerDescription}</span>
+	</div>
+</isif>
+<div id="hoverContent"><isprint value="${slotcontent.calloutMsg}" encoding="off" /></div>
+<ul class="picnicProducts">
+	<isif condition="${slotcontent.content.length != null &&  slotcontent.content.length > 1 }" > 
+		<isloop items="${slotcontent.content}" var="product"><isseasonalproducttile product="${product}" showswatches="${true}" showpricing="${true}" /></isloop>
+	</isif>
+</ul>

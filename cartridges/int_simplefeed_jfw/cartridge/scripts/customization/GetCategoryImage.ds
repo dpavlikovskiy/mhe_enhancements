@@ -1,0 +1,27 @@
+/**
+*
+* @input CategoryId: String  //order.custom.staticCategoryId
+* @output LogoImageABSUrl : String
+*
+*/
+importPackage(dw.system );
+importPackage(dw.order);
+importPackage(dw.util);
+importPackage(dw.catalog);
+importPackage(dw.web);
+
+function execute( args : PipelineDictionary ) : Number
+{
+	//default selectionimage
+	args.LogoImageABSUrl=URLUtils.staticURL('/images/global/selection-logo.png').http().toString();
+    var staticCategoryId : String = args.CategoryId;
+    var staticCategory:dw.catalog.Category = null;
+    if(!empty(staticCategoryId))
+    {
+	    staticCategory = dw.catalog.CatalogMgr.getCategory(staticCategoryId);
+	    if (!empty(staticCategory)  && staticCategory.custom.isStatic && !empty(staticCategory.thumbnail)){
+    		args.LogoImageABSUrl= staticCategory.thumbnail.httpURL.toString();
+    	}
+    }
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,372 @@
+// =============================================================================
+// HTML elements
+// =============================================================================
+
+hr {
+	margin: 30px 0;
+	width: 100%;
+	height: 1px;
+	background-color: $border_color;
+	border: 0;
+}
+
+.breadcrumb{
+	text-align:left;
+	text-transform:uppercase;
+	line-height:20px;
+	margin:10px auto;
+	letter-spacing:2px;
+	width:$max-container;
+	li{
+		float:left;
+		padding:0 11px 0 0;
+		a{
+			padding:0 16px 0 0;
+			background-position:right -80px;
+			@include transition(all 0.2s ease-out);
+			&:hover{
+				color:$white; 
+			}
+		} 
+	}
+}
+
+.customSelect{
+	display:inline-block;
+	position:relative;
+	text-transform:uppercase;
+	text-align:left;
+	.nano{
+		border:1px solid $darkgrey;
+		height:auto;
+		z-index:999;
+		width:370px;
+		position:absolute;
+		top:29px;
+		display:none;
+		.customOptions{
+			border:0;
+			overflow-y: hidden;
+			position: static;
+			width:387px;
+		}
+	}
+	.cont:after{
+		clear: both;
+	    content: " ";
+	    display: block;
+	}
+	.pName{
+		float:left;
+		position:relative;
+		width:185px;
+		overflow:hidden;
+		&:after{
+			content: ".........................................................................................";
+		    position: absolute;
+		}
+	}
+	.pDetails{
+		float:left;
+		margin:0 0 0 5px;
+		width:150px;
+	}
+	.pPrice{
+		letter-spacing:0;
+	}
+	.pServes{
+		display:block;
+		clear:both;
+	}
+	
+	span{
+		line-height:16px;
+		letter-spacing:1px;
+		&.selected{
+			margin: 0;
+		}
+	}
+	> span{
+		background-color:$black;
+	    background-position:right -330px;
+		border:1px solid $darkgrey;
+	    display: block;
+	    font-size: 13px;
+	    height: 30px;
+	    line-height: 30px;
+	    padding:0 30px 0 10px;
+	    width: 370px;
+	    color:$lightergrey;
+	    cursor:pointer;
+	    &.active{
+	    	color:$white;
+	    	.pServes{
+	    		color:$lightpurple;
+	    	}
+	    }
+	    &.selectedContent{
+	    	.cont{ 
+	    		padding:0 20px 0 0;
+	    		display:block;
+	    	}
+	    	.inactive{
+	    		.pName, .pPrice{
+	    			line-height:14px;
+	    		}
+	    	}
+	    	.pDetails{
+	    		width: 130px;
+	    		margin:0 0 0 5px;
+	    		overflow: hidden;
+    			white-space: nowrap;
+	    	}
+	    }
+	}
+    .customOptions{
+		position:absolute;
+		width:287px;
+		font-size:13px;
+		background:black;
+		line-height: 20px;
+	    padding: 10px;
+	    text-align: left;
+	    z-index:99;
+	    border:1px solid #888;
+	    max-height: none !important;
+	    top:29px; 
+		li {
+			margin-bottom:20px;
+			position:relative;
+			cursor: pointer;
+			span{
+				color:$lightergrey;
+				&.oos{
+					color:#FF5252;
+					font-weight:bold;
+					display:block;
+				}
+			}
+			span.cont{
+				display:block;
+				z-index:10;
+				padding:0;
+				line-height:1.375em;
+				background:none;
+				span {
+					@include transition(color 0.3s);
+				}
+				&:hover {
+					:after {
+						color:#fff;
+						color:rgba(255,255,255,0.9);
+					}
+					span {
+						color:#fff;
+						&.size-serves {
+							color:#7d6ca0;
+						}
+					}
+				}
+			}
+			&.selected {
+				:after {
+					color:#fff;
+					color:rgba(255,255,255,0.9);
+				}
+				span {
+					color:#fff;
+					&.size-serves {
+						color:#7d6ca0;
+					}
+				}
+			}
+		}
+	}
+}
+.preFilled{
+	> span{
+		padding:5px 10px;
+		> span{
+			background:none;
+		}
+	}
+	.nano{
+		.pane{
+			z-index:100;
+		}
+	}
+}
+
+.exploreOptions {
+    color: $lightergrey;
+    font-size: 12px;
+    padding: 30px 0 0;
+    p{
+		margin:0 0 25px;
+	}
+	.column{
+		width:360px;
+		height:480px;
+		margin:0 60px 40px 0;
+		float:left;
+		position:relative;
+		h3 {
+		    font: bold 44px $fixed-font-family;
+		    margin-top: -25px;
+		    position: absolute;
+		    text-align: center;
+		    text-shadow: 1px 1px 1px $black;
+		    text-transform: uppercase;
+		    top: 50%;
+		    width: 100%;
+		    z-index:2;
+		}
+		span.cOverlay{
+			position:absolute;
+			@include opacity(0);
+			background: #000;
+			background: rgba(0,0,0,0.7);
+			height:100%;
+			width:100%;
+			z-index:3;
+			@include transition(all 0.3s ease-out);
+			.button.wide{
+				left: 50%;
+			    margin-left: -115px;
+			    min-width: 230px;
+			    position: absolute;
+			    top: 80%;
+			}
+			.button .face.front{
+				background-color:transparent;
+			}
+		}
+		img{
+			width:360px;
+			height:auto;
+			border:3px solid $white;
+		}
+		a:hover span.cOverlay{
+			@include opacity(1);
+		}
+	}
+	.last{
+		margin:0 0 40px 0;
+	}
+}
+
+.social-share {
+	float: right;
+	
+	.social-share-icons {
+		visibility : hidden;
+		
+		ul {
+			border: 1px solid;
+			padding: 5px;
+			padding-top: 8px;
+			padding-bottom: 8px;
+			position: relative;
+			text-align: center;
+
+			&:after {
+				transform: rotate(45deg);
+				border-right: 1px solid #f7b436;
+				border-bottom: 1px solid #f7b436;
+				content: " ";
+				width: 12px;
+				height: 12px;
+				position: absolute;
+				background: #fdfafa;
+				display: inline-block;
+				margin-left: -6px;
+				margin-top: 3px;
+				left: 50%;
+				top: 25px;
+			}
+		
+			li {
+				list-style :none;
+				display: inline-block;
+				margin-left : 1px;
+				cursor: pointer;
+			}
+			
+			.clearfix {
+				clear : both;
+				float : none;
+			}
+		}
+	}
+	
+	.arrow-down {
+		width: 0;
+		height: 0;
+		border-left: 7px solid transparent;
+		border-right: 7px solid transparent;
+		border-top: 7px solid grey;
+		margin: 0 auto;
+	}
+	
+	p {
+		text-align: center;
+		cursor:pointer;
+		text-transform: uppercase;
+		margin-top: 13px;
+	}
+}
+
+.not-available-text-outer {
+	border: 1px solid $footerDivider;
+	padding : 3px;
+	margin-bottom: 15px;
+	
+	.not-available-text {
+		text-align: center;
+		padding-top: 13px;
+		padding-bottom: 13px;
+		background-color: $footerDivider;
+		cursor: pointer;
+		font-size: 15px;
+		letter-spacing: 2px;
+		font-weight: bold;
+	}
+}
+
+.ca-legal-label-billing {
+	text-transform: none;
+	font-size: 16px;
+	line-height: 30px;
+	letter-spacing: 1px;
+	max-width: 83%;
+	margin-top: 45px;
+}
+.form-title-head {
+	text-transform : uppercase;
+	margin-bottom : 5px;
+}
+
+.form-title {
+	font-weight: 700;
+}
+
+.white {
+	color : #fff !important;
+}
+
+.social-icons {
+	li {
+		cursor : pointer;
+	}
+}
+
+ 
+// IE8 ------------------------------------------------------------------------
+.ie8 {
+	.exploreOptions{
+		.column a:hover span.cOverlay{
+			-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+		}
+	}
+}
+

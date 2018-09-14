@@ -1,0 +1,43 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isinclude template="util/modules"/>
+	
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="content/content/pt_content_UI"/>
+
+	<iscomment>Add template-specific header information here.</iscomment>
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >	
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+
+<body>
+
+	<div id="wrapper" class="pt_content">
+	
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		
+		<div id="main" role="main" class="full-width main clearfix">
+			<isinclude template="components/browsertoolscheck"/>		
+			<isinclude template="components/contentbreadcrumbs"/>
+		
+			<div id="primary" class="primary-content">			
+				<isreplace/>			
+			</div>
+			
+		</div>
+	
+	
+		<isinclude template="components/footer/footer"/>
+		<isinclude template="content/content/pt_content_VARS"/>
+		
+	</div>
+</body>
+</html>

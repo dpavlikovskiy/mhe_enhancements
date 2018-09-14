@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+	<!-- form for creating and editing shipping address values -->
+	<!-- create id field -->
+	<field formid="addressid" label="Shipment ID" type="string" mandatory="true" max-length="20" value-error="forms.customeraddress.002"/>
+	<field formid="includeGiftMessage" label="Include Gift Message" type="boolean" binding="gift"/>
+	<field formid="giftMessage" label="Gift Message" type="string" binding="giftMessage" max-length="256"/>
+	<field formid="trackingNumber" label="Tracking Number" type="string" binding="trackingNumber"/>
+	<field formid="shippingMethods" label="forms.cart.001" type="string" mandatory="false" />
+		
+	<field formid="shippingMethodID" type="string" mandatory="true" />		
+	<field formid="deliveryInstructions" label="forms.checkout.shipment.deliveryInstructions" type="string" mandatory="false" binding="custom.deliveryInstructions" max-length="150" missing-error="forms.checkout.shipment.deliveryInstructions.parseError" parse-error="forms.checkout.shipment.deliveryInstructions.parseError" value-error="forms.checkout.shipment.deliveryInstructions.parseError"/>
+	
+	<field formid="deliveryDate" label="forms.checkout.shipment.requestedDeliveryDate" type="string"  mandatory="false" />
+	<!-- use fields from order address definition  -->
+	<include formid="addressfields" name="cssorderaddress"/>
+
+	<!-- general actions -->
+	<action formid="save" valid-form="true"/>
+	<action formid="cancel" valid-form="false"/>
+
+</form>

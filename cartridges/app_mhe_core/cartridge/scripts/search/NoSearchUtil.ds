@@ -1,0 +1,65 @@
+/**
+Script used for Search Functions
+* @input Content : String The name of content asset for no search message
+* @input Title : String Title
+* @input Salutation : String Salutation
+* @input FirstName : String FirstName
+* @input LastName : String LastName
+* @input SearchPhrase : String SearchPhrase
+* @input SuggestedSearchPhrase : String SuggestedSearchPhrase
+* @output NoSearchMessage : String Content message with user input details
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.content );
+importScript( "int_simplefeed_jfw:email/stringReplace.ds" );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var contentBody : String = "";
+	args.NoSearchMessage = contentBody;
+	var regExp : RegExp = null;
+    //get the content asset body
+	var bodyContent : Content = ContentMgr.getContent(args.Content);
+    if (!empty(bodyContent) && bodyContent.online && !empty(bodyContent.custom.body))
+    {
+    	contentBody = StringUtils.decodeString(bodyContent.custom.body.toString(),StringUtils.ENCODE_TYPE_XML);
+    	//contentBody = StringUtils.decodeString(bodyContent.custom.body.toString(), StringUtils.ENCODE_TYPE_HTML);
+    	//trim all tags
+		contentBody = trimTagContent(contentBody);
+		if (!empty(args.Salutation)) {
+		    regExp = new RegExp("<&salutation&>");
+			contentBody = replaceAll(contentBody, regExp, args.Salutation);
+		}
+		if (!empty(args.Title)) {
+		    regExp = new RegExp("<&title&>");
+			contentBody = replaceAll(contentBody, regExp, args.Title);
+		}
+		if (!empty(args.FirstName)) {
+		    regExp = new RegExp("<&firstName&>");
+			contentBody = replaceAll(contentBody, regExp, args.FirstName);
+		}
+		if (!empty(args.LastName)) {
+		    regExp = new RegExp("<&lastName&>");
+			contentBody = replaceAll(contentBody, regExp, args.LastName);
+		}
+		if (!empty(args.SuggestedSearchPhrase)) {
+		    regExp = new RegExp("<&suggestedSearchPhrase&>");
+			contentBody = replaceAll(contentBody, regExp, args.SuggestedSearchPhrase);
+			regExp = new RegExp("searchPhraseforurl");
+			contentBody = replaceAll(contentBody, regExp, args.SuggestedSearchPhrase);
+		} else if (contentBody.indexOf("<&searchPhrase&>")>-1) {
+			regExp = new RegExp("<&searchPhrase&>");
+			contentBody = contentBody.split(regExp)[0] + "<&searchPhrase&>" +contentBody.split(regExp)[1].split(new RegExp("<br"))[0];
+		}
+		if (!empty(args.SearchPhrase)) {
+		    regExp = new RegExp("<&searchPhrase&>");
+			contentBody = replaceAll(contentBody, regExp, args.SearchPhrase);
+		}
+		regExp = new RegExp("(<&).*(&>)");
+		contentBody = replaceAll(contentBody, regExp, "");   
+    }
+    args.NoSearchMessage = contentBody;
+    
+    return PIPELET_NEXT;
+}

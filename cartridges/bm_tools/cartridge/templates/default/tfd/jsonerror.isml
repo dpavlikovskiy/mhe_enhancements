@@ -1,0 +1,2 @@
+<iscontent type="text/plain" charset="UTF-8" compact="true"/>
+{"result":"error", "message":"${pdict.Status && pdict.Status.message ? escape(pdict.Status.message) : 'Operation failed!'}"}

@@ -1,0 +1,106 @@
+// =============================================================================
+// Global styles for the dialog / overlay that comes with DemandWare
+// =============================================================================
+
+.moet-overlay-bg {
+	&.ui-widget-overlay {
+		background:none;
+		@include background-image(radial-gradient( rgba(0,0,0,0), rgba(0,0,0,1) 600px ));
+		@include opacity(0.8);
+		z-index:200;
+	}
+}
+
+.ie8{
+	.moet-overlay-bg.ui-widget-overlay{
+		background: #000;
+	}
+}
+
+.moet-overlay {
+	box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.5);
+	&.ui-dialog {
+		margin: 0;
+		padding:0;
+		.ui-dialog-content {
+			overflow: visible;
+		}
+		.ui-dialog-content.dialog-content {
+			padding: 0;
+		}
+		.ui-dialog-titlebar {
+			padding: 30px 0;
+		}
+		.ui-dialog-title {
+			display: none;
+		}
+		.ui-dialog-titlebar-close {
+			margin: 0;
+			padding: 0;
+			height: 20px;
+			width: 20px;
+			top: 20px;
+			right: 20px;
+			&:before {
+				@include icon;
+				content: "\e60e";
+			}
+		}
+		.dialog-content {
+			margin: 0;
+			padding: 0;
+		}
+	}
+
+	.section {
+		&.first-section {
+			padding-top: 0;
+		}
+		padding: 60px;
+		position: relative;
+	}
+	.beta-heading {
+		margin: 0 0 30px 0;
+		padding: 0;
+		font-family: $fixed-font-family;
+		font-size: 16px;
+		font-weight: $regular;
+		text-transform: uppercase;
+		strong {
+			font-weight: $bold;
+		}
+	}
+	.gamma-heading,
+	.product-price {
+		margin: 0;
+		padding: 0;
+		font-weight: $regular;
+	}
+	.item-n-price-wrap {
+		.gamma-heading,
+		.product-price {
+			display: inline-block;
+		}
+		.gamma-heading {
+			padding-right: 10px;
+			vertical-align: top;
+		}
+		.product-price {
+			padding-left: 10px;
+			&:before {
+				content: '/';
+				color: $darkpurple;
+			}
+			.price-tiered {
+				padding: 15px 0;
+			}
+		}
+		.price-sales {
+			padding-left: 10px;
+			font-size:32px !important;
+			font-family:$fixed-font-family;
+		}
+	}
+
+}
+

@@ -1,0 +1,91 @@
+<isif condition="${pdict.LocalStatus && pdict.LocalStatus.error}">
+	<div class="error">
+		${pdict.LocalStatus.message}
+	</div>
+<iselse/>
+	<table class="table_title_description">
+		<tr>
+			<td><strong>Directories:</strong></td>
+			<td><strong>${pdict.LocalObjectList.numberOfDirectories != pdict.LocalObjectList.directories.length ? pdict.LocalObjectList.directories.length.toFixed() + ' out of ' + pdict.LocalObjectList.numberOfDirectories.toFixed() : pdict.LocalObjectList.numberOfDirectories.toFixed() }</strong></td>
+			<td class="file_operation"><span class="newdirectory" style="cursor: pointer;font-weight: bold;color:blue;">Add new Directory</span></td>
+		</tr>
+		<tr>
+			<td><strong>Files:</strong></td>
+			<td><strong>${pdict.LocalObjectList.numberOfFiles != pdict.LocalObjectList.files.length ? pdict.LocalObjectList.files.length.toFixed() + ' out of ' + pdict.LocalObjectList.numberOfFiles.toFixed() : pdict.LocalObjectList.numberOfFiles.toFixed() }</strong></td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<table cellpadding="3">
+		<tr>
+			<th class="table_header w e n s left">Name</th>
+			<th class="table_header w e n s left">Size</th>
+			<th class="table_header w e n s left">Last Modified</th>
+			<th class="table_header w e n s left">Action</th>
+		</tr>
+		<isloop iterator="${pdict.LocalObjectList.directories}" alias="directory">
+			<tr class="localdirectory">
+				<td class="table_detail w e s top name left" style="cursor: pointer; background-color: lightgray;">${directory.name}</td>
+				<td class="table_detail e s top size left" style="background-color: lightgray;">${directory.size}</td>
+				<td class="table_detail e s top lastModified left" style="background-color: lightgray;">${directory.lastModified}</td>
+				<td class="table_detail e s top left file_operation" style="background-color: lightgray;">
+					<isif condition="${directory.name != '..'}">
+						<span class="compress" style="cursor: pointer;">zip</span>
+						<span class="delete" style="cursor: pointer;">delete</span>
+					<iselse/>
+					</isif>
+				</td>
+			</tr>
+		</isloop>
+		<isloop iterator="${pdict.LocalObjectList.files}" alias="file">
+			<tr class="localfile">
+				<td class="table_detail w e s top name left" style="cursor: pointer;"><a href="/on/demandware.servlet/webdav/Sites/${file.path}">${file.name}</a></td>
+				<td class="table_detail e s top size left">${file.size}</td>
+				<td class="table_detail e s top lastModified left">${file.lastModified}</td>
+				<td class="table_detail e s top left file_operation">
+					<isif condition="${file.name.toLowerCase().match(/.zip$/)}">
+						<span class="uncompress" style="cursor: pointer;">unzip</span>
+					<iselse/>
+						<span class="compress" style="cursor: pointer;">zip</span>
+					</isif>
+					<span class="delete" style="cursor: pointer;">delete</span>
+					<span class="copy" style="cursor: pointer;">copy</span>
+				</td>
+			</tr>
+		</isloop>
+	</table>
+
+	<isif condition="${!empty(pdict.AnalyzerResult)}">
+		<br/>
+		<br/>
+		<strong>
+			<isif condition="${pdict.AnalyzerResult.type == 'SubDirectorySize'}">
+				Directory Size
+			<iselsif condition="${pdict.AnalyzerResult.type == 'OverallFileTypes'}"/>
+				File Extensions
+			<iselsif condition="${pdict.AnalyzerResult.type == 'FileTypesPerDirectory'}"/>
+				File Extensions per Subdirectory
+			</isif>
+		</strong>
+		<br/>
+		<hr/>
+		<table style="font-size: smaller;">
+			<tr>
+				<isloop iterator=${pdict.AnalyzerResult.headers} alias="header">
+					<th nowrap="nowrap" class="table_title aldi">${header}</th>
+				</isloop>
+			</tr>
+			<isloop iterator="${pdict.AnalyzerResult.reportLines}" alias="reportLine">
+				<tr>
+					<isloop iterator="${reportLine}" alias="reportCell" status="counter">
+						<isif condition="${ ['OverallFileTypes', 'SubDirectorySize'].indexOf(pdict.AnalyzerResult.type) != -1 && counter.last || ['FileTypesPerDirectory' ].indexOf(pdict.AnalyzerResult.type) != -1 && counter.index == 3}">
+							<td nowrap="nowrap" class="barcolumn w e n s left"> <img width="${ reportCell.toFixed() }" height="6" title="${reportCell} %" alt="" src="${URLUtils.staticURL('darkblue.png')}"> ${reportCell} %</td>
+						<iselse/>
+							<td nowrap="nowrap" class="table_detail w e n s left">${reportCell}</td>
+						</isif>
+					</isloop>
+				</tr>
+			</isloop>
+		</table>
+	</isif>
+
+</isif>

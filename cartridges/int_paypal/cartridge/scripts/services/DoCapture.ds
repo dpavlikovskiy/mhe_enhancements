@@ -1,0 +1,159 @@
+/**********************************************************************************************************************************************************************************************
+*
+* TITLE:  
+*
+*	Do Capture Payment
+*
+* DESCRIPTION:
+*
+*	Sets up a request object and sends it over to PayPal for verification. A response object is then returned and the code handles the result so the user can be directed to the proper page
+*
+* 	We have set billing and shipping informations and have checked all, so we can submit
+* 	the sale. This script calls Paypal with DoExpressCheckoutRequest to start the payment
+* 	transaction.
+*
+* INPUT PARAMETERS:
+*
+*	@input Order : dw.order.Order
+* 	@input PaymentProcessor : dw.order.PaymentProcessor The needed paymentprocessor.
+*
+* OUPUT PARAMETERS:
+*
+* 	@output Error : Object The Error object
+* 	@output PaypalError : String If a Paypal call fails or doesn't return Success
+* 	@output WSResponse : Object
+* 	@output ReturnCode : Number The returned token from Paypal
+*	@output ReasonCode : Number
+*	@output Decision : String
+* 
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.rpc );
+importScript("int_paypal:cart/Credentials.ds");
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	try 
+	{
+		var order = pdict.Order;
+	
+		if( order == null )
+		{
+			Logger.error("order is null : script file DoCapture.ds");
+			pdict.PaypalError = "[DoCapture.ds : Error] - Order is Null.";
+			return PIPELET_ERROR;
+		}
+		
+		var orderNo : String = order.orderNo;
+		var PAYPAL_PAYMENT : String = "PayPal";
+		var paymentInstruments : Collection = order.paymentInstruments;
+		var paymentInstrument : OrderPaymentInstrument = null;
+		paymentInstrument = paymentInstruments.iterator().next();
+		
+		var paymentProcessor : PaymentProcessor = pdict.PaymentProcessor;
+		var transactionID : String = paymentInstrument.paymentTransaction.transactionID;
+		
+		var paypalExpress : WebReference = webreferences.PayPalSvcDev;
+		
+		if (dw.system.System.getInstanceType() == dw.system.System.PRODUCTION_SYSTEM) 
+		{
+			paypalExpress = webreferences.PayPalSvc;
+		}
+		
+		var ppxService : Stub = paypalExpress.getService("PayPalAPIInterfaceService", "PayPalAPIAA");
+
+		// security header
+		SetCredentials( paymentProcessor, ppxService );
+		
+		var currencyID = paypalExpress.CurrencyCodeType.fromString( order.getCurrencyCode() );
+		
+		var request = new paypalExpress.DoCaptureRequestType();
+
+		//  Sets the transactionID.
+		request.setAuthorizationID( transactionID );
+
+		//  Sets the invoiceID value.
+		request.setInvoiceID( orderNo );
+		
+     	// Sets the orderTotal value .
+        amount = new paypalExpress.BasicAmountType( order.getTotalGrossPrice().getValue() );
+        amount.currencyID = currencyID;
+ 		request.setAmount( amount );
+		
+		//Payment Action Authorization/Sale/Order
+		request.setCompleteType( paypalExpress.CompleteCodeType.Complete );
+		
+ 		// never forget the version
+ 		request.setVersion( "104.0" );
+
+ 		var req = new paypalExpress.DoCaptureReq();
+ 		 req.setDoCaptureRequest( request );
+
+		//Response from PayPal 		
+		Logger.debug( 'Before Paypal Capture Submit');
+		var response = ppxService.doCapture( req );
+ 		Logger.debug( 'After Paypal Capture Submit');
+
+ 		pdict.WSResponse = response;
+		Logger.debug('Ack  -- ' + response.getAck().toString() );
+		
+		if( response.getAck() != null && ( response.getAck().equals(paypalExpress.AckCodeType.Success) || response.getAck().equals(paypalExpress.AckCodeType.SuccessWithWarning))) 
+		{
+			var details = response.getDoCaptureResponseDetails();
+			var paymentInfo = details.getPaymentInfo();
+			var transactionID = paymentInfo.getTransactionID();
+		
+			Logger.debug( 'Writing Transaction ID to DB - ' + transactionID);
+			paymentInstrument.paymentTransaction.custom.settlementRequestID = transactionID;			
+			order.paymentStatus = 2;	
+			
+		} 
+		else 
+		{
+			//Uncomment the following if you need to debug
+			/*
+				Logger.debug('looping thru response object  -- ');
+				for (i in response)
+				{
+	  				Logger.debug("object has property -- " + i);
+				}
+				Logger.debug('looping thru error object in response object  -- ');
+				for (j in response.getErrors() )
+				{
+	  				Logger.debug("object has property ------- " + j);
+				}
+			*/
+			Logger.error('Error Message Short Message  -- ' + response.getErrors()[0].getShortMessage() );
+			Logger.error('Error Message Long Message  -- ' + response.getErrors()[0].getLongMessage() );
+			Logger.error('Error Message ErrorCode  -- ' + response.getErrors()[0].getErrorCode() );
+			
+			pdict.ReturnCode = new Number(response.getErrors()[0].getErrorCode().toString());
+			pdict.PaypalError = "[DoCapture.ds : Error] - " + response.getErrors()[0].getLongMessage() + " (" + response.getErrors()[0].getErrorCode() + ")" + "-(" + response.correlationID + ")";
+			
+			pdict.ReasonCode = new Number(response.getErrors()[0].getErrorCode().toString());
+			pdict.Decision = response.getErrors()[0].getLongMessage();
+			
+			return PIPELET_ERROR;
+		}
+	} 
+	catch(e) 
+	{ 
+		//uncomment var error for error debugging
+		//var error = e;
+		
+		if(e instanceof Fault)
+		{
+			Logger.error("Actor " + e.faultActor+" caused fault '"+e.faultCode +"' ("+e.faultString+" - "+e.faultDetail+")");
+		}
+		else
+		{
+			Logger.error(e.toString());
+		}
+		pdict.Error = e;
+		pdict.PaypalError = "[DoCapture.ds : Error] - " + e.toString();
+		return PIPELET_ERROR;
+	}
+    return PIPELET_NEXT;
+}

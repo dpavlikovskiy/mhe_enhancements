@@ -1,0 +1,109 @@
+<isset name="DecoratorTemplate" value="account/pt_account" scope="page"/>
+<isif condition="${pdict.CurrentHttpParameterMap.format.stringValue == 'ajax' || pdict.CurrentHttpParameterMap.pwr.stringValue == 'true' || pdict.CurrentHttpParameterMap.source.stringValue == 'search' || pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart'}">
+	<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+</isif>
+<isdecorate template="${DecoratorTemplate}">
+    <div class="account-nav mysavedaddresses">
+			<isinclude url="${URLUtils.url('Account-IncludeNavigation')}"/>			
+	</div>
+	
+	<div class="account-content">
+	
+		<isset name="bctext2" value="${Resource.msg('addresslist.addresses','account',null)}" scope="pdict"/>
+		<isslot id="account-banner" description="Banner for My Account pages" context="global" />
+		
+		<h2>${Resource.msg('addresslist.header.myaddressbook','account',null)}</h2>
+		<p>${Resource.msg('addresslist.subheader','account',null)}</p>
+		
+		<iscomment> 
+			<isprint value="${pdict.CurrentCustomer.profile.salutation.toUpperCase()}"/>
+			<isprint value="${pdict.CurrentCustomer.profile.lastName.toUpperCase() + '\'s'}"/>
+			<isprint value="${Resource.msg('account.name','account',null)}"/>  
+		</iscomment>
+		
+		<div class="account-module account-module-addresses" id="js-saved-addresses">
+			<h2>${Resource.msg('addresslist.savedaddresses','account',null)}</h2>
+			<isinclude template="account/addressbook/addressinclude"/>
+		</div>	
+		
+		
+		<div class="errors-total">
+			<div class="errors-total-inner">
+				<iscomment>All validation errors listed at the top of the form</iscomment>
+			</div>
+		</div>
+		
+		<div class="account-module account-module-addaddress" id="js-add-address">	
+			<h2>${Resource.msg('addresslist.addaddress','account',null)}</h2>
+		
+			<form method="post" action="${URLUtils.httpsContinue()}" id="address-form" name="${pdict.CurrentForms.profile.address.htmlName}">
+				
+				<fieldset class="account-form">
+				    <isinputfield formfield="${pdict.CurrentForms.profile.address.addressid}" 
+				    			type="input"
+				    			rowclass="form-row-leftalign"
+				    			requiredtext = "${Resource.msg('forms.customeraddress.addressid.missing-error','forms',null)}"/>  
+				    
+			 		<isscript>
+						importScript('checkout/Utils.ds');
+						var salutationMap : dw.util.Map = getSalutationMap();					
+					</isscript>
+					
+					<div class="form-row form-row-leftalign required" data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}">
+						<label>${Resource.msg('profile.salutation2','forms',null)}</label>
+										
+						<select class="required input-text" id="${pdict.CurrentForms.profile.address.salutation.htmlName}" name="${pdict.CurrentForms.profile.address.salutation.htmlName}">
+							<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+							<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.profile.address.salutation.htmlValue.equals(salutationMap.get(key))}">							 
+						 		 	<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+								<iselse>
+									<option  value="${key}">${salutationMap.get(key)}</option>
+								</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.firstname}" type="input" 
+						 requiredtext = "${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}" xhtmlclass="name-input" rowclass="form-row-leftalign"/>
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.lastname}" type="input" 
+						 requiredtext = "${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"  xhtmlclass="name-input" rowclass="form-row-leftalign"/>
+
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.companyName}" type="input"
+						rowclass="form-row-leftalign" />					
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.address1}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.address2}" type="input"
+						rowclass="form-row-leftalign" />
+					
+			       	<isinputfield formfield="${pdict.CurrentForms.profile.address.country}" type="hidden" />	
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.zip}" xhtmlclass="postcode-input" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.errorzip','forms',null)}" />
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.city}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.customeraddress.city.missing-error','forms',null)}" /> 
+					
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.phone}" type="input" requiredtext = "${Resource.msg('forms.customeraddress.phone.missing-error','forms',null)}" xhtmlclass="phone-input" rowclass="form-row-leftalign" />
+
+
+					
+				</fieldset>
+				<div class="account-submit" >								
+					<button class="button secondary clear save-changes" type="submit" name="${pdict.CurrentForms.profile.address.create.htmlName}" value="create" >
+						<span class="face front">${Resource.msg('global.savechanges','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.savechanges','locale',null)}</span>
+					</button>
+				
+				    <input type="hidden" name="${pdict.CurrentForms.profile.secureKeyHtmlName}" value="${pdict.CurrentForms.profile.secureKeyValue}"/>
+				</div>
+			</form> 
+		</div>
+	</div>
+
+</isdecorate>
+
+

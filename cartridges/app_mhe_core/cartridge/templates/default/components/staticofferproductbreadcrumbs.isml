@@ -1,0 +1,50 @@
+<iscomment>
+	This template renders the bread crumb navigation for the product detail page.
+</iscomment>
+<ol class="breadcrumb clearfix">
+
+	<iscomment>bread crumb home link</iscomment>
+
+	<iscomment>
+		the category context is determined based on the product search
+		which was triggered or through the products primary category
+	</iscomment>
+	<isscript>
+	importScript("product/ProductUtils.ds");
+	if(empty(pdict.CurrentHttpParameterMap.cgid.stringValue)){ 
+		var category : dw.catalog.Category = ProductUtils.getProductCategoryForStaticPDP(pdict.ProductSearchResult, pdict.Product);
+	}
+	else{
+		var category=dw.catalog.CatalogMgr.getCategory(pdict.CurrentHttpParameterMap.cgid.stringValue);
+	}	
+	</isscript>
+
+   	<iscomment>if we have any category context, we show it</iscomment>
+  	<isif condition="${category != null}">
+
+		<isactivedatacontext category="${category}"/>
+		
+		<isscript>
+			var path : dw.util.Collection = new dw.util.ArrayList();
+			while( category.parent != null )
+			{
+				if( category.online ) path.addAt( 0, category );
+				category = category.parent;
+			}
+		</isscript>
+		
+		<iscomment>display the path</iscomment>
+		<isif condition="${!empty(pdict.Product)}" >
+		<isloop items="${path}" var="cat" status="loopstate">
+		
+			<isif condition="${loopstate.last}" >
+				<li><a class="category-back" href="${dw.catalog.ProductSearchModel.urlForCategory('Search-Show',cat.ID)}">
+					<isprint value="${Resource.msg('global.home','locale',null)}" encoding="off" />
+				</a></li>
+			</isif>
+		</isloop>
+		<iscomment>append product name</iscomment>
+		<li><span class="last">${pdict.Product.name}</span></li>
+	</isif>
+</isif>
+</ol>

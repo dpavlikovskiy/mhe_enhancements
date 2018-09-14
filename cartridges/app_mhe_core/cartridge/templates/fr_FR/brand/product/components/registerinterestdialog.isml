@@ -1,0 +1,132 @@
+<!--- TEMPLATENAME: registerinterestdialog.isml --->
+<isinclude template="util/modules"/>
+<isset name="isAuth" value="${pdict.CurrentCustomer.authenticated}" scope="page" >
+<form action="${URLUtils.http('Product-RegisterInterestBrand','content',pdict.Content)}" name="register-form" id="register-form">
+<isif condition="${ 'csonly' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.csOnly.stringValue=='true' }" >
+<isset name="csOnly" value="true" scope="pdict">
+       <input type="hidden" name="csOnly"   value="true">
+
+       <iselse>
+<isset name="csOnly" value="false" scope="pdict">
+       <input type="hidden" name="csOnly"   value="false">
+
+       </isif>
+
+	<div  id="divRegisterInterest" >
+	 <isif condition="${pdict.csOnly=='false'}">	
+		<div class="reg-details">
+			
+			<iscontentasset aid="reg_details"/>
+				<isif condition="${!(pdict.CurrentCustomer.authenticated && pdict.CurrentCustomer.profile.custom.isNewsLetterSubscribed) }">
+				<div class="form-row form-indent label-inline noPosition">
+					<input id="addtoemaillist" name="addtoemaillist" class="input-checkbox" type="checkbox" ${isAuth && pdict.CurrentForms.profile.customer.addtoemaillist ? "Checked='checked'": ''} >
+					<label for="addtoemaillist">
+					<span class = "addtoemaillist-span"></span>
+					<iscontentasset aid="CA_PDP_RegisterInterest"/>
+					</label>
+				</div>
+				</isif>
+		</div>
+		</isif>
+		
+		<isif condition="${pdict.csOnly=='true'}">
+			<div class = "reg-form pdict-true">
+		<iselse>
+			<div class="reg-form">
+		</isif>
+
+			 <input type="hidden" name="pid" id="pidRI" value="${pdict.productID}">
+			 <input type="hidden" name="pname" id="productName" value="${pdict.Product.name}">
+		 <isif condition="${pdict.csOnly=='false'}">	
+			<span class="form-title form-title-head" ><isprint value="${Resource.msg('product.registerinterestheader.form.title','product',null)}" encoding="off" /></span>
+			<br/>
+			<iselse>
+			<span class="form-title form-title-head"><isprint value="${Resource.msg('product.csonly.isorderable','product',null)}" encoding="off" /></span>
+			<br/>
+			<span class="form-title"><isprint value="${Resource.msg('product.registerinterestheader.form.csOnlytitle','product',null)}" encoding="off" /></span>
+			</isif>
+			
+			<br/><br/>
+			<section class="section">
+				
+				<isscript>
+						importScript('checkout/Utils.ds');
+						var salutationMap : dw.util.Map = getSalutationMap();						
+				</isscript>
+				
+				<isif condition="${pdict.csOnly=='true'}">
+					<div class = "left">
+				<iselse>
+					<div>
+				</isif>
+			
+				<div class="form-row required " data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+					<select id="salutation" name="salutation" class="input-text required">
+						<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+						<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+							<isif condition="${!empty(pdict.CurrentCustomer.profile) && pdict.CurrentCustomer.profile.salutation.equals(salutationMap.get(key))}">							 
+					 			<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+							<iselse>
+								<option value="${key}">${salutationMap.get(key)}</option>
+							</isif>	                            				
+						</isloop>
+					</select>
+				</div><br/>
+				
+				<div data-required-text="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}" class="form-row required">
+					<isinputfield formfield="${pdict.CurrentForms.reginterest.firstname}" type="input" attribute1="placeholder" value1="${Resource.msg('profile.name','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}"/>
+				</div><br/>
+				<div data-required-text="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}" class="form-row required">
+					<isinputfield formfield="${pdict.CurrentForms.reginterest.lastname}" type="input" attribute1="placeholder" value1="${Resource.msg('profile.surname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"/>
+				</div><br/>
+				<div data-required-text="${Resource.msg('login.username.missing-error','forms',null)}" class="form-row required">
+					<isinputfield formfield="${pdict.CurrentForms.reginterest.email}" type="input"  attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('forms.sendtofriend.email.missing-error','forms',null)}"/>
+				</div><br/>	
+				
+			</div>
+			
+			<isif condition="${pdict.csOnly=='true'}">
+				<div class = "right">
+			<iselse>
+				<div>
+			</isif>
+					
+				<div class="form-row isinput">
+					<isinputfield formfield="${pdict.CurrentForms.reginterest.phone}" type="input"  attribute1="placeholder" value1="${Resource.msg('profile.contactnumber','forms',null)}"/>
+				</div><br/><br/>
+				<div class="form-row isinputtext">
+					<isinputfield formfield="${pdict.CurrentForms.reginterest.message}" type="textarea" attribute1="placeholder" value1="${Resource.msg('forms.message.placeholder','forms',null)}" attribute2="rows" value2="5" attribute4="cols" value4="10" attribute3="data-character-limit" value3="1000" />   
+				</div>
+				<br/><br/>
+				
+				 <isif condition="${pdict.csOnly=='true'}">	
+	
+					<isif condition="${!(pdict.CurrentCustomer.authenticated && pdict.CurrentCustomer.profile.custom.isNewsLetterSubscribed) }">
+						<div class="form-row form-indent label-inline noPosition">
+							<input id="addtoemaillist" name="addtoemaillist" class="input-checkbox" type="checkbox">
+							<label for="addtoemaillist">
+							<span class = "addtoemaillist-span" ></span>
+							<iscontentasset aid="CA_PDP_RegisterInterest"/>
+							</label>
+						</div>
+					</isif>
+			
+				</isif>
+			</div>
+				<div class = "clearfix"></div>
+			
+				<br/><br/>		
+			</section>
+			
+			<ul class="bag-cta-list">
+				<li>
+					<button class="button secondary okay-button submitAjaxForm" id="btnSubmitRI" >
+						<span class="face front">${Resource.msg('global.send','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.send','locale',null)}</span>
+					</button>
+				</li>
+			</ul>
+				
+		</div>
+	</div>
+</form>	

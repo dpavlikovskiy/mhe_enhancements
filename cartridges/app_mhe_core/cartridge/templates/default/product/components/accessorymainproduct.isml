@@ -1,0 +1,33 @@
+<!--- TEMPLATENAME: accessorymainproduct.isml --->
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<div class="mini-cart-product">
+	<div class="mini-cart-product-main">
+		<div class="col col-item-image">
+			<isif condition="${pdict.productLineItem.product != null && pdict.productLineItem.product.getImage('hi-res',0) != null}">
+				<img src="${(new ProductImage('accessorymainproduct', pdict.productLineItem.product,0)).getURL()}" alt="${pdict.productLineItem.productName}" />
+			<iselse>
+				<img src="${URLUtils.staticURL('/images/noimagesmall.png')}" alt="${pdict.productLineItem.productName}" />
+			</isif>										
+		</div>
+		<div class="col col-item-details">
+			<h3 class="gamma-heading">
+				${pdict.productLineItem.productName}
+			</h3>
+			<p class="product-size">
+				<isloop items="${pdict.productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+					<isset name="SelectedVariationValue" value="${pdict.productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>
+					<isif condition="${SelectedVariationValue != null}">
+						<isprint value="${SelectedVariationValue.displayValue}"/>
+					</isif>
+				</isloop>				
+			</p>
+			<p class="product-quantity">${Resource.msg('confirmation.qty','checkout',null)}:<span class="quant-val"><isprint value="${pdict.currentQuantity}"/></span></p>
+		</div>
+		<div class="col col-price">
+			<p class="product-price">
+				<isset name="currencyCode" value="${pdict.productLineItem.adjustedPrice.currencyCode}" scope="page"  >
+				<isprint value="${new dw.value.Money((pdict.productLineItem.adjustedPrice / pdict.productLineItem.quantity) * pdict.currentQuantity, currencyCode)}"/>
+			</p>
+		</div>
+	</div>
+</div>				

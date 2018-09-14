@@ -1,0 +1,48 @@
+<isscript>
+	importScript( "util/ViewHelpers.ds" );
+</isscript>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+	importScript("util/DisImageSO.ds");
+</isscript>
+<isset name="topCat" value="${pdict.category}" scope="page"/>
+<isset name="flyOutRenderer" value="${MainNavigationUtilities.generateFlyoutRendering(topCat)}" scope="page"/>
+<isif condition="${flyOutRenderer.renderFlyout}">
+	<ul class="menu-wrapper">
+		<!--[if lt IE 9]>
+			<li class="arrow"></li>
+		<![endif]-->
+		<isloop items="${flyOutRenderer.subCategories}" var="subCat" status="subcatstatus">
+			<li>
+				<a href="<isprint value="${MainNavigationUtilities.getCategoryUrl(subCat)}" />" >
+				
+				
+				<isif condition="${!empty(subCat.parent) && 'listViewRequired' in subCat.parent.custom && subCat.parent.custom.listViewRequired}">
+					<isprint value="${subCat.getDisplayName()}">
+					<iselse>
+					<isif condition="${!empty(subCat.getThumbnail())}">
+						<iscomment><img alt="${subCat.getDisplayName()}" src="${subCat.getThumbnail().getURL()}"></iscomment>
+						<isset name="image1"	value="${ new DisImage('topnav1', subCat.getThumbnail()) }" scope="page" />
+						<img src="${image1.getURL()}" alt="${subCat.getDisplayName()}"/>
+												
+						<iscomment>
+						<isset name="image" value="${new ProductImage('minicart', subCat.getThumbnail(), 0 )}" scope="page" />
+						<img src="${image.getURL()}" alt="${subCat.getDisplayName()}"/>
+						</iscomment>
+					<iselse>
+						<isprint value="${subCat.getDisplayName()}">
+					</isif>	
+					</isif>
+					
+				</a>
+			</li>
+		</isloop>
+
+		<isif condition="${flyOutRenderer.hasCustomContent}">
+			<li class="viewAll">
+			<div class="circle">&nbsp;</div><br />
+			<isprint value="${topCat.custom.headerMenuBanner}" encoding="off"/>
+			</li>
+		</isif>
+	</ul>	
+</isif>

@@ -1,0 +1,79 @@
+<div class="home_modal">
+    <div class="modal_content">
+        <!-- Cloned Hero Panel -->
+        <div class="row clearfix hero-clone">
+            
+        </div>
+        <div class="hero_arrow"></div>
+        <a href="#" class="close_modal">Close</a>
+        
+        <!-- Carousel Slider -->
+        <div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+            <div class="box">
+                <ul class="slider">
+                    <li class="active">
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li><li>
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li><li>
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li><li>
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li><li>
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li><li>
+                    	<a href="#" class="product-info">
+                            <span class="overlay_anim"></span>
+                            <span class="hr-line"></span>
+                            <img src="${URLUtils.staticURL('/images/prod_example.png')}" />
+                            <h2 class="secondary">Dom Perignon</h2>
+                            <h3 class="secondary">Vintage 2003</h3>
+                            <span class="price">&pound;110.00</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="controls">
+                    <a href="#" class="prev">&lt;</a>
+                    <a href="#" class="next">&gt;</a>
+                </div>
+            </div>
+        </div>
+        <!-- /END Carousel Slider -->
+        
+    </div>
+</div>

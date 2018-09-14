@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="util" type="job">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Job Pipeline for querying stores that have no Latitude / Longitude values and retrieving those values from Google for storage in the system.  This Job should be run on Staging and Stores replicated to Production.</description>
+        </text-node>
+        <node-display width="2" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Start">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="Start" secure="false"/>
+        <node-display x="1" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node custom-name="Search stores needing geolocation" pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+          <config-property key="ObjectType" value="Store"/>
+          <config-property key="SearchExpression" value="latitude = NULL OR longitude = NULL"/>
+          <key-binding alias="Stores" key="SearchResult"/>
+          <key-binding alias="StoresCount" key="SearchResultCount"/>
+          <key-binding alias="null" key="Search3Key"/>
+          <key-binding alias="null" key="Search4Key"/>
+          <key-binding alias="null" key="Search4Value"/>
+          <key-binding alias="null" key="Search5Key"/>
+          <key-binding alias="null" key="Search5Value"/>
+          <key-binding alias="null" key="SortBy1"/>
+          <key-binding alias="null" key="SortBy1Direction"/>
+          <key-binding alias="null" key="SortBy2"/>
+          <key-binding alias="null" key="SortBy2Direction"/>
+          <key-binding alias="null" key="SortBy3"/>
+          <key-binding alias="null" key="SortBy3Direction"/>
+          <key-binding alias="null" key="Search1Key"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="dw.system.System.getInstanceType() != dw.system.System.DEVELOPMENT_SYSTEM" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="geolocator/GoogleGeolocator.ds"/>
+                <key-binding alias="ScriptLog" key="ScriptLog"/>
+                <key-binding alias="Stores" key="Stores"/>
+                <key-binding alias="FileName" key="FileName"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="../+1/b2.1/b2.1"/>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="geolocator/SIGGoogleGeolocator.ds"/>
+          <key-binding alias="ScriptLog" key="ScriptLog"/>
+          <key-binding alias="Stores" key="Stores"/>
+          <key-binding alias="FileName" key="FileName"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="1" y="0"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in1" target-path="./+1/b2.1/b2.1"/>
+        </branch>
+      </node>
+      <transition target-connector="in3" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="2"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="!empty(FileName)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="ImportStores" pipelet-set-identifier="bc_api">
+                <key-binding alias="FileName" key="ImportFile"/>
+                <key-binding alias="&quot;MERGE&quot;" key="ImportMode"/>
+                <key-binding alias="null" key="ErrorCode"/>
+                <key-binding alias="null" key="ErrorMsg"/>
+                <key-binding alias="null" key="LogFileName"/>
+                <key-binding alias="Status" key="Status"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in2">
+                  <transition-display>
+                    <bend-point relative-to="source" x="2" y="-2"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <join-node/>
+                    <node-display x="1" y="-3"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <stop-node/>
+                    <node-display orientation="horizontal" x="1" y="0"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="false"/>
+                <config-property key="Expression" value="new File(File.IMPEX+'/src'+FileName).remove()"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in2" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+          <bend-point relative-to="target" x="1" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="3"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

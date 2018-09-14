@@ -1,0 +1,134 @@
+.pdp-section-tabs {
+	background: $tastingNotesBg;
+	
+	.ui-tabs {
+		.ui-tabs-nav {
+			padding-bottom : 55px;
+		}
+		
+		.ui-tabs-panel {
+			padding : 0px;
+		}
+	}
+	
+	.tab {
+		a {
+			color: $darkBrownText;
+			font: $small_text $titleFont;
+			font-weight : $bold;
+			letter-spacing: 3px;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $brandcolor;
+				border-bottom: $brandcolor 1px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+		
+			.col-detail {
+				&.col {
+					margin-top:50px;
+				}
+				p {
+					margin-bottom : 30px;
+					font-size :$small_text;
+					font-weight:$regular;
+					font-family:$titleHeadingFont;
+				}
+			}
+			
+			.col-hero {
+				&.col {
+					width : auto;
+				}
+				.col-inner {
+					min-width : 500px;
+					img {
+						margin: 0;
+						max-height: 500px;
+					}
+					.credit {
+						padding:0 45px 20px 15px;
+					}
+				}
+			}
+		}
+		.col-hero {
+			margin : 0px;
+			.col-inner {
+				.credit {
+					padding:0 45px 20px 15px;
+				}
+			}
+		}
+		h2 {
+			color: $darkblack;
+			font: $big_title_heading_text $titleHeadingFont;
+			letter-spacing: 0px;
+			font-weight:$light;
+			font-style:ITALIC;
+		}
+		h3 {
+			color: $brandcolor;
+			font: $very_small_text $titleFont;
+		}
+		.gamma-heading {
+			color: $greyBlack;
+			font: $small_text $titleFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:20px;
+		}
+		p {
+			color: $darkBrownText;
+			font: Italic $small_text $regularFont;
+		}
+		&.characteristics {
+			.characteristic-list {
+				padding-top:10px;
+			}
+			
+			.cta-wrap {
+				.button {
+					background:$tastingNotesBg;
+					border : 1px solid $brandcolor;
+					font:$smaller_heading $regularFont;
+					.face {
+						color:$brandcolor;
+						border:none;
+						font-weight:normal;
+						font-size: $small_text;
+						font-family: $titleFont;
+						&.back {
+							color:$white;
+						}
+					}
+				}
+			}
+			p {
+				font: $small_text $titleHeadingFont;
+			}
+		}
+		&.award {
+			p {
+				font: Italic $small_text $regularFont;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $darkBrownText !important;
+			}
+			&:after {
+				color: $darkBrownText !important;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

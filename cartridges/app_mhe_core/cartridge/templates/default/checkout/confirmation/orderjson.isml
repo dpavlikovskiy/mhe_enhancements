@@ -1,0 +1,37 @@
+
+<isif condition="${Order.totalGrossPrice.available}">
+	<isset name="orderTotalValue" value="${Order.totalGrossPrice}" scope="page" />
+<iselse>
+	<isset name="orderTotalValue" value="${Order.getAdjustedMerchandizeTotalPrice(true).add(Order.giftCertificateTotalPrice)}" scope="page" />
+</isif>
+<isset name="orderId" value="${Order.orderNo}" scope="page" />
+<isscript> 
+	dw.system.Logger.error("order json created successfully for order : " + orderId);
+</isscript>
+<div id="orderjsonDiv" style="display: none;">
+{	
+	"id" : "${orderId}",
+	"totalValue" : "${orderTotalValue}",
+	"totalTax" : "${Order.totalTax}",
+	"shippingPrice" : "${Order.shippingTotalPrice}",
+	"city" : "${Order.defaultShipment.shippingAddress.city}",	
+	"country" : "${Order.defaultShipment.shippingAddress.countryCode}",	
+	"items" : [
+		<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">			
+			<isloop items="${shipment.productLineItems}" var="pli" status="pliloopstate">
+				{
+					"orderNo" : "${orderId}",
+					"prodId" : "${pli.product.ID}",
+					"prodName" : "${pli.product.name}",
+					"category" : "${!pli.product.variant?pli.product.custom.mheBrand:pli.product.masterProduct.custom.mheBrand}",
+					"price" : "${pli.adjustedPrice.divide(pli.quantityValue).value}",
+					"qty" : "${pli.quantityValue}"
+				}
+				<isif condition="${!pliloopstate.last}" >
+					,
+				</isif>
+			</isloop>
+		</isloop>
+	]
+}
+</div>

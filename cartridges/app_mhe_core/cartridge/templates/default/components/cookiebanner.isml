@@ -1,0 +1,57 @@
+<iscomment>
+	Cookie Banner section which can be included on Login and Static Offer Pages; or whereevr required
+</iscomment>
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/jquery/jquery.cookie.js')}"></script>
+<isinclude template="util/modules"/>
+<isset name="cookieName" value="${'dwCookiePolicy'}" scope="page" >
+<isset name="cookieURL" value="${dw.web.URLUtils.url('Page-Overlay', 'secid', 'privacy-policy')}" scope="page" >
+
+<isif condition = "${request.httpCookies[cookieName] == null}">
+	<isif condition = "${('cookieDisplay' in pdict.CurrentSession.custom) && pdict.CurrentSession.custom.cookieDisplay=='true'}">
+		<iscontentasset aid="ca_cookie_banner"/>
+	<iselseif condition = "${!('cookieDisplay' in pdict.CurrentSession.custom)}">
+		<isset name="maisonSite" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('brandSiteUrl')}" scope="page" >
+		<isif condition = "${!empty(maisonSite) && !empty(request.httpReferer) && request.httpReferer.indexOf(maisonSite[0])>-1}">
+			<isscript> 
+				 pdict.CurrentSession.custom.cookieDisplay = 'false';
+			 </isscript>
+		<iselse>
+			 <iscontentasset aid="ca_cookie_banner"/>
+			<isscript> 
+				 pdict.CurrentSession.custom.cookieDisplay = 'true';
+			 </isscript>
+		</isif>
+	</isif>
+</isif>
+
+<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+<script type="text/javascript">
+	jQuery(document).ready(function(e){
+		$("#btnCookieMsgClose").click(function(e){
+		   	var cookieName = "${cookieName}";
+		   	var cookieValue = "accepted";
+		   	$.cookie(cookieName, cookieValue, {expires: 365, path: '/', domain: '${request.httpHost}'});
+		  	$("#cookiemMsg").html("");
+	   	});
+	 });
+</script>
+<iselse>
+<script type="text/javascript">
+	jQuery(document).ready(function(e){
+		if( $("#cookiemMsg").length ) {
+			$("#header").css("top","65px");
+		}
+		$("#btnCookieMsgClose").click(function(e){
+		   	var cookieName = "${cookieName}";
+		   	var cookieValue = "accepted";
+		   	$.cookie(cookieName, cookieValue, {expires: 365, path: '/', domain: '${request.httpHost}'});
+		  	$("#cookiemMsg").html("");
+		  	$("#header").css("top","0px");
+		  	$("#cookiemMsg").html("")( function(){
+		  		$("#header").css("top","0px");
+		  	});
+	   	});
+	 });
+	
+</script>
+</isif>

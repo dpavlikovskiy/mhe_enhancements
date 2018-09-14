@@ -1,0 +1,92 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:'Cart', type:'Cart', ns:'cart'};</isscript>
+	<isinclude template="util/modules"/>
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="checkout/cart/pt_cart_UI"/>
+	
+	<iscomment>Add template-specific header information here.</iscomment>	
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh') && (!(!pdict.CurrentCustomer.registered &&!empty(pdict.Basket)&&!empty(pdict.Basket.custom.staticOfferCategory)))}">
+		 <isinclude template="util/robotscrawling"/>
+	</isif>
+
+</head>
+
+<body>
+
+	<div id="wrapper" class="pt_cart">
+		<isset name="templatename" value="pt_cart" scope="pdict" >
+		<isif condition="${!pdict.CurrentCustomer.registered && pdict.CurrentSession.custom.brand.equals('mh') &&'catID' in pdict.CurrentSession.custom}">
+			<div class="staticCheckoutHeader">
+				<isinclude url="${URLUtils.url('Home-IncludeStaticCheckoutHeader','cgid',pdict.CurrentSession.custom.catID,'templatename',pdict.templatename)}"/>
+			</div>
+		<iselse>
+			<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>
+		</isif>
+	
+		<div id="main" role="main" class="primary-focus main clearfix">
+		<isif condition="${!empty(pdict.CurrentCustomer.profile)}"> 
+		 <isinclude template="checkout/cart/namecartbreadcrumb" />
+		
+		 <iselse>
+	 
+			 <isset name="cartnav"  value="${Resource.msg('cart.mybag','checkout',null)}" scope="page"/>
+				
+		  
+		
+	   </isif>
+	   
+	   
+	   <isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM && 'catID' in pdict.CurrentSession.custom}">
+			<script type="text/javascript">
+	
+			 dataLayer = []; 
+			 var cartProducts = [];
+
+				 <isscript>
+			 		var categoryName : String = pdict.CurrentSession.custom.catID;
+			 		var categoryNameEncode : String = StringUtils.decodeString(categoryName, StringUtils.ENCODE_TYPE_HTML);			
+			 	</isscript>
+			 dataLayer.push({
+			 	"staticCategoryID": "${categoryNameEncode}"
+			 });
+		
+			</script>
+		</isif>
+	<isif condition="${!pdict.CurrentCustomer.registered && pdict.CurrentSession.custom.brand.equals('mh') &&'catID' in pdict.CurrentSession.custom}">
+			<isbreadcrumbs bcurl1="${URLUtils.url('Cart-Show')}" bctext1="${cartnav}"/> 
+		<iselse>
+		<ol class="breadcrumb clearfix">
+		<li><a class="category-back" href="${URLUtils.http('Home-Show')}">
+					<isprint value="${Resource.msg('global.home','locale',null)}" encoding="off" />
+				</a></li>
+		
+	
+		<iscomment>append product name</iscomment>
+		<li><span class="last">${cartnav}</span></li>
+		</ol>
+		</isif>
+			<div id="primary" class="primary-content">
+				<isreplace/>
+			</div>
+			
+		</div>
+	<isif condition="${!pdict.CurrentCustomer.registered && pdict.CurrentSession.custom.brand.equals('mh')}">
+	
+		<isinclude template="components/footer/footer-staticoffer"/>
+		<iselse>
+		<isinclude template="components/footer/footer"/>
+		</isif>
+		<isinclude template="checkout/cart/pt_cart_VARS"/>
+	
+	</div>
+
+</body>
+</html>

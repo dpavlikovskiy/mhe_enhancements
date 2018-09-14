@@ -1,0 +1,14 @@
+	<isinclude template="util/modules"/>
+
+	<isif condition="${'reqfield' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.reqfield.stringValue =='vatnumber'}">	
+		<isinputfield formfield="${pdict.CurrentForms.profile.address.vatNumber}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.vatnumber.missing-error','forms',null)}" />
+			
+	<iselseif condition="${!empty(pdict.CurrentForms.profile.address.vatNumber.htmlValue) && empty(pdict.CurrentHttpParameterMap.reqfield.stringValue)}">
+		<isinputfield formfield="${pdict.CurrentForms.profile.address.vatNumber}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.vatnumber.missing-error','forms',null)}" />
+	<iselse>
+		<isinputfield formfield="${pdict.CurrentForms.profile.address.fiscalCode}"  type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.fiscalcode.missing-error','forms',null)}" />
+	</isif>
+		

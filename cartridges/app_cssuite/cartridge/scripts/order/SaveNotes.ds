@@ -1,0 +1,62 @@
+/**
+* 	This script will save all newly created notes from the session to the order.
+*	Newly created notes are flage with note.new = true.
+'
+*   @input NoteList : dw.util.List The list of notes
+*	@input Order : dw.order.Order The order
+*-   @output ExampleOut : Number
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+    var order : Order = pdict.Order;
+    if (empty(order))
+    	return PIPELET_ERROR;
+    	
+    var noteList : ArrayList = pdict.NoteList;
+    if (empty(noteList))
+    	return PIPELET_NEXT;
+    	
+    noteList.sort(new PropertyComparator("creationDate"));
+    var newNotesList : ArrayList = new ArrayList();
+    for each (var note : Object in noteList) {
+		if (note['new'])
+		{    	
+    		note.orderNo = order.orderNo;
+    	}
+		newNotesList.add(serializeNote(note));
+    }
+
+    var noteObject : Object = new Object();
+	noteObject["createdBy"] = session.userName;
+	noteObject["creationDate"] = new Date().getTime();
+	noteObject["subject"] = "Order Replaced";
+	noteObject["text"] = "The order replaced Order #" + order.replacedOrderNo;
+	noteObject["orderNo"] = order.orderNo;
+	noteObject["commentType"] = 1;
+	noteList.add(noteObject);
+
+	newNotesList.add(serializeNote(noteObject));
+
+    order.custom.notesAndHistory = newNotesList;
+    return PIPELET_NEXT;
+}
+
+function serializeNote( noteObject : Object)
+{
+	if (!empty(noteObject) && !empty(noteObject.createdBy) && !empty(noteObject.creationDate) && !empty(noteObject.subject) && !empty(noteObject.text) && !empty(noteObject.orderNo)&& !empty(noteObject.commentType))
+	{
+		var noteString = noteObject.createdBy.replace(new RegExp("\|", "g"), "");
+		noteString += "|" + dw.util.StringUtils.formatCalendar(new dw.util.Calendar(new Date(noteObject.creationDate)), 'yyyy-MM-dd HH-mm-ss z');
+		noteString += "|" + noteObject.subject.replace(new RegExp("\|", "g"), "");
+		noteString += "|" + noteObject.text.replace(new RegExp("\|", "g"), "");
+		noteString += "|" + noteObject.orderNo.replace(new RegExp("\|", "g"), "");
+		noteString += "|" + noteObject.commentType.toString().replace(new RegExp("\|", "g"), "");
+		return noteString;
+	}
+	return null;
+}

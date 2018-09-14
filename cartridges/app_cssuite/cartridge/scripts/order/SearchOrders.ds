@@ -1,0 +1,84 @@
+/**
+* Demandware Script File
+* This script queries Orders based on their creation date.
+* Passed in Dates must have the format mm/dd/yyyy
+* Alternatively an OrderNo can be passed in to receive a single order.
+*
+* @input orderNo : String
+* @input customerNo : String
+* @input firstName : String
+* @input lastName : String
+* @input email : String
+* @input status : Number
+* @input confirmation : Number
+* @input shipment : Number
+* @input payment : Number
+* @input exported : Number
+* @input createdBy : String
+* @input from : String
+* @input to : String
+* @output resultsno : Number
+* @output orders : dw.util.SeekableIterator
+* @output query : String
+*
+*/
+importPackage( dw.system );
+importPackage(dw.order);
+importPackage(dw.util);
+importPackage( dw.io );
+importPackage( dw.object );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var mgr : OrderMgr = OrderMgr;
+	
+	var sortString = "creationDate DESC";
+	
+	var args = null;
+	
+	var myFromDate;
+    if(!empty(pdict.from)){
+	    var fromFields = pdict.from.split("/");
+	    myFromDate = fromFields[2] + "-" + fromFields[0] + "-" + fromFields[1];
+    }
+    
+    var myToDate;
+    if(!empty(pdict.to)){
+	    var toFields = pdict.to.split("/");
+	    myToDate = toFields[2] + "-" + toFields[0] + "-" + toFields[1];
+    }
+	
+	var currentOrderNo = null;
+	
+	
+	if (!empty(pdict.orderNo))
+	{
+		var order : Order = mgr.queryOrder("orderNo = '" + pdict.orderNo + "'", null,null);
+		if (!empty(order))
+		{
+			currentOrderNo = order.currentOrderNo;
+		}
+	}
+	
+	var queryString = "status != " + Order.ORDER_STATUS_REPLACED;
+	queryString += !empty(pdict.orderNo) ? " AND orderNo = '" + currentOrderNo + "'" : "";
+	
+	queryString += (pdict.customerNo != '' ? " AND customerNo ILIKE '*" + pdict.customerNo + "*'" : "")
+		+ (!empty(pdict.firstName) && pdict.firstName != '' ? " AND customerName ILIKE '" + pdict.firstName + "*'" : "")
+		+ (!empty(pdict.lastName) && pdict.lastName != '' ? " AND customerName ILIKE '*" + pdict.lastName + "'" : "")
+		+ (!empty(pdict.email) && pdict.email != '' ? " AND customerEmail LIKE '*" + pdict.email + "*'" : "")
+	    + (!empty(pdict.status) && pdict.status > 2 ? " AND status = " + pdict.status : "")
+	    + (!empty(pdict.confirmation) && pdict.confirmation != 1 ? " AND confirmationStatus = " + pdict.confirmation + "" : "")
+	    + (!empty(pdict.shipment) && pdict.shipment != 3 ? " AND shippingStatus = " + pdict.shipment + "" : "")
+	    + (!empty(pdict.payment) && pdict.payment != 3 ? " AND paymentStatus = " + pdict.payment + "" : "")
+	    + (!empty(pdict.exported) && pdict.exported != 4 ? " AND exportStatus = " + pdict.exported + "" : "")
+	    // + (pdict.createdBy != 'any' ? " AND createdBy = 'storefront'" : "")
+	    + (!empty(pdict.from) && pdict.from != '' ? " AND creationDate >= " + myFromDate + "" : "")
+	    + (!empty(pdict.to) && pdict.to != '' ? " AND creationDate <= " + myToDate + "T23:59:59" : "");
+
+	var orders : SeekableIterator = mgr.queryOrders(queryString, sortString, args);
+	pdict.resultsno = orders.count; 
+ 	pdict.orders = orders;
+ 	pdict.query = queryString;
+    return PIPELET_NEXT;
+}

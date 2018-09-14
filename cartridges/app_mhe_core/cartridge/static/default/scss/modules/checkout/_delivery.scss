@@ -1,0 +1,159 @@
+.pt_checkout{
+	h1, h3{
+		text-shadow:0 0 0;
+		margin:0 0 10px;
+	}
+	textarea{
+		width:300px;
+		height:100px;
+		padding:5px;
+		text-transform: none;
+	}
+	.logo_header{
+		margin:0 0 30px;
+	}
+	.main{
+		width:1200px;
+		margin:auto;
+	}
+	.primary-content{
+		float:left;
+		width:885px;
+		.commonBg{
+			padding:30px 40px;
+			margin:0 0 20px;
+			text-transform:uppercase;
+			letter-spacing:2px;
+			font-size:$small_heading;
+			.mini-address-location{
+				margin:0 0 20px 275px;
+				line-height:18px;
+			}
+			.mini-address-title{
+				label{
+					width:275px;
+					display:inline-block;
+					color:$white;
+					text-align:right;
+					padding:0 10px 0 0;
+				}
+				h2{
+					font:bold $small_heading $fixed-font-family;
+					display:inline-block;
+					letter-spacing:2px;
+					text-shadow:0 0 0;
+					margin:0;
+				}
+			}
+		}
+		.deliveryDetails{
+
+		}
+		.checkActions{
+			padding:30px 0 0;
+			margin:50px 0 0;
+		}
+	}
+	.summary{
+		float:right;
+		width:300px;
+		.checkModule{
+			margin:0 0 20px; 
+		}
+	}
+	.form-row{
+		label{
+			width:270px;
+			text-align:right;
+			display:inline-block;
+			.optional{
+				display:block;
+			}
+		}
+		input{
+			display:inline-block;
+		}
+		input[type="checkbox"]{
+			display:none;
+		}
+		&.checkBox{
+			padding:0 0 0 275px;
+			label{
+				text-align:left;
+				width:auto;
+				span{
+					margin:0 5px 0 0;
+					vertical-align:bottom;
+				}
+			}
+		}
+	}
+	.sbHolder{
+		display:inline-block;
+		position:relative;
+		text-transform:uppercase;
+		.sbSelector{
+			background:url(img/icons/dot.png) repeat-x 0 30px;
+		}
+		.sbOptions{
+			position:absolute;
+			font-size:$small_heading;
+			background:$black;
+			line-height: 20px;
+		    padding: 10px;
+		    position: absolute;
+		    text-align: left;
+		    z-index:99;
+		    border:1px solid $darkgrey;
+		    max-height: none !important;
+			li{
+				a{
+					color:$searchText;
+					display:block;
+					&:hover{
+						color:$white;
+					}
+				}
+			}
+		}
+	}
+	.radioBox{
+		label{
+			display: inline-block;
+		    cursor: pointer;
+		    position: relative;
+		    padding-left: 25px;
+		    line-height:20px;
+		    width:auto;
+		    text-align:left;
+		    margin:0 0 0 275px;
+		}
+		input[type=radio] {
+		    display: none;
+		}
+		label:before {
+		    content: "";
+		    display: inline-block;
+		    width:20px;
+		    height:20px;
+		    margin-right: 10px;
+		    position: absolute;
+		    left: 0;
+		    background:url(img/icons/rbuttons.png) no-repeat 0 -52px;
+		}
+		.radio label:before {
+		    border-radius: 8px;
+		}
+		input[type=radio]:checked + label:before {
+		    content: "";
+		    color: #f3f3f3;
+		    font-size: 30px;
+		    text-align: center;
+		    line-height: 18px;
+		    background-position:0 0;
+		}
+		.form-caption{
+			margin:0 0 0 300px;
+		}
+	}
+}

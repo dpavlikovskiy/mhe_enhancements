@@ -1,0 +1,144 @@
+/**
+ * some useful functions
+ */
+ 
+/*
+ function calculateTax(basket : Basket, shippingLocation_cart : ShippingLocation)
+{
+	var shipments : Iterator = basket.getShipments().iterator();
+*/
+
+importPackage(dw.util);
+importPackage(dw.order);
+
+function test()
+{
+	return "test 123";
+}
+
+function truncate(str : String, len : Integer)
+{
+	if(str == null) return "";
+	if(str.length > len)
+	{
+		return StringUtils.truncate(str,len,StringUtils.TRUNCATE_WORD,"...")
+	}
+	return str;
+
+}
+
+function getRowColor(loopstatus)
+{
+	var evenCol = "#ffffff";
+	var oddCol = "#edf3fe";
+	if(loopstatus.even){return oddCol;}else{return evenCol;}
+}
+
+function getRowClass(loopstatus)
+{
+	var evenCol = "ui-tabs-panel-even-row";
+	var oddCol = "ui-tabs-panel-odd-row";
+	if(loopstatus.even || (loopstatus % 2 == 1)){return oddCol;}else{return evenCol;}
+}
+
+function clean(obj : Object, prop : String){
+	try{
+		return eval("obj." + prop);
+	} catch(e){
+		return '';
+	}
+}
+
+function xerror(msg){
+	dw.system.Logger.error(msg);
+}
+
+/**
+* Gets the short description (addressee, number of items, total amount) of a shipment.
+*
+* @param shipment 
+*/
+function getShipmentDescr( shipment ) : String {
+
+	var _shipment = shipment;
+	var shipmentShortDescription = "";
+
+	if (_shipment != null) {	
+		var shippingAddress = _shipment.shippingAddress;
+		if (!empty(shippingAddress) && !empty(shippingAddress.lastName) )
+		{
+			if (!empty(shippingAddress.firstName))
+			{
+				shipmentShortDescription = shippingAddress.firstName;
+			}
+			if (!empty(shippingAddress.lastName))
+			{
+				if (shipmentShortDescription.length==0)
+				{
+					shipmentShortDescription = shippingAddress.lastName;
+				} else {
+					shipmentShortDescription += (" " + shippingAddress.lastName);
+				}
+			}
+		}
+		if (shipmentShortDescription.length == 0)
+		{
+			shipmentShortDescription = "New";
+		}
+	
+		if ( !empty(_shipment.productLineItems) )
+		{
+			if (_shipment.productLineItems.length==1)
+			{
+				shipmentShortDescription += "; 1 Item";
+			} else {
+				shipmentShortDescription += "; " + _shipment.productLineItems.length + " Items";
+			}
+		}
+		shipmentShortDescription += "; " + _shipment.adjustedMerchandizeTotalPrice.toString();
+	}
+	return shipmentShortDescription;
+}
+
+/**
+* Returns true if BML had been used to authorize the original order.
+*/
+function isBMLUsed( order : dw.order.Order ) : Boolean {
+	if (!empty(order))
+	{
+		for each( var paymentInstrument : PaymentInstrument in order.paymentInstruments)
+		{
+			if (paymentInstrument.paymentMethod == dw.order.PaymentInstrument.METHOD_BML)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+function getTitleMap () : Map {
+	//Get the title values from properties files 
+	var titleMap : dw.util.LinkedHashMap = new dw.util.LinkedHashMap();
+	var keyDispVal : String = "title.displayValue";
+	var keyVal : String = "title.value";
+	var exitLoop : Boolean = false;
+
+	var i : Number = 1;	
+	while (!exitLoop){						 
+		var dispVal : String = dw.web.Resource.msg(keyDispVal+i,'forms',null);
+		var val : String = dw.web.Resource.msg(keyVal+i,'forms',null);
+								
+		if (empty(dispVal) || dispVal.equals(keyDispVal+i)) {
+			exitLoop = true;
+		} else {
+			if (empty(val) || val.equals(keyVal+i)) {
+				val = dispVal;
+			}					
+			titleMap.put(val, dispVal);
+		}		 
+		//Increase value of 'i' by 1
+		i = i + 1;						 
+	}
+	return titleMap;
+}

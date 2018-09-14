@@ -1,0 +1,8 @@
+<isif condition="${('listPriceDefault' in dw.system.Site.current.preferences.custom) && !empty(dw.system.Site.current.preferences.custom.listPriceDefault)}">
+	<iscomment>
+		listPriceDefault holds the id of the price book designated as list prices price book.
+	</iscomment>
+	<isset name="StandardPrice" value="${PriceModel.getPriceBookPrice(dw.system.Site.current.preferences.custom.listPriceDefault)}" scope="page"/>	
+<iselse>
+    <isset name="StandardPrice" value="${PriceModel.getPriceBookPrice('list-prices')}" scope="page"/>
+</isif>

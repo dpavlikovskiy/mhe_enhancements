@@ -1,0 +1,53 @@
+<div id="product_searchform" class="order_searchform">
+	<div id="product_search_panel_top" class="order_searchform_top">&nbsp;</div>
+    <div class="search_customer_attributes">
+		<h3>Product Search</h3>    
+        <table class="searchtable">
+        	<tbody>
+        		<tr>
+        			<td class="label searchtable_row_left">Free Text Search:</td>
+        			<td class="value searchtable_row_right">
+        				<input class="OrderSearchForm" id='ProductSearchForm_ProductQuery' name='productQuery' type='text' 
+        					value="" onkeypress="if (event.keyCode == 13) CSSuite.searchProduct();" />
+            		</td>
+        		</tr>
+        		<tr>
+					<td class="label searchtable_row_left">Maximum Results:</td>
+					<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown MAXresults" id="ProductSearchForm_ResultSet" >
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50" selected="selected">50</option>
+							<option value="100">100</option>
+							<option value="500">500</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>        		
+                
+	<!-- div class="search_creation_attributes">
+		<h3>Search Results</h3>
+		<table class="searchtable">
+			<tbody>                <tr>
+					<td class="label searchtable_row_left">Maximum Results:</td>
+					<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown MAXresults" id="ProductSearchForm_ResultSet" >
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50" selected="selected">50</option>
+							<option value="100">100</option>
+							<option value="500">500</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div -->
+	
+	<div class="lefttab_searchbutton_container">
+    	<input class="lefttab_button search" name="searchProducts" value="" onclick="CSSuite.searchProduct();">
+	</div>
+	<div id="product_searchresults_container"></div>
+</div>

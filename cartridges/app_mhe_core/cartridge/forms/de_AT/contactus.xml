@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="salutation" label="profile.salutation" type="string" mandatory="true" binding="salutation" max-length="5" missing-error="profile.salutation2.missing-error"/>
+	<field formid="title" label="profile.title" type="string" binding="title" max-length="10"/>
+	<field formid="firstname" label="forms.contactus.firstname.label" type="string" mandatory="true" min-length="2" max-length="128" binding="firstName" range-error="forms.name.range-error" missing-error="forms.customeraddress.firstname.missing-error"/>
+	<field formid="lastname" label="forms.contactus.lastname.label" type="string" mandatory="true" binding="lastName" min-length="2" max-length="128" missing-error="forms.customeraddress.lastname.missing-error" range-error="forms.name.range-error"/>
+	<field formid="email" label="forms.contactus.email.label" type="string" mandatory="true" regexp="^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$" parse-error="forms.contactus.email.parse-error" binding="email" max-length="128" missing-error="login.username.missing-error"/>	
+	<field formid="phone" label="forms.contactus.phone.label" type="string" mandatory="false" binding="phoneHome" max-length="50"/>		
+ 	<field formid="ordernumber" label="forms.contactus.ordernumber.label" type="string" mandatory="false" binding="orderNumber" missing-error="forms.ordertrack.orderNumber.missing-error"/>
+
+	<field formid="myquestion" label="forms.contactus.myquestion.label" type="string" mandatory="true" binding="passwordQuestion" missing-error="forms.contactus.query.missing-error"/>
+		
+	
+	<field formid="comment" label="forms.contactus.comment" type="string" mandatory="false" binding="comment" max-length="1000"/>
+	<list formid="orderlist">
+		<action formid="show" valid-form="false"/>
+	</list>
+	<action formid="send" valid-form="true"/>
+</form>

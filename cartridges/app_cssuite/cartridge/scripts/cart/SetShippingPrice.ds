@@ -1,0 +1,34 @@
+/**
+* This script adds a price adjustment to the basket.
+* @input Basket : dw.order.Basket : The basket.
+* @input ShippingPrice : Number The price adjustment
+* @output ErrorMessage : String error message in case of error.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage(dw.value);
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var shippingPrice : Number = pdict.ShippingPrice;
+	var priceAdjustment=shippingPrice-basket.getAdjustedShippingTotalPrice().value;
+	if (empty(shippingPrice)) {
+		pdict.ErrorMessage = "The shipping price must be a numeric value.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;
+	}
+	if (shippingPrice < 0) {
+		pdict.ErrorMessage = "The shipping price should be greater than 0.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;
+	}
+	if (Logger.isDebugEnabled()) {
+		Logger.debug("Shipping Price [{0}]", shippingPrice);
+	}
+	var adjustment : PriceAdjustment = basket.createShippingPriceAdjustment(UUIDUtils.createUUID());
+	adjustment.setPriceValue(priceAdjustment)
+	adjustment.setLineItemText('');
+    return PIPELET_NEXT;
+}

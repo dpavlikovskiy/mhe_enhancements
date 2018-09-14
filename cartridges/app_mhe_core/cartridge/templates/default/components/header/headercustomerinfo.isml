@@ -1,0 +1,55 @@
+<isinclude template="util/modules"/>
+
+<ul class="menu-utility-user side-module">
+	<li class="user_trigger">
+		<span class="highlighted"></span>
+		 <span class="arrow"> <isinclude template="components/header/nameinheader" />
+		 </span>
+		<iscomment>Hidden Links - My Account, Customer service and Signout</iscomment>
+     	<ul class="hidden-sub">
+     	 <isif condition="${pdict.CurrentSession.userName.equalsIgnoreCase('storefront') || !dw.system.Site.getCurrent().getCustomPreferenceValue('hideSavePaymentForCSSUITE')}" > 
+	 	    <li><a href="${URLUtils.https('Order-History')}">${Resource.msg('header.myaccount','components',null)}</a></li>	
+	 	    </isif>
+	 		<li><a href="${URLUtils.https('CustomerService-ContactUs')}" >${Resource.msg('header.customerservice','components',null)}</a></li>
+	 		 <isif condition="${pdict.CurrentSession.userName.equalsIgnoreCase('storefront') || !dw.system.Site.getCurrent().getCustomPreferenceValue('hideSavePaymentForCSSUITE')}" > 
+	 		<li><a href="${URLUtils.https('RegistrationFlow-ReferAFriend')}" >${Resource.msg('referFriend.headerlink','components',null)}</a></li>
+	 		</isif>	
+	 		<li><a href="${URLUtils.https('Login-Logout')}">${Resource.msg('header.signout','components',null)}</a></li>
+     	</ul>
+     </li>
+</ul>
+
+	
+
+<script type="text/javascript">
+	
+	$( document ).ready(function() {
+		
+		// Hidden Account Submenu.
+		$('ul.hidden-sub li:last-child').addClass('logout');
+		
+		$('.user_trigger').on('hover', function(e){
+			$('ul.hidden-sub').stop( true, true ).fadeToggle('slow');
+		});
+		
+		// Greetings Message.
+		var d = new Date();
+	    var time = d.getHours();
+	    var $greet = $(".highlighted");
+	    if (time >= 0 && time <= 11){
+	    	$greet.text("${Resource.msg('loginpage.greeting.morning','account',null)}");
+	    }
+	    else if (time >= 12 && time <= 17){
+	    	$greet.text("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+	    }
+	    else{
+	    	$greet.text("${Resource.msg('loginpage.greeting.evening','account',null)}");
+	    };
+	    
+	    $greet.parent().addClass("greet-visible");
+		
+	});
+	
+	
+	
+</script>

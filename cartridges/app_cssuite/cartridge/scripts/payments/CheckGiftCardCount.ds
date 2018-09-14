@@ -1,0 +1,66 @@
+/**
+* 	This script checks how many gift cards are currently added to the basket and will notify the 
+* 	CSS agent if this number is exceeded.
+*	The script only counts the gift cards that are NOT marked to remove (pi.custom.toRemove)
+*
+*   @input Basket : dw.order.Basket The basket
+*   @output Status : dw.system.Status The status of the operation
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+    var basket : Basket = pdict.Basket;
+	if (basket == null) {
+		Logger.error("CreatePaymentInstrument.ds: Basket is null");
+		return PIPELET_ERROR;
+	}
+	
+	//testing Profit Point
+	var maxNumber : Number = Site.getCurrent().preferences.custom.ppgc_maxNumberOfGCs;
+	if (maxNumber == null) {
+		maxNumber = 0;
+	}
+	if (maxNumber == 0) {
+		pdict.Status = new Status(Status.OK);
+	} else {
+		var currentNumber : Number = 0;
+		for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments("METHOD_PPGC")) {
+			if (!pi.custom.toRemove)
+				currentNumber++;
+		}
+		if (maxNumber > currentNumber) {
+			pdict.Status = new Status(Status.OK);
+		} else {
+			pdict.Status = new Status(Status.ERROR, "MAX_GC_REACHED");
+			return PIPELET_ERROR;
+		}
+	}
+
+	//testing Stored Value
+	var maxNumber : Number = Site.getCurrent().preferences.custom.svgc_maxGCNumber;
+	if (maxNumber == null) {
+		maxNumber = 0;
+	}
+	if (maxNumber == 0) {
+		pdict.Status = new Status(Status.OK);
+	} else {
+		var currentNumber : Number = 0;
+		for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments("METHOD_SVGC")) {
+			if (!pi.custom.toRemove)
+				currentNumber++;
+		}
+		if (maxNumber > currentNumber) {
+			pdict.Status = new Status(Status.OK);
+		} else {
+			pdict.Status = new Status(Status.ERROR, "MAX_GC_REACHED");
+			return PIPELET_ERROR;
+		}
+	}
+
+
+	return PIPELET_NEXT;
+}

@@ -1,0 +1,433 @@
+.brandHome 	{
+	.products-tile-inner-cont{
+		.overlay{
+			height:100%;
+			top:0;
+			display:block;
+			transition:all 0.3s ease-out 0s;
+			opacity:0;
+			.button{
+				top:50%;
+				margin:-20px 0 0 0;
+				.face.back{
+					background: $white;
+				}
+			}
+		}
+		&:hover .overlay{
+			opacity:1;
+		}
+	}   
+	.Stamp2-wrapper{
+    	background: none repeat scroll 0 0 #f7f4f2;
+    	height: 290px;
+    	padding: 40px 10px 23px;
+    	width: 280px;
+		.blockquote-class{
+			P{
+				font-size: $stand_first;
+				font-family: $fixed-font-family;
+				color: $bodycolor;
+				line-height:1.3;
+			}
+			.credit{
+				font-size: $small_text;
+				font-family: $secondary-font-family;
+				color: $brandcolor;	
+			}
+		}
+	}
+	.Stamp3-wrapper{
+	    height: 620px;
+	    width: 280px;
+	}
+	.Stamp4-wrapper{
+	    height: 600px;
+	    padding: 10px 0;
+	    position: relative;
+	    width: 580px;
+		img{
+			left: 0;
+		    position: absolute;
+		    top: 10px;
+		}
+		.stamp-content-data{
+			 margin: 460px auto;
+    		 position: relative;
+    		 width: 580px;
+			h3{
+    			color: #f7b621;
+    			font-family: veuve_clicquot_titleregular;
+    			font-size: 12px;
+    			letter-spacing: 0;
+			} 
+			h4{
+				color: black;
+    			font-family: veuve_clicquot_serifregular;
+    			font-size: 24px;
+    			letter-spacing: 0;
+    			line-height: 0;
+    			text-transform: none;
+			}
+			p{
+  				color: #adafb0;
+    			font-family: georgia;
+    			font-size: 12px;
+    			font-style: italic;
+   	 			line-height: 0;
+    			padding-top: 20px;
+    			text-transform: none;
+			}
+		}
+	}
+	.Stamp5-wrapper{
+	    height: 620px;
+	    position: relative;
+	    width: 280px;
+		img{
+			left: 0;
+		    position: absolute;
+		    top: 10px;
+		}
+		.stamp-content-data{
+    		position: relative;
+    		top: 445px;
+    		width: 280px;
+			h3{
+    			color: #f7b621;
+    			font-family: veuve_clicquot_titleregular;
+    			font-size: 12px;
+    			letter-spacing: 0;
+			} 
+			h4{
+				color: black;
+    			font-family: veuve_clicquot_serifregular;
+    			font-size: 24px;
+    			letter-spacing: 0;
+    			line-height: 0;
+    			text-transform: none;
+			}
+			p{
+  				color: #adafb0;
+    			font-family: georgia;
+    			font-size: 12px;
+    			font-style: italic;
+   	 			line-height: 0;
+    			padding-top: 20px;
+    			text-transform: none;
+			}
+		}
+	}
+	.Stamp6-wrapper{
+	    height: 620px;
+	    padding: 10px 0;
+	    position: relative;
+	    width: 580px;
+		img{
+			left: 0;
+		    position: absolute;
+		    top: 10px;
+		}
+		.stamp-content-data{
+			 margin: 460px auto;
+    		 position: relative;
+    		 width: 580px;
+			h3{
+    			color: white;
+    			font-family: veuve_clicquot_serifregular;
+    			font-size: 15px;
+    			letter-spacing: 0;
+			} 
+			h4{
+   				color: #f7b621;
+    			font-family: veuve_clicquot_titleregular;
+    			font-size: 24px;
+    			letter-spacing: 0;
+    			line-height: 0;
+    			text-transform: none;
+			}
+
+		}
+	}
+	.Stamp7-wrapper{
+	    height: 620px;
+	    padding: 10px 0;
+	    position: relative;
+	    width: 580px;
+		img{
+			left: 0;
+		    position: absolute;
+		    top: 10px;
+		}
+		.stamp-content-data{
+			 margin: 460px auto;
+    		 position: relative;
+    		 width: 580px;
+			h3{
+   				color: black;
+    			font-family: veuve_clicquot_titleregular;
+    			font-size: 11px;
+    			letter-spacing: 0;
+			} 
+			h4{
+    			color: black;
+    			font-family: veuve_clicquot_serifregular;
+    			font-size: 20px;
+    			letter-spacing: 0;
+    			line-height: 0;
+    			text-transform: none;
+			}
+
+		}
+	}
+	
+	
+}
+
+
+.brandHome{
+	.getme{
+		.getMe{
+    	padding: 10px;
+    	}
+    }
+    .blockquote-class{
+    	.credit {
+    		color: $brandcolor;
+    		font-family: $secondary-font-family;
+    		font-size: 14px;
+    		text-transform: uppercase;
+		}
+    
+    }
+	blockquote {
+			display:block;
+			clear:both;
+				p{
+    				color: $black;
+    				font-family: $heading-font-family;
+    				font-size: $big_text;
+    				line-height: 1;
+    				text-transform: none;
+				}
+
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $black;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+		
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+	.Stamp1-wrapper{
+		border-bottom: 1px solid $brandcolor;
+    	width:280px;
+    	height:620px;
+		margin: 0 auto;
+    	padding: 10px 0;
+    	position: relative;
+		img {
+			left: 0;
+		    position: absolute;
+		    top: 0;
+		    z-index: 0;
+		}
+		.stamp-content-data {
+			left: 0;
+		    position: absolute;
+		    top: 70px;
+		    z-index: 1;
+		    padding: 0 20px;
+		}
+		h3 {
+			font-size: $medium-font-size;
+			color: $white;
+			font-family: $style-georgia-font-family;
+			text-transform: none;
+			font-style: italic;
+			margin: 0;
+			line-height: 18px;
+		}
+		h4{
+			font-family:$fixed-font-family;
+			font-size:$very_small_text;
+			text-transform:uppercase;
+			color:$black;
+			padding-top:15px;
+			margin: 0 !important;
+		}
+		p {
+			color:$black;
+			font-family: $style-georgia-font-family;
+			font-size: $smaller_heading;
+			text-transform: lowercase;
+		}
+		.button {
+			.face {
+				background-color: $white;
+				color: $brandcolor;
+				border: none;
+				&.back {
+					background-color: $brandcolor;
+					color: $white;
+				}
+			}
+		}
+		.blockquote-class{
+			padding: 15px 34px;
+			blockquote{
+				p{
+    				color: #f8e9cf;
+    				font-family: $heading-font-family;
+    				font-size: 25px;
+    				line-height: 1.3;
+				}
+			}
+			.credit{
+				font-family:$secondary-font-family;
+				font-size:$small_text;
+				text-transform:uppercase;
+				color: $brandcolor;	
+				
+			}
+		}
+		
+	}
+
+
+
+
+	.Stamp8-wrapper{
+		border-bottom: 1px solid $darkgrey;
+	    height: 930px;
+	    margin: 0 10px;
+	    padding: 10px 0;
+	    width: 280px;
+	} 
+		.products-tile-inner{
+		    height: 620px;
+		    width: 300px;
+		    border-right: 1px solid $brandcolor;
+		    .products-tile-inner-cont{
+		    	height: 620px;
+		    	width: 280px;
+		    	margin: 0 10px;
+		    	padding:10px 0;
+		    	border-bottom: 1px solid $brandcolor;
+    			.product-image-badge{
+		    		left: 0;
+					position: absolute;
+					top: 30px;
+					width: 140px;
+		    	}	
+		    }
+		    .product-name{
+    			h2{
+    			 line-height: 20px;
+    			 margin-bottom: 0;
+    			 letter-spacing:2px;
+    				a{
+    				font-size: $small_text;
+					font-family: $secondary-font-family;
+					color: $brandcolor;
+					}
+    			}
+    		} 
+    		.product-swatches{
+    			display:none;
+    		}
+    		.product-pricing{
+    				h3{
+	    				font-size: $big_text;
+						font-family: $fixed-font-family;
+						margin-bottom:5px;
+					}
+    		}
+		    &.products-tile-inner-gift{
+		    	width:600px;
+		    	.products-tile-inner-cont {
+    				border-bottom: 1px solid $brandcolor;
+    				height: 620px;
+    				margin: 0 10px;
+    				padding: 5px 0;
+    				width: 580px;
+					}
+		    }
+		    &.social-feed{
+		    	height:310px;
+		    		.products-tile-inner-cont {
+    					border-bottom: 1px solid $brandcolor;
+    					margin: 0 10px;
+    					padding: 10px 0;
+    					width: 280px;
+    					height:310px;
+    					h4{
+    						margin-top:30px;
+    						color:$black;
+    					}
+					}
+		    }
+		    &.products-tile-inner-magnum{
+		    	height:1240px;
+		    	padding:10px 0;
+		    	visibility:visible;
+		    	.products-tile-inner-cont{
+		    		border-bottom: 1px solid $brandcolor;
+		    		height:1230px;
+		    		}
+	    		.product-image{
+	    			height: auto;
+	    			.content-asset{
+	    				height: 400px;
+						text-align: center;
+							h2{
+								font-size: $slightly_big_text;
+								font-family: $fixed-font-family;
+								letter-spacing: -1px;
+							    margin-top: 1.85em;
+							    text-transform: uppercase;
+							    
+							}
+							h3{
+								font-size: $normal-font-size;
+								font-family: $secondary-font-family;
+								text-transform: uppercase;
+								color: $brandcolor;
+							}
+							p{
+								font-size: $normal-font-size;
+								font-family: $fixed-font-family;
+								text-transform: none;
+							}
+	    			}
+	    			.thumb-link{
+	    				display: block;
+						margin-top: -213px;
+	    					img{
+	    						display: inline-block;
+								margin-left: -98px;
+								margin-top: 60px;
+	    					}
+	    			}
+		    	}
+	   		}
+		}
+	}
+

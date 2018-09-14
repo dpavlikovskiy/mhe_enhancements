@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: headernewslettersubscribe.isml --->
+
+<div id="newsublink"  class="newsletter-cont" style="display:block;">
+	<iscomment>Creative - Open popup for recieve email updates which will display conetent from below href call the below link will get hide/show</iscomment>
+	<a id="js-newsletter-sub" href="#">${Resource.msg('profile.SubscibetoEmailList','forms',null)}</a>
+</div>
+<div id="newSubDetails"  style="display: none;" ></div> 
+
+ 

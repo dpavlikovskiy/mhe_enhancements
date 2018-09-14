@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+<!-- field for order name -->
+    <field formid="order"  label="replacement.order" type="string" mandatory="true"  />
+    <field formid="reason"  label="replacement.reason" type="string" mandatory="true" />
+    <field formid="message" label="replacement.message" type="string" mandatory="false"    />
+    <field formid="details" label="form.orderdetails" type="string" mandatory="true" />
+	<field formid="process"  label="replacement.process" type="string" mandatory="true"  missing-error="form.selectone-error" >
+     <options>
+         <option optionid="selectone" label="replacement.process" value=""/>
+         <option optionid="No" label="form.no" value="No"/>
+         <option optionid="Yes" label="form.yes" value="Yes"/>
+     </options>
+    </field>
+</form>

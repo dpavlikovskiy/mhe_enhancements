@@ -1,0 +1,22 @@
+/**
+* This is a simple example job script that can illustarted how the 
+* job framework is supposed to be used.
+*
+*
+* For example:
+*
+* @input TestParameter : String This is a sample test parameter.
+*
+*/
+importPackage( dw.system );
+
+importScript( 'bc_jobframework:job/JobMonitor.ds' );
+var cvLogger = getCurrentJobLogger('test', 'me');
+
+function execute( args : PipelineDictionary ) : Number {
+	if ( cvLogger.debugEnabled ) {
+		 cvLogger.debug( "Input: " + args.TestParameter );
+	}
+	
+    return PIPELET_NEXT;
+}

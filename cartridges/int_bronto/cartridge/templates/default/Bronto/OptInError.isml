@@ -1,0 +1,6 @@
+<iscomment>This template renders unsuccessfull Bronto email subscription message</iscomment>
+<isdecorate template="content/pt_customerservice">
+
+<iscontent type="text/html" charset="UTF-8" compact="true">
+Invalid Email: <isprint value="${pdict.CurrentHttpParameterMap.email.stringValue}">
+</isdecorate>

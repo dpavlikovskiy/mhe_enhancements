@@ -1,0 +1,87 @@
+<isdecorate template="product/pt_staticofferlist" scope="page">
+<iscache type="relative" minute="30" varyby="price_promotion" />
+<isinclude template="util/modules" />
+<iscomment>create reporting event</iscomment>
+<isinclude template="util/reporting/ReportSearch.isml" /> 
+<iscomment>Creative -- Flag to identify if the page will be expanded</iscomment>
+
+<isset name="heroPageName" value="${Resource.msg('pagename.heroPage','components',null)}" scope="pdict" />
+<div id="catvalue" style="display:none">${pdict.ProductSearchResult.category.ID}</div>
+<iscomment>----Slot for Product Campaign----</iscomment>
+<isslot id="heroTemplate_slot1" context="category" description="Hero Template Page Slot1" context-object="${pdict.ProductSearchResult.category}"/>
+<div class="ePageModule">
+	
+	<isif condition="${!pdict.ProductSearchResult.count != null &&  pdict.ProductSearchResult.count > 0}">
+		<isloop items="${pdict.ProductPagingModel.pageElements}" var="LoopProductHit" status="loopstate">
+			<isset name="Product" value="${LoopProductHit.product}"  scope="pdict" />
+			<div clas="getName"><span class="bmValue">${pdict.Product.name}</span></div>
+			<isif condition="${LoopProductHit.product.isVariant()}">
+				<isset name="pid" value="${LoopProductHit.product.masterProduct.ID}"  scope="pdict" />
+			<iselse>
+				<isset name="pid" value="${LoopProductHit.product.ID}"  scope="pdict" />	
+			</isif>   
+		
+			<isset name="rec_isGift" value="${pdict.Product.custom.isGift}" scope="pdict"/>
+			
+			<isif condition="${pdict.rec_isGift}">
+				<div id="${Resource.msg('product.tab.productdetails_brand','product',null)}" class="isGift"> 
+			<iselse>
+				<div id="${Resource.msg('product.tab.productdetails_brand','product',null)}"> 
+			</isif>	
+			<isinclude url="${URLUtils.url('Product-StaticShowEPages', 'pid', pdict.pid, 'cgid', pdict.CurrentHttpParameterMap.cgid.value,'pagetype',pdict.heroPageName)}"/>
+			</div>
+			<isbreak/>
+		</isloop>
+	</isif>
+</div>
+
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot2" context="category" description="Product Campaign" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot3" context="category" description="Events Carousel Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<isset  name="rec_acc_type" value="${Resource.msg('product.recommendations','product',null)}" scope="pdict"/> 
+<isinclude template="product/components/recomenAccessEPages"/>
+
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot4" context="category" description="Events Carousel Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot5" context="category" description="Videos Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot6" context="category" description="Events Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot7" context="category" description="Twitter Text" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot8" context="category" description="Cocktails Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+<div class="ePageModule">
+	<isslot id="heroTemplate_slot9" context="category" description="Recipes Module" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+
+<div class="epages-footer">
+	<isslot id="heroTemplate_footer" context="category" description="Hero Template Footer" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+	
+	
+	
+
+	
+	
+	
+<script type="text/javascript">
+$(document).ready(function(){
+	app.product.init();
+	app.search.init();
+});
+</script>
+</isdecorate>
+

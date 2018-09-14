@@ -1,0 +1,21 @@
+<!---
+	Creates a paging bar on the page
+	
+ ---><ismodule template = "pagecomponents/pagingbar"
+	name="pagingbar"
+	attribute="pageurl"
+	attribute="pagingmodel"
+	attribute="enablerewrite"
+>
+<ismodule template = "pagecomponents/paginginfo"
+	name="paginginfo"
+	attribute="pagingmodel"
+>
+<ismodule template = "pagecomponents/bminputfield"
+	name="bminputfield"
+	attribute="fieldtype"
+	attribute="fieldname"
+	attribute="fieldvalue"
+	attribute="enumvalues"
+	attribute="readonly"
+>

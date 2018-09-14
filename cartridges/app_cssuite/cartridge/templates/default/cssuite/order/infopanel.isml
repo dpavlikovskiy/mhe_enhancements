@@ -1,0 +1,13 @@
+<!--- TODO: this form --->
+<div id="order_infopanel" class="order_searchform" style="display: none;">
+	<div class="order_searchform_top"><a href="javascript:CSSuite.reset();">HOME</a> | <a href="javascript:Order.discardChanges();">Back to Search Results</a></div>
+	<div id="order_infopanel_customer">
+		<h3>Customer Information</h3>
+	</div>
+    <div id="order_infopanel_billingaddress">
+		<h3>Billing Address</h3>
+	</div>
+    <div id="order_infopanel_payments">
+		<h3>Payment Methods</h3>
+    </div>
+</div>

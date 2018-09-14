@@ -1,0 +1,40 @@
+// =============================================================================
+// Account module
+// =============================================================================
+
+.account-module {
+	padding:35px 0 35px 40px;
+	margin-bottom:15px;
+	&:first-child {
+		margin-top:-31px;
+	}
+	p {
+		font-size:13px;
+		margin-bottom:1.5em;
+		line-height:1.4em;
+		letter-spacing:1px;
+		b {
+			text-transform:uppercase;
+			letter-spacing:2px;
+		}
+		a {
+			font-style:italic;
+		}
+	}
+	.account-form {
+		padding-top:13px;
+		select {
+			visibility:hidden;
+			&.custom-select {
+				visibility:visible;
+			}
+		}
+	}
+	.account-submit { 
+		padding-top:30px;
+		margin-right:40px;
+		.secured-by {
+			float:left;
+		}
+	}
+}

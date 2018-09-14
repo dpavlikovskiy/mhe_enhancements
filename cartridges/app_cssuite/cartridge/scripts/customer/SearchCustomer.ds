@@ -1,0 +1,37 @@
+/**
+* Demandware Script File
+* This script queries Customers.
+*
+* @input customerNo : String
+* @input firstName : String
+* @input lastName : String
+* @input email : String
+* @output customers : dw.util.SeekableIterator;
+* @output resultsno : Number;
+*
+*/
+importPackage( dw.system );
+importPackage(dw.customer);
+importPackage(dw.util);
+importPackage( dw.io );
+importPackage( dw.object );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var mgr : CustomerMgr = CustomerMgr;
+	// var sortString = "creationDate DESC";
+	
+	var args = null;
+
+	
+	var queryString = (!empty(pdict.customerNo) ? "customerNo ILIKE '*" + pdict.customerNo + "*'" : "customerNo != '0'");
+	queryString += (!empty(pdict.firstName) ? " AND firstName ILIKE '*" + pdict.firstName + "*'" : "")
+		+ (!empty(pdict.lastName) ? " AND lastName ILIKE '*" + pdict.lastName + "*'" : "")
+		+ (!empty(pdict.email) ? " AND email LIKE '*" + pdict.email + "*'" : "");
+	Logger.debug("Customer Query: " + queryString);
+	var customers : SeekableIterator = mgr.queryProfiles(queryString,args,args);
+	pdict.resultsno = customers.count; 
+ 	pdict.customers = customers;
+ 	
+    return PIPELET_NEXT;
+}

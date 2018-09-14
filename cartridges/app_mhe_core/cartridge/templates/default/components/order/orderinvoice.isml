@@ -1,0 +1,283 @@
+
+<isinclude template="util/modules"/>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<isscript>
+		    var taxClassID = dw.order.TaxMgr.defaultTaxClassID;
+		    var taxJurisdictionID = dw.order.TaxMgr.defaultTaxJurisdictionID;
+		    var taxRate  = dw.order.TaxMgr.getTaxRate(taxClassID, taxJurisdictionID)*100;
+</isscript>
+<isset name="Customer" value="${pdict.Order.customer.profile}" scope="page" />
+<isset name="BillingAddress" value="${pdict.Order.billingAddress}" scope="page" />
+<isset name="ShippingAddress" value="${pdict.Order.defaultShipment.shippingAddress}" scope="page" />
+<isset name="Order" value="${pdict.Order}" scope="page" />
+<isif condition="${pdict.Order.getTotalGrossPrice().available}">
+ 	<isset name="orderTotalValue" value="${pdict.Order.getTotalGrossPrice()}" scope="page"/>
+<iselse>
+	<isset name="orderTotalValue" value="${pdict.Order.getAdjustedMerchandizeTotalPrice(true).add(pdict.Order.getGiftCertificateTotalPrice())}" scope="page"/>
+</isif>
+<isset name="brand" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('brand').value.toLowerCase()}" scope="page"/> 
+<isset name="color" value="${'#333'}" scope="page"/>
+<isif condition="${brand.equalsIgnoreCase('dp')}" >
+<isset name="color" value="${'#333333'}" scope="page"/>
+<iselseif condition="${brand.equalsIgnoreCase('vc')}" >
+<isset name="color" value="${'#f7b621'}" scope="page"/>
+<iselseif condition="${brand.equalsIgnoreCase('ad')}" >
+<isset name="color" value="${'#9e8a59'}" scope="page"/>
+</isif>
+<style>
+.logoMain { display: block; margin: 0 auto;}
+.logoPrint { display: none; margin: 0 auto;}
+@media print {
+	.logoMain { display: none;}
+	.logoPrint { display: block;}
+}
+</style>
+<table cellpadding="0" cellspacing="0" width="100%" style="margin:auto; background:${color}; padding:10px 0; text-align:center; color:${color}; font-family:Arial; font-size:14px;">
+	<tr>
+		<isif condition="${brand.equalsIgnoreCase('mh')}">
+			<td>
+				<img class="logoMain" src="${URLUtils.staticURL('/images/pdfLogo.jpg').http()}" />
+				<img class="logoPrint" src="${URLUtils.staticURL('/images/pdfLogoPrint.png').http()}" />	
+			</td>
+	    <iselse>
+			<td><img src="${URLUtils.staticURL('/css/'+brand+'/images/logo.png').http()}" /></td>
+		</isif>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" style="margin:0 auto; width:820px; font:12px arial; text-transform:uppercase;">
+	<tr>
+		<td height="10">&nbsp;</td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" cellpadding="0" cellspacing="0" style="text-align:center; font:13px arial;">
+				<tr>
+					<td style="border:1px solid ${color}; line-height:24px; color:#333; padding:10px; letter-spacing:1px; font-size:11px;">
+					 <isif condition="${Resource.msg('invoice.show', 'account', null) == 'de'} ">
+						${Resource.msg('invoice.numebr', 'account', null)} <isprint value="${Order.invoiceNo}"/> &nbsp;/&nbsp;
+						${Resource.msg('invoice.orderNo', 'account', null)} <isprint value="${Order.orderNo}"/>&nbsp;/&nbsp;
+						${Resource.msg('invoice.dateCreated', 'account', null)} <isprint value="${Order.creationDate}"/>	
+						<div style="margin:0 0 5px;">
+						
+						</div>
+   					<iselseif condition="${Resource.msg('invoice.show', 'account', null) == 'fr'} ">
+   						${Resource.msg('invoice.numebr', 'account', null)} <isprint value="${Order.invoiceNo}"/> &nbsp;/&nbsp;
+						${Resource.msg('invoice.orderNo', 'account', null)} <isprint value="${Order.orderNo}"/> &nbsp;/&nbsp;
+						${Resource.msg('invoice.dateCreated', 'account', null)} <isprint value="${Order.creationDate}"/> 		
+						<isif condition="${Order.custom.settlementDate}">
+   							&nbsp;/&nbsp; ${Resource.msg('invoice.dateShipped', 'account', null)}  <isprint value="${Order.custom.settlementDate}"/>
+						</isif>
+					<iselse>
+						${Resource.msg('invoice.orderNo', 'account', null)} <isprint value="${Order.orderNo}"/>
+						&nbsp;/&nbsp; ${Resource.msg('invoice.dateCreated', 'account', null)} <isprint value="${Order.creationDate}"/> 					   
+						<isif condition="${Order.custom.settlementDate}">
+   							&nbsp;/&nbsp; ${Resource.msg('invoice.dateShipped', 'account', null)}  <isprint value="${Order.custom.settlementDate}"/>
+						</isif>
+						
+					</iselse>	
+					</isif> 
+						<div style="font-size:11px;"><iscontentasset aid="invoice-dossier"/></div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="10"></td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${color}; font:12px arial;">
+				<tr>
+					<td width="50%" style="padding:12px 20px; background:${color}; font-size:12px; letter-spacing:2px; color:#fff; border-bottom:1px solid ${color};">${Resource.msg('invoice.billingaddress', 'account', null)}</td>
+					<td style="padding:12px 20px; background:${color}; font-size:12px; background:${color}; letter-spacing:2px; color:#fff; border-bottom:1px solid ${color};">${Resource.msg('invoice.shippingaddress', 'account', null)}</td>
+				</tr>
+				<tr>
+					<td style="padding:10px 20px; letter-spacing:1px; line-height:15px; color:#888; font-size:10px;" valign="top"><isminiaddressPDF address="${BillingAddress}"/></td>
+					<td style="padding:10px 20px; letter-spacing:1px; line-height:15px; color:#888; font-size:10px;" valign="top"><isminiaddressPDF address="${ShippingAddress}"/></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="10"></td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${color}; font:13px arial;">
+				<tr>
+					<td width="50%" style="padding:12px 20px; background:${color}; font-size:12px; letter-spacing:2px; color:#fff; border-bottom:1px solid ${color};">${Resource.msg('invoice.paymentsettings', 'account', null)}</td>
+					<td style="padding:12px 20px; background:${color}; font-size:12px; letter-spacing:2px; color:#fff; border-bottom:1px solid ${color};">${Resource.msg('invoice.shippinginformation', 'account', null)}</td>
+				</tr>
+				<tr>
+					<td style="padding:10px 20px; letter-spacing:1px; line-height:18px; color:#888; font-size:10px;">${Resource.msg('forms.title.creditcard', 'forms', null)} <isif condition="${Order.paymentInstrument.creditCardType!=null}"> - <isprint value="${dw.order.PaymentMgr.getPaymentCard(Order.paymentInstrument.creditCardType).name.toUpperCase()}" /> </isif></td>
+					<td style="padding:10px 20px; letter-spacing:1px; line-height:18px; color:#888; font-size:10px;"><isprint value=" ${Order.defaultShipment.shippingMethod.displayName.toUpperCase()}" /></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="10"></td> 
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" cellpadding="0" cellspacing="0" style="font:13px arial;">
+				<tr>
+					<td style="border:1px solid ${color};">
+						<table width="100%" cellspacing="0" cellpadding="0" style="font:12px arial;">
+							<isloop items="${Order.shipments}" var="shipment" status="shipmentloopstate">
+					       		<isif condition="${shipment.productLineItems.size() > 0}">
+									<tr>
+										<td colspan="2" style="padding:12px 20px; background:${color}; font-size:12px; letter-spacing:2px; color:#fff; border-bottom:1px solid ${color};">${Resource.msg('invoice.article', 'account', null)}</td>
+									</tr>
+									<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+								    	<tr>
+						         			<td style="padding:10px 10px 0; position:relative;" colspan="2">
+							         			
+							         			<isif condition="${productLineItem.custom.associatedParentPosition != null }">
+					                        		<isdisplayliproductpdf p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}" />
+						                        <iselseif condition="${productLineItem.optionProductLineItems.size() > 0}">
+						                        	<isdisplayliproductpdf p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+												<iselseif condition="${productLineItem.custom.engravingMessageLine1 !=null}">
+						                        	<isdisplayliproductpdf p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${true}"/>
+						                        <iselse>
+													<isdisplayliproductpdf p_productli="${productLineItem}" p_editable="${false}" p_hidsize="${true}"  p_hidepromo="${true}"/>
+												</isif>
+												
+												<isif condition="${productLineItem.product != null && productLineItem.product.isVariant()}">
+													<isloop items="${productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+														<isset name="SelectedVariationValue" value="${productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>
+														<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">
+															    <isif condition="${SelectedVariationValue != null}">
+															    <isset name="key" value="${SelectedVariationValue.value}" scope="page" />						
+											                    <isset name="volume" value="${ProductUtils.getValueFromSitePrefEnumForInvoice('sizeVolumeOnInvoice', key)}" scope="page"/>
+											                     <isprint value="${volume}"/>
+																<span style="color:#888;display:inline-block;margin:0 10px;">|</span>
+															</isif>
+														</span>
+													</isloop>
+												<iselse>
+														<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">
+															<isif condition="${rootCategory != null && productLineItem.product.custom.size!=null}">
+															    <isset name="key" value="${productLineItem.product.custom.size}" scope="page" />						
+											                   	<isset name="volume" value="${ProductUtils.getValueFromSitePrefEnumForInvoice('sizeVolumeOnInvoice', key)}" scope="page"/>
+																	 <isprint value="${volume}"/> 
+																
+																<span style="color:#888;display:inline-block;margin:0 10px;">|</span>
+															</isif>
+														</span>
+												</isif>
+												
+												<isif condition="${Resource.msg('invoice.show', 'account', null) == 'de'} ">
+													<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;"><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" />: <isprint value="${productLineItem.quantity}" /></span>
+													<span style="margin:0 10px;">|</span>
+												<iselse>
+													<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">${Resource.msg('invoice.unitPrice', 'components', null)}: <isprint value="${productLineItem.basePrice}" /></span>
+													<span style="margin:0 10px;">|</span>
+													<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;"><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" />: <isprint value="${productLineItem.quantity}" /></span>
+													<span style="margin:0 10px;">|</span>	
+												</isif>
+												<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">${Resource.msg('invoice.subtotal', 'components', null)}: <isprint value="${productLineItem.adjustedNetPrice}" /></span>
+												<span style="margin:0 10px;">|</span>										
+												<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">${Resource.msg('invoice.ordertax', 'components', null)} 
+												<isif condition="${Resource.msg('invoice.show', 'account', null) == 'uk'} ">	
+													<isprint value="${taxRate}" formatter="##"  />%: 
+												<iselseif condition="${Resource.msg('invoice.show', 'account', null) == 'fr'} ">	
+													(<isprint value="${taxRate}" formatter="##"  />%): 
+												</iselseif>
+												<iselse>:</iselse>
+												</isif>	
+												<isprint value="${productLineItem.adjustedTax}" /></span>
+												<span style="margin:0 10px;">|</span>
+												<span style="text-transform: none; color:#333; font-size:10px; letter-spacing:1px;">${Resource.msg('invoice.grossTotal', 'components', null)}: <isprint value="${productLineItem.adjustedGrossPrice}" /></span>
+												<div style="height:0; margin-top:10px; margin-bottom:-1px; border-top:1px solid #333; overflow:hidden;">&nbsp;</div>
+												
+											</td>
+										</tr>
+										
+										<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.engravingMessageLine1 !=null }">
+						                	<tr>
+							                    <td colspan="2" style="font-size:10px;padding:10px;color:#888;">
+							                        <div>
+							                        	<span><isprint value="${Resource.msg('global.personaliselabel','locale',null)}" /></span>
+							                        	<span style="margin:0 10px;">|</span>
+							                        	<span><isprint value="${Resource.msg('global.personalisesublabel','locale',null)}" /></span>
+							                        	<span style="margin:0 10px;">:</span>
+							                        	<span style="text-transform: uppercase; font-style:italic;"><isprint value="${productLineItem.custom.engravingMessageLine1}" /> </span>
+							                        </div>
+							                        <div style="text-transform: none; color:#888; padding:10px 0 0; font-size:10px; letter-spacing:1px;">				
+						                              <isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+						                              	<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+						                                	<isif condition="${oli.price.valueOrNull!=null}"> 
+						                                	<isif condition="${Resource.msg('invoice.show', 'account', null) != 'de'} ">										
+																 <span>${Resource.msg('invoice.unitPrice', 'components', null)}: <isprint value="${oli.basePrice}" /></span>
+																<span style="margin:0 10px;">|</span>
+																</isif> 
+																 <span><isprint value="${Resource.msg('confirmation.qty','checkout',null)}" />: <isprint value="${productLineItem.quantity}" /></span>
+																<span style="margin:0 10px;">|</span>
+																<span>${Resource.msg('invoice.subtotal', 'components', null)}: <isprint value="${oli.adjustedNetPrice}" /></span>
+																<span style="margin:0 10px;">|</span>	
+																<isif condition="${Resource.msg('invoice.show', 'account', null) == 'de'} ">										
+																<span>${Resource.msg('invoice.ordertax', 'components', null)}: <isprint value="${oli.adjustedTax}" /></span>
+																<span style="margin:0 10px;">|</span>
+																<iselseif condition="${Resource.msg('invoice.show', 'account', null) == 'fr'} ">	
+																<span>${Resource.msg('invoice.ordertax', 'components', null)} (<isprint value="${taxRate}" formatter="##"  />%): <isprint value="${oli.adjustedTax}" /></span>
+																<span style="margin:0 10px;">|</span>
+																<iselse>
+																<span>${Resource.msg('invoice.ordertax', 'components', null)} <isprint value="${taxRate}" formatter="##"  />%: <isprint value="${oli.adjustedTax}" /></span>
+																<span style="margin:0 10px;">|</span>
+																</isif>
+																<span>${Resource.msg('invoice.grossTotal', 'components', null)}: <isprint value="${oli.adjustedGrossPrice}" /></span>
+															</isif>
+						                                 </isloop>
+						                              </isif>
+						                        	</div><br>					
+						                   		</td>
+						              		</tr>
+						            	</isif>
+									</isloop>
+								</isif>
+								<tr>
+							       <td  colspan="2" style="text-transform:uppercase; background:#efefef; border-top:1px solid ${color}; padding-top:10px;">
+							       		<table cellspacing="0" border="0" width="100%">
+								            <isif condition="${Order.shipments.length > 1}">
+												<ispdfordertotals p_lineitemctnr="${Order}" p_showshipmentinfo="${true}" p_shipmenteditable="${false}" p_totallabel="${Resource.msg('invoice.ordertotal','locale',null)}" />
+											<iselse>
+												<ispdfordertotals p_lineitemctnr="${Order}" p_showshipmentinfo="${false}" p_shipmenteditable="${false}" p_totallabel="${Resource.msg('invoice.ordertotal','locale',null)}" />
+										    </isif>
+										 
+										  <isif condition="${!empty(Order.defaultShipment.custom.requestedDeliveryDate)}">
+					       	   				<tr>
+					       	   					<td style="width:258px; text-align:right; background:#fff; padding:15px 0; font:13px arial; color:#333;">${Resource.msg('invoice.estimatedDeliveryDate', 'account', null)} </td>
+					       	   					<td style="width:200px; padding:0 40px 0 0; background:#fff; text-align:right;  font:16px arial; color:#333;" valign="middle"><isprint value="${Order.defaultShipment.custom.requestedDeliveryDate}" formatter="dd/MM/yyyy"  /></td>
+					       	   				</tr>
+					       				</isif>											    
+										</table>
+							       </td>
+							   </tr>
+					       </isloop>
+					      	
+				
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="10"></td>
+	</tr>
+	<tr>
+		<td style="padding:10px; text-align:center;border:1px solid ${color};"><iscontentasset aid="cs-contact-number-pdf"/></td>
+	</tr>
+	<tr>
+		<td height="10"></td>
+	</tr>
+	<tr>
+		<td style="color:#333; text-transform:none; font-size:13px; line-height:18px; letter-spacing:1px;"><iscontentasset aid="cs-footer-pdf"/></td>
+	</tr>
+</table>
+
+

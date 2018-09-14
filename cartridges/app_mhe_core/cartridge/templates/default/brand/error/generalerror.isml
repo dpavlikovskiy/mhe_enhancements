@@ -1,0 +1,25 @@
+
+
+
+	<isset name="DecoratorTemplate" value="error/pt_error" scope="page" />
+
+
+<isdecorate template="${DecoratorTemplate}">
+<iscomment>following SPAN is for Google Analytics. it holds the URL from where the Error is Generated</iscomment>
+<div id="errorGeneratedAt" style="display: none;">
+<isif condition="${session.clickStream.clicks.size()>2}">
+	${session.clickStream.clicks[session.clickStream.clicks.size()-2].url}
+</isif>
+</div>
+
+
+	<isinclude url="${URLUtils.url('Error-Display')}"/> 
+
+<iscomment>The JS is written for Google Analytics</iscomment>
+<script type="text/javascript">
+	$(window).load(function(){
+		$("#errorGeneratedAt").click();		
+	});
+</script>
+
+</isdecorate>

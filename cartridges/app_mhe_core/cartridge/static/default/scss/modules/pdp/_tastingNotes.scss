@@ -1,0 +1,17 @@
+.pdp-section-tabs {
+	.tab-content {
+		.colWrapper {
+			width:100%;
+			float: left;
+			.col {
+				&.col-hero {
+					width:400px;
+				}
+				&.col-detail {
+					width:440px;
+					margin: 80px 0 0 150px;
+				}
+			}
+		}
+	}
+}

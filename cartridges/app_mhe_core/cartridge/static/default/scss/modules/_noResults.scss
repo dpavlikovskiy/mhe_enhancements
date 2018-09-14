@@ -1,0 +1,51 @@
+.noResults{
+	width:$max-container;
+	margin:auto;
+	text-align:center;
+	padding:40px 0 0;
+	letter-spacing:2px;
+	.nothingFound{
+		margin:0 0 30px;
+		color: $searchText;
+	    font: 26px $fixed-font-family;
+	    text-shadow: 1px 1px 1px $black;
+	    text-transform: uppercase;
+	    span{
+			color:$white;
+		}
+	}
+	.tryAgain {
+	    color: $lightergrey;
+	    font-size: 12px;
+	    margin:0 0 40px;
+	    input{
+			color:$white;
+			width:245px;
+			height:45px;
+			line-height:45px;
+			display:inline-block;
+			vertical-align:middle;
+			text-align:left;
+			padding:0 10px;
+		}
+		.sIcon{
+			background-position:0 -120px;
+			background-color:$black;
+			width:45px;
+			height:45px;
+			border:1px solid $darkgrey;
+			display:inline-block;
+			text-indent:-99em;
+			overflow:hidden;
+			vertical-align:middle;
+			border-left:0;
+		}
+		label{
+			display:block;
+			margin:0 0 15px;
+		}
+	}
+	.circle{
+		background:$button_color;
+	}
+}

@@ -1,0 +1,40 @@
+/**
+* Read recruitment cookie and return the lead referrer details.
+*
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	try 
+	{
+	    var cookie:dw.web.Cookie=request.httpCookies["dwrecruitment"];
+	    pdict.CurrentForms.leadgeneration.rememberme.value=false;
+		pdict.CurrentForms.leadgeneration.referrerfname.value="";
+		pdict.CurrentForms.leadgeneration.referrerlname.value="";
+		pdict.CurrentForms.leadgeneration.referreremail.value="";
+		pdict.CurrentForms.leadgeneration.company.value="";
+	    if(cookie!=null && !empty(cookie.value) )
+		{
+			var cookieValues:Array=cookie.value.split("|");
+			if(cookieValues[0]=="true")
+			{
+				pdict.CurrentForms.leadgeneration.rememberme.value=true;
+				pdict.CurrentForms.leadgeneration.referrerfname.value=cookieValues[1];
+				pdict.CurrentForms.leadgeneration.referrerlname.value=cookieValues[2];
+				pdict.CurrentForms.leadgeneration.referreremail.value=cookieValues[3];
+				pdict.CurrentForms.leadgeneration.company.value=cookieValues[4];
+				if(cookieValues[5]!=null && !empty(cookieValues[5])){
+					pdict.CurrentForms.leadgeneration.referrersalutation.value=cookieValues[5];
+				}
+				if(cookieValues[6]!=null && !empty(cookieValues[6])){
+					pdict.CurrentForms.leadgeneration.referrertitle.value=cookieValues[6];
+				}		
+			}
+		}	
+	} catch (e) {
+		return PIPELET_NEXT;
+	}
+   return PIPELET_NEXT;
+}

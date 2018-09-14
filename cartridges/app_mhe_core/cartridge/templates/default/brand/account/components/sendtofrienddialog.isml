@@ -1,0 +1,68 @@
+<isinclude template="util/modules"/>
+
+<script>
+$(document).ready(function () {
+
+	var $sendToFriendForm = $("#send-to-friend-form"),
+		$submitBtn = $sendToFriendForm.find("#sendtofrndbutton");
+
+	// Call Character Count Plugin and Assign Limit.
+	var elem = $(".remaining"); // Remaing characters 
+	var form = $('form');
+	
+	//$sendToFriendForm.on('submit', submit);
+	$("#dwfrm_sendtofriend_message").limiter(1000, elem); // ID of textarea
+	
+	// Expanding textArea.
+	$('textarea').addClass('expand').expandingTextarea();
+  	   
+
+});
+
+</script>
+<div class="tellfriend-header">
+	
+	
+		
+	<h2 class="secondary"><isprint value="${Resource.msg('sendtofriend.brand.message1','forms',null)}" />&nbsp;<isprint value="${Resource.msg('sendtofriend.message2','forms',null)}" /></h2>
+	<p><isprint value="${Resource.msg('sendtofriend.message3','forms',null)}" /></p>
+
+</div>
+<form action="${URLUtils.continueURL()}" name="${pdict.CurrentForms.sendtofriend.htmlName}" id="send-to-friend" >
+	<div id="send-to-friend-main" class="tellfriend-content">
+	
+		
+		<fieldset>
+	
+				<isinputfield formfield="${pdict.CurrentForms.sendtofriend.friendsname}" type="input" requiredtext="${Resource.msg('forms.sendtofriend.friendsName.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('forms.sendtofriend.friendsName','forms',null)}"/>
+
+				<isinputfield formfield="${pdict.CurrentForms.sendtofriend.friendsemail}" type="input" xhtmlclass="email" requiredtext="${Resource.msg('forms.sendtofriend.email.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('forms.sendtofriend.friendsEmail','forms',null)}"/>
+				<isinputfield formfield="${pdict.CurrentForms.sendtofriend.yourname}" type="input" attribute1="placeholder" value1="${Resource.msg('forms.sendtofriend.yourName','forms',null)}"/>
+		
+				<isinputfield formfield="${pdict.CurrentForms.sendtofriend.youremail}" type="input" xhtmlclass="email" requiredtext="${Resource.msg('forms.sendtofriend.email.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('forms.sendtofriend.yourEmail','forms',null)}"/>
+				
+				
+				
+			<iscomment>Site Dev- To add the Javascript counter functionality</iscomment>
+			<div class="textarea-wrap">
+				<isinputfield attribute1="rows" value1="5" attribute2="cols" value2="50" formfield="${pdict.CurrentForms.sendtofriend.message}" type="textarea" attribute1="placeholder" value1="${Resource.msg('forms.sendtofriend.personalMessage','forms',null)}"/>
+		    	<span class="remaining"></span>
+			</div>
+						
+			
+			
+			<div class="form-row form-row-button">
+				<button class="edit-button" type="submit" value="${Resource.msg('global.edit','locale',null)}" name="${pdict.CurrentForms.sendtofriend.edit.htmlName}"${pdict.ViewMode == "preview" ? "" : " style='display:none'"}>				
+					${Resource.msg('global.edit','locale',null)}
+				</button>					
+								
+				<button class="button submitAjaxForm" value="${Resource.msg('global.send','locale',null)}" type="submit" name="${pdict.CurrentForms.sendtofriend.send.htmlName}" id="sendtofrndbutton">
+					<span class="face front">${Resource.msg('forms.sendtofriend.send','forms',null)}</span>
+					<span class="face back">${Resource.msg('forms.sendtofriend.send','forms',null)}</span>
+				</button>
+									
+			</div>
+		</fieldset>
+					
+	</div>
+</form>

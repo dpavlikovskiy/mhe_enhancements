@@ -1,0 +1,160 @@
+<iscontent type="text/plain" charset="UTF-8">
+<isscript>
+	
+		var tempevents=[];
+		var currentevent:Object = new Object();
+		pdict.events=[];
+		var customObjects = dw.object.CustomObjectMgr.getAllCustomObjects('GoogleAnalyticsTagEvent');
+		for each( var obj in customObjects){
+				currentevent.domselector=obj.custom.domselector;
+				//dw.system.Logger.debug("domselector {0}",currentevent.domselector);
+				currentevent.description=obj.custom.description;
+				//dw.system.Logger.debug("description {0}",currentevent.description);
+				currentevent.enabled=obj.custom.enabled;
+				//dw.system.Logger.debug("enabled {0}",currentevent.enabled);
+				currentevent.multipleelementsselected=obj.custom.multipleelementsselected;
+				//dw.system.Logger.debug("multipleelementsselected {0}",currentevent.multipleelementsselected);
+				currentevent.domevent=obj.custom.domevent;
+				//dw.system.Logger.debug("domevent {0}",currentevent.domevent);
+				currentevent.category=obj.custom.category;
+				//dw.system.Logger.debug("category {0}",currentevent.category);
+				currentevent.action=obj.custom.action;
+				//dw.system.Logger.debug("action {0}",currentevent.action);
+				//dw.system.Logger.debug("before label {0}",obj.custom.label);
+				currentevent.label=obj.custom.label;
+				//dw.system.Logger.debug("after label {0}",currentevent.label);
+				currentevent.value=obj.custom.value;
+				//dw.system.Logger.debug("value {0}",currentevent.value);
+				currentevent.noninteractopt=obj.custom.noninteractopt;
+				//dw.system.Logger.debug("noninteractopt {0}",currentevent.noninteractopt);
+				//dw.system.Logger.debug("Json {0}",JSON.stringify(currentevent));
+				tempevents.push(JSON.stringify(currentevent));
+		}
+		
+		pdict.events=tempevents;
+		//dw.system.Logger.debug("Final events {0}",pdict.events);
+</isscript>
+
+<script type="text/javascript">  
+	
+	if(${pdict.gaenabled }){
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', '${pdict.trackingid}']);
+	  _gaq.push(['_setDomainName', '${pdict.domain}']);
+	  <isscript>
+	  var locale:String=dw.util.Locale.getLocale(request.locale).toString().replace('_','-');
+	 
+	 
+	  </isscript>
+		var locale="/s/"+'${dw.system.Site.current.ID}'+"/"+'${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}';
+		
+	  if(document.URL.indexOf("order-confirmation?dwcont") > 0){
+		 _gaq.push(['_trackPageview',locale+'/order-confirmation']);
+	  }else if(document.getElementById('payerauth')){
+	  _gaq.push(['_trackPageview',locale+'/3DSecureFlow/']);
+	  }else{
+		_gaq.push(['_trackPageview']);  
+	  }
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	}
+	 
+	  
+  var eventtracker = function(){
+		
+	events=${pdict.events};
+	 
+    gettrackeventarray = function(category, action, label, value, noninteractopt){
+    //alert (category  + " -::- " + action + " -::- " + label + " -::- " + value + " -::- " + noninteractopt);
+    var trackFunctionArray = ['_trackEvent', category, action, label, 1];
+      
+      if(noninteractopt){
+          trackFunctionArray.push(noninteractopt);
+        }
+      
+      return trackFunctionArray;
+    };
+    
+    hookevents = function(ajaxcallselector){
+      if(events && events.length > 0){
+        $(document).ready(function(){
+        	
+        	if(ajaxcallselector){
+						//if it is a ajax call then need to call only AJAX specific events and change domselector
+		      	for (var i=0;i< events.length;i++){
+		      		// Product selector
+					if(events[i].domselector===".product-hover-wrapper a"){
+							events[i].domselector=events[i].domselector+ajaxcallselector;
+						}
+					else{
+						// Dont fire any other event on AJAX call otherwise multiple events will be fired
+						events[i].enabled=false;
+						}
+		      	}	
+	      		
+			}
+        	
+        	
+          $.map(events, function(evt){
+        	
+        	if(evt.enabled){
+        		
+        		if(evt.label!==null && typeof(evt.label)=="string" && evt.label.indexOf("function(")!=-1){
+        			
+        			evt.label=eval(evt.label);
+        			
+        		}
+        		if(evt.value!==null && typeof(evt.value)=="string" && evt.value.indexOf("function(")!=-1){
+        			
+        			evt.value=eval(evt.value);
+        			
+        		}
+        		
+        		
+	        	if(evt.multipleelementsselected){
+	        		
+	        		$("body").on(evt.domevent, evt.domselector, function(){
+	        			_gaq.push(
+	              				gettrackeventarray(
+	              				evt.category, 
+	              				evt.action, 
+	              				(typeof(evt.label)==="function"?evt.label(this):evt.label), 
+	              				(typeof(evt.value)==="function"?evt.value(this):evt.value), 
+	              				evt.noninteractopt));
+	        		});
+
+		        		
+	        		}
+	        	else{
+	        		$("body").on(evt.domevent, evt.domselector, function(){
+	        			_gaq.push(
+	              				gettrackeventarray(
+	              				evt.category, 
+	              				evt.action, 
+	              				(typeof(evt.label)==="function"?evt.label():evt.label), 
+	              				(typeof(evt.value)==="function"?evt.value():evt.value), 
+	              				evt.noninteractopt));
+	        		});
+	        		
+	        	}
+        	}
+          });
+        });
+      }
+    };
+    
+    return {
+      hookevents: hookevents
+    };
+
+  }();
+
+  $(function(){
+	  if(${pdict.gaenabled} && ${pdict.eventtrackingenabled}){
+			eventtracker.hookevents();
+		  }
+  });
+</script>

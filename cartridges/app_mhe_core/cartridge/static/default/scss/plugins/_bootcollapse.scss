@@ -1,0 +1,18 @@
+// =============================================================================
+// Bootstrap Styles for Collapse/Accordion
+// =============================================================================
+
+.collapse {
+  display: none;
+}
+
+.collapse.in {
+  display: block;
+}
+
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  @include transition(height 0.35s ease);
+}

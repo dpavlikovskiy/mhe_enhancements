@@ -1,0 +1,89 @@
+<iscomment>
+	Desc:
+		Includes the options of a product if available
+
+	Parameter:
+		Product - the product to use
+
+	Options:
+		none
+
+	Available if empty: none
+	Full-Block-Element: yes
+</iscomment>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+
+	<div class="product-options">				
+		<h2 class="visually-hidden">Product Options</h2>
+		<isif condition="${!empty(pdict.Product.getImage('personalize',0))}">
+			<isset name="imageUrl" value="${ (new ProductImage('personalize', imageProduct, 0 )).getURL() }" scope="page" />
+		<iselse>
+			<isset name="imageUrl" value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page"/>
+		</isif>
+
+		<isloop items="${POM.options}" var="Option">
+		    <isset value="${POM.getOptionValues(Option)[1]}" name="OptionValue" scope="page">
+			<isif condition="${OptionValue.ID =='engraving'}" > 
+								
+			<div class="personalisation-panel attribute">
+				<div class="column column-image">
+					<div class="image-wrap image-wrap-snapshot">
+						<div class="img-frame">
+							<img src="${imageUrl}" class="image-promo" class="image-promo" alt="" />
+						</div>
+					</div>	
+				</div>
+				<div class="column column-detail">
+					<h3 class="gamma-heading">${Resource.msg('personalize.title','product',null)}</h3>
+					<p>${Resource.msg('personalize.desc','product',null)}</p>
+					<p class="price">
+						<isset value="${POM.getOptionValues(Option)[1]}" name="OptionValue" scope="page">
+						<isscript>
+							var optionPrice = POM.getPrice(OptionValue);										
+							var combinedPrice = optionPrice.add(empty(pdict.displayPrice) ? 0 : pdict.displayPrice);
+						</isscript>
+						<span class="plus">+</span> <span class="value"><isprint value="${POM.getPrice(OptionValue)}" /></span>
+					</p>
+					<isif condition="${!(pdict.Product.custom.csOnlyIsOrderable && pdict.CurrentSession.userName.equalsIgnoreCase('storefront'))}">
+					<ul class="cta-list">
+						<li>
+							<isif condition="${pdict.Product.optionProduct}">
+						   		<button class="button personalize" value="${URLUtils.url('Product-ShowPersonalize', 'pid', pdict.Product.ID, 'source', 'dialog', 'showOption', 'true')}">
+					   				<span class="face front">${Resource.msg('personalize.add1','product',null)}</span>
+					   				<span class="face back">${Resource.msg('personalize.add1','product',null)}</span>
+						   		</button>
+							</isif>
+						</li>
+					</ul>
+					</isif>
+				</div>
+			</div>
+			</isif>
+		</isloop>
+		
+		<iscomment>
+		<ul>
+			<isloop items="${POM.options}" var="Option">
+				<li class="attribute">
+					<img width="80px" height="50px" src="${imageUrl}" alt="Test"/>
+					<span class="label">${Resource.msg('personalize.title','product',null)}</span>
+					<span class="value">
+						${Resource.msg('personalize.desc','product',null)}</br>
+						<isset value="${POM.getOptionValues(Option)[1]}" name="OptionValue" scope="page">
+						<isscript>
+							var optionPrice = POM.getPrice(OptionValue);										
+							var combinedPrice = optionPrice.add(empty(pdict.displayPrice) ? 0 : pdict.displayPrice);
+						</isscript>
+						${OptionValue.ID} -- ${POM.getPrice(OptionValue)} -- ${OptionValue.getDisplayValue()}								
+					</span>
+				</li>
+			</isloop>
+			<isif condition="${pdict.Product.optionProduct}">
+		   		<a class="personalize" href="${URLUtils.url('Product-ShowPersonalize', 'pid', pdict.Product.ID, 'source', 'dialog', 'showOption', 'true')}">
+	   				${Resource.msg('personalize.add','product',null)}
+		   		</a>
+			</isif>	
+		</ul>
+		</iscomment>
+	</div>
+

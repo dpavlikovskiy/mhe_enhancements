@@ -1,0 +1,51 @@
+<!--- TEMPLATENAME: accessorymainproducttop.isml --->
+<isscript>
+	importScript("product/ProductUtils.ds");
+	
+	/* Get Top Level category, to create the key for getting Serving and Volume Info */
+	var rootCategory : dw.catalog.Category = ProductUtils.getRootCategory(pdict.productLineItem.product);	
+</isscript>
+
+<div class="section first-section">
+	<h2 class="beta-heading instruction">${dw.web.Resource.msg('accessory.dialog.step1.added','product','Step 1')}</h2>
+	<div class="item-n-price-wrap">
+	    <h3 class="gamma-heading item-detail">${pdict.productLineItem.productName}</h3>
+	    <div class="product-price">	
+	        <span class="price-sales item-detail">
+	        	<isset name="currencyCode" value="${pdict.productLineItem.adjustedPrice.currencyCode}" scope="page"  >
+				<isprint value="${new dw.value.Money((pdict.productLineItem.adjustedPrice / pdict.productLineItem.quantity) * pdict.currentQuantity, currencyCode)}"/>	        	
+	        </span>
+	    </div>
+	</div>
+
+	<isset name="key" value="${null}" scope="page" />			
+	<isset name="sizeDisplayValue" value="${null}" scope="page" />
+	
+	<isloop items="${pdict.productLineItem.product.variationModel.getProductVariationAttributes()}" var="VA">
+		<isset name="SelectedVariationValue" value="${pdict.productLineItem.product.variationModel.getSelectedValue(VA)}" scope="page"/>
+		<isif condition="${SelectedVariationValue != null}">
+			<isset name="key" value="${rootCategory.ID + '-' + SelectedVariationValue.value}" scope="page" />			
+			<isset name="sizeDisplayValue" value="${SelectedVariationValue.displayValue}" scope="page" />
+		</isif>
+	</isloop>
+	<isset name="serving" value="${null}" scope="page"/>
+	<isif condition="${key != null && !empty(key)}" >
+		<isset name="serving" value="${ProductUtils.getValueFromSitePrefEnum('stdBottleEquivalent', key)}" scope="page"/>
+	</isif>
+	<isset name="className" value="${null}" scope="page"/>
+	<isif condition="${sizeDisplayValue != null && !empty(sizeDisplayValue)}" >	
+		<isset name="className" value="${ProductUtils.getClassNameForSize(SelectedVariationValue.value)}" scope="page"/>
+	</isif>	
+	<ul class="bottle-attributes size-icon ${className}">
+		<li class="detail size">
+			<isif condition="${sizeDisplayValue != null && !empty(sizeDisplayValue)}" >	
+				<isprint value="${sizeDisplayValue}"/>
+			</isif>
+		</li>
+		<iscomment><li class="detail serving">
+			<isif condition="${serving != null && !empty(serving)}" >			
+				<isprint value="${serving}"/>
+			</isif>
+		</li></iscomment>
+	</ul>
+</div>

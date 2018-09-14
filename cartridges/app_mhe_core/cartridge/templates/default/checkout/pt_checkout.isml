@@ -1,0 +1,97 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:'Checkout',type:'checkout',ns:'checkout'};</isscript>
+	<isinclude template="util/modules"/>
+	
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="checkout/pt_checkout_UI"/>
+
+	<iscomment>Add template-specific header information here.</iscomment>	
+	
+</head>
+
+<body>
+
+<script type="text/javascript">
+var photoBoothImageId = "";
+<isif condition="${'photoBoothImageID' in pdict.CurrentSession.custom && !empty(pdict.CurrentSession.custom.photoBoothImageID)}">
+photoBoothImageId = "${pdict.CurrentSession.custom.photoBoothImageID.toString()}";
+</isif>
+</script>
+	<div id="wrapper" class="pt_checkout">
+	<isif condition="${!pdict.CurrentCustomer.registered  && 'staticOfferCategory' in pdict.Basket.custom}">
+		<isscript>
+		var category=dw.catalog.CatalogMgr.getCategory(pdict.Basket.custom.staticOfferCategory);
+		 </isscript>
+		<div class="staticCheckoutHeader">
+			<div class="header static-logo" id="headerlogo">
+				<h1 class="title-wrap">
+					<a href="${URLUtils.url('Search-Show','cgid',category.ID)}">
+						<img src="${category.thumbnail.URL}" alt="${category.displayName}" class="logo" />
+					</a>
+				</h1>
+			</div>	
+		</div>
+	<iselse>
+	<div class="logo_header" id="headerLogo" data-main-logo-anim='{"hideClass":"js-hide","showClass":"js-show","targetElement":"js-hide-target","scrollSwitchPoint":200}'>
+		<h1 class="title-wrap">
+			<isif condition="${(pdict.CurrentSession.custom.brand.equals('mh'))}">
+			<span class="main-title">
+						${Resource.msg('global.selection','locale',null)}
+					</span>
+			<iselse>
+			<img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" />
+			</isif>
+		</h1>
+	</div>
+	</isif>
+		   <isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM && 'catID' in pdict.CurrentSession.custom}">
+			<script type="text/javascript">
+	
+			 dataLayer = []; 
+			 var cartProducts = [];
+
+				 <isscript>
+			 		var categoryName : String = pdict.CurrentSession.custom.catID;
+			 		var categoryNameEncode : String = StringUtils.decodeString(categoryName, StringUtils.ENCODE_TYPE_HTML);			
+			 	</isscript>
+			 dataLayer.push({
+			 	"staticCategoryID": "${categoryNameEncode}"
+			 });
+		
+			</script>
+		</isif>		
+
+		<div id="main" role="main" class="primary-focus main clearfix">
+		
+			<div id="primary" class="primary-content">
+				<isreplace/>
+				
+			</div>
+			
+			
+			
+		</div>
+	
+	
+		
+	<isif condition="${!pdict.CurrentCustomer.registered && pdict.CurrentSession.custom.brand.equals('mh')}">
+	
+		<isinclude template="components/footer/footer-staticoffer"/>
+		<iselse>
+		<isinclude template="components/footer/footer"/>
+		</isif>
+		
+		<isinclude template="checkout/pt_checkout_VARS"/>
+		
+	</div>
+	
+</body>
+</html>

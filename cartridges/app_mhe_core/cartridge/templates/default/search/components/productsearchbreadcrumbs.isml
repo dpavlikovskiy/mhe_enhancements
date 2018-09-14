@@ -1,0 +1,66 @@
+<iscomment>This template renders the breadcrumb navigation for product search results</iscomment>
+
+<iscomment>get the current paging model for convenient reuse</iscomment>
+<isset name="pagingModel" value="${pdict.ProductPagingModel}" scope="page"/>
+
+<iscomment>Added to access unsanitizeOR()</iscomment>
+<isscript>
+	importScript('product/ProductUtils.ds');
+</isscript>
+
+	<ol class="breadcrumb clearfix">
+		<li><a href="${URLUtils.httpHome()}" class="breadcrumb-home">${Resource.msg('global.home','locale',null)}</a></li>
+		<isif condition="${!empty(pdict.ProductSearchResult) && !empty(pdict.ProductSearchResult.searchPhrase)}">
+			<li>
+				<isif condition="${empty(pagingModel)}">
+					<isset name="breadcrumbHref" value="${URLUtils.url('Search-Show','q',pdict.ProductSearchResult.searchPhrase)}" scope="page" />
+				<iselse>
+					<isset name="breadcrumbHref" value="${pagingModel.appendPaging(URLUtils.url('Search-Show','q',pdict.ProductSearchResult.searchPhrase), 0)}" scope="page" />
+				</isif>
+				<span class="breadcrumb-result-text">
+					${Resource.msg('searchbreadcrumbs.resultstext','search',null)}
+					&quot;<a href="${breadcrumbHref}">${pdict.ProductSearchResult.searchPhrase}</a>&quot;
+				</span>
+			</li>
+		</isif>
+		<isif condition="${!empty(pdict.ProductSearchResult) && pdict.ProductSearchResult.category != null}">
+				<isactivedatacontext category="${pdict.ProductSearchResult.category}"/>
+			
+				<isscript>
+					importScript
+					var path = new dw.util.ArrayList();
+					var cat = pdict.ProductSearchResult.category;
+					while( cat.parent != null )
+					{
+						if( cat.online ) path.addAt( 0, cat );
+						cat = cat.parent;
+					}
+				</isscript>
+		
+				<isloop items="${path}" var="cat" status="loopstate">
+					<isif condition="${loopstate.first && !pdict.ProductSearchResult.categorySearch}">
+						<li><span class="breadcrumb-result-text">${Resource.msg('searchbreadcrumbs.in','search',null)}</span></li>
+					</isif>
+					
+					<isif condition="${pdict.ProductSearchResult.categorySearch}">
+						<isset name="catLinkUrl" value="${dw.catalog.ProductSearchModel.urlForCategory('Search-Show', cat.ID)}" scope="page"/>
+					<iselse>                        
+						<isset name="catLinkUrl" value="${dw.catalog.ProductSearchModel.urlForCategory(URLUtils.url('Search-Show','q', pdict.ProductSearchResult.searchPhrase), cat.ID)}" scope="page"/>
+					</isif>
+					
+					<isif condition="${loopstate.last &&  !pdict.ProductSearchResult.refinedByPrice && !pdict.ProductSearchResult.refinedByAttribute}">
+						<li><isprint value="${cat.displayName}" /></li>
+					<iselse>
+						<li><a href="${catLinkUrl}">${cat.displayName}</a></li>
+					</isif>
+		
+				</isloop>
+		</isif>
+	
+		<iscomment>REFINEMENT INFO </iscomment>
+		
+
+		<li>
+			<ispagingcurrentpage pageurl="${pdict.ProductSearchResult.url('Search-Show')}" pagingmodel="${pdict.ProductPagingModel}"/>
+		</li>	
+</ol>

@@ -1,0 +1,23 @@
+<!--- TEMPLATENAME: storesearchbar.isml --->
+<div class="sectionHeader">
+	<iscontentasset aid="CA_StoreLocator_SearchPage"/>
+	<div id="searchbar" class="searchBar">
+		<iscomment><p>${Resource.msg('storelocator.findstoremessage','storelocator',null)}</p></iscomment>
+			<h3 class="secondary" id="resultDiv" style="display:none">
+				<isprint value="${Resource.msg('storelocator.found.message','storelocator',null)}"/> 
+				<span id="resultCount"></span>
+				<span><isprint value="${Resource.msg('storelocator.foundPlace.message','storelocator',null)}"/></span>
+				<isprint value="${Resource.msg('storelocator.foundCont.message','storelocator',null)}"/>
+			</h3>
+			<h3 class="secondary" id="NoresultDiv" style="display:none"><iscontentasset aid="CA_StoreLocator_NoSearchResult"/></h3>
+			<form id="storesearchform">
+				<iscomment><label for="searchParam">${Resource.msg('storelocator.searchbar.postalcode','storelocator',null)}</label></iscomment>					
+				<input type="text" name="searchParam" id="searchParam" placeholder="${Resource.msg('storelocator.searchbar.instruction','storelocator',null)}" />
+				<button type="submit" id="storeSearch" class="button" value="${Resource.msg('global.go','locale',null)}">
+					<span class="face front">${Resource.msg('global.go','locale',null)}</span>
+					<span class="face back">${Resource.msg('global.go','locale',null)}</span>
+				</button>				  
+		    </form>
+	    <div id="errorMsg"></div>
+	</div>
+</div>

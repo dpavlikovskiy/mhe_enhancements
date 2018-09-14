@@ -1,0 +1,114 @@
+<iscache type="relative" hour="24" varyby="price_promotion"/>
+<iscomment>In the product pipeline, if a product was not found for the selected attributes, we need to refresh the ProductVariationModel using the default selected variant</iscomment>
+<isinclude template="util/modules"/>
+<isscript>  
+		importScript( "product/ProductUtils.ds" );					
+		var badgeValidity : Boolean = ProductUtils.displayBadge(pdict.Product); 
+</isscript>
+<isset name="isDiscontinued" value="${pdict.Product.custom.discontinued}" scope="pdict"/>
+<isset name="isComingSoon" value="${(pdict.Product.custom.badge=='ComingSoon' && badgeValidity)?true:false}" scope="pdict"/>
+<isset name="isQuickView" value="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || (pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist' && empty(pdict.CurrentHttpParameterMap.format))}" scope="page"/>
+
+<iscomment> Flag for Gift Products </iscomment>
+<isif condition="${!pdict.Product.isVariant()}" >
+	<isset name="isGift" value="${pdict.Product.custom.isGift}" scope="page">
+<iselse>
+	<isset name="isGift" value="${pdict.Product.masterProduct.custom.isGift}" scope="page">
+</isif>
+
+<isobject object="${pdict.Product}" view="detail">
+
+	<iscomment> Flag to identify if the product is a Gift Product </iscomment>
+	<isif condition="${!pdict.Product.isVariant()}" >
+		<isset name="isGift" value="${pdict.Product.custom.isGift}"   scope="page"  >
+	<iselse>
+		<isset name="isGift" value="${pdict.Product.masterProduct.custom.isGift}"   scope="page"  >
+	</isif>		 
+    
+	<div id="pdpMainQV" class="container-pdp <isif condition="${isGift}">pdp-gift</isif>"  itemscope itemtype="http://schema.org/Product">				
+		<iscomment>Image and variation options are part of the include template</iscomment>		
+		<!-- dwMarker="product" dwContentID="${pdict.Product.UUID}" -->
+		<iscomment>
+			the category context is determined based on the product search
+			which was triggered or through the products primary category
+		</iscomment>
+		<isscript> 
+			importScript("util/ProductImageSO.ds");		
+			importScript("product/ProductUtils.ds");
+			var category : dw.catalog.Category = ProductUtils.getProductCategoryForPDP(pdict.ProductSearchResult, pdict.Product);
+			var rootCategory : dw.catalog.Category = ProductUtils.getRootCategory(pdict.Product);
+			var isGift : Boolean = false;
+			/** Set if the badge needs to be displayed or not */ 
+			displayBadge = ProductUtils.displayBadge(pdict.Product); 
+				if ('isGift' in pdict.Product.custom && pdict.Product.custom.isGift) {
+			isGift = true;
+		}
+		</isscript>
+
+		<isset name="classNameForKeyline" value="" scope="page" >
+		<isif condition="${!empty(pdict.Product.getImages('hi-res')) && pdict.Product.getImages('hi-res').length>1}">
+			<isset name="classNameForKeyline" value="multiple-views" scope="page" >
+		</isif>
+				
+
+		<div class="pdp-section pdp-section-hero">
+			<div id="pdp-image-switcherQV" class="pdp-section-row js-sup-scroller js-image-switcher" 
+				data-sup-scroller='{"heroColumn" : "column-hero", "detailsColumn" : "column-details", "scrollPanelWrap" : "col-inner", "offsetY" : "120px"}'
+				data-image-switch-config='{"thumbContainerSelector":".thumb", "thumbnailImageSelector":".productthumbnail", "mainImageSelector" : ".img-hero", "activeClass" : "selected"}'>
+		
+				<div class="column column-details product-detail ${classNameForKeyline}">
+					<div class="col-inner">
+						<div class="product-logo" itemprop="name">
+							<img src="${category.thumbnail.URL}" alt="${category.displayName}" class="logo" />
+						</div>
+						<h1 class="alpha-heading" itemprop="name"><isprint value="${pdict.Product.name}"/></h1>
+				
+						<div id="product-contentQV" class="product-shop-module">
+							<isinclude template="product/customproductcontentQuickview" />
+						</div>
+				
+						<isinclude template="product/components/productimages"/>				
+					</div>
+		 		</div>
+		 
+				<div class="column column-hero product-image-container">
+					<div class="col-inner">	
+					<isif condition="${isGift}" >		
+						<div id="primary-product-imageQV" class="product-primary-image epageGift">
+						<iselse>
+						<div id="primary-product-imageQV" class="product-primary-image">
+						</isif>
+							<h2 class="visually-hidden">Images</h2>			
+							<isif condition="${!empty(imageProduct.getImages('hi-res')) && imageProduct.getImages('hi-res').length>0}">
+								<isset name="hi_res" scope="page" value="${new ProductImage('pdp-producttopcontent', imageProduct,0).getURL().toString()}" />
+								<isset name="href" scope="page" value="${'href='+hi_res+' target=_blank'}" />
+							<iselse>
+								<isset name="hi_res" scope="page" value="${''}" />
+								<isset name="href" scope="page" value="${'name=product_detail_image'}" />
+							</isif>
+							<img itemprop="image" class="" src="${imageUrl}" alt="${imageAlt}" />
+							<isif condition="${displayBadge}"> 
+								<img class="product-image-badge" src="${ProductUtils.getBadgeImage(pdict.Product.custom.badge)}" />
+							</isif>
+						</div>
+					</div>
+				</div>
+			</div>
+			<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+				<isif condition="${!pdict.available || pdict.isComingSoon}">
+					<div>
+						<isinclude url="${URLUtils.url('Product-KeepMeUpdate', 'productID', pdict.Product.ID)}"/>
+					</div>
+				</isif>	
+			</isif>
+			<div class="pdp-section-row">
+			</div>
+		</div>	
+	
+	</div><!--/pdpMain -->
+</isobject>
+<script type="text/javascript">
+$(document).ready(function(){
+	//app.product.init();
+});
+</script>

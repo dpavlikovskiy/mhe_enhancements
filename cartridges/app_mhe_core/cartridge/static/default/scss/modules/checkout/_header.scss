@@ -1,0 +1,23 @@
+.pt_checkout {
+	.checkout-progress-indicator {
+		text-align:center;
+		margin-bottom:35px;
+		.step {
+			float:left;
+			width:25%;
+			span.disabled {
+				line-height:40px;
+				display:block;
+			}
+			&.active {
+				a {
+					margin-left:2px;
+					display:block;
+				}
+			}
+			&.first a {
+				margin-left:0;
+			}
+		}
+	}
+}

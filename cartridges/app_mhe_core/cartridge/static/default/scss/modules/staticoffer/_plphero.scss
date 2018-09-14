@@ -1,0 +1,33 @@
+// =============================================================================
+// Static Offer - PLP Hero
+// =============================================================================
+
+.static-offer {
+	.plp-static-hero {
+		max-width: 1280px;
+		margin: 0 auto;
+		position: relative;
+		min-height: 216px;
+		img {
+			position: absolute;
+			z-index: 1;
+		}
+		.inside {
+			z-index: 2;
+			padding-top: 40px;
+			position: relative;
+			max-width: 450px;
+			@include centered();
+			@include centerelement();
+			h2, p {
+				@extend %text-shadow;
+			}
+			h2 {
+				font-size: 42px;
+			}
+			.button {
+				width: 250px;
+			}
+		}
+	}
+}

@@ -1,0 +1,46 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<!-- Start: cssuite/user/miniaddress -->
+
+<!---
+	Creates a miniaddress display.
+	
+	Parameter: 
+	p_address	 	: the address object to display
+    p_productlist   : the product list the address represents. can be empty 
+ --->
+<isif condition="${!empty(pdict.p_address)}"> 
+	<div class="miniaddress">
+		<div class="name">
+			<span class="firstname"><isprint value="${pdict.p_address.salutation}"></span>
+			<span class="firstname"><isprint value="${pdict.p_address.title}"></span>
+			<span class="firstname"><isprint value="${pdict.p_address.firstName}"></span>
+			<span class="lastname"><isprint value="${pdict.p_address.lastName}"></span>
+		</div>
+		<div class="address">
+			<div class="street">
+				<isif condition="${!empty(pdict.p_address.companyName)}">
+					<div class="line2"><isprint value="${pdict.p_address.companyName}"></div>
+				</isif>
+				<div class="line1"><isprint value="${pdict.p_address.address1}"></div>
+				<isif condition="${!empty(pdict.p_address.address2)}">
+					<div class="line2"><isprint value="${pdict.p_address.address2}"></div>
+				</isif>
+			</div>
+			<div class="location">
+				
+				<span class="zip"><isprint value="${pdict.p_address.postalCode}"></span>
+				<isif condition="${pdict.p_address.city != null}">
+	                <span class="city"><isprint value="${pdict.p_address.city}"></span><span class="statedivider">${Resource.msg('global.symbol.comma','cssuite',null)}&nbsp;</span>
+	            </isif>
+	            <span class="state"><isprint value="${pdict.p_address.stateCode}">&nbsp;</span>
+			</div>
+			<div class="country"><isprint value="${pdict.p_address.countryCode}"></div>
+		</div>
+		<isif condition="${!empty(pdict.p_address.phone)}">
+		<div class="phone">
+			<span class="phone"><isprint value="${pdict.p_address.phone}"></span>
+		</div>
+		</isif>
+	</div>
+</isif>
+<!-- End: cssuite/user/miniaddress -->

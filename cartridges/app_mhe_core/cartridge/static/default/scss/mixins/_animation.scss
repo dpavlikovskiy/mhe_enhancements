@@ -1,0 +1,33 @@
+//============================================================
+//
+// animation
+//
+// @param name                :  String
+// @param duration            :  0.5s, 1.8s, 2000ms
+// @param timing-function     :  ease         |
+//                               linear       |
+//                               ease-in      |
+//                               ease-out     |
+//                               ease-in-out  |
+//                               step-start   |
+//                               step-end     |
+//                               cubic-bezier
+// @param delay               :  0.5s, 1.8s, 2000ms
+// @param iteration-count     :  infinite     |
+//                               number
+// @param direction           :  normal       |
+//                               reverse      |
+//                               alternate    |
+//                               alternate-reverse
+// @param fill mode           :  none         |
+//                               forwards     |
+//                               backwards    |
+//                               both
+//
+// @see http://www.w3.org/TR/css3-animations/
+//
+//============================================================
+
+@mixin animation($arguments) {
+  @include prefix-property(animation, unquote($arguments));
+}

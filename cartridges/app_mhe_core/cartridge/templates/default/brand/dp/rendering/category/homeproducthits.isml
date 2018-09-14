@@ -1,0 +1,98 @@
+<isdecorate template="brand/search/pt_homesearchresult">
+	<isscript>
+		importScript("product/ProductUtils.ds");
+		var compareEnabled = false;
+		if (!empty(pdict.CurrentHttpParameterMap.cgid.value)) {
+			compareEnabled = ProductUtils.isCompareEnabled(pdict.CurrentHttpParameterMap.cgid.value);
+		} 
+	</isscript>
+	
+	<iscomment>
+		Use the decorator template based on the requested output. If
+		a partial page was requested an empty decorator is used.
+		The default decorator for the product hits page is
+		search/pt_productsearchresult.
+	</iscomment>
+	
+	<iscache type="relative" minute="30" varyby="price_promotion"/>
+	
+	<isinclude template="util/modules"/>
+	
+	<iscomment>
+		Configured as default template for the product search results.
+		Displays a global slot with static html and the product search
+		result grid.
+	</iscomment>
+	
+	<iscomment>create reporting event</iscomment>
+	<isinclude template="util/reporting/ReportSearch.isml"/>
+	
+	<iscomment>suggest similar search phrase below the breadcrumb</iscomment>
+	<isif condition="${!empty(pdict.ProductSearchResult.getSuggestedSearchPhrase())}">
+		<p class="did-you-mean">
+			${Resource.msg('search.nohits.didyoumeanex','search',null)}
+			<a href="<isprint value="${URLUtils.http('Search-Show','q',pdict.ProductSearchResult.suggestedSearchPhrase)}"/>"><isprint value="${pdict.ProductSearchResult.suggestedSearchPhrase}"/></a>
+		</p>
+	</isif>
+	<isset name="plpPageName" value="${Resource.msg('pagename.estoreplp','components',null)}" scope="page" />
+	<iscomment>
+		Render promotional content at the top of search results as global slot.
+		This content is only displayed if the search result is refined by a category.
+		If the search result is not refined by a category a global default is displayed.
+	</iscomment>
+	<isslot id="homeCarousel" context="category" description="Home page carousel" context-object="${pdict.ProductSearchResult.category}"/>
+	
+	<isslot id="home-product" context="category" description="home page featured products" context-object="${pdict.ProductSearchResult.category}"/>
+	<div id="instafeed" class="instafeed"></div>
+	
+	<div class="content-slot slot-grid-header">
+		<isif condition="${!empty(pdict.ProductSearchResult.category)}">
+			<isslot id="cat-banner" context="category" description="Category Banner" context-object="${pdict.ProductSearchResult.category}"/>
+		</isif>
+	</div>
+	
+	<isscript>
+		var selectedString = 'selected="selected"';
+	</isscript>
+
+	<isif condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+		
+		<div class="brandHome products" id="dpHomePage">
+			<div class="content-slot"><isslot id="PLP_Promo1" context="category" description="Category Promo One Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo2" context="category" description="Category Promo Two Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo3" context="category" description="Category Promo Three Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo4" context="category" description="Category Promo Four Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo5" context="category" description="Category Promo Five Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo6" context="category" description="Category Promo Six Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo7" context="category" description="Category Promo seven Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo8" context="category" description="Category Promo eight Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo9" context="category" description="Category Promo nine Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo10" context="category" description="Category Promo Ten Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo11" context="category" description="Category Promo oneOne Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo12" context="category" description="Category Promo oneTwo Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo13" context="category" description="Category Promo oneThree Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo14" context="category" description="Category Promo oneFour Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo15" context="category" description="Category Promo oneFive Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo16" context="category" description="Category Promo oneSix Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+			<div class="content-slot"><isslot id="PLP_Promo17" context="category" description="Category Promo oneSeven Slot" context-object="${pdict.ProductSearchResult.category}"/></div>
+		</div>
+						        
+	<iselse>
+
+		<iscomment>display no results</iscomment>
+		<div class="no-results">
+			${Resource.msg('productresultarea.noresults','search',null)}
+		</div>
+
+	</isif>
+	
+  	<iscomment> 
+		################################ FOR UI Developers ################################
+		# Use this attribute (enableParallyax) to enable/disable Packery on the page #
+		################################ FOR UI Developers ################################
+	</iscomment>
+	<isset name="enablePackery" value="${!('enableCEOnPLP' in dw.system.Site.current.preferences.custom) || !dw.system.Site.current.preferences.custom.enableCEOnPLP}" scope="page" />
+	<iscomment>FOR ID team : An Example to show how to use the attribute in data
+	<div class="back-top" data-back-to-top='{"particleClass":${enablePackery}}'></div>
+	</iscomment>
+</isdecorate>

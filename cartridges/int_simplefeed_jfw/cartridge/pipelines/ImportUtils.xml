@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="view">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Example Task Configuration:
+{ &quot;name&quot; : &quot;Update Product Indexes&quot;, &quot;pipeline&quot; : &quot;ImportUtils-UpdateProductIndexes&quot;, &quot;synchronous&quot; : true, &quot;incremental&quot; : false }</description>
+        </text-node>
+        <node-display width="3" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="UpdateProductIndexes">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="UpdateProductIndexes" secure="false"/>
+        <node-display x="1" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Updating Product Index&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Updating Product Index&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="Task.getParameter('syncronous', true)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <decision-node condition-key="Task.getParameter('incremental', true)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                      <config-property key="IndexerType" value="Full"/>
+                      <config-property key="IndexerMode" value="Synchronous"/>
+                      <config-property key="Index" value="product"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="../../+3"/>
+                </segment>
+              </branch>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="2" y="0"/>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                <config-property key="IndexerType" value="Incremental"/>
+                <config-property key="IndexerMode" value="Synchronous"/>
+                <config-property key="Index" value="product"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <transition target-connector="in2" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-2"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="Task.getParameter('incremental', true)" condition-operator="expr"/>
+        <node-display x="2" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                <config-property key="IndexerType" value="Full"/>
+                <config-property key="IndexerMode" value="Asynchronous"/>
+                <config-property key="Index" value="product"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+          <config-property key="IndexerType" value="Incremental"/>
+          <config-property key="IndexerMode" value="Asynchronous"/>
+          <config-property key="Index" value="product"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in3" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="0"/>
+      </node>
+      <transition target-connector="in3" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_3">
+    <segment>
+      <node>
+        <text-node>
+          <description>Example Task Configuration:
+{ &quot;name&quot; : &quot;Invalidating Web Caches&quot;, &quot;pipeline&quot; : &quot;ImportUtils-InvalidateWebCache&quot;, &quot;invalidateStaticCache&quot; : false, &quot;invalidatePageCache&quot; : true}</description>
+        </text-node>
+        <node-display width="3" x="6" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="InvalidateWebCache">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="InvalidateWebCache" secure="false"/>
+        <node-display x="6" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Updating Product Index&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Invalidating Web Cache&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="Task.getParameter('invalidatePageCache', false)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <decision-node condition-key="Task.getParameter('invalidateStaticCache', false)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node custom-name="Task.setStatusMessage(&quot;Invalidating Page and Static Cache&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                      <config-property key="OnError" value="null"/>
+                      <config-property key="Transactional" value="true"/>
+                      <config-property key="Expression" value="Task.setStatusMessage(&quot;Invalidating Page and Static Cache&quot;)"/>
+                      <key-binding alias="Result" key="Result"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition/>
+                  <node>
+                    <pipelet-node pipelet-name="InvalidateWebCache" pipelet-set-identifier="bc_api">
+                      <config-property key="InvalidatePageCache" value="true"/>
+                      <config-property key="InvalidateStaticCache" value="true"/>
+                      <key-binding alias="Task.getParameter('siteID', 'ALL')" key="SiteID"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="../../+2">
+                    <transition-display>
+                      <bend-point relative-to="target" x="-2" y="-1"/>
+                    </transition-display>
+                  </transition>
+                </segment>
+              </branch>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="2" y="0"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <pipelet-node custom-name="Task.setStatusMessage(&quot;Invalidating Page Cache only&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="true"/>
+                <config-property key="Expression" value="Task.setStatusMessage(&quot;Invalidating Page Cache only&quot;)"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="InvalidateWebCache" pipelet-set-identifier="bc_api">
+                <config-property key="InvalidatePageCache" value="true"/>
+                <config-property key="InvalidateStaticCache" value="false"/>
+                <key-binding alias="Task.getParameter('siteID', 'ALL')" key="SiteID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-2"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="Task.getParameter('invalidateStaticCache', false)" condition-operator="expr"/>
+        <node-display x="2" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Task.setStatusMessage(&quot;Invalidating Static Cache only&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="true"/>
+                <config-property key="Expression" value="Task.setStatusMessage(&quot;Invalidating Static Cache only&quot;)"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <pipelet-node pipelet-name="InvalidateWebCache" pipelet-set-identifier="bc_api">
+                <config-property key="InvalidatePageCache" value="false"/>
+                <config-property key="InvalidateStaticCache" value="true"/>
+                <key-binding alias="Task.getParameter('siteID', 'ALL')" key="SiteID"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Invalidating neither Page nor Static Cache.&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Invalidating neither Page nor Static Cache.&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in2" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="target" x="2" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="2"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_5">
+    <segment>
+      <node>
+        <text-node>
+          <description>Example Task Configuration:
+{ &quot;name&quot; : &quot;Update AvilabilityIndexes&quot;, &quot;pipeline&quot; : &quot;ImportUtils-UpdateAvilabilityIndexes&quot;, &quot;synchronous&quot; : false&quot;incremental&quot; : false }</description>
+        </text-node>
+        <node-display width="3" x="1" y="9"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="UpdateAvilabilityIndexes">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="UpdateAvilabilityIndexes" secure="false"/>
+        <node-display x="1" y="10"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Updating Inventory Index&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Updating Inventory Index&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="Task.getParameter('syncronous', true)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <decision-node condition-key="Task.getParameter('incremental', true)" condition-operator="expr"/>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                      <config-property key="IndexerType" value="Full"/>
+                      <config-property key="IndexerMode" value="Synchronous"/>
+                      <config-property key="Index" value="product"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <transition target-connector="in1" target-path="../../+3"/>
+                </segment>
+              </branch>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="2" y="0"/>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                <config-property key="IndexerType" value="Incremental"/>
+                <config-property key="IndexerMode" value="Synchronous"/>
+                <config-property key="Index" value="product"/>
+              </pipelet-node>
+              <node-display x="1" y="1"/>
+            </node>
+            <transition target-connector="in2" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-2"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="Task.getParameter('incremental', true)" condition-operator="expr"/>
+        <node-display x="2" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+                <config-property key="IndexerType" value="Full"/>
+                <config-property key="IndexerMode" value="Asynchronous"/>
+                <config-property key="Index" value="product"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="UpdateSearchIndex" pipelet-set-identifier="bc_api">
+          <config-property key="IndexerType" value="Incremental"/>
+          <config-property key="IndexerMode" value="Asynchronous"/>
+          <config-property key="Index" value="product"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in3" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="0"/>
+      </node>
+      <transition target-connector="in3" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

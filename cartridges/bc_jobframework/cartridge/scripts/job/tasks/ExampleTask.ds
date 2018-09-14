@@ -1,0 +1,53 @@
+/**
+* This script implements an example task.
+*/
+importPackage( dw.system );
+importScript( 'util/libInheritance.ds' );
+importScript( 'job/tasks/BasicTask.ds' );
+importScript( 'job/tasks/libTasks.ds' );
+
+var cvLogger : Logger = Logger.getLogger( 'ExampleTask' );
+
+//Hack, because vars are cannot be imported in DW, only functions
+function getTaskClass() {
+	return ExampleTask;
+};
+function getExampleTaskClass() {
+	return ExampleTask;
+};
+
+var BasicTask = getBasicTaskClass();
+
+/**
+* ImpexTask implementation.
+*/
+var ExampleTask = BasicTask.extend ( 
+/** @lends ImpexTask.prototype */
+{
+	/**
+	* Initialises the object
+	* @constructs
+	* @augments BasicTask 
+	*/
+	init : function( config : Object, jobMonitor : Object ) {
+		//call 'super class' init function
+		this._super( config, jobMonitor );
+
+		//reset executable flag
+		this.executable = false;		
+
+		//check if required parameters are specified
+		if ( empty( this.getParameter('parameter1') ) ) {
+			this.initErrorMessage = 'Parameter \'parameter1\' expected but not specified!';
+			cvLogger.error( 'Parameter \'parameter1\' expected but not specified!' );
+			return;
+		}
+		
+		//finally all basic checks have been passed
+		this.executable = true;		
+
+	}
+	
+});
+
+registerTaskClass( 'example', ExampleTask );

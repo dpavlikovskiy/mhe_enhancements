@@ -1,0 +1,46 @@
+// =============================================================================
+// Block level container elements
+// =============================================================================
+
+
+$max-container: 1200px;
+$gutter_width: 0 40px;
+
+html, body{
+	height:100%;
+}
+#wrapper {
+	min-width: 1200px;
+	// Added bg color for contact page - this may effect other pages bg color
+	&.pt_customer-service {
+		background-color: $black;
+	}
+	&.loginRegister{
+		min-height:100%;
+    	position:relative;
+    	.footer{
+			position:absolute;
+			width:100%;
+			bottom:0;
+			.footer-first{
+				margin-top:0;
+			}
+		}
+	}
+	
+}
+
+.fullWidth{
+	width:100%;
+	.main {
+		padding:0;
+		width:100%;
+		max-width:none;
+	}
+}
+
+.main {
+	margin: 0 auto;
+	// width removed. don't put back!
+}
+

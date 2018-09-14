@@ -1,0 +1,58 @@
+<!--- TEMPLATENAME: miniaddressPDF.isml --->
+<isset name="address" value="${pdict.address}" scope="page" />
+<isif condition="${!empty(address.salutation)}">
+	<isprint value="${address.salutation}" />&nbsp;
+</isif>
+
+<isif condition="${!empty(address.title)}">
+	<isprint value="${address.title}" />&nbsp;
+</isif>
+
+<isif condition="${!empty(address.firstName)}">
+	<isprint value="${address.firstName}" />&nbsp;
+</isif>
+
+<isif condition="${!empty(address.lastName)}">
+	<isprint value="${address.lastName}" /><br />
+</isif>
+<isif condition="${!empty(address.companyName)}">
+	<isprint value="${address.companyName}" /><br />
+</isif>
+<isif condition="${!empty(address.address1)}">
+	<isprint value="${address.address1}" /><br />
+</isif>
+
+<isif condition="${!empty(address.address2)}">
+	<isprint value="${address.address2}" /><br />
+</isif>
+
+ <isif condition="${Resource.msg('invoice.show', 'account', null) == 'uk'} ">
+ 	<isif condition="${!empty(address.city)}">
+		<isprint value="${address.city}" />&nbsp;
+	</isif>
+	
+	<isif condition="${!empty(address.postalCode)}">
+		<isprint value="${address.postalCode}" /><br />
+	</isif>
+	
+  <iselse>
+   	<isif condition="${!empty(address.postalCode)}">
+		<isprint value="${address.postalCode}" />&nbsp;
+	</isif>
+		
+	<isif condition="${!empty(address.city)}">
+		<isprint value="${address.city}" /><br />
+	</isif>
+	</iselse>
+</isif>
+<isif condition="${!empty(address.countryCode)}">
+	 <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+	      <isif condition="${country.getValue()==address.countryCode}">
+		      <isprint value="${country.getDisplayValue()}"/> 
+		      <isbreak />
+	      </isif>	  
+      </isloop><br />
+</isif>
+
+${Resource.msg('invoice.phone', 'account', null)}
+<isprint value="${address.phone}" />

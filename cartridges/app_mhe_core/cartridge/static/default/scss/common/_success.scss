@@ -1,0 +1,16 @@
+// =============================================================================
+// Success message styles
+// =============================================================================
+
+.success {
+    padding:12px 40px;
+    margin-bottom:15px;
+   
+    background-image:url(img/icons/form-valid.png);
+    background-repeat:no-repeat;
+    background-position:14px 14px;
+    
+    &.success-personal {
+        margin:-31px 0 46px;
+    }
+}

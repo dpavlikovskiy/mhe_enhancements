@@ -1,0 +1,58 @@
+<iscache type="relative" hour="24"/>
+<iscomment><!--Display the remaining contents as list--></iscomment>
+<iscomment>render the results as two column layout</iscomment>
+<ul id="infiniteScroll" class="folder-content-list clearfix">
+	<isloop items="${pdict.ContentPagingModel.pageElements}" var="asset" 	status="loopstate">
+		<li class="grid-tile ${(loopstate.index % 3 == 0) ? 'new-row' : ''}">
+			<div class="content-asset" id="${asset.UUID}">
+			<!-- dwMarker="content" dwContentID="${asset.UUID}" -->
+			<iscomment><!--display a tile per content--></iscomment>
+			<isobject object="${asset}" view="searchhit"> 
+				<isset name="articleURL" value="${URLUtils.url('Page-Show','cid', asset.ID )}"	scope="page" /> 
+				<a href="${articleURL}">
+					<span class="artImg">
+					<isif condition="${'lifestyleImage' in asset.custom && !empty(asset.custom.lifestyleImage)}">
+						<img src="${asset.custom.lifestyleImage.getURL()}">
+					</isif>
+					</span>
+					<span class="artType uppercase"><isprint value="${asset.getClassificationFolder().getDisplayName()}" /></span>
+					<span class="artName"><isprint value="${asset.name}" /></span>
+					<span class="artDesc"><isprint value="${asset.description}" /></span>
+				</a>
+			</isobject>
+			</div>
+		</li>
+	</isloop>
+</ul>
+
+<a id="next" style="display:none" href="${pdict.ContentSearchResult.url('Search-ShowContent')}&start=0&sz=${pdict.PageSize}">next page?</a>
+
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableInfiniteScroll')}">
+	<isif condition="${pdict.ContentPagingModel.currentPage != pdict.ContentPagingModel.maxPage }">
+		<iscomment><div class="infinite-scroll-placeholder" data-loading-state="unloaded"
+			data-grid-url="${decodeURI(pdict.ContentPagingModel.appendPaging ( pdict.ContentSearchResult.url('Search-ShowContent'),
+				 (pdict.ContentPagingModel.currentPage + 1) * pdict.ContentPagingModel.pageSize).append('format','page-element'))}">
+		</div></iscomment>
+	</isif> 
+</isif>
+<script src="${URLUtils.staticURL('/lib/jquery.infinitescroll.js')}"></script>
+<script>
+$(document).ready(function(){
+	
+	$("#infiniteScroll").infinitescroll({
+		navSelector  	: "#next:last",
+		nextSelector 	: "a#next:last",
+		itemSelector 	: "#infiniteScroll li",
+		debug		 	: false,
+		dataType	 	: 'html',
+        maxPage         : ${pdict.ContentPagingModel.maxPage}+1,
+		path: function(index) {
+			return "${pdict.ContentSearchResult.url('Search-ShowContent')}&start="+ (index-1) * ${pdict.PageSize} 
+ +"&sz=${pdict.PageSize}";
+		}
+    }, function(newElements, data, url){
+    	//console.log(newElements);
+    	//console.log(url);
+    });
+})	
+</script>

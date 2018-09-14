@@ -1,0 +1,53 @@
+.header {
+	header {
+		.menu-utility-user {
+			li {
+				font-size:$smaller_heading;
+				.hidden-sub{
+					background-color: $bgbody;
+					border-left: 1px solid $brandBorder;
+					border-right: 1px solid $brandBorder;
+					border-bottom: 1px solid $brandBorder;
+					li {
+						&.logout {
+							border-top: 1px solid $brandBorder;
+							a {
+								background-color: $nav_bg;
+							}
+						}
+						a {
+							color: $brandcolor;
+							&:hover {
+								color: $white;
+							}
+						}
+					}
+				}
+			}
+		}
+	
+	.header_right{
+		float:none;
+		display:block;
+		height:20px;
+		font-size:$smaller_heading;
+		.mini-cart {
+			margin-left:0px;
+			padding:0px;
+			position:relative;
+			border-left: 1px solid $white;
+			} 
+		}
+	}
+}
+.menu-category {
+	li {
+		font-size:$small_text;
+		a{
+			padding: 0 35px;
+			line-height:30px;
+			vertical-align:middle;
+			font-size: 18px;
+			}
+	}
+}

@@ -1,0 +1,10 @@
+<!--- TEMPLATENAME: leadapprovalmailtrigger.isml --->
+<isdecorate template="account/pt_lead_confirm">
+
+<isinclude template="util/modules"/>
+
+<div class="leadHead">
+	<img src="${URLUtils.staticURL('/css/img/common/lead-logo.png')}" alt="Selection Logo" />
+</div>
+<isslot id="leadConfirmPage_background" description="Background Image for Lead confirmation page" context="global" />
+</isdecorate>

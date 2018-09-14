@@ -1,0 +1,30 @@
+/**
+* Demandware Script File
+* 
+*   @input AddressId: String 
+*   @input address: dw.customer.CustomerAddress 
+*   @output ModifiedAddressId: String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util);
+
+function execute( args : PipelineDictionary ) : Number
+{
+	
+	/*args.ModifiedAddressId=!empty(args.AddressId)?args.AddressId.toUpperCase():args.AddressId;
+	
+	args.ModifiedAddressId=StringUtils.trim( args.ModifiedAddressId );	
+	
+	while(args.ModifiedAddressId.indexOf(' ') >=0)
+	{
+		args.ModifiedAddressId = args.ModifiedAddressId.replace(' ','-');
+	}
+	
+	if(!empty(args.address)){
+		var addressNew: dw.customer.CustomerAddress=args.address;
+		addressNew.ID=args.AddressId;
+	}*/
+	
+	return PIPELET_NEXT;
+}

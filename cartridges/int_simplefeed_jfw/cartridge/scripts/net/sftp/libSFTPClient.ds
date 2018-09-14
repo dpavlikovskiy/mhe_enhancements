@@ -1,0 +1,541 @@
+/**
+ *	An enhanced SFTPClient object.
+ *
+ * A library file with util functions.
+ * This file is included by several script nodes using:
+ *
+ *     importScript( "net/sftp/libSFTPClient.ds" );
+ *
+ * It cannot be used in a script node by itself.
+ * @todo implement and test
+ */
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.system );
+importPackage( dw.util );
+
+//importScript( "bc_core:library/util/libDescendingSort.ds" );
+//importScript( "bc_core:library/files/libFileHandler.ds" );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger = getJobMonitor() && getJobMonitor().getCurrentTask() ? getJobMonitor().getCurrentTask() : Logger;
+
+function EnhancedSFTPClient()
+{
+	
+	this.getDirectoryList = function(path : String, patternString : String) : ArrayList
+	{
+		if (empty(path))
+		{
+			path = File.SEPARATOR;
+		}
+		else if (path.charAt(path.length-1) != File.SEPARATOR)
+		{
+			path = path.concat(File.SEPARATOR);
+		}
+		//cvLogger.debug("Get directory list from sftp server directory {0}.", path);
+
+		var dirList : ArrayList = new ArrayList();
+
+		var allEntries : Array = this.list(path);
+		if ((allEntries != null) && (allEntries.length > 0))
+		{
+			if (!empty(patternString))
+			{
+				//cvLogger.debug("Apply pattern {0}.", patternString);
+			}
+			var pattern : RegExp = !empty(patternString) ? new RegExp(patternString) : null;
+			for (var i : Number = 0; i < allEntries.length ; i++)
+			{
+				var anEntry : SFTPFileInfo = allEntries[i];
+				// filter for directories and filter out the superior dir (..)
+				if (anEntry.directory && anEntry.name.indexOf("..") == -1 && anEntry.name != ".")
+				{
+					if ((pattern == null) || anEntry.name.match(pattern))
+					{
+						dirList.add(anEntry.name);
+						cvLogger.debug("Directory {0} added to list.", anEntry.name);
+					}
+					else
+					{
+						cvLogger.debug("Directory {0} skipped.", anEntry.name);
+					}
+				}
+				else
+				{
+					//cvLogger.debug("File {0} skipped.", anEntry.name);
+				}
+			}
+		}
+		else
+		{
+			//cvLogger.debug("SFTP server directory {0} is empty.", path);
+		}
+
+		if (dirList.empty)
+		{
+			//cvLogger.debug("No directories found at sftp server directory {0} matching pattern {1}.", path, patternString);
+		}
+		return dirList;
+	}
+	
+	this.getSortedDirectoryList = function(path : String, patternString : String, sortDirection : String) : SortedSet
+	{
+		var dirList : SortedSet = ((sortDirection == "DESCENDING") ? new SortedSet(descending) :  new SortedSet());
+		return dirList.addAll(this.getDirectoryList(path, patternString)) ? dirList : null;
+	};
+	
+	this.getFileList = function(path : String, patternString : String) : ArrayList
+	{
+		if (empty(path))
+		{
+			path = File.SEPARATOR;
+		}
+		else if (path.charAt(path.length-1) != File.SEPARATOR)
+		{
+			path = path.concat(File.SEPARATOR);
+		}
+		//cvLogger.debug("Get file list from sftp server directory {0}.", path);
+
+		var fileList : ArrayList = new ArrayList();
+
+		var allEntries : Array = this.list(path);
+		if ((allEntries != null) && (allEntries.length > 0))
+		{
+			if (!empty(patternString))
+			{
+				//cvLogger.debug("Apply pattern {0}.", patternString);
+			}
+			var pattern : RegExp = !empty(patternString) ? new RegExp(patternString) : null;
+			for (var i : Number = 0; i < allEntries.length ; i++)
+			{
+				var anEntry : SFTPFileInfo = allEntries[i];
+				if (!anEntry.directory)
+				{
+					if ((pattern == null) || anEntry.name.match(pattern))
+					{
+						fileList.add(anEntry.name);
+						//cvLogger.debug("File {0} added to list.", anEntry.name);
+					}
+					else
+					{
+						//cvLogger.debug("File {0} skipped.", anEntry.name);
+					}
+				}
+				else
+				{
+					//cvLogger.debug("Directory {0} skipped.", anEntry.name);
+				}
+			}
+		}
+		else
+		{
+			//cvLogger.debug("SFTP server directory {0} is empty.", path);
+		}
+
+		if (fileList.empty)
+		{
+			//cvLogger.debug("No files found at sftp server directory {0} matching pattern {1}.", path, patternString);
+		}
+		return fileList;
+	}
+	
+	this.getSortedFileList = function(path : String, patternString : String, sortDirection : String) : SortedSet
+	{
+		var fileList : SortedSet = ((sortDirection == "DESCENDING") ? new SortedSet(descending) :  new SortedSet());
+		return fileList.addAll(this.getFileList(path, patternString)) ? fileList : null;
+	};
+
+	this.mkDirPath = function(splittedPath : Array) : Boolean
+	{
+		if (!this.connected)
+		{
+			cvLogger.error("SFTP client not connected.");
+			return false;
+		}
+			
+		var path : String = null;
+		for (var i : Number = 0; i < splittedPath.length; i++)
+		{
+			var dirName : String = splittedPath[i];  
+			if (!empty(dirName))
+			{
+				//cvLogger.debug("Current directory: {0}", ((path != null) ? path : "/"));
+				
+				var dirList : ArrayList = this.getDirectoryList(path, dirName);
+				
+				path = (path == null) ? File.SEPARATOR.concat(dirName) : path.concat(File.SEPARATOR, dirName);
+				//cvLogger.debug("Look for sub directory: {0} ...", dirName);
+				if (dirList.empty)
+				{
+					//cvLogger.debug("  not found. Create it.");
+					if(!this.mkdir(path))
+					{
+						cvLogger.error("Unable to create directory " + path + ". MkDir result: " + this.errorMessage);
+						return false;
+					} else {
+						cvLogger.debug("Created directory " + path);
+					}
+				}
+				else
+				{
+					//cvLogger.debug("  found. Do not create it.");
+				}
+			}
+		}
+		
+		return true;
+	};
+
+	this.downloadFiles = function(remotePath : String, fileNamePattern : String, archivePath : String,
+									downloadPath : String, encoding : String, binary : Boolean) : Boolean
+	{
+		if (!this.connected)
+		{
+			cvLogger.error("SFTP client not connected.");
+			return false;
+		}
+
+		// check remote src directory
+		if (empty(remotePath))
+		{
+			remotePath = File.SEPARATOR;
+		}
+		else if (remotePath.charAt(remotePath.length-1) != File.SEPARATOR)
+		{
+			remotePath = remotePath.concat(File.SEPARATOR);
+		}
+		
+		// check local target directory
+		if(empty(downloadPath))
+		{
+			cvLogger.error("Mandatory parameter for download directory missing.");  
+			return false;
+		}
+		if (downloadPath.charAt(downloadPath.length-1) != File.SEPARATOR)
+		{
+			downloadPath = downloadPath.concat(File.SEPARATOR);
+		} 
+		var localDir : File = new File(downloadPath);
+		if (localDir.exists()) 
+		{
+			if (!localDir.isDirectory())
+			{
+				cvLogger.error("The parameter downloadPath ({0}) does not specify a directory.", downloadPath);  
+				return false;
+			}
+		}
+		else if (!localDir.mkdirs())
+		{
+			cvLogger.error("The parameter downloadPath ({0}) does not specify an existing directory and could not be created.", downloadPath);  
+			return false;
+		}
+		else
+			cvLogger.debug("Download directory {0} created!", downloadPath);
+		
+		// check remote archive directory
+		if(!empty(archivePath))
+		{
+			if (archivePath.charAt(archivePath.length-1) != File.SEPARATOR)
+			{
+				archivePath = archivePath.concat(File.SEPARATOR);
+			} 
+			cvLogger.debug("Check archive directory ({0}) at sftp server ...", archivePath);
+			this.mkDirPath(archivePath.split(File.SEPARATOR));
+			cvLogger.debug("  Archive directory ok.");
+		}
+
+		// perform download
+		cvLogger.debug("Get file list from sftp server directory {0} using pattern {1}.", remotePath, fileNamePattern);
+		var ok : Boolean = true;
+		var fileList : Iterator = this.getFileList(remotePath, fileNamePattern).iterator();
+		if (fileList.hasNext())
+		{
+			while (fileList.hasNext())
+			{
+				var srcFile : String = fileList.next();
+				var getResult: Boolean = false;
+				cvLogger.debug("Start downloading file {0}{1} from sftp server.", remotePath, srcFile);
+				if (binary)
+				{
+					getResult = this.getBinary(remotePath.concat(srcFile), 
+												new File(downloadPath.concat(srcFile)));
+				}
+				else
+				{
+					getResult = this.get(remotePath.concat(srcFile), encoding, 
+											new File(downloadPath.concat(srcFile)));
+				}
+				if (getResult)
+				{
+					cvLogger.debug("File {0}{1} was downloaded from sftp server.", remotePath, srcFile);
+					
+					if(!empty(archivePath))
+					{
+						// move to archive dir
+						cvLogger.debug("Move {0} to {1}", remotePath.concat(srcFile), 
+										archivePath.concat(srcFile));
+						if (this.rename(remotePath.concat(srcFile), archivePath.concat(srcFile)))
+						{
+							cvLogger.debug("File {0} was moved to archive directory {1} at the sftp server.", 
+											srcFile, archivePath);
+						}
+						else
+						{
+							ok = false;
+							var msg : String = 
+								StringUtils.format('Could not move file {0} to archive directory {1} at the sftp server. Reply from ftp server: {2}.', 
+									 srcFile, archivePath, this.errorMessage);
+							cvLogger.error(msg);
+							//if it is not possible to move the file because the file does already exist we better delete it
+							var fileInfo = this.getFileInfo(archivePath.concat(srcFile));
+							if (!empty(fileInfo))
+							{
+								if (this.del(remotePath.concat(srcFile)))
+								{
+									cvLogger.error("File {0} was delete from the ftp server.", srcFile);
+								}
+								else
+								{
+									var msg : String = 
+										StringUtils.format('Could not delete file {0} from the ftp server. Reply from ftp server: {1} ({2}).', 
+											 srcFile, this.replyCode, this.replyMessage);
+									cvLogger.error(msg);
+								}
+							}
+						}
+						cvLogger.debug("Moving file {0} to {1} done.", remotePath.concat(srcFile), 
+										archivePath.concat(srcFile));
+					}
+					else if (!this.del(remotePath.concat(srcFile))) // remove the source file 
+					{
+						ok = false;
+						var msg : String = 
+							StringUtils.format('Could not remove file {0} from the ftp server. Reply from sftp server: {1}.', 
+								 srcFile, this.errorMessage);
+						cvLogger.error(msg);
+					}
+				}
+				else
+				{
+					ok = false;
+					var msg : String = 
+						StringUtils.format('Could not download file {0} from ftp server. Reply from sftp server: {1}.', 
+							 srcFile, this.errorMessage);
+					cvLogger.error(msg);
+				}
+			}
+		}
+		else
+		{
+			cvLogger.debug("No files found at sftp server directory {0} matching pattern {1}.", 
+							remotePath, fileNamePattern);
+		}
+		
+		return ok;
+	};	
+
+	this.downloadFilesRecursive = function(remotePath : String, fileNamePattern : String, archivePath : String,
+											downloadPath : String, encoding : String, binary : Boolean) : Boolean
+	{
+		if (!this.connected)
+		{
+			cvLogger.error("SFTP client not connected.");
+			return false;
+		}
+
+		// check remote src directory
+		if (empty(remotePath))
+		{
+			remotePath = File.SEPARATOR;
+		}
+		else if (remotePath.charAt(remotePath.length-1) != File.SEPARATOR)
+		{
+			remotePath = remotePath.concat(File.SEPARATOR);
+		}
+		
+		// check local target directory
+		if(empty(downloadPath))
+		{
+			cvLogger.error("Mandatory parameter for download directory missing.");  
+			return false;
+		}
+		if (downloadPath.charAt(downloadPath.length-1) != File.SEPARATOR)
+		{
+			downloadPath = downloadPath.concat(File.SEPARATOR);
+		} 
+		var localDir : File = new File(downloadPath);
+		if (localDir.exists()) 
+		{
+			if (!localDir.isDirectory())
+			{
+				cvLogger.error("The parameter downloadPath ({0}) does not specify a directory.", downloadPath);  
+				return false;
+			}
+		}
+		else if (!localDir.mkdirs())
+		{
+			cvLogger.error("The parameter downloadPath ({0}) does not specify an existing directory and could not be created.", downloadPath);  
+			return false;
+		}
+		else
+			cvLogger.debug("Download directory {0} created!", downloadPath);
+		
+		// check remote archive directory
+		if(!empty(archivePath))
+		{
+			if (archivePath.charAt(archivePath.length-1) != File.SEPARATOR)
+			{
+				archivePath = archivePath.concat(File.SEPARATOR);
+			} 
+			cvLogger.debug("Check archive directory ({0}) at sftp server ...", archivePath);
+			this.mkDirPath(archivePath.split(File.SEPARATOR));
+			cvLogger.debug("  Archive directory ok.");
+		}
+
+		var ok : Boolean = true;
+		// determine subdirectories of current directory at first
+		var subDirList : Iterator = this.getDirectoryList(remotePath, null).iterator();
+		// download the files of the current directory
+		ok &= this.downloadFiles(remotePath, fileNamePattern, archivePath, downloadPath, encoding, binary);
+		// download the subdirectories (recursively)
+		while (subDirList.hasNext())
+		{
+			var subDirName : String = subDirList.next();
+			var subRemotePath : String = remotePath.concat(subDirName, File.SEPARATOR);
+			var subDownloadPath : String = downloadPath.concat(subDirName, File.SEPARATOR);
+			var subArchivePath : String = !empty(archivePath) ? archivePath.concat(subDirName, File.SEPARATOR) : null;
+			ok &= this.downloadFilesRecursive(subRemotePath, fileNamePattern, subArchivePath, subDownloadPath, encoding, binary);
+		}
+		return ok;
+	};	
+
+	this.uploadFiles= function(srcPath : String, fileNamePattern : String, archivePath : String,
+								remotePath : String, encoding : String, binary : Boolean) : Boolean
+	{
+		if (!this.connected)
+		{
+			cvLogger.error("SFTP client not connected.");
+			return false;
+		}
+
+		// check local src directory
+		if(empty(srcPath))
+		{
+			cvLogger.error("Mandatory parameter for source directory missing.");  
+			return false;
+		}
+		if (srcPath.charAt(srcPath.length-1) != File.SEPARATOR)
+		{
+			srcPath = srcPath.concat(File.SEPARATOR);
+		} 
+		var dir : File = new File(srcPath);
+		if (!dir.exists() || !dir.directory) 
+		{
+			cvLogger.error("The parameter Path ({0}) does not specify a directory.", srcPath);  
+			return false;
+		}
+		
+		// check local archive directory
+		if(empty(archivePath))
+		{
+			cvLogger.error("Mandatory parameter for the archive directory missing.");  
+			return false;
+		}
+		if (archivePath.charAt(archivePath.length-1) != File.SEPARATOR)
+		{
+			archivePath = archivePath.concat(File.SEPARATOR);
+		} 
+		dir = new File(archivePath);
+		if (dir.exists()) 
+		{
+			if (!dir.directory)
+			{
+				cvLogger.error("The parameter for the archive directory ({0}) does not specify a directory.", archivePath);  
+				return false;
+			}
+		}
+		else if (!dir.mkdirs())
+		{
+			cvLogger.error("The parameter the archive directory ({0}) does not specify an existing directory and could not be created.", archivePath);  
+			return PIPELET_ERROR;
+		}
+		else
+			cvLogger.debug("Archive directory {0} created!", archivePath);
+
+		// check remote target directory
+		if(empty(remotePath))
+		{
+			cvLogger.error("Mandatory parameter for remote directory missing.");  
+			return false;
+		}
+		if (remotePath.charAt(remotePath.length-1) != File.SEPARATOR)
+		{
+			remotePath = remotePath.concat(File.SEPARATOR);
+		} 
+		cvLogger.debug("Check upload directory ( {0} ) at sftp server ...", remotePath);
+		this.mkDirPath(remotePath.split(File.SEPARATOR));
+		cvLogger.debug("  Upload directory ok.");
+
+		// perform upload
+		cvLogger.debug("Get file list from app server directory {0} using pattern {1}.", srcPath, fileNamePattern);
+		var ok : Boolean = true;
+		var fileList : Iterator = getFileList(new File(srcPath), fileNamePattern).iterator();
+		if (fileList.hasNext())
+		{
+			while (fileList.hasNext())
+			{
+				var srcFile : File = new File(srcPath.concat(fileList.next()));
+				var content : String = binary ? '' : readFile(srcFile, encoding); 
+				if (content != null)
+				{
+					var putResult: Boolean = false;
+					if (binary)
+					{
+						putResult = this.putBinary(remotePath.concat(srcFile.name), srcFile);
+					}
+					else
+					{
+						cvLogger.debug("File {0}{1} was read from app server.", srcPath, srcFile.name);
+						putResult = this.put(remotePath.concat(srcFile.name), content, encoding);
+					}
+					if (putResult)
+					{
+						cvLogger.debug("File {0} was uploaded to directory {1} at the sftp server.", srcFile.name, remotePath);
+						cvLogger.debug("Move {0} to {1}", srcPath.concat(srcFile.name), archivePath.concat(srcFile.name));
+						
+						if (srcFile.renameTo(new File(archivePath.concat(srcFile.name))))
+						{
+							cvLogger.debug("File {0} was moved to archive directory {1} at the app server.", srcFile.name, archivePath);
+						}
+						else
+						{
+							cvLogger.error("Could not move file {0} to archive directory {1} at the app server.", srcFile.name, archivePath);
+						}
+					}
+					else
+					{
+						ok = false;
+						var msg : String = 
+							StringUtils.format('Could not write file {0} to directory {1} at the sftp server. Reply from ftp server: {2}.', 
+								 srcFile.name, remotePath, this.errorMessage);
+						cvLogger.error(msg);
+					}
+				}
+				else
+				{
+					cvLogger.error("Could not read file {0} from app server.", srcFile.name);
+				}
+			} // while
+		}
+		else
+		{
+			ok = false;
+			cvLogger.debug("No files found at app server directory {0} matching pattern {1}.", srcPath, fileNamePattern);
+		}
+		
+		return ok;
+	};	
+
+}
+EnhancedSFTPClient.prototype = new SFTPClient();
+ 

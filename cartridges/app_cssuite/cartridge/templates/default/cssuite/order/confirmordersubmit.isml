@@ -1,0 +1,190 @@
+<!--- TEMPLATENAME: dialogConfirmOrderCancellation.isml --->
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude template="cssuite/utils/modules">
+<isif condition="${!empty(pdict.OrderSubmitSuccessful) && pdict.OrderSubmitSuccessful == true}">
+	<table class="ui-dialoglistTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+		<tr>
+			<td class="ui-dialog-text_dialog">New order saved succesfully with order number ${pdict.Order.orderNo}.</td>
+		</tr>
+		<isif condition="${!empty(pdict.ErrorStatus) && pdict.ErrorStatus.code == 'ERROR_REMOVE_PPGC'}">
+		<tr>
+			<h2 class="ui-dialog-text_warning">Please note: The removed gift cards could not be voided automatically. Please to this manually.</td>
+		</tr>
+		</isif>
+	</table>
+	<script type="text/javascript">
+	<!--
+		Dialog.formDialog("Order Saved", 
+			{
+				"Close": function() { 
+					CSSuite.setContext(CSSuite.CONTEXT_GENERAL); 
+					Order.searchOrders();
+					$(this).dialog("destroy");}
+			}, false, 'auto','auto'
+		);
+	//-->
+	</script>
+<iselseif condition="${!empty(pdict.OrderSubmitSuccessful) && pdict.OrderSubmitSuccessful == false}">
+	<table class="ui-dialoglistTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+		<tr>
+			<td class="ui-dialog-text_apply_changes">There was an error while saving the order:</td>
+		</tr>
+		<isif condition="${!empty(pdict.ErrorStatus)}">
+			<isif condition="${pdict.ErrorStatus.code == 'AUTH_PPGC_ERROR'}">
+			<tr>
+				<td>The authorization of the gift card(s) failed with a following technical error.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_PPGC_DECLINED'}">
+			<tr>
+				<td>The authorization of the gift card(s) was declined. Please review the order.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_CC_ERROR'}">
+			<tr>
+				<td>The authorization of the credit card failed with a technical error.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_CC_DECLINED'}">
+			<tr>
+				<td>The authorization of the credit card was declined. Please review the order.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_GIFT_CERTIFICATE_ERROR'}">
+			<tr>
+				<td>The authorization of the gift certificate failed with a technical error.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_GIFT_CERTIFICATE_DECLINED'}">
+			<tr>
+				<td>The authorization of the gift certificate was declined. Please review the order.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_BML_ERROR'}">
+			<tr>
+				<td>The authorization of BML failed with a technical error.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_BML_DECLINED'}">
+			<tr>
+				<td>The authorization of BML was declined. Please review the order.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_TDRC_ERROR'}">
+			<tr>
+				<td>The authorization of the TD Retail Card failed with a technical error.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'AUTH_TDRC_DECLINED'}">
+			<tr>
+				<td>The authorization of the TD Retail Card failed was declined. Please review the order.</td>
+			</tr>
+			<iselseif condition="${pdict.ErrorStatus.code == 'ERROR_CREATE_ORDER'}">
+			<tr>
+				<td>For a technical reason the order could not be created.</td>
+			</tr>
+			</isif>
+			<isif condition="${!empty(pdict.ErrorStatus.message)}">
+				<tr>
+					<td>Error Details: ${pdict.ErrorStatus.message}</td>
+				</tr>
+			</isif>
+		</isif>
+	</table>
+	<script type="text/javascript">
+	<!--
+		Dialog.formDialog("An Error Occurred", 
+			{
+				"Close": function() { 
+					$(this).dialog("destroy");}
+			}, false, 'auto', 'auto'
+		);
+	//-->
+	</script>
+<iselseif condition="${!empty(pdict.Prerequisites)}">
+<isscript>
+
+	var basketToConfirm : Boolean = true;
+	if (!empty(pdict.Prerequisites.errors) || !empty(pdict.Prerequisites.invalidMethodShipments) || !empty(pdict.Prerequisites.invalidAddresseShipments))
+		basketToConfirm = false;
+		
+</isscript>
+	<form id="OrderSubmitForm" action="${URLUtils.httpsContinue()}" onsubmit="return false;">
+		<table class="ui-dialoglistTable" cellpadding="0" cellspacing="0" border="0" height="40">
+			<tbody>
+			<isif condition="${empty(pdict.Prerequisites.warnings) && basketToConfirm}">
+				<tr>
+					<td class=".ui-dialog-text_dialog">
+						Are you sure you want to save all changes?
+					</td>
+				</tr>
+			<iselse>
+				<isif condition="${!empty(pdict.Prerequisites.warnings)}">
+				<tr>
+					<td>
+						<h2 class="ui-dialog-text_warning">Please note the following:</h2>
+						<ul>
+							<isloop iterator="${pdict.Prerequisites.warnings}" alias="warning">
+								<li>${warning}</li>
+							</isloop>
+						</ul>
+					</td>
+				</tr>
+				</isif>
+				<isif condition="${!empty(pdict.Prerequisites.errors)}">
+				<tr>
+					<td>
+						<h3 class="ui-dialog-text_warning">Please note the following:</h3>
+							<isloop iterator="${pdict.Prerequisites.errors}" alias="error">
+								<li>${error}</li>
+							</isloop>
+					</td>
+				</tr>
+				</isif>
+				<isif condition="${!empty(pdict.Prerequisites.invalidMethodShipments)}">
+				<tr>
+					<td>
+						<h3 class="ui-dialog-text_warning">The following shipments have invalid shipping methods assigned:</h3>
+						<ul>
+							<isloop iterator="${pdict.Prerequisites.invalidMethodShipments}" alias="_shipment">
+								<li><isshipmentid p_shipment="${_shipment}"></li>
+							</isloop>
+						</ul>
+					</td>
+				</tr>
+				</isif>
+				<isif condition="${!empty(pdict.Prerequisites.invalidAddresseShipments)}">
+				<tr>
+					<td>
+						<h3 class="ui-dialog-text_warning">The following shipments have invalid shipping addresses:</h3>
+						<ul>
+							<isloop iterator="${pdict.Prerequisites.invalidAddresseShipments}" alias="_shipment">
+								<li><isshipmentid p_shipment="${_shipment}"></li>
+							</isloop>
+						</ul>
+					</td>
+				</tr>
+				</isif>
+				<tr>
+				<td>
+				<isif condition="${basketToConfirm}">
+						Do you really want to submit that order?
+				<iselse>
+						Please review the information and try again.
+				</isif>
+				</td>
+				</tr>
+			</isif>
+		</table>
+		<br/>
+	</form>
+
+	<script type="text/javascript">
+	<!--
+		Dialog.formDialog("Confirm Order Submit for Order", 
+			{
+				<isif condition="${basketToConfirm}">
+					"Apply": function() { 
+						$(this).dialog("destroy");
+						Order.saveOrder('Confirmed');
+					},
+				</isif>
+				"Cancel": function() { 
+					$(this).dialog("destroy");}
+			}, false, 'auto', 'auto'
+		);
+	//-->
+	</script>
+
+</isif>

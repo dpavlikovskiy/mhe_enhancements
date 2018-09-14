@@ -1,0 +1,19 @@
+<!--- TEMPLATENAME: confiRegister.isml --->
+<iscomment>Provide a create account form for unregistered customers</iscomment>
+<div id="beMemberConfirm">
+	<iscontentasset aid="ca_conf_registration_gb"/>
+ 	
+	<form action="${URLUtils.httpsContinue()}" method="post" id="RegistrationForm">	
+		 	 <div class="form-wrapper">
+		 	 <isinputfield formfield="${pdict.CurrentForms.profile.login.password}" type="password" xhtmlclass="password-input required"
+		 	 requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" 
+		 	 attribute1="placeholder" value1="${Resource.msg('label.confRegisterPassword','forms',null)}" />
+		 	 
+			<input type="hidden" name="${pdict.CurrentForms.profile.secureKeyHtmlName}" value="${pdict.CurrentForms.profile.secureKeyValue}"/>
+			<button id="member" type="submit" class="button" value="${Resource.msg('global.createbutton','locale',null)}" name="${pdict.CurrentForms.profile.confirm.htmlName}">
+				<span class="face becomeMemberbutton front">${Resource.msg('orderdetails.register','components',null)}</span>
+				<span class="face becomeMemberbutton back">${Resource.msg('orderdetails.register','components',null)}</span>
+			</button>
+			</div>	
+	</form>	
+</div>

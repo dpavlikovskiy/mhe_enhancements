@@ -1,0 +1,167 @@
+/**********************************************************************************************************************************************************************************************
+*
+*	@input ParamMap : dw.web.HttpParameterMap
+*	@output PipelineName : String
+*	@output OtherSite : Boolean
+*   @output PaypalError : String 
+* 	@output rejectedOrdersList : dw.util.ArrayList
+* 
+**********************************************************************************************************************************************************************************************/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+importPackage( dw.net );
+importPackage( dw.web );
+importPackage( dw.crypto);
+
+var PP_STATUS_VERIFIED : String = "VERIFIED";
+var PP_STATUS_INVALID : String = "INVALID";
+
+var ORDER_STATUS_REVIEW : String = "REVIEW";
+var ORDER_STATUS_REJECT : String = "REJECT";
+var ORDER_STATUS_CANCEL : String = "CANCEL";
+var ORDER_STATUS_APPROVED : String = "APPROVED";
+
+var PAYMENT_STATUS_COMPLETED : String = "completed";
+var PAYMENT_STATUS_PENDING : String = "pending";
+var PAYMENT_STATUS_REFUNDED : String = "refunded";
+var PAYMENT_STATUS_VOIDED : String = "voided";
+var PAYMENT_STATUS_DENIED : String = "denied";
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	
+	var rejectedOrdersList : dw.util.ArrayList = new ArrayList();
+	Logger.error("[Paypal] - ConversionDetailReport--");
+	var url : String = dw.system.Site.getCurrent().getCustomPreferenceValue('PayPalRedirectURL'); // "https://www.sandbox.paypal.com/cgi-bin/webscr";
+	url = url.replace("?cmd=", "");
+	var pipelineName : String = null;
+	var otherSite : Boolean = false;
+	var httpClient : HTTPClient = new HTTPClient();
+	httpClient.open("POST", url);
+	
+	//httpClient.setRequestHeader("Content-Type", "application/x-www-form-urlencoded\r\n");
+	
+
+	var reqData : String = "cmd=_notify-validate";
+	
+	reqData = reqData.concat("&" + request.httpQueryString);	
+	var paramMap : HttpParameterMap = pdict.ParamMap;
+	
+	try {
+		httpClient.send(reqData);
+		
+		if (httpClient.statusCode == 200)
+			{
+				Logger.error("[Paypal] - Got the status...." + httpClient.text + " for Order Number - " + paramMap.invoice.value +" on Site - " + paramMap.custom.value);
+	    		var result : String = httpClient.text;
+	    		
+	    		if (result.equalsIgnoreCase(PP_STATUS_INVALID)){
+					Logger.error("[Paypal] - INVALID status from paypal");
+					return PIPELET_ERROR;						
+						    			
+	    		} else if (result.equalsIgnoreCase(PP_STATUS_VERIFIED)){
+	    			var orderNum : String = paramMap.invoice.value;
+	    			var paymentStatus : String = paramMap.payment_status.value;
+	    			var order : Order = order = OrderMgr.getOrder(orderNum);
+	    			
+					if (!empty(paramMap.custom) && (order == null || empty(order))) {
+						//Pass parameters txn_id and payment_status and orderNum in above HTTPClient call
+						var requestData : String = "payment_status="+paymentStatus+"&invoice="+orderNum+"&txn_id="+paramMap.txn_id.value;
+						//var urlOrderUpdate : String = getValueFromSitePrefEnum('PaypalIPNListnerURL',paramMap.custom.value);
+						//urlOrderUpdate=urlOrderUpdate+requestData;
+						var urlOrderUpdate : String = "https://"+request.httpHost+"/on/demandware.store/Sites-"+paramMap.custom.value+"-Site/"+request.locale+"/Paypal_Services-ListnerorderUpdate?"+requestData; 
+						Logger.error("[Paypal] - Request URL "+urlOrderUpdate);
+						var httpClientReq : HTTPClient = new HTTPClient();
+						httpClientReq.open("POST", urlOrderUpdate);
+						
+						httpClientReq.send();
+						if (httpClientReq.statusCode == 200)
+						{
+							otherSite = true;
+						} else {
+							Logger.error("[Paypal] - Order Not found for Order number " + orderNum + " in site ");
+							pdict.PaypalError = "[IPNLIstener.ds : Error] - Conversion Request order update- Order Not found for Order number " + orderNum;
+							return PIPELET_ERROR;
+						}
+					}
+					
+					 else {
+						if(order == null || empty(order)){
+							Logger.error("[Paypal] - Order Not found for Order number " + orderNum);
+							pdict.PaypalError = "[IPNLIstener.ds : Error] - Conversion Request order update- Order Not found for Order number " + orderNum;
+							return PIPELET_ERROR;						
+						}
+						if (order.custom.orderStatus == ORDER_STATUS_REVIEW || order.custom.orderStatus == ORDER_STATUS_APPROVED){						
+							Logger.error("[Paypal] - Payment Status is " + paymentStatus + " for order number " + orderNum);
+							
+							switch (paymentStatus.toLowerCase()){
+								case PAYMENT_STATUS_COMPLETED:
+									//If Order is in CREATED state, update the order object with other details and convert to NEW state
+									if (order.status.value == Order.ORDER_STATUS_CREATED) {
+										pipelineName = "COPlaceOrder-SubmitImpl";	
+									}
+									
+									order.setExportStatus(Order.EXPORT_STATUS_READY);								
+									order.custom.orderStatus = ORDER_STATUS_APPROVED;
+									order.paymentInstruments[0].paymentTransaction.custom.settlementRequestID = paramMap.txn_id.value;
+									order.custom.cs_SettlementStatus = "TRIGGERED";								
+									order.paymentStatus = 2;			
+									break;
+										
+								case PAYMENT_STATUS_PENDING:							
+									break;
+									
+								case PAYMENT_STATUS_VOIDED:
+								case PAYMENT_STATUS_DENIED:
+									order.custom.orderStatus = ORDER_STATUS_REJECT;
+									rejectedOrdersList.add(order);
+									//order.paymentInstruments[0].paymentTransaction.custom.settlementRequestID = paramMap.txn_id.value;
+									//order.custom.cs_SettlementStatus = "REJECT";
+									break;
+									
+								
+								case PAYMENT_STATUS_REFUNDED:
+									order.paymentInstruments[0].paymentTransaction.custom.refundRequestID = paramMap.txn_id.value;								
+									order.custom.cs_RefundStatus = "TRIGGERED";
+									rejectedOrdersList.add(order);
+									break;
+									
+								default:							
+									Logger.error("[Paypal] - Payment Status not found " + paymentStatus + " for order number " + orderNum);
+							}
+								
+						}	
+					}				
+	    		}
+			}
+	} catch (e) {
+		var a : String = e.message;
+		Logger.error("[Paypal] - Error in Sending Conversion Request" + e.message);	
+		pdict.PaypalError = "[IPNLIstener.ds : Error] -Error in Sending Conversion Request order update " + e.message;
+		return PIPELET_ERROR;
+	}
+	if(rejectedOrdersList.size() > 0)
+		{
+			pdict.rejectedOrdersList = rejectedOrdersList;
+		}
+	pdict.OtherSite = otherSite;
+	pdict.PipelineName = pipelineName;		
+    return PIPELET_NEXT;
+}
+
+function getValueFromSitePrefEnum(sitePrefName : String, key : String) : String{
+	var sitePreferenceArray : Array = dw.system.Site.getCurrent().getCustomPreferenceValue(sitePrefName);
+	var sitePrefVal : String = "";
+	for (var i=0; i < sitePreferenceArray.length; i++) {
+		if (key.equalsIgnoreCase(sitePreferenceArray[i].getValue())) {
+			sitePrefVal = sitePreferenceArray[i].getDisplayValue();
+			break;
+		}
+	}
+	if (sitePrefVal == null || empty (sitePrefVal)){
+		sitePrefVal = "";
+	}
+	return sitePrefVal;
+};

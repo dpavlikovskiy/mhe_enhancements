@@ -1,0 +1,66 @@
+.ePageNav{
+	text-align:center;
+	font-family:$titleFont;
+	font-size:$small-text-1;
+	text-transform:uppercase;
+	font-weight:normal;
+	line-height:30px;
+	min-height:33px; 
+	li{
+		@include inline-block;
+		margin:0 15px;
+		a{
+			color:$black;
+			display:block;
+			border-bottom:3px solid $white;
+			font-size: $smaller_heading;
+			letter-spacing: 1px;
+			:hover, :focus{
+				color:$brandcolor;
+			}
+		}
+		&.active{
+			a{
+				color:$brandcolor;
+				border-bottom:3px solid $brandcolor;
+			}
+		}
+	}
+}
+
+	.bmValue{
+		display:none;
+	}
+
+.static-offer{
+	.header{
+		background:$white;
+		@include box-shadow(0 0 0);
+		position:fixed;
+		width:100%;
+		header{
+			padding:10px 0 0;
+			height:83px; 
+			.static-logo {
+				margin-bottom: 13px;
+			}
+			.header_right {
+				top: 66px;
+				right: -40px;
+				.mini-cart-total {
+					.mini-cart-label {
+						color: $brandcolor;
+					}
+					.mini-cart-link {
+						color: $brandcolor;
+						font-size: $smaller_heading;
+					}
+				}
+				.mini-cart-content {
+					top: 12px;
+				}
+			}
+		}
+	}
+	
+}

@@ -1,0 +1,53 @@
+/**
+* This script is used to store an uploaded file according to the parameters 
+* that have been passed with the request.
+* @input CurrentHttpParameterMap : dw.web.HttpParameterMap A map of HTTP parameters..
+* @output ExampleOut : Number
+*
+*/
+importPackage( dw.io );
+importPackage( dw.system );
+importPackage( dw.web );
+
+function execute( args : PipelineDictionary ) : Number {
+	var currentHttpParameterMap : HttpParameterMap = args.CurrentHttpParameterMap;
+	var fileMap : dw.util.LinkedHashMap = currentHttpParameterMap.processMultipart( creatFilesFromMultipart );
+
+	//nothing to do
+	if ( fileMap.size() < 1) {
+    	return PIPELET_NEXT;
+	}
+
+	var fileUploadTargetDirectory : String = currentHttpParameterMap.fileUploadTargetDirectory.value;
+	var deleteFiles : Boolean = false;
+	if ( empty(fileUploadTargetDirectory) ) {
+		deleteFiles = true;
+	}
+	var targetDirectory : File = null;
+	if ( !deleteFiles ) {
+		targetDirectory = new File(fileUploadTargetDirectory);
+		if ( !targetDirectory.exists() || !targetDirectory.directory) {
+			deleteFiles = true;
+		}
+	}
+	if ( !deleteFiles ) {
+		//rename files
+		for each (var file : File in fileMap){
+			var newFilePath : String = fileUploadTargetDirectory + file.name;
+			var newFile : File = new File(newFilePath);
+			file.renameTo( newFile );
+		}
+	} else {
+		for each (var file : File in fileMap){
+			file.remove();
+		}
+	}
+    return PIPELET_NEXT;
+}
+
+function creatFilesFromMultipart ( field : String, contentType : String, fileName : String ) {
+    if( fileName == null || fileName == "") {
+		return null;
+    }
+    return new File( [File.TEMP, '/', fileName].join('') );
+}

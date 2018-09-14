@@ -1,0 +1,98 @@
+<!--- TEMPLATENAME: registerInterestAdminEmail.isml --->
+<isset name="serviceType" value="false" scope="page" />
+<isset name="authMHNonCSOnly" value="false" scope="page" />
+<isloop items="${pdict.RegisterInterestObjResults}" var="RegisterInterestObj" status="loopstate0">
+	<isif condition="${'serviceType' in RegisterInterestObj.custom && !empty(RegisterInterestObj.custom.serviceType)}" >	
+		<isset name="serviceType" value="true" scope="page" />
+		<isbreak/>
+	</isif>
+</isloop>
+<h1> 
+<isif condition="${serviceType == 'true'}">	
+	${Resource.msg('product.registerinterestheader.makeenquiry','product',null)} </h1>
+<iselseif condition="${pdict.csOnly}">
+	${Resource.msg('product.csonlyproductsheader','product',null)} </h1>
+<iselse>
+	${Resource.msg('product.registerinterestheader','product',null)} </h1>
+</isif>
+<table border="1" >
+	<thead>
+		<tr>
+			<isif condition="${serviceType == 'true'}">			 
+				<th>${Resource.msg('product.registerinteresttableheaderservice','product',null)}</th>
+			<iselse>
+				<th>${Resource.msg('product.registerinteresttableheader1','product',null)}</th>
+			</isif>
+			<iscomment>
+			 If Pipe Character is not present the display only 2 headers Prod Id and Email
+			</iscomment>
+			<isif condition="${null == pdict.csOnly}">
+				<isloop items="${pdict.RegisterInterestObjResults}" var="RegisterInterestObj" status="loopstate0">
+					<isloop items="${RegisterInterestObj.custom.emailIds}" var="RegisterInterestEmail" status="loopstate1">	
+						<isif condition="${loopstate1.first && RegisterInterestEmail.indexOf('|')<0 }"> 
+							<isset name="authMHNonCSOnly" value="true" scope="page" />
+						</isif>
+					</isloop>
+				</isloop>
+			</isif>
+			<isif condition="${authMHNonCSOnly.equalsIgnoreCase('true')}">
+			    <th>${Resource.msg('product.registerinteresttableheader5','product',null)}</th>
+			<iselse>
+				<th>${Resource.msg('product.registerinteresttableheader9','product',null)}</th>
+				<th>${Resource.msg('product.registerinteresttableheader3','product',null)}</th>
+				<th>${Resource.msg('product.registerinteresttableheader4','product',null)}</th>
+				<th>${Resource.msg('product.registerinteresttableheader5','product',null)}</th>
+				<th>${Resource.msg('product.registerinteresttableheader6','product',null)}</th>
+				<th>${Resource.msg('product.registerinteresttableheader7','product',null)}</th>
+			</isif>
+		</tr>
+	</thead>
+	<tbody>
+		<isloop items="${pdict.RegisterInterestObjResults}" var="RegisterInterestObj" status="loopstate0">
+			<tr>
+				<isif condition="${(serviceType == 'true') && !empty(RegisterInterestObj.custom.serviceType)}" >
+					<isif condition="${RegisterInterestObj.custom.serviceType.lastIndexOf('_') > 0}" >
+						<isset name="serviceTypeVal" value="${RegisterInterestObj.custom.serviceType.substring(0,RegisterInterestObj.custom.serviceType.lastIndexOf('_'))}" scope="page" >
+					<iselse>
+						<isset name="serviceTypeVal" value="${RegisterInterestObj.custom.serviceType}" scope="page" >
+					</isif>
+					<td rowspan="${RegisterInterestObj.custom.serviceType.length}">${serviceTypeVal}</td>
+				<iselse>
+					<isif condition="${RegisterInterestObj.custom.prodId.lastIndexOf('_') > 0}" >
+						<isset name="prodID" value="${RegisterInterestObj.custom.prodId.substring(0,RegisterInterestObj.custom.prodId.lastIndexOf('_'))}" scope="page" >
+					<iselse>
+						<isset name="prodID" value="${RegisterInterestObj.custom.prodId}" scope="page" >
+					</isif>
+					<td rowspan="${RegisterInterestObj.custom.emailIds.length}">${prodID}</td>
+				</isif>
+				<isif condition="${(serviceType == 'true') && !empty(RegisterInterestObj.custom.serviceType)}" >
+					<isloop items="${RegisterInterestObj.custom.custDetails}" var="RegisterInterestCust" status="loopstate1">				
+						<isscript>
+						var registerInterestDetailsArrayCust:Array=RegisterInterestCust.split("|");
+						</isscript>
+						<isif condition="${loopstate1.first}">
+							<isloop items="${registerInterestDetailsArrayCust}" alias="regDtlsCust1">
+								<td><isprint value="${regDtlsCust1}" /></td>
+							</isloop>
+						<iselse>
+							<tr><isloop items="${registerInterestDetailsArrayCust}" alias="regDtlsCust2"><td><isprint value="${regDtlsCust2}" /></td></isloop></tr>
+						</isif>				
+					</isloop>
+				<iselse>
+					<isloop items="${RegisterInterestObj.custom.emailIds}" var="RegisterInterestEmail" status="loopstate1">				
+						<isscript>
+						var registerInterestDetailsArray:Array=RegisterInterestEmail.split("|");
+						</isscript>
+						<isif condition="${loopstate1.first}">
+							<isloop items="${registerInterestDetailsArray}" alias="regDtls1">
+								<td><isprint value="${regDtls1}" /></td>
+							</isloop>
+						<iselse>
+							<tr><isloop items="${registerInterestDetailsArray}" alias="regDtls2"><td><isprint value="${regDtls2}" /></td></isloop></tr>
+						</isif>				
+					</isloop>
+				</isif>
+			</tr>
+		</isloop>
+	</tbody>
+</table>

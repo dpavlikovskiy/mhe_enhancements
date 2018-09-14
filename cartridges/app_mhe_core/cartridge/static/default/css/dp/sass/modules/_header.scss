@@ -1,0 +1,157 @@
+.header {
+	background-color: $bgheader;
+	text-transform:uppercase;
+	.highlighted {
+		color:$brandcolor;
+		display:block;
+		margin:0 0 3px;
+	}
+	.newsletter-cont{
+		border-right: 1px solid $headerDivider;
+	}
+	a{
+		color:$white;
+		&:visited, &:hover, &:focus { color:$white; }
+	}
+	.logo_header{
+		width: 145px;
+		margin:0 auto;
+		padding: 0;
+		img{
+			width:145px;
+		}
+	}
+	header{
+		.header-right{
+		width:500px;	 
+		}
+		.side-module {
+	 	 	li{
+	 	 		.textSearch{
+	 	 			margin-top: -10px;
+	 	 		}
+	 	 	}		
+	 	 }
+	}
+}
+
+.navigation{
+	background-color: $bgNavigation;
+	li{
+		a{
+			background-color: $bgNavigation;
+			&.active{
+				color:$brandcolor;
+			}
+		}
+	}
+}
+.pt_checkout{
+	.logo_header{
+		background:$black;
+		img{
+			width:120px;
+			height:auto;
+		}
+	}
+}
+.footer{
+	color:$footerLinks;
+	text-transform:uppercase;
+	a{
+		color:$footerLinks;
+		border-left: 1px solid $footerDivider;
+		&:hover {
+			color: $white;
+		}
+		&:visited, &:focus{
+			color:$footerLinks;
+		}
+	}
+	.footer-second {
+		background-color: $footer_bottom;
+			p.copyright {
+				font-size:11px;
+				padding: 15px 40px;
+				span{
+					color: $footerLinks;
+					padding: 0 20px;
+					margin: 0;
+					border-right:1px solid $darkgrey;
+					}
+			
+			.drink_aware{
+			    background-image: url("../img/sprites/sprite_main.png");
+    			height:15px;
+    			opacity: 0.4;
+    			transition: all 0.2s ease-out 0s;
+    			width: 184px;
+    			margin: 0 auto;
+    			background-position: -53px -211px;
+				background-repeat: no-repeat;
+    			background-color:transparent;
+    			width:200px;
+    			border-right: medium none;
+    			a{
+    				border-right: medium none;
+    				border-left: medium none;
+    				height: 15px;
+    				text-indent: -9000px;
+    				width: 200px;
+    				display: inline-block;
+    			}
+			} 
+		}	
+	}
+	.footer-first {
+		background-color: $footer_top;
+			.menu-footer{ 
+		    margin: 0 auto;
+    		padding: 12px 0 0;
+    		text-align: center;
+    		width: 1200px;
+    		}
+
+	}
+}
+.pt_product-details {
+	.header {
+		background-color: rgb(19, 19, 20);
+		background-color: $header_bgnd_01;
+	}
+	.product-detail{
+		.button .face{
+			&.back{
+				background:none;
+				color:$brandcolor;
+			}
+		}
+	}
+}
+.ie8{
+	.pt_product-details .header{
+		background: url(img/common/ie8-header-fade.png);
+	}
+}
+
+
+.header header .side-module {
+  margin: 15px 0 0 0; 
+}
+
+#delivery-dialog{
+	text-transform:none;
+	h2{
+		text-transform:none;
+	}
+}
+.lRLi{
+	text-align:center;
+	line-height:16px;
+}
+.lRLi2{
+	.mini-cart-label{
+		text-align:center;
+		line-height:16px;
+	}
+}

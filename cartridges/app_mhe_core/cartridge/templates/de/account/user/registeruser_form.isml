@@ -1,0 +1,92 @@
+<isset name="className" value="button" scope="page"  >	
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh'))}">
+		<isset name="className" value="button submitAjaxForm" scope="page"  >
+	</isif>
+<form action="${URLUtils.httpsContinue()}" method="post" id="RegistrationForm">
+					<isscript>
+							importScript('checkout/Utils.ds');
+							var titleMap : dw.util.Map = getTitleMap();		
+							var salutationMap : dw.util.Map = getSalutationMap();					
+					</isscript>
+					<div class="form-row required " data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+						<select id="${pdict.CurrentForms.profile.customer.salutation.htmlName}" name="${pdict.CurrentForms.profile.customer.salutation.htmlName}" class="input-text required">
+							<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>forms.currentCountry
+							<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.profile.customer.salutation.htmlValue.equals(salutationMap.get(key))}">							 
+						 		 	<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+								<iselse>
+									<option  value="${key}">${salutationMap.get(key)}</option>
+								</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+					<div class="form-row required">
+						<select id="${pdict.CurrentForms.profile.customer.title.htmlName}" name="${pdict.CurrentForms.profile.customer.title.htmlName}">
+							<option value="">${Resource.msg('profile.salutation','forms',null)}</option>forms.currentCountry
+							<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">	
+								<isif condition="${pdict.CurrentForms.profile.customer.title.htmlValue.equals(titleMap.get(key))}">							 
+						 		 <option selected="selected" value="${key}">${titleMap.get(key)}</option>
+								<iselse>
+								<option  value="${key}">${titleMap.get(key)}</option>
+						</isif>	                            				
+							</isloop>
+						</select>
+					</div>
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.firstname}" xhtmlclass="name-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.firstname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}" />
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.lastname}" xhtmlclass="name-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.lastname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}" />
+					<isif condition="${empty(pdict.CurrentHttpParameterMap.cid.value)}">  
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.email}" xhtmlclass="email-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}"   />
+					<iselse>									
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.email}" xhtmlclass="email-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" attribute2="disabled" value2="disabled"/>
+					</isif>	
+					<isinputfield formfield="${pdict.CurrentForms.profile.login.password}" xhtmlclass="password-input required" type="password" attribute1="placeholder" value1="${Resource.msg('label.firsttimepassword','forms',null)}" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}"/>
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.birthday}" xhtmlclass="date-input of-legal-age" type="input" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.dateofbirth','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList').length==1}"> 
+					<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList')}" var="country" status="loopstatus">  
+			 	 		<div>
+							<p class="small_text"><isprint value="${country.getDisplayValue()}" /></p>
+						</div>	
+                 	<isbreak/>	  
+          	  		</isloop>
+					<iselse>
+					<div class="form-row  required " data-required-text="${Resource.msg('profile.originCountry.missing-error','forms',null)}">
+						<select id="${pdict.CurrentForms.profile.customer.originCountry.htmlName}" name="${pdict.CurrentForms.profile.customer.originCountry.htmlName}" class="input-text required ">
+							<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('originCountryList')}" var="country" status="loopstatus">	
+								<option value="${country.getValue()}" <isif condition="${country.getValue().equals("Resource.msg('forms.defaultcountry','forms',null')")}">selected</isif>>${country.getDisplayValue()}</option>	                            				
+							</isloop>
+						</select>
+					</div>
+					</isif>
+					<div class="form-caption actions">
+						<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh'))}">
+							<p class="small_text"><isprint value="${Resource.msg('epageregister.originCountry.message','account',null)}" /></p>
+					<iselse>
+							<iscontentasset aid="over18text"/>
+						</isif>
+					</div>
+						
+					<isinputfield formfield="${pdict.CurrentForms.profile.customer.addtoemaillist}" type="checkbox" rowclass="form-indent label-inline noPosition borderTop" />	
+					<div class="form-caption box600">
+						<iscontentasset aid="termsAndConditionsRegister"/>
+						<iscomment>Davinder:: TO BE DELETED: commenting terms and showing from asset
+						<p><isprint value="${Resource.msg('register.agreement.message','account',null)}" /><isprint value="${Resource.msg('register.agreement.messageCont','account',null)}" /><isprint value="${Resource.msg('register.agreement.terms','account',null)}" /><isprint value="${Resource.msg('register.agreement.message.cont','account',null)}" /><isprint value="${Resource.msg('register.agreement.policy','account',null)}" /></p>
+						</iscomment>
+					</div>	
+					<isif condition="${pdict.CurrentSession.sourceCodeInfo!=null}"> 
+					<div class="form-row form-row-button">
+						<button type="submit" class="${className} regButtonPartner" id="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('global.apply','locale',null)}" name="${pdict.CurrentForms.profile.confirm.htmlName}">
+							<span class="face front"><isprint value="${Resource.msg('register.button.labelpartner','account',null)}" /></span>
+							<span class="face back"><isprint value="${Resource.msg('register.button.labelpartner','account',null)}" /></span>
+						</button>
+					</div>
+					<iselse>
+					<div class="form-row form-row-button">
+						<button type="submit" class="${className}" id="${pdict.CurrentForms.profile.confirm.htmlName}" value="${Resource.msg('global.apply','locale',null)}" name="${pdict.CurrentForms.profile.confirm.htmlName}">
+							<span class="face front"><isprint value="${Resource.msg('register.button.label','account',null)}" /></span>
+							<span class="face back"><isprint value="${Resource.msg('register.button.label','account',null)}" /></span>
+						</button>
+					</div>
+					</isif>
+					<input type="hidden" name="${pdict.CurrentForms.profile.secureKeyHtmlName}" value="${pdict.CurrentForms.profile.secureKeyValue}"/>	
+					<input type="hidden" name="validAge" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('validAge')}"/>
+				</form>

@@ -1,0 +1,135 @@
+/**
+ * ValidateCartForCheckout.ds
+ *
+ * This script implements a typical shopping cart checkout validation. 
+ * The script is provided with the Demandware reference application. Some 
+ * parts of the validation script are specific to the reference application
+ * logic and might not be applicable to our customer's storefront applications.
+ * However, the shopping cart validation script can be customized to meet 
+ * specific needs and requirements.
+ * 
+ * The script implements the validation of the shopping cart against specific
+ * conditions. This includes the following steps:
+ * - validate if total price is not N/A
+ * - validate if products are still in site catalog and online
+ * - validate product availability
+ *
+ * @input  Basket : dw.order.Basket
+ * @output BasketStatus : dw.system.Status
+ */
+
+
+ importPackage( dw.system );
+ importPackage( dw.web );
+ importPackage( dw.value );
+ importPackage( dw.util );
+ importPackage( dw.order );  
+ importPackage( dw.catalog ); 
+
+
+/**
+ * Function: execute
+ *
+ * Main function of the validation script. 
+ */
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // ===================================================
+	// =====     	PROCESS INPUT PARAMETERS 		 ===== 
+    // ===================================================
+
+	var basket : Basket = pdict.Basket;
+
+    // ===================================================
+	// =====   VALIDATE PRODUCT EXISTENCE            ===== 
+    // ===================================================
+	// Check if all products in basket can still be resolved
+	// and are online
+	var productExistence = validateProductExistence(basket);
+
+    // ===================================================
+	// =====   CHECK PRODUCT LINE ITEM AVAILABILITY  ===== 
+    // ===================================================
+
+	// Check the availability of all product line items
+	// within the basket
+	var quantitiesAvailable = validateAvailability(basket);
+	
+    // ===================================================
+	// =====    CHECK MERCHANDIZE TOTAL NET PRICE   ====== 
+    // ===================================================
+
+	// Checks the availability of the basket's merchandize
+	// total price (net or gross depending on taxation policy)
+	var pricesAvailable = basket.merchandizeTotalPrice.available; 
+	
+    // ===================================================
+	// =====           EVALUATE CONDITIONS           =====
+    // ===================================================
+    
+	if(!quantitiesAvailable || !pricesAvailable || !productExistence)
+	{
+		// there are either not the requested product quantities
+		// available or one or more line items has no price
+		pdict["BasketStatus"] = new Status(Status.ERROR);
+		return PIPELET_ERROR;
+	}
+
+    // ===================================================
+	// =====            DONE                         =====
+    // ===================================================
+	
+	pdict["BasketStatus"] = new Status(Status.OK);
+    return PIPELET_NEXT;
+}
+
+/**
+ * FUNCTION: validateProductExistence
+ */
+function validateProductExistence(basket : Basket)
+{
+	var plis : Iterator = basket.getProductLineItems().iterator();
+	
+	while(plis.hasNext())
+	{
+		var pli : Product = plis.next();
+		if(pli.product == null || !pli.product.online)
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+/**
+ * FUNCTION: validateAvailability
+ *
+ * Checks the availability of products based on total quantity in basket and
+ * returns false if one product is not available in the basket quantity.
+ *
+ * Availability of bonus products in the cart is not validated (a cart can also 
+ * (be ordered if any of the bonus products in the cart are currently not in stock).
+ */
+function validateAvailability(basket : Basket)
+{
+    // our hashmap of product quantities
+	var qnts : HashMap = basket.getAllProductQuantities();
+	
+	// check the quantities against the availability:
+	// ----------------------------------------------
+	var plis : Iterator = basket.allProductLineItems.iterator();
+	while(plis.hasNext())
+	{
+		var pli : ProductLineItem = plis.next();
+		var qnt : Quantity = qnts.get(pli.product);
+		
+		// if line item is not a bonus product, check availability
+		if(pli.product != null && !pli.bonusProductLineItem && !pli.product.availabilityModel.isOrderable(qnt.value))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}

@@ -1,0 +1,134 @@
+<isdecorate template="account/pt_login_register">
+<isinclude template="util/modules"/>
+	<isslot id="login-checkout-bg" description="Complimentary Gift Packing" context="global" />
+	<div class="checkOut-logo">
+		<a href="${URLUtils.http('Home-Show')}">
+			<img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" />
+		</a>
+    </div>
+	<div class="checkoutWrapper">
+	<div class="col-1 checkOut-Wrapper clearfix">
+		<iscomment>returning customer</iscomment>	
+	    
+	    <div class="checkOut-Aside-1">
+		<h2 class="section-header">${Resource.msg('checkoutlogin.existingcustomer','checkout',null)}</h2>	
+		<isinclude template="checkout/epage_login.isml"/>
+ 
+	
+			    <div class="form-caption box600">
+				 	<iscontentasset aid="terms&conditions_CheckoutLogin1"/>
+					<p class="small_text">
+						<a class="ajaxData" id="password-reset" href="" data-href="${URLUtils.url('Account-PasswordReset')}">
+							<isprint value="${Resource.msg('loginpage.problem.troubleshooting.message','account',null)}"/>
+						</a>
+					</p>
+				</div>
+		</div> 
+		 
+		<div class="login-box checkOut-Aside-2">
+		<h2 class="section-header">${Resource.msg('checkoutlogin.newcustomer','checkout',null)}</h2>
+			<isif condition="${!pdict.CurrentSession.custom.brand.equalsIgnoreCase('ad')}" > 
+			<div class="login-box-content clearfix">
+			
+			  <iscomment>  <iscontentasset aid="ca_guestCheckout"/> </iscomment>
+			  
+				<p class= "p-create-ac-msg checkout-msgs">${Resource.msg('checkoutlogin.guestmessage','checkout',null)}</p>
+				<a href="" data-href="${URLUtils.url('Account-EstoreRegister')+'?coshippingstart=true'}" class="ajaxData button fill" id="registerClicked">
+					<span class="face front"><isprint value="${Resource.msg('checkoutlogin.createAccount','checkout',null)}" encoding="off"  /></span>
+					<span class="face back"><isprint value="${Resource.msg('checkoutlogin.createAccount','checkout',null)}" encoding="off"  /></span>
+				</a>
+				
+				<iscomment>
+					<form action="${URLUtils.httpsContinue()}" method="post">
+					<fieldset>
+						<div class="form-row formbuttonrow">
+							<button type="submit" class="button fill" value="${Resource.msg('checkoutlogin.continuebutton','checkout',null)}" name="${pdict.CurrentForms.login.register.htmlName}">
+								<span class="face front">${Resource.msg('checkoutlogin.createAccount','checkout',null)}</span>
+								<span class="face back">${Resource.msg('checkoutlogin.createAccount','checkout',null)}</span>
+							</button>
+						</div>
+						<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+					</fieldset>
+					</form>
+			   </iscomment>	
+			</div>
+			<iselse>
+			<div class="login-box-content clearfix">
+				<span class="visually-hidden"><a href="" data-href="coshippingstart=true" id="registerClicked"></a></span>
+				<div class = "ad-info-text">
+					<div class="tooltip left">
+						   <span class="ad-side-2-desp">${Resource.msg('checkoutlogin.admessage','checkout',null)}</span>
+					     	<span class="ptIcon">i</span>
+					  		<div class="tooltip-content" data-layout="small tooltip-cvn">
+					     		<p><iscontentasset aid="ca_CheckoutCreateLoginTooltip"/></p> 
+					     	</div>
+					  </div>
+				</div>
+				
+				</br>
+				<div class="form-caption box600">
+				   <iscontentasset aid="ca_CheckoutCreateLoginText"/> 
+			    </div>
+				</br>
+				<div class="form-caption box600">
+				  	<iscontentasset aid="checkout_tnc_right"/>
+				  </div>
+				  
+			 	 <form action="${URLUtils.httpsContinue()}" method="post">
+					<fieldset>
+						<div class="form-row formbuttonrow">
+							<button type="submit" class="button fill" value="${Resource.msg('checkoutlogin.continuebutton','checkout',null)}" name="${pdict.CurrentForms.login.register.htmlName}">
+								<span class="face front">${Resource.msg('checkoutlogin.join','checkout',null)}</span>
+								<span class="face back">${Resource.msg('checkoutlogin.join','checkout',null)}</span>
+							</button>
+						</div>
+						<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+					</fieldset>
+					</form>
+				
+			  </div>
+		     </isif>
+		 
+		 
+		    <isscript>
+			    var guestFlag:boolean=dw.system.Site.getCurrent().getCustomPreferenceValue('guestCheckoutStatus');
+		   </isscript>
+		   <isif condition="${guestFlag}" > 	
+			<div class="login-box-content clearfix">
+			
+			 <iscomment> <iscontentasset aid="ca_guestCheckout"/> </iscomment>
+			   
+				<p class = "p-create-ac-msg checkout-msgs">${Resource.msg('checkoutlogin.guestmessage2','checkout',null)}</p>
+				
+				<form action="${URLUtils.httpsContinue()}" method="post">
+				<fieldset>
+				
+					<div class="form-row formbuttonrow">
+						<button type="submit" class="button fill" value="${Resource.msg('checkoutlogin.continuebutton','checkout',null)}" name="${pdict.CurrentForms.login.unregistered.htmlName}">
+							<span class="face front">${Resource.msg('checkoutlogin.guestCheckout','checkout',null)}</span>
+							<span class="face back">${Resource.msg('checkoutlogin.guestCheckout','checkout',null)}</span>
+						</button>
+					</div>
+					<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+				</fieldset>
+				</form>
+				
+				<iscontentasset aid="checkout_tnc_right"/>
+					  <div class="form-caption box600">
+					 	<iscontentasset aid="terms&conditions_CheckoutLogin"/>
+					  </div>
+					  
+			</div>
+   		</isif>
+	
+	 </div>
+	</div>
+	</div>
+
+	<div class="col-2">
+
+	<iscomment>new customer</iscomment>
+		
+
+	</div>
+</isdecorate>

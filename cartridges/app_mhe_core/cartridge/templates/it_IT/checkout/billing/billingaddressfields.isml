@@ -1,0 +1,13 @@
+	<isinclude template="util/modules"/>
+
+	<isif condition="${'reqfield' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.reqfield.stringValue =='vatnumber'}">	
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber}" type="input"  	rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.vatnumber.missing-error','forms',null)}" />
+        <div class="form-row hasAsset"> <label>&nbsp;</label>  <iscontentasset aid="vatNumberText"/> </div>
+	<iselseif condition="${!empty(pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber.htmlValue) && empty(pdict.CurrentHttpParameterMap.reqfield.stringValue)}">
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.vatNumber}" type="input"  	rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.vatnumber.missing-error','forms',null)}" />
+ 		<div class="form-row hasAsset"> <label>&nbsp;</label>  <iscontentasset aid="fiscalCodeText"/> </div>
+	<iselse>
+		<isinputfield formfield="${pdict.CurrentForms.billing.billingAddress.addressFields.fiscalCode}"  type="input"  rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.fiscalcode.missing-error','forms',null)}" />
+	    <div class="form-row hasAsset"> <label>&nbsp;</label> <iscontentasset aid="vatNumberText"/> </div>
+	</isif>
+		

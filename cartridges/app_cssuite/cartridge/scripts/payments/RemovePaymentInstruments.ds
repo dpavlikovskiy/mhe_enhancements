@@ -1,0 +1,37 @@
+/**
+*   This script removes all so called 'primary' payment instruments (CC, BML, TDRC) instead of the given one from basket.
+*	The primary payment instruments are only removed if they don't have a transaction assigend (that means that transactionID is empty).
+*
+*	@input Basket : dw.order.Basket : The Basket
+*-   @output ExampleOut : Number
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	if (basket == null) {
+		Logger.error("Basket is null");
+		return PIPELET_ERROR;
+	}
+	
+	var paymentInstruments : ArrayList = new ArrayList(basket.paymentInstruments);
+	
+	removePaymentInstruments(paymentInstruments, basket);
+    
+    return PIPELET_NEXT;
+}
+
+function removePaymentInstruments(paymentInstruments : ArrayList, basket : Basket) {
+	for each (var paymentInstrument : OrderPaymentInstrument in paymentInstruments) {
+		if ( (paymentInstrument.paymentMethod != PaymentInstrument.METHOD_GIFT_CERTIFICATE) &&
+			 (paymentInstrument.paymentMethod != "METHOD_PPGC") &&
+			 (paymentInstrument.paymentMethod != "METHOD_SVGC") &&
+			 (empty(paymentInstrument.paymentTransaction.transactionID))) {
+			basket.removePaymentInstrument(paymentInstrument);
+		}
+	}
+}

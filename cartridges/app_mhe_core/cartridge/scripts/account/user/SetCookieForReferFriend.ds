@@ -1,0 +1,43 @@
+/**
+* Set recruitment cookie.
+* 
+*  @input Salutation :String
+*  @input Title :String
+*  @input Fname :String
+*  @input Lname :String
+*  @input Email : String
+*  @input RememberMe: Boolean
+*  @input Company : String
+*/
+importPackage( dw.system );
+importPackage(dw.web);
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// var response:dw.system.Response=Response;
+	try{
+		
+			var company:String = !empty(args.Company)?args.Company:"";
+			var salutation:String = !empty(args.Salutation)?args.Salutation:"";
+			var title:String = !empty(args.Title)?args.Title:"";
+		
+			var cookieValue:String=args.RememberMe+"|"+args.Fname+"|"+args.Lname+"|"+args.Email+"|"+company+"|" + salutation+"|" + title;
+    	    var cookie:dw.web.Cookie= new Cookie("dwrecruitment",cookieValue);
+    		if(args.RememberMe==true)
+    		{
+             cookie.setMaxAge(31536000);
+    		}
+    		else
+    		{
+    		 cookie.setMaxAge(-1);
+    		}
+		     cookie.setPath('/');     
+		     response.addHttpCookie(cookie);
+	
+	}
+	catch(e)
+	{
+		return PIPELET_NEXT;
+	}
+   return PIPELET_NEXT;
+}

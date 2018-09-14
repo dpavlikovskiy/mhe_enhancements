@@ -1,0 +1,1 @@
+$(document).ready(function(){$(".mini-cart-product.accParent").each(function(){$(this).next(".accessory").addClass("firstAcc"),$(this).prev(".accessory").addClass("lastAcc")});var a=$(".pdpPage");a.length>0});

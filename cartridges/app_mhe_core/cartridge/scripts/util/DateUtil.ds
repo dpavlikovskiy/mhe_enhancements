@@ -1,0 +1,167 @@
+/**
+* Script used for formating date in the special format of   "Monday 1st Nov 2013","Tuesdat 2nd Nov 2013","Wednesday 3rd Nov 2013","Thursdat 4th Nov 2013" etc.
+*
+*/
+importPackage( dw.system );
+importPackage(dw.util);
+importPackage( dw.system );
+importPackage( dw.order );
+ importPackage( dw.value );
+ importPackage( dw.util );
+
+/**
+* function used for formating date in the special format of   "Monday 1st Nov 2013","Tuesdat 2nd Nov 2013","Wednesday 3rd Nov 2013","Thursdat 4th Nov 2013" etc.
+* the function takes input as "Date" and returns formated date in the form of "String"   
+*/
+function getDateFormatted(date1 : Date) : String
+{
+ 	//var date1 : String = StringUtils.formatDate(date1, "d" );
+ 	var cdate:Calendar=new Calendar(date1);
+	var date1 : String = StringUtils.formatCalendar(cdate, "d" );
+	var temp : String="";
+	var datemap : Map = new HashMap();
+	datemap.put("1","st");
+	datemap.put("21","st");
+	datemap.put("31","st");
+	datemap.put("2","nd");
+	datemap.put("22","nd");
+	datemap.put("3","rd");
+	datemap.put("23","rd");
+	
+	if(!empty(datemap.get(date1)))
+		temp=datemap.get(date1);
+	else
+		temp="th";
+	//var dateformat1 : String = StringUtils.formatDate(new Date(), "EEEEEE d'tempstr' MMM yyyy" );
+	//var dateformat1 : String = StringUtils.formatCalendar(cdate, "EEEEEE d'tempstr' MMM yyyy" );
+	var dateformat1 : String = StringUtils.formatCalendar(cdate, "EEEEEE d'tempstr' MMMM yyyy" );
+	var dateformat2 : String = dateformat1.replace("tempstr",temp) ;
+
+   return dateformat2;
+}
+/**
+* function used for formating date in the special format of "Monday 1 November"
+* the function takes input as "Date" and returns formated date in the form of "String"   
+*/
+function getDateFormattedwithoutYear(date1 : Date) : String
+{
+ 	var cdate:Calendar=new Calendar(date1);
+	var date1 : String = StringUtils.formatCalendar(cdate, "EEEEEE d MMMM" );
+	return date1;
+}
+
+function DateLiesInRequiredDuration(orderDate: Date , updateReasonCode : String) : Boolean {	
+	var invoiceApplicableForSite : Array= Site.getCurrent().preferences.custom.pdfInvoiceRequired;
+	if(invoiceApplicableForSite!=null && !empty(invoiceApplicableForSite))
+	{
+		var invoiceDurationInDays : Number = Site.getCurrent().preferences.custom.saveInvoiceDays;
+		var calendar : Calendar = new Calendar();
+		calendar.add(Calendar.DATE, -invoiceDurationInDays);
+		var oldTimeStamp:Number = calendar.getTime().getTime();
+		var orderTimeStamp : Number = orderDate.getTime();
+		if(oldTimeStamp<=orderTimeStamp && updateReasonCode!=null && (updateReasonCode.equalsIgnoreCase('SHIPPED') || updateReasonCode.equalsIgnoreCase('DELIVERED')))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+function LocalStringToDateFormat(nominatedDate: String):String {	
+	var monthMap:HashMap  =new HashMap();
+	monthMap.put(dw.web.Resource.msg('calender.january','forms', null),"january");
+	monthMap.put(dw.web.Resource.msg('calender.february','forms', null),"february");
+	monthMap.put(dw.web.Resource.msg('calender.march','forms', null),"march");
+	monthMap.put(dw.web.Resource.msg('calender.april','forms', null),"april");
+	monthMap.put(dw.web.Resource.msg('calender.may','forms', null),"may");
+	monthMap.put(dw.web.Resource.msg('calender.june','forms', null),"june");
+	monthMap.put(dw.web.Resource.msg('calender.july','forms', null),"july");
+	monthMap.put(dw.web.Resource.msg('calender.august','forms', null),"august");
+	monthMap.put(dw.web.Resource.msg('calender.september','forms', null),"september");
+	monthMap.put(dw.web.Resource.msg('calender.october','forms', null),"october");
+	monthMap.put(dw.web.Resource.msg('calender.november','forms', null),"november");
+	monthMap.put(dw.web.Resource.msg('calender.december','forms', null),"december");
+	var dateArr:Array =new Array();
+		dateArr=nominatedDate.split(" ");
+    var date:String=dateArr[0]+" "+monthMap.get(dateArr[1])+" "+dateArr[2];
+	return date;
+}
+
+function DateLiesBetween(startDay: Number , endDay : Number) : ArrayList {	
+	
+		var invoiceDurationInDays : Number = endDay - startDay;
+		var calendar : Calendar = new Calendar();
+		var dateArray: ArrayList= new ArrayList();
+		
+		for(var i=0;i<invoiceDurationInDays;i++){
+		calendar=new Calendar();
+		calendar.add(Calendar.DATE,+i);
+		dateArray.add(calendar.getTime().toDateString());
+		//dateArray.add(getDateFormatted(calendar.getTime()));
+		}	
+	return dateArray;
+}
+
+function validHours(date: String , shipment : String) : Array {	
+		
+		
+	var cal : Calendar = new Calendar(new Date());
+	
+	cal.setTimeZone(dw.system.Site.getCurrent().timezone);
+	var currentHour :Number= cal.get(Calendar.HOUR);
+	var timeArrayy: Array=new Array();
+	var hashMap: SortedMap= new SortedMap();
+    var date : Date= new Date(date);
+   	var startHour: Number = 0;
+   	var endhour: Number = 0 ;
+   	var	timeslotduration:Number=1;
+   	var slectedDate: String= StringUtils.formatCalendar(new Calendar(date), "M-d-yyyy" );
+    var shippingMethods : Collection = ShippingMgr.getAllShippingMethods();
+	var shippingMethodsIt : Iterator = ShippingMgr.getAllShippingMethods().iterator();
+    while(shippingMethodsIt.hasNext())
+	{
+		var shippingMethod : ShippingMethod = shippingMethodsIt.next();
+		
+		if (shippingMethod.ID.equalsIgnoreCase(shipment))
+		{
+			if("deactivedDeliveryTime" in shippingMethod.custom ){
+				startHour = shippingMethod.custom.startHour;
+				endhour = shippingMethod.custom.endHour;
+			 var disbaledTime : Array=shippingMethod.custom.deactivedDeliveryTime;
+			 var timeArr: ArrayList =new ArrayList();
+			 for each (time in disbaledTime){
+		 	var timeslot : String=time;
+			 	if(timeslot.indexOf(slectedDate)>-1){
+			 		var ts: String=timeslot.split(" ")[1];
+			 		var startTime: String=parseInt(ts.split("-")[0].toString());
+			 		var finalTime : String=parseInt(ts.split("-")[1].toString());
+
+			 		while(startTime<finalTime){
+			 		timeArr.add(startTime);
+			 		startTime=startTime+1;
+			 		}
+			 		
+			 	}
+			 
+			 }
+			 while(startHour<endhour){
+	
+					var endtime=startHour+timeslotduration;
+					if(currentHour<startHour && !timeArr.contains(startHour.valueOf())){
+					timeArrayy.push(startHour+":00 - "+endtime+":00,enabled");
+					//hashMap.put(startHour+":00 - "+endtime+":00", "enabled")
+					}else{
+						timeArrayy.push(startHour+":00 - "+endtime+":00,disabled");
+					//hashMap.put(startHour+":00 -"+endtime+":00", "disabled")
+					}
+					startHour=startHour+timeslotduration;
+		}
+			}
+		}
+	}
+    
+
+	
+	
+	return timeArrayy;
+}

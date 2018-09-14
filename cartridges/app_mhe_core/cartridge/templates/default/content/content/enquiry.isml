@@ -1,0 +1,22 @@
+<!--- TEMPLATENAME: enquiry.isml --->
+<isinclude template="util/modules"/>
+<div class="article">
+	<isif condition="${'body' in pdict.Content.custom && pdict.Content.custom.body != null}">
+		<iscomment>don't remove or rename DIV and Marker, necessary for mark and editing, no css attributes defined</iscomment>
+		<div class="content-Content"><!-- dwMarker="content" dwContentID="${pdict.Content.UUID}" -->
+			<isprint value="${pdict.Content.custom.body}" encoding="off"/>
+		</div> <!-- End content-Content -->
+	</isif>
+	<isset name="makeEnquiryButtonTitle" value="${Resource.msg('product.makeenquiry','product',null)}" scope="page" >
+	<isif condition="${'serviceType' in pdict.Content.custom && !empty(pdict.Content.custom.serviceType)}">	
+		<div id="cellerForm">
+			<div class="makeCenter">
+				<button class="button secondary register-interest showForm" id="btnMakeEnquiry" type="button" value="${makeEnquiryButtonTitle}" >
+					<span class="face front">${makeEnquiryButtonTitle}</span>
+					<span class="face back">${makeEnquiryButtonTitle}</span>
+				</button>
+			</div>
+			<isinclude url="${URLUtils.url('Page-MakeEnquiry','serviceType',pdict.Content.custom.serviceType, 'cid', pdict.Content.ID)}"/>
+		</div>
+	</isif>
+</div>

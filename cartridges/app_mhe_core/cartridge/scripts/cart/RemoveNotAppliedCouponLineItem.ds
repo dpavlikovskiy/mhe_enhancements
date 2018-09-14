@@ -1,0 +1,31 @@
+/**
+ * @input  Basket : dw.order.Basket
+ */
+
+importPackage( dw.order );
+importPackage( dw.system );
+importPackage( dw.util );
+ 
+/**
+ * Function: execute
+ *
+ * Main function of the validation script. 
+ */
+function execute( pdict : PipelineDictionary ) : Number
+{
+    // ===================================================
+	// =====     	PROCESS INPUT PARAMETERS 		 ===== 
+    // ===================================================
+	
+	var basket : Basket = pdict.Basket;
+	var clis : Iterator = basket.getCouponLineItems().iterator();
+	while (clis.hasNext())
+	{
+		var cli : CouponLineItem = clis.next();
+		if(!cli.applied){
+			 basket.removeCouponLineItem(cli);
+		}
+	}
+    return PIPELET_NEXT;
+ 
+}

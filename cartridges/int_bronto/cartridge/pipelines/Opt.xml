@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="process">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Used for creation of customer subscription for promotional emials in Bronto.</description>
+        </text-node>
+        <node-display x="0" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="In">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="In" secure="false">
+          <description>EDM</description>
+        </start-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="!dw.system.Site.getCurrent().getCustomPreferenceValue(&quot;useSalesforceCDW&quot;)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="true"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="Bronto/EmailOptIn.ds"/>
+                <config-property key="Timeout" value="30"/>
+                <key-binding alias="ScriptLog" key="ScriptLog"/>
+                <key-binding alias="profile" key="email"/>
+                <key-binding alias="profile" key="profile"/>
+                <key-binding alias="subscribe" key="subscribe"/>
+                <key-binding alias="oldNewsLetterSubscribedStatus" key="oldNewsLetterSubscribedStatus"/>
+                <key-binding alias="flowFrom" key="flowFrom"/>
+                <key-binding alias="paramMap" key="customData"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="../b3.1"/>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="Bronto/SalesForceEmailOptin.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="paramMap" key="customData"/>
+          <key-binding alias="flowFrom" key="flowFrom"/>
+          <key-binding alias="profile" key="profile"/>
+          <key-binding alias="subscribe" key="subscribe"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="1" y="0"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in1"/>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="1" y="0"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node name="ERROR"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

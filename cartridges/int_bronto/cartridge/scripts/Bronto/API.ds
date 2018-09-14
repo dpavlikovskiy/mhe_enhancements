@@ -1,0 +1,1476 @@
+/**
+* Demandware script file
+* Script contains methods to use with Bronto API
+* Created By: Astound Commerce
+**/
+
+/// Includes block ///
+
+importPackage (dw.catalog);
+importPackage (dw.customer);
+importPackage (dw.net);
+importPackage (dw.order);
+importPackage (dw.object);
+importPackage (dw.rpc);
+importPackage (dw.system);
+importPackage (dw.util);
+importPackage (dw.web);
+/// Start of Autorization functions block ///
+function authorizeAPI () {
+	// Vars initialization
+	var ref : WebReference = webreferences.BrontoApi;
+	var locator : ref.BrontoSoapApiImplServiceLocator  = new ref.BrontoSoapApiImplServiceLocator();
+	var brontoAPI = locator.getBrontoSoapApiImplPort();
+	brontoAPI._setProperty(Stub.ENDPOINT_ADDRESS_PROPERTY, "https://api.bronto.com/v4?wsdl");       
+    brontoAPI.timeout = 50000;
+    
+	// Start of Authorization
+	var response = getResponse (ref, brontoAPI);
+	var sessionId = getSessionId(response);
+	var sessionHeader = getSessionHeader(sessionId, ref);
+	var map = getParametersMap(ref, brontoAPI, sessionHeader);
+	setHeader(sessionId, ref, brontoAPI);
+	// End of Authorization
+	
+   return map;	
+}	
+
+function getParametersMap (ref, brontoAPI, sessionHeader) : HashMap {
+	try {
+		var map : HashMap = new HashMap();
+		map.put('ref', ref);
+		map.put('brontoAPI', brontoAPI);
+		map.put('sessionHeader', sessionHeader);
+		return map;
+	} catch (e) {
+    	handleError(e, 'getParametersMap');
+    }
+}
+
+function getResponse (ref : WebReference, brontoAPI) {
+	try {
+		var request = new ref.Login();
+		request.apiToken = getToken();
+		var response;
+		for (var i=0; i < 5; i++) {
+			response = brontoAPI.login(request);
+			if (response) {
+				return response;	
+			}
+		} 
+    } catch (e) {
+    	handleError(e, 'getResponce');
+    }
+}
+
+function setHeader (sessionId, ref, brontoAPI) {
+	try {
+		if (0 < sessionId.length) {
+			brontoAPI.setHeader(ref.BrontoSoapApiImplServiceLocator().getServiceName().getNamespaceURI(), "sessionId", sessionId);
+		}
+    } catch (e) {
+    	handleError(e, 'setHeader');
+    }		
+}
+
+function getSessionHeader (sessionId : String, ref : WebReference) : ref.SessionHeader {
+	try {
+		var sessionHeader = new ref.SessionHeader();
+		sessionHeader.sessionId = sessionId;
+		return sessionHeader;
+    } catch (e) {
+    	handleError(e, 'getSessionHeader');
+    }
+}	
+
+function getSessionId (response) : String {
+	try{
+    	return response._return;
+    } catch (e){
+    	handleError(e, 'getSessionId');
+    }
+}
+
+function getToken () : String {
+    try {
+    	var token = getCustomPreferenceValue('BrontoAPIToken');
+    	return token;
+    } catch (e) {
+    	handleError (e, 'getToken');
+    }
+}
+
+/// End of Autorization functions block ///
+
+
+
+/// Start of API Triggers block ///
+
+function createMessageFilter (letterName : String, ref : WebReference) {
+	try {
+		var msgFilter : ref.messageFilter = new ref.MessageFilter();
+		var stringVal = new ref.StringValue(ref.FilterOperator.EqualTo, letterName);
+		msgFilter.name = new Array(stringVal);
+		return msgFilter;
+    } catch (e) {
+    	handleError(e, 'createMessageFilter');
+    }
+}
+
+function getMessageId (messageFilter, map : HashMap)
+{
+	try {
+		var messagesObj = map.brontoAPI.readMessages(map.ref.ReadMessages(messageFilter, true, 1), map.sessionHeader);
+		return messagesObj[0].id;
+    } catch (e) {
+    	handleError(e, 'getMessageId');
+	}
+}
+
+function createContactFilter (ref : WebReference, email : String) {
+	try {
+		var contFilter : ref.contactFilter = new ref.ContactFilter();
+		var emailStringVal = new ref.StringValue(ref.FilterOperator.EqualTo, email);
+		contFilter.email = new Array(emailStringVal);
+		return contFilter;	
+    } catch (e) {
+    	handleError(e, 'createContactFilter');
+    }
+}
+
+// return contact's Id. If contact not exist, creates new contact, than returns Id
+function getContactId (contactFilter, map : HashMap, profile: Profile,fieldsIdMap,resubscribe:Boolean,customData : HashMap) {
+	try {
+		var contObj = map.brontoAPI.readContacts( map.ref.ReadContacts( contactFilter, true, null, 1, false), map.sessionHeader);
+		if ( contObj[0] === undefined ) {
+			//createContact(contactFilter.email[0].value, map);
+			var transactionResponse = updateCustomers(profile, fieldsIdMap, map, customData);
+			if ( transactionResponse._return.errors) {
+				Logger.debug("Responce has errors.");
+				return PIPELET_ERROR;
+			}
+ 			contObj = map.brontoAPI.readContacts(map.ref.ReadContacts(contactFilter, true, null, 1, false), map.sessionHeader);			
+		}else if(resubscribe){
+		    updateContactStatus(contObj[0].id, map, "Onboarding", true);	
+		} 
+		return contObj[0].id;	
+    } catch (e) {
+    	handleError(e, 'getContactId');
+    }	
+}
+
+function updateContactStatus (contactId : String, map : HashMap, status: String, useUpdate: Boolean) {
+	try {
+		var contact : map.ref.ContactObject = new map.ref.ContactObject();
+		if (status != null) {
+			contact.status = status;
+		} else {
+			contact.status = 'Transactional';
+		}
+		contact.id = contactId;
+		if (useUpdate) {
+			return map.brontoAPI.updateContacts(new Array(contact), map.sessionHeader);					
+		} else {
+			return map.brontoAPI.addOrUpdateContacts(new Array(contact), map.sessionHeader);		
+		}
+	} catch (e) {
+    	handleError(e, 'updateContactStatus');
+    }	
+}
+
+function createContact (email : String, map : HashMap) {
+	// now in use only for Opt-In
+	try {
+		var contact : map.ref.ContactObject = new map.ref.ContactObject();
+		var status: String = "Onboarding";
+		contact.email = email;
+		contact.status = status;
+		return map.brontoAPI.addContacts(new Array(contact), map.sessionHeader);		
+	} catch (e) {
+    	handleError(e, 'createContact');
+    }	
+}
+
+function createDeliveryGroupFilter (ref : WebReference) {
+	try {
+		var delivGrpFilter : ref.deliveryGroupFilter = new ref.DeliveryGroupFilter();
+		var groupName = getCustomPreferenceValue('BrontoDeliveryGroupName');
+		var stringVal = new ref.StringValue(ref.FilterOperator.EqualTo, groupName);
+		delivGrpFilter.name = new Array(stringVal);
+		return delivGrpFilter;
+    } catch (e) {
+    	handleError(e, 'createDeliveryGroupFilter');
+	}
+}
+
+function getDeliveryGroupId (delivGroupFilter, map) {
+	try {
+		var delivGroupObj : map.ref.DeliveryGroupObject = 
+				map.brontoAPI.readDeliveryGroups(map.ref.ReadDeliveryGroups(delivGroupFilter, 1), map.sessionHeader);
+		return delivGroupObj[0].id;
+	} catch (e) {
+    	handleError(e, 'getDeliveryGroupId');
+    }	
+}
+
+function getRecipient (contactId, ref) {
+	try {
+		var recipientObj : ref.DeliveryRecipientObject = new ref.DeliveryRecipientObject();
+		recipientObj.type = 'contact';
+		recipientObj.id = contactId;
+		return new Array(recipientObj);
+    } catch (e) {
+    	handleError(e, 'getRecipient');
+    }	
+}
+
+function createDeliveries (parameters : Array) {
+	try {
+		// 	parameters[messageId, recipient, ref, order]
+		var ref = parameters[2];
+		var deliveryObj = new ref.DeliveryObject();
+		deliveryObj.messageId = parameters[0];
+		deliveryObj.fields = getMessageFields(parameters[3], ref);
+		deliveryObj.type = 'transactional';
+		deliveryObj.recipients = parameters[1];
+		deliveryObj.fromEmail = 'confirmer@bronto.com';
+		deliveryObj.fromName = 'Bronto mail delivery system';
+		deliveryObj.replyEmail = getCustomPreferenceValue('BrontoReplyEmail');
+		// be carefull at this moment. 
+		deliveryObj.start = StringUtils.formatCalendar(Calendar(new Date()), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+		// if any questions with data format problem - follow the link
+		// https://documentation.demandware.com/display/SUPPORT/xsd-dateTime+Web+Service+Element+Error
+		return new Array(deliveryObj);
+    } catch (e) {
+    	handleError(e, 'createDeliveries');
+    }		
+}
+
+function createMessageFieldObject (ref, name, content) {
+	try {
+		var msgFieldObj = new ref.MessageFieldObject();
+			msgFieldObj.name = name;
+			msgFieldObj.type = 'html';
+			msgFieldObj.content = content;
+		return msgFieldObj;
+    } catch (e) {
+    	handleError(e, 'createMessageFieldObject');
+    }	
+}
+
+function getMessageFields (order : Order, ref) {
+	try {
+		// vars initialization
+		var fields : Array = new Array();
+		var field;
+		var pli : Collection = order.productLineItems;
+		var shipAdr : OrderAddress = order.defaultShipment.getShippingAddress();
+		var billAdr : OrderAddress = order.getBillingAddress();
+		var payment : OrderPaymentInstrument = order.paymentInstruments[0];
+		var discount : dw.value.Money = order.defaultShipment.getAdjustedMerchandizeTotalPrice(false).subtract(order.defaultShipment.getAdjustedMerchandizeTotalPrice(true));
+		var subtotal : dw.value.Money = order.defaultShipment.getAdjustedMerchandizeTotalPrice(false).add(order.giftCertificateTotalPrice);
+
+		// fields for order info
+		fields.push(createMessageFieldObject(ref, 'order_number', order.orderNo));
+		fields.push(createMessageFieldObject(ref, 'order_date', StringUtils.formatCalendar(Calendar(order.creationDate), "yyyy-MM-dd")));
+		fields.push(createMessageFieldObject(ref, 'order_total', order.totalGrossPrice));
+		fields.push(createMessageFieldObject(ref, 'order_subtotal', subtotal));
+		fields.push(createMessageFieldObject(ref, 'order_discount', discount));
+		fields.push(createMessageFieldObject(ref, 'sales_tax', order.totalTax));
+		fields.push(createMessageFieldObject(ref, 'ship_cost', order.shippingTotalPrice));
+		
+		for (let i = 0, j = pli.length; i < j; i++) {
+			var item : dw.order.ProductLineItem = pli[i];
+			// field for product info
+			fields.push(createMessageFieldObject(ref, 'product_name_' + i, item.productName ));
+			fields.push(createMessageFieldObject(ref, 'product_href_' + i, URLUtils.abs('Product-Show', "pid", item.productID)));
+			fields.push(createMessageFieldObject(ref, 'product_id_' + i, item.productID));
+			fields.push(createMessageFieldObject(ref, 'product_attributes_' + i, getProductAttributes(dw.catalog.ProductMgr.getProduct(item.productID)) ));
+			fields.push(createMessageFieldObject(ref, 'product_price_' + i, item.adjustedPrice.toString() ));
+			fields.push(createMessageFieldObject(ref, 'product_qty_' + i, item.quantity ));
+			if (item.optionProductLineItems.size() > 0) {
+				var optionName, optionQty, optionPrice : String;
+				for (let k = 0; k < item.optionProductLineItems.size(); k++) {
+					var option : ProductLineItem = item.optionProductLineItems[k];
+					(optionName == undefined) ? (optionName = "+" + option.productName + "\r\n") : (optionName += "+" + option.productName + "\r\n"); 
+					(optionQty == undefined) ? (optionQty = "+" + option.quantity + "\r\n") : (optionQty += "+" + option.quantity + "\r\n"); 
+					(optionPrice == undefined) ? (optionPrice = "+" + option.price + "\r\n") : (optionPrice += "+" + option.price + "\r\n"); 
+					fields.push(createMessageFieldObject(ref, 'product_option_name_' + i, optionName));
+					fields.push(createMessageFieldObject(ref, 'product_option_qty_' + i, optionQty ));
+					fields.push(createMessageFieldObject(ref, 'product_option_price_' + i, optionPrice ));
+				}
+			} else {
+					fields.push(createMessageFieldObject(ref, 'product_option_name_' + i, ""));
+					fields.push(createMessageFieldObject(ref, 'product_option_qty_' + i, ""));
+					fields.push(createMessageFieldObject(ref, 'product_option_price_' + i, ""));
+			}
+			
+		}
+
+		// fields for shipping adress
+		fields.push(createMessageFieldObject(ref, 'ship_adr', shipAdr.address1));
+		fields.push(createMessageFieldObject(ref, 'ship_city', shipAdr.city));
+		fields.push(createMessageFieldObject(ref, 'ship_zip', shipAdr.postalCode));
+		fields.push(createMessageFieldObject(ref, 'ship_state', shipAdr.stateCode));
+		fields.push(createMessageFieldObject(ref, 'ship_country', shipAdr.countryCode));
+		fields.push(createMessageFieldObject(ref, 'ship_full_name', shipAdr.fullName));
+		fields.push(createMessageFieldObject(ref, 'ship_phone', shipAdr.phone));
+		fields.push(createMessageFieldObject(ref, 'ship_method', order.defaultShipment.getShippingMethod().displayName));
+		fields.push(createMessageFieldObject(ref, 'ship_status', order.shippingStatus.displayValue));
+
+		// fields for billing adress
+		fields.push(createMessageFieldObject(ref, 'bill_adr', billAdr.address1));
+		fields.push(createMessageFieldObject(ref, 'bill_city', billAdr.city));
+		fields.push(createMessageFieldObject(ref, 'bill_zip', billAdr.postalCode));
+		fields.push(createMessageFieldObject(ref, 'bill_state', billAdr.stateCode));
+		fields.push(createMessageFieldObject(ref, 'bill_country', billAdr.countryCode));		
+		fields.push(createMessageFieldObject(ref, 'bill_full_name', billAdr.fullName));
+		fields.push(createMessageFieldObject(ref, 'sbill_phone', billAdr.phone));
+
+		// fields for payment info
+		fields.push(createMessageFieldObject(ref, 'pay_method', payment.paymentMethod));
+		fields.push(createMessageFieldObject(ref, 'pay_card_num', payment.maskedCreditCardNumber));
+		fields.push(createMessageFieldObject(ref, 'pay_holder_name', payment.creditCardHolder));
+		fields.push(createMessageFieldObject(ref, 'pay_card_type', payment.creditCardType));
+		fields.push(createMessageFieldObject(ref, 'pay_exp', payment.creditCardExpirationMonth + "/" + payment.creditCardExpirationYear));
+		
+    	return fields;
+    } catch (e) {
+    	handleError(e, 'getMessageFeilds');
+    }	
+}
+
+function getProductAttributes ( product ) : String {
+    var attributeDefinitions : dw.util.Iterator = product.getVariationModel().getProductVariationAttributes().iterator(),
+        result               : Array            = [];
+        
+    while (attributeDefinitions.hasNext()) {
+    	var attr : ProductVariationAttribute = attributeDefinitions.next();
+    	var attrValue : ProductVariationAttributeValue = product.variationModel.getSelectedValue(attr);
+    	result.push(attr.displayName + ": " + attrValue.displayValue);
+    }
+    return result.join("\n");
+}
+
+function startDelivery (deliveries, map : HashMap) {
+	try {
+		return map.brontoAPI.addDeliveries(deliveries, map.sessionHeader);
+    } catch (e) {
+    	handleError(e, 'startDelivery');
+    }
+}
+
+function getField (fieldName:String, map : HashMap) {
+	var filter : map.ref.FieldsFilter	= new map.ref.FieldsFilter();
+	var stringVal : map.ref.StringValue = new map.ref.StringValue(map.ref.FilterOperator.EqualTo, fieldName);
+	filter.name = new Array(stringVal);
+	try {
+		return map.brontoAPI.readFields( map.ref.ReadFields(filter, 1), map.sessionHeader);
+	} catch(e) {
+		handleError(e, 'getField');
+	}
+}
+
+function addField (name : String, type: String, label : String, map : HashMap) {
+	var field : map.ref.FieldObject = new map.ref.FieldObject();
+	field.name = name;
+	field.label = label;
+	field.type = type;
+	field.visibility = "public";
+	try {
+		return map.brontoAPI.addFields(new Array(field), map.sessionHeader);
+	} catch(e) {
+		handleError(e, 'addField');
+	}
+}
+
+function addFields (fields : Array, map : HashMap) {
+	var fieldList = convertToBrontoFieldArray(fields, map);
+	try {
+		return map.brontoAPI.addFields(fieldList, map.sessionHeader);
+	} catch (e) {
+		handleError(e, 'addFields');
+	}
+}
+
+function convertToBrontoFieldArray (fields : Array, map : HashMap) {
+	var fieldsList : Array = new Array();
+	for (let i = 0; i < fields.length; i++) {
+		var brontoField : map.ref.FieldObject = new map.ref.FieldObject();
+		brontoField.name = fields[i][0];
+		brontoField.type = fields[i][1];
+		brontoField.label = fields[i][2];
+		brontoField.visibility = "public";
+		fieldsList.push(brontoField);
+	}	
+	return fieldsList;	
+}
+
+function createConversionFilter (idArray, map : HashMap) {
+	try {
+		var conversionFilter = new map.ref.ConversionFilter();
+		conversionFilter.orderId = idArray;
+	   return conversionFilter;
+   	} catch (e) {
+		handleError(e, "createConversionFilter");
+	}
+}
+
+function readConversions (conversionFilter, map : HashMap) {
+	try {
+		var conversion = map.ref.ReadConversions(conversionFilter, 1);
+		var response = map.brontoAPI.readConversions(conversion, map.sessionHeader);
+	   return response;
+	} catch (e) {
+		handleError(e, "readConversions");
+	}
+}
+
+function addConversion (convMap, map : HashMap) {
+	try	{
+		var convObject	= new map.ref.ConversionObject();
+		convObject.contactId = convMap.get("contactId");
+		convObject.email = convMap.get("email");
+		convObject.orderId = convMap.get("order_id");
+		convObject.description = convMap.get("description");
+		convObject.item = convMap.get("item");
+		convObject.quantity = convMap.get("quantity");
+		convObject.amount = convMap.get("amount");
+		map.brontoAPI.addConversion(new Array(convObject), map.sessionHeader);
+	} catch (e) {
+		handleError(e, 'addConversion');
+	}
+}
+
+function addConversions (conversions : Array, map : HashMap) {
+	try	{
+		var convArr : Array = [];
+		for (let i=0; i < conversions.length; i++) {
+			
+			var convObject	= new map.ref.ConversionObject();
+			var conversion = conversions[i];
+			convObject.contactId = conversion.get("contactId");
+			convObject.email = conversion.get("email");
+			convObject.orderId = conversion.get("order_id");
+			convObject.description = conversion.get("description");
+			convObject.item = conversion.get("item");
+			convObject.quantity = conversion.get("quantity");
+			convObject.amount = conversion.get("amount");
+			convArr.push(convObject);
+		}
+		map.brontoAPI.addConversion(convArr, map.sessionHeader);
+	} catch (e) {
+		handleError(e, 'addConversions');
+	}
+}
+
+function getItemsFromOrder (order : Order, map : HashMap) {
+	try {
+		var productsArr : Array = [];
+		for (let i=0; i < order.allProductLineItems.length; i++) {
+	
+			var product : ProductLineItem = order.allProductLineItems[i];
+
+			if (product.optionProductLineItem){
+				if (product.priceValue > 0) {
+
+					var pruductObj = new map.ref.ProductObject();
+				
+					pruductObj.sku 			= product.optionID;
+					pruductObj.name 		= product.productName;
+					pruductObj.description 	= product.lineItemText;
+					pruductObj.category 	= "Option product";
+					pruductObj.quantity 	= product.quantityValue;
+					pruductObj.price 		= product.proratedPrice.value/product.quantityValue; // Unit price value
+
+					productsArr.push(pruductObj);					
+				}
+			} else {
+
+				var pruductObj = new map.ref.ProductObject();
+				
+				pruductObj.sku 			= product.productID;
+				pruductObj.name 		= product.productName;
+				pruductObj.description 	= !empty(product.product.longDescription) ? product.product.longDescription.source : 'N/A';
+				pruductObj.category 	= getProductCategories(product.productID);
+				pruductObj.image 		= undefined != product.product.getImage('hi-res',0) ? (!empty(product.product.getImage('hi-res',0)) ? product.product.getImage('hi-res',0).httpURL: '') : '';
+				pruductObj.url 			= URLUtils.http('Product-Show', 'pid', product.productID);
+				pruductObj.quantity 	= product.quantityValue;
+				pruductObj.price 		= product.proratedPrice.value/product.quantityValue; // Unit price value			
+
+				productsArr.push(pruductObj);
+			}
+		}
+	   return productsArr;
+	} catch (e) {
+		handleError(e, 'getItemsFromOrder');
+	}
+}
+
+
+function prepareConversions (orders : Array, map : HashMap) {
+	var conversion : Array = [];
+	try	{
+		for (let i = 0; i < orders.length; i++) {
+			
+			var order : Order = OrderMgr.getOrder(orders[i]);
+			var email : String = getCustomerEmail(order);
+			var contactId = getContactId(createContactFilter(map.ref, email), map);
+			for (let i=0; i < order.allProductLineItems.length; i++) {
+
+				var product : ProductLineItem = order.allProductLineItems[i];
+				var convObject	= new map.ref.ConversionObject();
+				convObject.contactId = contactId;
+				convObject.email = email;
+				convObject.orderId = order.orderNo;
+				convObject.createdDate = StringUtils.formatCalendar(Calendar(order.creationDate), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+				convObject.description = product.productName;
+				convObject.item = product.productID;
+				convObject.quantity = product.quantityValue;
+				convObject.amount = product.priceValue;
+				conversion.push(convObject);
+			}
+		}		
+		return conversion;
+	} catch (e) {
+    	handleError(e, 'prepareConversions');
+    }	
+}
+
+function prepareOrders (orders : Array, map : HashMap) {
+	var preparedOrders : Array = [];
+	try	{
+		for (let i = 0; i < orders.length; i++) {
+			var order : Order = OrderMgr.getOrder(orders[i]);			
+			var ordObject = new map.ref.OrderObject();
+
+			ordObject.email = getCustomerEmail(order);
+			ordObject.contactId = getContactId(createContactFilter(map.ref, ordObject.email), map);
+			ordObject.id = order.orderNo;
+			ordObject.orderDate = StringUtils.formatCalendar(Calendar(order.creationDate), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+			ordObject.products = getItemsFromOrder(order, map);
+			if (!empty(order.custom["bronto_tid"])){
+				ordObject.tid = order.custom["bronto_tid"];
+			}
+
+			preparedOrders.push(ordObject);
+		}
+	   return preparedOrders;
+	} catch (e) {
+    	handleError(e, 'prepareOrders');
+    }	
+}
+
+function updateCustomer (customer, customerData, map, customData) {
+	try {
+		var fieldsIdMap = getFieldList(map);
+		var preparedContact = getPreparedContact(customer.customer.profile, fieldsIdMap, map, customData);	
+		map.brontoAPI.addOrUpdateContacts(new Array(preparedContact), map.sessionHeader);
+	} catch (e) {
+		handleError(e, 'updateCustomer');
+	}
+}
+ 
+function updateCustomersJob(customers : Iterator, fieldsIdMap, map, customData) {
+	var preparedContacts : Array = [];
+	var transactionResponse = null;
+	try {
+		while (customers.hasNext()) {
+			if (preparedContacts.length == 1000){// if count of customers is over 20000
+				transactionResponse = map.brontoAPI.addOrUpdateContacts(preparedContacts, map.sessionHeader);
+				if ( transactionResponse._return.errors) {
+					Logger.debug("Responce has errors.");
+					return transactionResponse;
+				} 
+				preparedContacts = []; //creating empty array after sending Customers
+			}
+			var customer = customers.next();
+			var profile : Profile = CustomerMgr.getProfile(customer.customerNo);
+			var preparedContact = getPreparedContact(profile, fieldsIdMap, map, customData);
+			if (preparedContact) {
+				preparedContacts.push(preparedContact);
+			}
+		}
+		Logger.error("Prepared Contacts Array length-" + preparedContacts.length);
+		if (empty(preparedContacts)){//if count of customers exactly 20000
+			return transactionResponse;
+		} else {
+			////if count of customers in array less 20000
+			return map.brontoAPI.addOrUpdateContacts(preparedContacts, map.sessionHeader);
+		}
+	} catch (e) {
+		handleError(e, 'updateCustomers');
+		var er=e.message;
+		var er1=e.message;
+	}
+}
+
+ 
+function updateCustomers (profile : Profile, fieldsIdMap, map, customData) {
+	var preparedContacts : Array = [];
+	var transactionResponse = null;
+	try {
+		 	var preparedContact = getPreparedContact(profile, fieldsIdMap, map, customData);
+			if (preparedContact) {
+				preparedContacts.push(preparedContact);
+			}
+		 
+		if (empty(preparedContacts)){ //if count of customers exactly 20000
+			return transactionResponse;
+		} else {
+			////if count of customers in array less 20000
+			return map.brontoAPI.addOrUpdateContacts(preparedContacts, map.sessionHeader);
+		}
+	} catch (e) {
+		handleError(e, 'updateCustomers');
+		var er=e.message;
+		var er1=e.message;
+	}
+}
+
+function getPreparedContact (customer : Profile, idMap, map, customData) {
+	var contacts : Array = [];
+	var fields : Array = [];
+	var contact : map.ref.ContactObject = new map.ref.ContactObject();
+	var field : map.ref.ContactObject = new map.ref.ContactField();
+  	var siteId : String = dw.system.Site.getCurrent().ID;
+	
+	if (customer != null) {
+		//Logger.debug("--------" + idMap.get("prefix"));
+		 
+		 if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("false") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true")){
+		  		field = new map.ref.ContactField();
+				field.fieldId = idMap.get("salutation");
+				field.content = customer.salutation;
+				fields.push(field);
+		}else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true")){
+				field = new map.ref.ContactField();
+				field.fieldId = idMap.get("salutation");
+				field.content = customer.salutation;
+				fields.push(field);
+				field = new map.ref.ContactField();
+				field.fieldId = idMap.get("prefix");
+				field.content = customer.title;
+				fields.push(field);
+	    }else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("false")){
+		 		field = new map.ref.ContactField();
+				field.fieldId = idMap.get("prefix");
+				field.content = customer.title;
+				fields.push(field);
+		}
+	 	
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("firstname"); 
+		field.content = customer.firstName;
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("lastname");
+		field.content = customer.lastName;
+		fields.push(field);
+		
+	/*	field = new map.ref.ContactField();
+		field.fieldId = idMap.get("suffix");
+		field.content = customer.suffix;
+		fields.push(field);*/
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("gender");
+		field.content = customer.gender.displayValue;
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("birthday");
+		field.content = customer.birthday != null ? StringUtils.formatCalendar(new Calendar(customer.birthday), "yyyy-MM-dd") : "0";
+		fields.push(field);
+
+	 field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("subscribeStatus");
+		field.content = customer.custom.isNewsLetterSubscribed;
+		fields.push(field); 
+
+		if (customData != null) {
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("StaticOfferID");
+			field.content = customData.containsKey("StaticOfferID") ? customData.get("StaticOfferID") : "";
+			fields.push(field);
+			
+		 	field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("credit_gift_balance");
+			field.content = "0";
+			fields.push(field);
+	
+		    field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_items");
+			field.content = customData.containsKey("recent_purchase_items") ? customData.get("recent_purchase_items") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_url");
+			field.content = customData.containsKey("recent_purchase_url") ? customData.get("recent_purchase_url") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_date");
+			field.content = customData.containsKey("recent_purchase_date") ? customData.get("recent_purchase_date") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_image");
+			field.content = customData.containsKey("recent_purchase_image") ? customData.get("recent_purchase_image") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_value");
+			field.content = customData.containsKey("recent_purchase_value") ? customData.get("recent_purchase_value") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("recent_purchase_category");
+			field.content = customData.containsKey("recent_purchase_category") ? customData.get("recent_purchase_category") : "";
+			fields.push(field); 
+		}
+//--
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customer.email;
+		fields.push(field);
+	
+		if("preferredBillingAddress" in customer.custom){
+			var custadd: CustomerAddress=customer.getAddressBook().getAddress(customer.custom.preferredBillingAddress);
+		
+		field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address1");
+			field.content = custadd.address1;
+			fields.push(field);
+			
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address2");
+			field.content = custadd.address2;
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("city");
+			field.content = custadd.city;
+			fields.push(field);
+			
+			/*	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("state");
+			field.content = customer.customer.addressBook.getAddresses()[0].stateCode;
+			fields.push(field);*/
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("zip");
+			field.content = custadd.postalCode;
+			fields.push(field);
+			
+			if(dw.web.Resource.msg('global.provinceFlag','locale', null).equals("true")){
+			  field = new map.ref.ContactField();
+			  field.fieldId = idMap.get("province");
+			  field.content = custadd.stateCode;
+			  fields.push(field);
+			}
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("company");
+			field.content = custadd.companyName;
+			fields.push(field); 
+			
+	     	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("country");
+			field.content = custadd.countryCode.displayValue;
+			fields.push(field); 
+
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("phone");
+			field.content = custadd.phone;
+			fields.push(field);
+		}else if (customer.customer.addressBook.getAddresses().length > 0) {
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address1");
+			field.content = customer.customer.addressBook.getAddresses()[0].address1;
+			fields.push(field);
+			
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address2");
+			field.content = customer.customer.addressBook.getAddresses()[0].address2;
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("city");
+			field.content = customer.customer.addressBook.getAddresses()[0].city;
+			fields.push(field);
+			
+			/*	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("state");
+			field.content = customer.customer.addressBook.getAddresses()[0].stateCode;
+			fields.push(field);*/
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("zip");
+			field.content = customer.customer.addressBook.getAddresses()[0].postalCode;
+			fields.push(field);
+			
+			if(dw.web.Resource.msg('global.provinceFlag','locale', null).equals("true")){
+			  field = new map.ref.ContactField();
+			  field.fieldId = idMap.get("province");
+			  field.content = customer.customer.addressBook.getAddresses()[0].stateCode;
+			  fields.push(field);
+			}
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("company");
+			field.content = customer.customer.addressBook.getAddresses()[0].companyName;
+			fields.push(field); 
+			
+	     	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("country");
+			field.content = customer.customer.addressBook.getAddresses()[0].countryCode.displayValue;
+			fields.push(field); 
+
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("phone");
+			field.content = customer.customer.addressBook.getAddresses()[0].phone;
+			fields.push(field);
+		}
+		
+		//Logger.debug("After address");
+		
+		/*field = new map.ref.ContactField();
+		field.fieldId = idMap.get("phone");
+		field.content = formatNumeric(customer.phoneHome != null ? customer.phoneHome : customer.phoneBusiness);
+		fields.push(field);*/
+		
+		//Logger.debug("Before Active Data");
+		
+		if (customer.customer.activeData) {
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("orders");
+			field.content = customer.customer.activeData.orders==null?"0":customer.customer.activeData.orders.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayordervalue");
+			field.content = customer.customer.activeData.orderValueMonth==null?"0":customer.customer.activeData.orderValueMonth.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("lifetimeordervalue");
+			field.content = customer.customer.activeData.orderValue==null?"0":customer.customer.activeData.orderValue.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("avgordervalue");
+			field.content = customer.customer.activeData.avgOrderValue==null?"0":customer.customer.activeData.avgOrderValue.toString();
+			fields.push(field);
+
+			if (customer.customer.activeData.topCategoriesOrdered.length > 0) {
+				field = new map.ref.ContactField();
+				field.fieldId = idMap.get("categoriesordered");
+				var categories : String = "";
+				for each (category in customer.customer.activeData.topCategoriesOrdered) {
+					categories += ', ' + category;
+				}
+				categories = categories.substr(2);
+				field.content = categories;
+				fields.push(field);
+			}
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayprodview");
+			field.content = customer.customer.activeData.productsViewedMonth.length==0?"0":customer.customer.activeData.productsViewedMonth.length.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayprodabandon");
+			field.content = customer.customer.activeData.getProductsAbandonedMonth().length==0?"0":customer.customer.activeData.getProductsAbandonedMonth().length.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("7dayvisits");
+			field.content = customer.customer.activeData.visitsWeek==null?"0":customer.customer.activeData.visitsWeek.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayvisits");
+			field.content = customer.customer.activeData.visitsMonth==null?"0":customer.customer.activeData.visitsMonth.toString();
+			fields.push(field);
+			
+		    field = new map.ref.ContactField();
+			field.fieldId = idMap.get("365dayvisits");
+			field.content = customer.customer.activeData.visitsYear==null?"0":customer.customer.activeData.visitsYear.toString();
+			fields.push(field);
+		 
+			//Logger.debug("After Active Data");
+		}
+	
+		contact.email = customer.credentials.login;
+		contact.status = customer.custom.isNewsLetterSubscribed ? "Onboarding" : "Transactional";
+		contact.fields = fields;
+		//Logger.debug("after contact ");
+	   return contact;
+
+
+	} else if (customData.containsKey("email")) {
+	 	field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_items");
+		field.content = customData.containsKey("recent_purchase_items") ? customData.get("recent_purchase_items") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("StaticOfferID");
+		field.content = customData.containsKey("StaticOfferID") ? customData.get("StaticOfferID") : "";
+		fields.push(field);
+		
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_url");
+		field.content = customData.containsKey("recent_purchase_url") ? customData.get("recent_purchase_url") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_date");
+		field.content = customData.containsKey("recent_purchase_date") ? customData.get("recent_purchase_date") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_image");
+		field.content = customData.containsKey("recent_purchase_image") ? customData.get("recent_purchase_image") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_value");
+		field.content = customData.containsKey("recent_purchase_value") ? customData.get("recent_purchase_value") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("recent_purchase_category");
+		field.content = customData.containsKey("recent_purchase_category") ? customData.get("recent_purchase_category") : "";
+		fields.push(field); 
+
+		if (customData.containsKey("customerName")) {
+			field	= new map.ref.ContactField();
+			field.fieldId = idMap.get("customerName");
+			field.content = customData.containsKey("customerName") ? customData.get("customerName") : "";
+			fields.push(field);
+		} else {
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("firstname"); 
+			field.content = customData.containsKey("firstname") ? customData.get("firstname") : "";
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("lastname");
+			field.content = customData.containsKey("lastname") ? customData.get("lastname") : "";
+			fields.push(field);
+		}
+
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("salutation");
+		field.content = customData.containsKey("salutation") ? customData.get("salutation") : "";
+		fields.push(field);
+
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("prefix");
+		field.content = customData.containsKey("title") ? customData.get("title") : "";
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("birthday");
+		field.content = customData.containsKey("birthday") ? StringUtils.formatCalendar(new Calendar(new Date(customData.get("birthday"))), "yyyy-MM-dd"): "" ; 
+		fields.push(field);
+				
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customData.get("email");
+		fields.push(field);
+		
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("subscribeStatus");
+		field.content = customData.containsKey("subscribeStatus") ? customData.get("subscribeStatus") : "Onboarding";
+		fields.push(field);
+		
+		contact.email = customData.get("email");
+		contact.status = customData.containsKey("subscribeStatus") ? customData.get("subscribeStatus") : "Onboarding";
+		contact.fields = fields;
+	   return contact;
+	}
+}
+
+function Light (customer, idMap, map, customData) {
+
+	var contacts : Array = [];
+	var fields : Array = [];
+	var contact : map.ref.ContactObject = new map.ref.ContactObject();
+	var field : map.ref.ContactObject = new map.ref.ContactField();
+
+	if (customer != null) {
+		//Logger.debug("--------" + idMap.get("prefix"));
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("firstname"); 
+		field.content = customer.firstName;
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("lastname");
+		field.content = customer.lastName;
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("birthday");
+		field.content = customer.birthday != null ? StringUtils.formatCalendar(new Calendar(customer.birthday), "yyyy-MM-dd") : "0";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customer.email;
+		fields.push(field);
+
+		if (customer.customer.addressBook.getAddresses().length > 0) {
+			
+		/*		field = new map.ref.ContactField();
+			field.fieldId = idMap.get("state");
+			field.content = customer.customer.addressBook.getAddresses()[0].stateCode;
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("zip");
+			field.content = customer.customer.addressBook.getAddresses()[0].postalCode;
+			fields.push(field);
+			*/
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address1");
+			field.content = customer.customer.addressBook.getAddresses()[0].address1;
+			fields.push(field);
+			
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("address2");
+			field.content = customer.customer.addressBook.getAddresses()[0].address2;
+			fields.push(field);
+			
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("city");
+			field.content = customer.customer.addressBook.getAddresses()[0].city;
+			fields.push(field);
+			
+			/*	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("state");
+			field.content = customer.customer.addressBook.getAddresses()[0].stateCode;
+			fields.push(field);*/
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("zip");
+			field.content = customer.customer.addressBook.getAddresses()[0].postalCode;
+			fields.push(field);
+			
+	     	field = new map.ref.ContactField();
+			field.fieldId = idMap.get("country");
+			field.content = customer.customer.addressBook.getAddresses()[0].countryCode.displayValue;
+			fields.push(field); 
+
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("phone");
+			field.content = customer.customer.addressBook.getAddresses()[0].phone;
+			fields.push(field);
+			
+		}
+		//Logger.debug("Before Active Data");
+
+		contact.email = customer.credentials.login;
+		contact.status = "Transactional";
+		contact.fields = fields;
+		//Logger.debug("after contact ");
+
+	   return contact;
+
+	} else if (customData.containsKey("email")) {
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("firstname");
+		field.content = customData.containsKey("customerName") ? customData.get("customerName") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customData.get("email");
+		fields.push(field);
+		
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("StaticOfferID");
+		field.content = customData.containsKey("StaticOfferID") ? customData.get("StaticOfferID") : "";
+		fields.push(field);
+			
+		contact.email = customData.get("email");
+		contact.status = customData.containsKey("subscribeStatus") ? customData.get("subscribeStatus") : "Onboarding";
+		contact.fields = fields;
+		
+	   return contact;
+	}
+}
+
+function getPreparedContactFromOrderWithoutSavedAddress (order, fieldsIdMap, map, orderData) {
+	
+	try {
+		
+		var contacts : Array = [];
+		var fields : Array = [];
+		var contact : map.ref.ContactObject = new map.ref.ContactObject();
+		var field : map.ref.ContactObject = new map.ref.ContactField();
+	
+		if (order != null) {
+			
+			field = new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("firstname"); 
+			field.content = order.customer.profile.firstName;
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("lastname");
+			field.content = order.customer.profile.lastName;
+			fields.push(field);
+			
+			field	= new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("email");
+			field.content = order.customerEmail;
+			fields.push(field);
+	
+			/*	field = new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("state");
+			field.content = order.getBillingAddress().stateCode;
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("zip");
+			field.content = order.getBillingAddress().postalCode;
+			fields.push(field);
+			*/
+			field = new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("birthday");
+			field.content = order.customer.profile.birthday != null ? StringUtils.formatCalendar(new Calendar(order.customer.profile.birthday), "yyyy-MM-dd") : "0";
+			fields.push(field);
+			
+			contact.email = order.customer.profile.credentials.login || order.customerEmail;
+			contact.status = "Transactional";
+			contact.fields = fields;
+	
+		   return contact;
+	
+		} else if (customData.containsKey("email")) {
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("firstname");
+			field.content = customData.containsKey("customerName") ? customData.get("customerName") : "";
+			fields.push(field);
+	
+			field	= new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("email");
+			field.content = customData.get("email");
+			fields.push(field);
+			
+			field	= new map.ref.ContactField();
+			field.fieldId = fieldsIdMap.get("StaticOfferID");
+			field.content = customData.containsKey("StaticOfferID") ? customData.get("StaticOfferID") : "";
+			fields.push(field);
+			
+			contact.email = customData.get("email");
+			contact.status = customData.containsKey("subscribeStatus") ? customData.get("subscribeStatus") : "Onboarding";
+			contact.fields = fields;
+			
+		   return contact;
+		}
+	} catch (e) {
+		handleError(e, "getPreparedContactFromOrderWithoutSavedAddress");	
+	}
+}
+
+function getPreparedContactFromUnregistered (order, idMap, map, customData) {
+
+	var contacts : Array = [];
+	var fields : Array = [];
+	var contact : map.ref.ContactObject = new map.ref.ContactObject();
+	var field : map.ref.ContactObject = new map.ref.ContactField();
+
+	if (order != null) {
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("firstname"); 
+		field.content = order.getBillingAddress().firstName;
+		fields.push(field);
+		
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("lastname");
+		field.content = order.getBillingAddress().lastName;
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = order.customerEmail;
+		fields.push(field);
+
+	/*		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("state");
+		field.content = order.getBillingAddress().stateCode;
+		fields.push(field);
+		*/
+		field = new map.ref.ContactField();
+		field.fieldId = idMap.get("zip");
+		field.content = order.getBillingAddress().postalCode;
+		fields.push(field);
+
+		contact.email = order.customerEmail;
+		contact.status = "Transactional";
+		contact.fields = fields;
+
+	   return contact;
+
+	} else if (customData.containsKey("email")) {
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("firstname");
+		field.content = customData.containsKey("customerName") ? customData.get("customerName") : "";
+		fields.push(field);
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customData.get("email");
+		fields.push(field);
+		
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("StaticOfferID");
+		field.content = customData.containsKey("StaticOfferID") ? customData.get("StaticOfferID") : "";
+		fields.push(field);
+			
+		contact.email = customData.get("email");
+		contact.status = customData.containsKey("subscribeStatus") ? customData.get("subscribeStatus") : "Onboarding";
+		contact.fields = fields;
+		
+	   return contact;
+	}
+}
+
+function getActiveDataPreparedContact (customer, idMap, map) {
+
+	var fields : Array = [];
+	var contact : map.ref.ContactObject = new map.ref.ContactObject();
+	var field : map.ref.ContactObject = new map.ref.ContactField();
+
+	if (customer != null) {
+
+		field	= new map.ref.ContactField();
+		field.fieldId = idMap.get("email");
+		field.content = customer.email;
+		fields.push(field);
+		
+		if (null != customer.customer.activeData) {
+
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayprodview");
+			field.content = customer.customer.activeData.productsViewedMonth.length==0?"0":customer.customer.activeData.productsViewedMonth.length.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("7dayvisits");
+			field.content = customer.customer.activeData.visitsWeek==null?"0":customer.customer.activeData.visitsWeek.toString();
+			fields.push(field);
+			
+			field = new map.ref.ContactField();
+			field.fieldId = idMap.get("30dayvisits");
+			field.content = customer.customer.activeData.visitsMonth==null?"0":customer.customer.activeData.visitsMonth.toString();
+			fields.push(field);
+			
+			 field = new map.ref.ContactField();
+			field.fieldId = idMap.get("365dayvisits");
+			field.content = customer.customer.activeData.visitsYear==null?"0":customer.customer.activeData.visitsYear.toString();
+			fields.push(field);
+		    
+		}
+
+		contact.email = customer.credentials.login;
+		contact.status = "Transactional";
+		contact.fields = fields;
+
+	   return contact;
+	}
+}
+	
+function getFieldList (map) : HashMap {
+	var fieldsIdMap : HashMap = new HashMap();
+	var fieldList : Array = getFields();
+	addFields(fieldList, map); // to be sure, this fields exist in Bronto
+	fieldsIdMap = getSavedIdMap();
+	map.put('CacheTheHash', 0);
+	if (empty(fieldsIdMap)) {
+		for (let i = 0; i < fieldList.length; i++) {
+			var value = getFieldID(fieldList[i], map);
+			var key = fieldList[i][0];
+			fieldsIdMap.put(key, value);
+		}
+		map.put('CacheTheHash', 1);
+	}
+	return fieldsIdMap;
+}
+
+function getSavedIdMap () {
+	var tmpMap : HashMap = new HashMap();
+	try{
+	var cObj : CustomObject = CustomObjectMgr.queryCustomObject('BrontoFieldID', "custom.accessKey = {0}", 'BrontoProfileFields' + Site.getCurrent().ID);
+	if (cObj) {
+		var keys, values : Array;
+		var fieldId : String;
+		keys = cObj.custom.fieldKey.split('|');
+		values = cObj.custom.fieldValue.split('|');
+		for (let i = 0; i < keys.length - 1 ; i++) {
+			tmpMap.put(keys[i], values[i]);	
+		}
+	}
+	}catch(e){
+	  var err:String=e.message;
+	}
+	return tmpMap;
+}
+
+function getFieldID (field, map) {
+	var response = getField(field[0], map);
+	if (response != null) {
+		return response[0].id;
+	}
+	return null;
+}
+
+function getFields () {
+	var list : Array = new Array();
+ 	var siteId : String = dw.system.Site.getCurrent().ID;
+	if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("false") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true")){
+	  list.push(Array("salutation", "text", "Contact's salutation")); 
+	}else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("true")){
+	  list.push(Array("salutation", "text", "Contact's salutation")); 
+	  list.push(Array("prefix", "text", "Contact's prefix"));
+    }else if(dw.web.Resource.msg('global.titleFlag','locale', null).equals("true") && dw.web.Resource.msg('global.salutationFlag','locale', null).equals("false")){
+	  list.push(Array("prefix", "text", "Contact's prefix"));
+	}
+	list.push(Array("prefix", "text", "Contact's prefix"));
+	list.push(Array("firstname", "text", "Contact's first name"));
+	list.push(Array("lastname", "text", "Contact's last name"));
+	//list.push(Array("suffix", "text", "Contact's suffix"));
+	list.push(Array("gender", "text", "Contact's gender."));
+	list.push(Array("birthday", "text", "Contact's birthday"));
+	list.push(Array("company", "text", "Contact's company name"));
+	list.push(Array("address1", "text", "Contact's address1"));
+	list.push(Array("address2", "text", "Contact's address2"));
+	list.push(Array("city", "text", "Contact's address city"));
+	//list.push(Array("state", "text", "Contact's", "address state"));
+	list.push(Array("zip", "text", "Contact's address zip"));
+ 	if(dw.web.Resource.msg('global.provinceFlag','locale', null).equals("true")){
+	  list.push(Array("province", "text", "Province"));
+	}
+	list.push(Array("country", "text", "Contact's address country"));
+	list.push(Array("phone", "text", "Contact's address phone"));
+	list.push(Array("deliveryInstructions", "text", "Delivery Instructions")); 
+ 	list.push(Array("orders", "text", "Number of orders by contact"));
+	list.push(Array("30dayordervalue", "text", "Amount of contact orders placed in the last 30 days"));
+	list.push(Array("lifetimeordervalue", "text", "Dollar amount of contact orders placed over contact lifetime"));
+	list.push(Array("avgordervalue", "text", "Average dollar amount of contact orders placed over contact lifetime"));
+	list.push(Array("categoriesordered", "text", "Top categories of products ordered by contact"));
+	list.push(Array("30dayprodview", "text", "Products viewed by contact in the last 30 days Products Abandoned (30Days)"));
+	list.push(Array("30dayprodabandon", "text", "Products abandoned by contact in the last 30 days"));
+	list.push(Array("7dayvisits", "text", "Number of website visits by contact in the last 7 days"));
+	list.push(Array("30dayvisits", "text", "Number of website visits by contact in the last 30 days")); 
+	list.push(Array("365dayvisits", "text", "Number of website visits by contact in the last 365 days"));
+	list.push(Array("subscribestatus", "text", "Newsletter Subscriber Status"));
+	list.push(Array("credit_gift_balance", "text", "Site Credits/Gift Card Balance"));
+	list.push(Array("recent_purchase_items", "text", "Recent purchase item(s)"));
+	list.push(Array("recent_purchase_url", "text", "Recent purchase url"));
+	list.push(Array("recent_purchase_date", "date", "Recent purchase date"));  
+	list.push(Array("recent_purchase_image", "text", "Recent purchase image"));
+	list.push(Array("recent_purchase_value", "text", "Recent purchase value"));
+	list.push(Array("recent_purchase_category", "text", "Recent purchase Category")); 
+	list.push(Array("email", "text", "E-mail"));
+	list.push(Array("StaticOfferID", "text", "Static Offer ID"));
+	return list;
+}
+
+/// End of API Triggers block ///
+
+
+
+/// Start of Utils block ///
+
+function esc (inStr : String) : String {
+	if (inStr == null) {
+		inStr = "";
+	}
+	var badc : RegExp = /[\"\r\n]/g;
+	//var tmpStr : String = inStr.replace(badc, " ");
+	var tmpStr : String = inStr;
+	
+	// Strip out anything except A-Z, a-z, whitespace, digits and basic punctuation,
+	// since the backend can't handle them anyhow.
+	var nonAlphaNumPunc : RegExp = /[^\.\w\s\d,!?:;()<>@%$#&-]/g;
+	//return tmpStr.replace(nonAlphaNumPunc, "");
+   return tmpStr;
+}
+
+function formatNumeric (inStr : String) : String {
+	if (inStr == null) {
+		inStr = "";
+	}
+	var badc : RegExp = /[\"\ \x\X\e\E\x\X\t\T\-\ext\EXT]/g;
+	var tmpStr : String = inStr.replace(badc, "");
+	var nonAlphaNumPunc : RegExp = /[^\.\w\s\d,!?:;()<>@%$#&-]/g;
+
+   return tmpStr.replace(nonAlphaNumPunc, "");
+}
+
+function getCustomerEmail (order : Order) : String {
+	var email : String = "";
+	if (order.customer.profile != null) {
+		email = order.customer.profile.credentials.login;
+	} else {
+		email = order.customerEmail;
+	}	
+   return email;
+}
+
+function getCustomPreferenceValue (name : String) {
+	try {
+		if ( name in Site.current.preferences.custom && !empty(Site.getCurrent().getPreferences().getCustom()[name]) ) {
+			return Site.getCurrent().getPreferences().getCustom()[name];
+		} else {
+			return null;
+		}
+	} catch (e) {
+    	handleError(e, 'getCustomPreferenceValue');
+    }		
+}
+
+function handleError (error, actionName) {
+	var message : String = new String (error.message);
+	actionName = actionName || 'Exception';
+	Logger.error(actionName + ': ' + error.message);
+   return PIPELET_ERROR;	
+}
+
+function getProductCategories (productId : String) {
+	var product : Product = ProductMgr.getProduct(productId);
+	var categories : String;
+	if(product.classificationCategory && !empty(product.classificationCategory.displayName)){
+		categories = product.classificationCategory.displayName;
+	} else if (product.categorized) {
+		for (var i = 0; i < product.categories.length; i++){
+			empty(categories) ? (categories = product.categories[i].displayName) : 
+								(categories += ', ' + product.categories[i].displayName);
+		}
+	} else {
+		return 'n/a';
+	}
+   return categories;
+}
+
+/// End of Utils block ///

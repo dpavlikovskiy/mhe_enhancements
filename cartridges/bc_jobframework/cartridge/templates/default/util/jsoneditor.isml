@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <link href="${URLUtils.staticURL('/lib/jsoneditor/editor.css')}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="${URLUtils.staticURL('/lib/jsoneditor/jquery-1.2.6.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.staticURL('/lib/jsoneditor/json2.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.staticURL('/lib/jsoneditor/jquery.timers.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.staticURL('/lib/jsoneditor/editor.js')}"></script>
+    <script>
+      // Setup control buttons at bottom.
+      
+      $(document).ready(function(){
+        JSONEditor.prototype.ADD_IMG = '${URLUtils.staticURL('/lib/jsoneditor/add.png')}';
+        JSONEditor.prototype.DELETE_IMG = '${URLUtils.staticURL('/lib/jsoneditor/delete.png')}';
+        var j = new JSONEditor($("#t"), 400, 300);
+        j.doTruncation(true);
+        j.showFunctionButtons();
+      });
+    </script>
+  </head>
+  <body>
+<textarea id="t"><isprint value="${decodeURIComponent(pdict.CurrentHttpParameterMap.value.value)}"></textarea>
+<input type="submit" onclick="opener.document.getElementById('${pdict.CurrentHttpParameterMap.formid.value}').value = '(' + document.getElementById('t').value + ')'; opener.document.getElementById('apply').click(); self.close(); return false;" value="save" name="save">
+  </body>  
+</html>

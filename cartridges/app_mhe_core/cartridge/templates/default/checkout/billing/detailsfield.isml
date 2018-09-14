@@ -1,0 +1,3 @@
+<!--- TEMPLATENAME: detailsfield.isml --->
+  <isinclude template="util/modules"/> 
+  <isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.othermeans.details}"  type="textarea" />

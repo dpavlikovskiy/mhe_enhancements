@@ -1,0 +1,82 @@
+<isscript>
+	importScript("util/ProductImageSO.ds");
+</isscript>
+<isinclude template="util/modules"/>
+
+<isif condition="${!empty(pdict.Product)}">
+	<isscript>
+		var maxRecs = 0;
+		var counter = 0;
+		
+		if(pdict.rec_acc_type==Resource.msg('product.recommendations','product',null))
+		{
+			var recommendations : dw.util.Iterator   = pdict.Product.getRecommendations(1).iterator();
+			maxRecs=1000;
+		 }
+		 else if(pdict.rec_acc_type==Resource.msg('product.accessories','product',null))
+		 {	
+		 	 var recommendations : dw.util.Iterator   = pdict.Product.getRecommendations(3).iterator();
+		 	 maxRecs = 3;
+		 }
+		 else
+		 {var recommendations : dw.util.Iterator =null;
+		 }
+		var recProducts : dw.util.Collection = new dw.util.ArrayList();
+	
+		while( recommendations.hasNext() )
+		{
+			var recommendation : dw.catalog.Recommendation = recommendations.next();
+			var recommendedProduct : dw.catalog.Product = recommendation.getRecommendedItem();
+			if ((recommendedProduct.online)&& ((recommendedProduct.master && recommendedProduct.priceModel.minPrice.value!=0) || (!recommendedProduct.master && recommendedProduct.priceModel.price.value!=0))) {
+				recProducts.add( recommendedProduct );
+				if(++counter >= maxRecs)
+				{
+					break;
+				}
+			}
+		}
+		var isDialog : Boolean = false;
+		if (pdict.CurrentHttpParameterMap.source.stringValue == 'dialog'){
+			isDialog = true;
+		}
+	</isscript>
+	
+
+	
+<div class="ePageModule">
+	<div clas="getName"><span class="bmValue"><isprint value="${Resource.msg('seasonal.productlist','components',null)}" encoding="off" /></span></div>
+	<div class="categoryProducts" id="categoryProducts">
+		<isif condition="${recProducts.size() > 0}">
+		<h2><isprint value="${Resource.msg('seasonal.productlist','components',null)}" encoding="off" /></h2>
+		<div class="homePage">
+			<div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+				<div class="box">
+					<ul class="slider shopnow-list">
+			<isset name="mainProduct" value="${pdict.Product}" scope="pdict"/>
+			<isloop items="${recProducts}" var="rec" end="19"><isset name="Product" value="${rec}" scope="pdict"/><isset name="StaticOfferApplicable" value="${pdict.Product.custom.applicableForStaticOffers|| (pdict.Product.variant && pdict.Product.masterProduct.custom.applicableForStaticOffers)}" scope="page"/><isscript>importScript("product/ProductUtils.ds");var category : dw.catalog.Category = ProductUtils.getProductCategoryForStaticPDP(null, pdict.Product);</isscript><isscript>importScript('search/ProductGridUtils.ds');</isscript><isif condition="${StaticOfferApplicable && null!=category }"><li><isinclude url="${ProductGridUtils.buildStaticHitTileURL(pdict.Product, pdict.CurrentHttpParameterMap.cgid.value, pdict.heroPageName)}"/></li></isif></isloop>
+			<isset name="Product" value="${pdict.mainProduct}" scope="pdict"/>
+								</ul>
+			        <div class="controls">
+			            <a href="#" class="prev">&nbsp;</a>
+			            <a href="#" class="next">&nbsp;</a>
+			            <div class="disabledLayer"></div>
+			        </div>
+				</div>
+			</div>
+		</div>
+		</isif>
+	</div>
+</div>
+	<isif condition="${recProducts.size() > 0}">	
+	 				<isif condition="${!isDialog && pdict.rec_acc_type!=Resource.msg('product.recommendations','product',null)}">
+			<ul class="cta-list cta-list-accessory">
+			<li>
+				<a class="button secondary button-accessory accessory" style="display: none;" href="${URLUtils.url('Product-ShowAccessories', 'pid', pdict.Product.ID, 'source', 'dialog')}">
+	  				<span class="face front">${Resource.msg('accessory.add','product',null)}</span>
+	  				<span class="face back">${Resource.msg('accessory.add','product',null)}</span>
+		   		</a>
+			</li>
+			</ul>
+					</isif>
+	</isif>
+</isif>

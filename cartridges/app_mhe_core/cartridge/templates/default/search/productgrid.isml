@@ -1,0 +1,52 @@
+<isscript>
+	importScript('search/ProductGridUtils.ds');
+</isscript>
+<iscomment><!--Display the remaining products as list--></iscomment>
+
+<isif condition="${pdict.pagetype.equals(Resource.msg('pagename.plp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(4)}" scope="page" />
+<iselseif condition="${pdict.pagetype.equals(Resource.msg('pagename.blp','components',null)) || pdict.pagetype.equals(Resource.msg('pagename.estoreaccessoryblp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(2)}" scope="page" />
+<iselseif condition="${pdict.pagetype.equals(Resource.msg('pagename.srp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(3)}" scope="page" />
+<iselseif condition="${pdict.pagetype.equals(Resource.msg('pagename.slp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(4)}" scope="page" />
+<iselseif condition="${pdict.pagetype.equals(Resource.msg('pagename.estoreplp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(4)}" scope="page" />
+<iselseif condition="${pdict.pagetype.equals(Resource.msg('pagename.estoreblp','components',null))}">
+	<isset name="prodInOneRow" value="${new Number(4)}" scope="page" />
+<iselse>
+	<isset name="prodInOneRow" value="${new Number(3)}" scope="page" />
+</isif>
+<isif condition="${!( pdict.pagetype.equals(Resource.msg('pagename.slp','components',null)) 
+	|| pdict.pagetype.equals(Resource.msg('pagename.estoreplp','components',null)) 
+	|| pdict.pagetype.equals(Resource.msg('pagename.seasonal','components',null)) ) }">
+<ul id="search-result-items" class="search-result-items products js-products clearfix ${ProductGridUtils.getCompareClass(pdict.category)} ${!empty(pdict.CurrentHttpParameterMap.format.value) ? (pdict.CurrentHttpParameterMap.format.value) : ''}">
+	<isloop items="${pdict.pagingmodel.pageElements}" var="LoopProductHit" status="loopstate"><isif condition="${!(LoopProductHit.product.custom.isFeaturedProduct)}" ><li class="products-tile ${(loopstate.index % (prodInOneRow) == 0) ? 'new-row' : ''}"  data-colors-to-show="${ProductGridUtils.getRepresentedVariationValueIDs(LoopProductHit,'color').join(',')}"><isobject object="${LoopProductHit}" view="searchhit"><isinclude url="${ProductGridUtils.buildHitTileURL(LoopProductHit, pdict.CurrentHttpParameterMap.cgid.value, pdict.pagetype)}"/></isobject></isif></isloop>
+</ul>
+</isif>
+<isif condition="${pdict.pagetype.equals(Resource.msg('pagename.slp','components',null)) || pdict.pagetype.equals(Resource.msg('pagename.seasonal','components',null))}">
+	<isloop items="${pdict.pagingmodel.pageElements}" var="LoopProductHit" status="loopstate"><isif condition="${!(LoopProductHit.product.custom.isFeaturedProduct)}" ><li><div class="product"><isobject object="${LoopProductHit}" view="searchhit"><isinclude url="${ProductGridUtils.buildHitTileURL(LoopProductHit, pdict.CurrentHttpParameterMap.cgid.value, pdict.pagetype)}"/></div></isobject></li></isif></isloop>
+</isif>
+<isif condition="${pdict.pagetype.equals(Resource.msg('pagename.estoreplp','components',null))}">
+	<isloop items="${pdict.pagingmodel.pageElements}" var="LoopProductHit" status="loopstate">
+		<div class="product products-tile">
+			<isobject object="${LoopProductHit}" view="searchhit">
+				<isinclude url="${ProductGridUtils.buildHitTileURL(LoopProductHit, pdict.CurrentHttpParameterMap.cgid.value, pdict.pagetype)}"/>
+			</isobject>
+		</div>
+	</isloop>
+</isif>
+
+ 
+<iscomment>*************** NOT REQUIRED NOW ------ No Infinite Scrolling for BLP Page ***************
+	<isif condition="${!pdict.pagetype.equals(Resource.msg('pagename.blp','components',null))}">
+</iscomment>
+	<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableInfiniteScroll')}">
+		<isif condition="${pdict.pagingmodel.currentPage != pdict.pagingmodel.maxPage }">
+			<div id="js-infinite-scroll" class="infinite-scroll-placeholder" data-loading-state="unloaded" data-grid-url="${decodeURI(pdict.pagingmodel.appendPaging ( pdict.ProductSearchResult.url('Search-Show'), (pdict.pagingmodel.currentPage + 1) * pdict.pagingmodel.pageSize).append('pagetype',pdict.pagetype).append('format','page-element'))}" ></div>
+		</isif>
+	</isif>
+<iscomment>
+	</isif>
+</iscomment>

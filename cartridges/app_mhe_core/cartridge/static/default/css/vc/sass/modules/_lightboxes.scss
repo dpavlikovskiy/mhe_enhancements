@@ -1,0 +1,106 @@
+.moet-overlay{
+	.ui-widget-overlay {
+		background-color: $black;
+	}
+	.beta-heading {
+		color: $greyText;
+	}
+	.remove h2, &.account-module-editaddress h1{
+		color:$brandcolor;
+	}
+	&.account-module-editaddress p{
+		color:$black;
+		text-transform:none;
+	}
+	
+}
+.account-module{
+	background-color:$brandlightbg;
+	p{
+		color:$greyText;
+		a{
+			color:$white;
+		}
+	}
+	.account-submit {
+		border-top:1px solid $brandBorder;
+	}
+}
+.account-module-editaddress{
+	p{
+		color:$white;
+	}
+}
+.account-module-addresses{
+	.address{
+		background-color:transparent;
+		border:1px solid $brandBorder;
+		font-size:$small_text;
+		line-height: 20px;
+    	text-transform: none;
+    	height:290px;
+		&.default {
+			border:1px solid $brandBorder;
+			border-radius:10px;
+			.address-default {
+				label {
+					color:$greyText;
+				}
+			}
+		}
+		h3 {
+			color:$greyText;
+		}
+		h2{
+			font-size:$small_text;
+			text-transform: uppercase;
+		}
+		.address-default {
+			label {
+				color:$brandcolor;
+				&:hover {
+					color:$brandcolor;
+				}
+			}
+			label:before{
+				border:1px solid $inputBorder;
+			}
+			input[type="radio"]:checked + label:before{
+				border:1px solid $brandBorder;
+				color:$brandBorder;
+				line-height:17px;
+				text-indent:1px;
+			}
+		}
+		.address-modify {
+			a {
+				color:$brandcolor;
+			}
+		}
+	}
+}
+.forgotten-password-cont{
+	color:$black;
+	padding:0;
+	.forgotten-form{
+		button.recover{
+			margin:0 0 20px;
+		}
+		input[type="text"]:focus, input[type="password"]:focus{
+			background:$white;
+		}
+	}
+	.shownItems{
+		.logo{
+			background:url(images/logo.png);
+			width:287px;
+			height:65px;
+			margin:auto;
+		}
+	}
+}
+#creaditcardForm .form-row.checkBox.rightSpace{
+	label{
+		color:$brandcolor;
+	}
+}

@@ -1,0 +1,7 @@
+<isinclude template="util/modules"/>
+<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+<isdecorate template="${DecoratorTemplate}">
+	<div class="confirm-message">
+		<h2 class="secondary">${Resource.msg('sendtoafrienddialog.confirmation','account',null)}</h2>
+	</div>
+</isdecorate>

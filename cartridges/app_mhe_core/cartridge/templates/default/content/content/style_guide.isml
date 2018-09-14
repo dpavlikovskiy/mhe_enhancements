@@ -1,0 +1,78 @@
+<iscache type="relative" hour="24"/>
+<isdecorate template="content/home/pt_storefront">
+
+<iscomment>this is the style guide page - NOT USED ON LIVE SITE</iscomment>
+	
+	<hr />
+	
+	<h1>Script Heading One</h1>
+	<h2>Script Heading Two</h2>
+	<h3>Script Heading Three</h3>
+	<h1 class="secondary">Secondary Heading One</h1>
+	<h2 class="secondary">Secondary Heading Two</h2>
+	
+	<p class="standfirst">An introduction paragraph</p>
+	<p class="uppercase">Some uppercase copy</p>
+	<p class="small_heading">A Small Heading</p>
+	<p class="small_text">Some small text</p>
+	
+	<hr />
+	
+	<div class="tooltip-content">
+		<p>Magnum</p>
+		<p>Serves 12</p>
+		<p>1.5l</p>
+	</div>
+	
+	<br /><br />
+	
+	<div class="tooltip-content">
+		<p class="title">Magnum</p>
+		<p class="serves">Serves 12</p>
+		<p class="size">1.5l</p>
+	</div>
+	
+	<br /><br />
+	
+	<a href="#" class="button wide">
+        <span class="face front">Futura Book 11pt</span>
+        <span class="face back">Futura Book 11pt</span>
+    </a>
+    
+    <br /><br />
+    
+    <button href="#" class="button secondary">
+        <span class="face front">Apply</span>
+        <span class="face back">Apply</span>
+    </button>
+    
+    <br /><br />
+    
+    <a href="#" class="button overimage wide">
+        <span class="face front">Futura Book 11pt</span>
+        <span class="face back">Futura Book 11pt</span>
+    </a>
+    
+    <br /><br />
+    
+    <a href="#" class="button secondary plain">
+        <span class="face front">Clear All</span>
+        <span class="face back">Clear All</span>
+    </a>
+    
+    <br /><br />
+    
+    <a href="#" class="button secondary">
+        <span class="face front">Apply</span>
+        <span class="face back">Apply</span>
+    </a>
+    
+    <br /><br />
+    
+    <a href="#" class="button-sm">
+        <span>Small Button</span>
+    </a>
+    
+    <hr />
+	
+</isdecorate>

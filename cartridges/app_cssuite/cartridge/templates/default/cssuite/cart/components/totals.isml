@@ -1,0 +1,84 @@
+<tr>
+<td class="alignRight" colspan="${colspan}">Adjusted Merchandize</td><td>&nbsp;</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedMerchandizeTotalGrossPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedMerchandizeTotalGrossPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedMerchandizeTotalNetPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedMerchandizeTotalNetPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedMerchandizeTotalPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedMerchandizeTotalPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedMerchandizeTotalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedMerchandizeTotalTax}">
+	</td>
+</tr>
+
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">adjustedMerchandizeTotalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.adjustedMerchandizeTotalTax}">
+	</td>
+</tr>
+
+
+<tr>
+<td class="alignRight" colspan="${colspan}">Merchandize</td><td>&nbsp;</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">merchandizeTotalGrossPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.merchandizeTotalGrossPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">merchandizeTotalNetPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.merchandizeTotalNetPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">merchandizeTotalPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.merchandizeTotalPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">merchandizeTotalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.merchandizeTotalTax}">
+	</td>
+</tr>
+<tr class="listTableTotalRow fav">
+	<td class="alignRight" colspan="${colspan}">totalGrossPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.totalGrossPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow">
+	<td class="alignRight" colspan="${colspan}">totalNetPrice: </td>
+	<td class="alignRight">
+		<isprint value="${basket.totalNetPrice}">
+	</td>
+</tr>
+<tr class="listTableTotalRow fav">
+	<td class="alignRight" colspan="${colspan}">totalTax: </td>
+	<td class="alignRight">
+		<isprint value="${basket.totalTax}">
+	</td>
+</tr>
+
+
+

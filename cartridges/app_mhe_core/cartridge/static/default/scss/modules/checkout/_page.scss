@@ -1,0 +1,52 @@
+.pt_checkout{
+	text-transform:uppercase;
+	letter-spacing:2px;
+
+	&.pt_order-confirmation {
+		background-image:url(img/bg/thank_you_01.jpg);
+		background-position: center top;
+		background-repeat: no-repeat;
+		background-size: contain;
+	}
+
+	.checkout-progress-indicator{
+		font-size:$small_heading;
+		line-height:40px;
+	}
+	.logo_header{
+		text-align:center;
+		margin:0 0 40px;
+	}
+	.main,
+	.checkout-progress-indicator {
+		width:$max-container;
+		margin:auto;
+	}
+	.leftSide{
+		float:left;
+		width:885px;
+		font-size:$small_heading;
+	}
+	.rightSide{
+		float:right;
+		width:300px;
+	}
+	.lowerCase {
+	    font-size:$small_heading;
+	    letter-spacing: 0;
+	    text-transform: none;
+	}
+	.normalCase{
+		text-transform: none;
+	}
+	p.normalCase{
+		color:$lightGreyText;
+		span{
+			color:$white;
+		}
+	}
+	.footer{
+		text-transform:none;
+		letter-spacing:0;
+	}
+}

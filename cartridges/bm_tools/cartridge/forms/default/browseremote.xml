@@ -1,0 +1,23 @@
+<?xml version="1.0"?>	
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<group formid="http">
+		<field formid="url" type="string" label="URL" mandatory="true" missing-error="URL is missing!" /> 
+		<field formid="encode" type="boolean" label="encode Response" mandatory="false" default-value="true"/> 
+	</group>
+	<group formid="filesystem">
+		<field formid="protocol" label="Protocol" type="string" mandatory="true" default-value="SFTP">
+			<options>
+				<option label="FTP"		value="ftp"/>
+				<option label="SFTP"		value="sftp"/>
+				<option label="WEBDAV_HTTP"	value="http"/>
+				<option label="WEBDAV_HTTPS"	value="https"/>
+			</options>	
+		</field>
+		<field formid="host" type="string" label="Host" mandatory="true" missing-error="URL is missing!" /> 
+		<field formid="port" type="string" label="Port" mandatory="false"/> 
+		<field formid="user" type="string" label="User" mandatory="true"/> 
+		<field formid="password" type="string" label="Password" mandatory="true"/> 
+		<field formid="path" type="string" label="Path" mandatory="false" default-value="/"/> 
+		<field formid="url" type="string" label="URL" mandatory="false"/> 
+	</group>
+</form>

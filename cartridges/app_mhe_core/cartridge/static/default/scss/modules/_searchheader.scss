@@ -1,0 +1,133 @@
+
+.searchBox{
+	position:absolute;
+	left:50%;
+	color:$searchText;
+	font-size:27px;
+	letter-spacing:3px;
+	line-height:40px;
+	text-align:center;
+	z-index:201;
+	width:1280px;
+	margin-left:-640px;
+	display:none;
+	top:46px; 
+	.arrow{
+		position:absolute;
+		background-position:0 -167px;
+		width:113px;
+		height:33px;
+		right:5px;
+		top:-32px;
+	}
+	.close{
+		width:15px;
+		height:15px;
+		background-position:-55px -50px;
+		text-indent:-99em;
+		overflow:hidden;
+		position:absolute;
+		right:43px;
+		top:30px;
+		cursor:pointer;
+		@include transition(all 0.2s ease-in-out);
+		&:hover {
+			@include opacity(0.6);
+		}
+	}
+	.boxBorder{
+		border:1px solid $button_color;
+		padding:100px 0;
+		background:#0e0d12;
+	}
+	.sbHolder{
+		display:inline-block;
+		position:relative;
+		text-transform:uppercase;
+		.sbSelector{
+			background:url(img/icons/dot.png) repeat-x 0 30px;
+		}
+		.sbOptions{
+			position:absolute;
+			font-size:$small_heading;
+			background:$black;
+			line-height: 20px;
+		    padding: 10px;
+		    text-align: left;
+		    z-index:99;
+		    border:1px solid $darkgrey;
+		    max-height: none !important;
+			li{
+				a{
+					color:$searchText;
+					display:block;
+					&:hover{
+						color:$white;
+					}
+				}
+			}
+		}
+	}
+	.searchOptions{
+		margin:0 auto 50px;
+		width:700px;
+	}
+	.selectionBox{
+		margin:0 0 50px;
+	}
+	.circle{
+		background:$button_color;
+	}
+	.textSearch{
+		font-size:$small_heading;
+		p{
+			font-weight:bold;
+		}
+		input{
+			color:$white;
+			width:245px;
+			height:45px;
+			line-height:45px;
+			display:inline-block;
+			vertical-align:middle;
+			text-align:left;
+			padding:0 10px;
+		}
+		.sIcon{
+			background-position:0 -120px;
+			background-color:$black;
+			width:45px;
+			height:45px;
+			border:1px solid $darkgrey;
+			display:inline-block;
+			text-indent:-99em;
+			overflow:hidden;
+			vertical-align:middle;
+			border-left:0;
+		}
+		.suggestions{
+			margin:10px 0 0;
+			> div{
+				width:245px;
+				border:1px solid $darkgrey;
+				display:inline-block;
+				line-height:20px;
+				padding:10px;
+				background-color:$black;
+				margin-left:-45px;
+				text-align:left;
+				.hits{
+					display:none;
+				}
+				.suggestionterm{
+					cursor:pointer;
+					overflow:hidden;
+					text-transform:uppercase;
+					&:hover{
+						color:$white;
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="true">
+  <!-- order confirmation -->
+ 	<group formid="orderconfirmation">
+	 <field formid="termandcondition"   type="boolean"   />
+	 <field formid="addtoemaillist"   label="profile.SubscibetoEmailList_brand"  type="boolean" binding="custom.isNewsLetterSubscribed"/>
+	</group>
+    
+</form>

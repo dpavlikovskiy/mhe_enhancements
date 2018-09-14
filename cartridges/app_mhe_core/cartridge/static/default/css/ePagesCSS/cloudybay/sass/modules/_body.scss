@@ -1,0 +1,107 @@
+body{
+	background:$white;
+	#wrapper {
+	    max-width: 1280px;
+	    margin:0 auto;
+	    background:white;
+	    padding:84px 0 0;
+	}
+	h1, h2, h3, h4, h5, h6, p, a {
+		letter-spacing: 1px;
+	}
+}
+.epages-body{
+.button{
+	.face{
+		border:0px solid $brandcolor;
+		background-color: $brandBg;
+		font-weight:$bold;
+		color : $white;
+		letter-spacing: 0;
+		font-size: $small_text;
+		font-family: $titleFont;
+		text-transform: none;
+		&.back { 
+			background-color: $brandcolor !important;
+	    	border: 0px solid $brandcolor;
+	    	color: $white !important;
+		}
+	}
+	&.fill {
+    	.face {
+    		background-color: $brandBg;
+    		color: $white;
+    		font-size: $small_text;
+			font-family: $titleFont;
+    	}
+    }
+    &.darkfill {
+    	.face {
+    		background-color: $black;
+    	}
+    }
+    &.grey {
+    	.face {
+    		border-color: $lightergrey;
+    		color: $lightergrey;
+    		&.back {
+    			background-color: $lightergrey;
+    			border-color: $lightergrey;
+    			color: $white;
+    		}
+    	}
+    }
+    &.trans {
+    	.face {
+    		background: $black;
+    		background: rgba(0,0,0,0.5);
+    	}
+    }
+    &.hero {
+    	.face {
+    		border-color: $white;
+    		color: $white;
+			&.front {
+				background: $blackgrey;
+    			background: rgba(22,21,28,0.2);
+			}
+			&.back {
+				background-color: $white;
+				border-color: $white;
+				color: $black;
+			}
+		}
+    }
+}
+}
+
+	blockquote {
+			display:block;
+			clear:both;
+			&:before,
+			&:after {
+				font-size: 30px;
+				color: $darkBrownText;
+			}
+			&:before {
+				top: 10px;
+				left:50%;
+			}
+			&:after {
+				bottom: 5px;
+				right:auto;
+				left:50%;
+			}
+		}
+	blockquote:before{ 
+		font-family: 'icomoon';
+		content:"\e60d";
+		} 
+	blockquote:after{
+	font-family: 'icomoon';
+	content:"\e60c";
+	} 
+	
+.ePageModule{
+	margin:0 0 10px;
+}

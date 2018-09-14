@@ -1,0 +1,251 @@
+// =============================================================================
+// PDP tab module
+// =============================================================================
+
+.pdp-section-tabs {
+	margin: 0;
+	padding: 0;
+	width: 1280px;
+	.pdp-section-inner {
+		margin: 0;
+		padding: 72px 0 52px 0;
+	}
+	// START DISABLE JQUERY UI GUFF
+	.ui-tabs {
+		padding: 0;
+	}
+	.ui-tabs .ui-tabs-nav {
+		margin: 0;
+		padding: 0 0 75px 0;
+	}
+	.ui-tabs .ui-tabs-nav li {
+		float: none;
+		position: static;
+		top: 0;
+		margin: 0;
+		padding: 0;
+	}
+	.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+	.ui-tabs .ui-tabs-nav li.tab {
+		margin: 0 25px;
+		letter-spacing: 2px;
+	}
+	.ui-tabs .ui-tabs-nav li a {
+		float: none;
+		padding: 0 0 4px 0;
+	}
+	.ui-tabs .ui-tabs-panel {
+		padding: 0;
+	}
+	.ui-tabs .ui-tabs-hide {
+		display: block !important;
+		position: absolute;
+		left: -9999px;
+	}
+	// END DISABLE JQUERY UI GUFF
+	.tabs-menu {
+		@include dividingDot();
+		text-align: center;
+		&:before {
+			top: 42px;
+			left: 50%;
+		}
+	}
+	.tab {
+		margin: 0 50px 0 0;
+		display: inline-block;
+		a {
+			font-family: $fixed-font-family;
+			font-size: 11px;
+			font-weight: $bold;
+			text-transform: uppercase;
+			float: none;
+		}
+	}
+	// OVERIDING OVER QUALIFICATION FROM JQUERY UI
+	.ui-tabs .ui-tabs-panel {
+		padding: 0 140px;
+		&.characteristics {
+			padding: 0;
+		}
+	}
+	// OVERIDING OVER QUALIFICATION FROM JQUERY UI
+	.tab-content {
+		@include clearfix;
+		margin: 0;
+		.gamma-heading {
+			margin: 0;
+			padding: 0;
+			font-size: 24px;
+		}
+		
+		p {
+			margin: 0;
+			padding: 0;
+			font-size: 15px;
+		}
+		&.awards{
+			text-align: center;
+			.gamma-heading {
+				margin: 0 0 40px 0;
+			}
+			.award-list {
+				text-align: center;
+				margin: 0 0 80px 0;
+				padding: 0;
+				position: relative;
+				&:after {
+					content: '';
+					display: block;
+					height: 1px;
+					width: 20px;
+					position: absolute;
+					left: 49%;
+					bottom: -40px;
+					background-color: $midgrey01;
+				}
+				li {
+					display: inline-block;
+					margin: 0;
+					padding: 0 10px;
+				}
+				img {
+					display: block;
+				}
+			}
+		}
+		&.characteristics {
+			text-align: center;
+			.characteristic-list {
+				margin: 0 200px;
+				text-align: center;
+
+				li {
+					display: inline-block;
+					width: 30%;
+					margin: 0 0 40px 0;
+					vertical-align:top;
+					p {
+						text-transform: uppercase;
+						.divider {
+							@include dividingDot();
+							padding: 0 20px;
+							&:before {
+								top: 8px;
+								left: 0;
+							}
+							&:first-child:before {
+								display: none;
+							}
+						}
+					}
+					&.full-width {
+						width: 100%;
+					}
+				}
+			}
+			.extra-detail {
+				margin: 0;
+				padding: 0;
+				height: 0;
+				overflow: hidden;
+				border-top: 1px solid transparent;
+				opacity: 0;
+				position: relative;
+				-webkit-transition: all 0.75s ease;
+				-moz-transition: all 0.75s ease;
+				-ms-transition: all 0.75s ease;
+				-o-transition: all 0.75s ease;
+				transition: all 0.75s ease;
+				&.js-visible {
+					border-top: 1px solid $midgrey02;
+					opacity: 1;
+				}
+				.characteristic-list {
+					position: relative;
+					top: 0;
+					left: 0;
+					padding: 60px 20px 0 20px
+				}
+			}
+			.cta-wrap {
+				text-align: center;
+				margin: 0 0 80px 0;
+				.button {
+					margin: 0 auto;
+				}
+			}
+		}
+
+		.col {
+			margin: 0;
+			padding: 0;
+			float: left;
+			&.col-detail {
+				width: 445px;
+				margin-left:150px;
+			}
+			&.col-hero {
+				margin: 0;
+				width: 315px;
+			}
+		}
+		.section {
+			@include clearfix();
+			margin: 0 0 15px 0;
+			text-align:center;
+		}
+		.col-detail {
+			.col-inner {
+				padding: 0 30px 0 0;
+				text-align: center;
+			}
+			p {
+				margin-bottom: 20px;
+			}
+		}
+		.col-hero {
+			.col-inner {
+				padding: 0;
+			}
+			img {
+				display: block;
+				margin: 0 0 15px 15px;
+			}
+			.img-title {
+				text-transform: uppercase;
+				font-weight: $bold;
+				font-size: 18px;
+				padding: 0 45px 0 15px;
+				text-align: center;
+			}
+
+			blockquote {
+				padding: 50px 70px 50px 40px;
+				&:before,
+				&:after {
+					left: 40%;
+				}
+				&:before {
+					top: 0;
+				}
+				&:after {
+					bottom: 10px;
+				}
+
+			}
+			.credit {
+				padding: 0 45px 0 15px;
+			}
+		}
+		blockquote {
+			@include blockquote01;
+			padding: 50px 60px;
+
+		}
+
+	}
+}

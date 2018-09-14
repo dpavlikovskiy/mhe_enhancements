@@ -1,0 +1,82 @@
+<td class="table_detail w e s" colspan="10" style="background-color:#BBBBBB;">
+	<table>
+		<tbody>
+			<tr>
+				<td width="130" nowrap="nowrap" class="table_header n e s">Task name</td>
+				<td width="130" nowrap="nowrap" class="table_header n e s">Start date</td>
+				<td width="100" nowrap="nowrap" class="table_header n e s">Duration</td>
+				<td width="100" nowrap="nowrap" class="table_header n e s">Status code</td>
+				<td width="50%" nowrap="nowrap" class="table_header n e s">Status text</td>
+				<td width="25%" nowrap="nowrap" class="table_header n e s">Error</td>
+				<td width="70" nowrap="nowrap" class="table_header n e s">Log</td>
+			</tr>
+			<isloop items="${pdict.StatusObjects}" var="JobStatusObject" status="JobStatusObjectStatus">
+				<isscript>
+					var currentDate = dw.system.System.getCalendar().getTime();
+					var timeDifferenceDate = null;
+					if (!empty(JobStatusObject.custom.endDate)) {
+						timeDifferenceDate = new Date(JobStatusObject.custom.endDate.getTime() - JobStatusObject.creationDate.getTime());
+					} else {
+						timeDifferenceDate = new Date(currentDate.getTime() - JobStatusObject.creationDate.getTime());
+					}
+					
+					var bgcolor = '#FFFFFF';
+					switch(JobStatusObject.custom.state) {
+						case 'FINISHED' : bgcolor = '#C4FFBA'; break;
+						case 'FAILED'   : bgcolor = '#FFCDC9'; break;
+						case 'RUNNING'  : bgcolor = '#FCFFC1'; break;
+						case 'WAITING'  : bgcolor = '#D6D6FF'; break;
+					}
+					
+					var jobStatusObjectName = JobStatusObject.custom.name;
+					var jobStatusObjectNameReplaced;
+					if (!empty(jobStatusObjectName)) {
+						jobStatusObjectNameReplaced = jobStatusObjectName.replace(/ /g, '');
+					} else {
+						jobStatusObjectNameReplaced = '';
+					}
+					var jobStatusObjectID = escape(JobStatusObject.custom.ID);
+				</isscript>
+			
+				<tr class="${jobStatusObjectNameReplaced}">
+					<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+						<td class="table_detail w e s">
+							<isprint value="${jobStatusObjectName}">
+						</td>
+					</isif>
+					<td class="table_detail e s">
+						<isprint value="${JobStatusObject.creationDate}">
+						<isprint value="${JobStatusObject.creationDate}" style="DATE_TIME">
+					</td>
+					<td class="table_detail e s">
+						<isprint value="${timeDifferenceDate.getHours() + (timeDifferenceDate.getDate() - 1) * 24}" formatter="00"><isprint value="${timeDifferenceDate}" formatter=":mm:ss."><span style="color:lightgray;"><isprint value="${timeDifferenceDate}" formatter="SSS"></span>
+					</td>
+					<td class="table_detail e s" style="background-color: ${bgcolor}">
+						<isprint value="${!empty(JobStatusObject.custom.state) ? JobStatusObject.custom.state : '&nbsp;'}" encoding="off">
+					</td>
+					<td class="table_detail e s">
+						<isprint value="${!empty(JobStatusObject.custom.message) ? JobStatusObject.custom.message : '&nbsp;'}" encoding="off">
+					</td>
+					<td class="table_detail e s">
+						<isprint value="${!empty(JobStatusObject.custom.errorMessage) ? JobStatusObject.custom.errorMessage : '&nbsp;'}" encoding="off">
+					</td>
+					<td class="table_detail e s">
+						<isif condition="${!empty(JobStatusObject.custom.logFilePath)}">
+							<isscript>
+								var temp = JobStatusObject.custom.logFilePath.split(dw.io.File.SEPARATOR);
+								var dir = '';
+								for (var i=2; i<temp.length-1; i++) {
+									dir += temp[i] + dw.io.File.SEPARATOR;
+								}
+								var file = temp[temp.length - 1];
+							</isscript>
+							<a href="${URLUtils.url('ViewImpexMonitor-DownloadFile', 'DirectoryPath', dir, 'FileName', file)}">Download</a>
+						<iselse>
+							&nbsp;
+						</isif>
+					</td>
+				</tr>
+			</isloop>
+		</tbody>
+	</table>
+</td>

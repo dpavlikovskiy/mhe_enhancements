@@ -1,0 +1,76 @@
+
+	<isscript>
+	importScript("product/ProductUtils.ds");
+	</isscript>			
+	<isset name="caseSize" value="" scope="page" />
+	<isset name="key" value="" scope="page" />
+	<div class="caseLitre">		
+	
+		<isif condition="${!empty(pdict.Product.unit)}" >
+		<isset name="unit" value="${pdict.Product.unit}" scope="page" />
+		<iselse>
+		<isset name="unit" value="${pdict.Product.master.unit}" scope="page" />
+		</isif>
+	
+	
+	<isif condition="${pdict.Product.isVariant() || pdict.Product.isMaster()}">
+	 	<isif condition="${pdict.CurrentVariationModel != null}">
+			<isset name="PVM" value="${pdict.CurrentVariationModel}" scope="PAGE" />
+	<iselse>
+			<isset name="PVM" value="${pdict.Product.variationModel}" scope="PAGE" />
+	</isif>
+		<isset value="${PVM.productVariationAttributes[0]}" name="VA" scope="page">
+			<isset name="Valength" value="${new Number(1)}" scope="page"/> <iscomment>Fix for Error Log - "Valength" is not defined.</iscomment>
+				<isif condition="${VA != null}">
+					<isset name="VAVALS" value="${PVM.getAllValues(VA)}" scope="page"/>
+					<isset name="Valength" value="${VAVALS.length}" scope="page"/>
+				<isif condition="${VAVALS.length==1}" >
+					<isloop items="${PVM.variants}" var="VAR" status="loopstatus">																		
+									<isset name="VV" value="${PVM.getVariationValue(VAR, VA)}" scope="page"/>
+									<!-- isif condition="${cleanPVM.hasOrderableVariants(VA, VV)}" -->
+									<isset name="caseSize" value="${VAR.custom.caseSize}" scope="page" />
+									<isset name="unit" value="${VAR.unit}" scope="page" />	
+					</isloop>
+					<isset name="key" value="${VV.value}" scope="page" />	
+				</iselse>
+			</isif>
+			</isif>
+		</isif>
+	
+	<isif condition="${empty(pdict.Product.custom.size)}">
+		<isset name="size" value="${key}" scope="page" />
+	<iselse>
+		<isset name="size" value="${pdict.Product.custom.size}" scope="page" />
+	</isif>
+	<isif condition="${!empty(unit)}">
+		<isset name="unitValue" value="${unit}" scope="page" />
+	<iselse>
+		<isset name="unitValue" value="${pdict.Product.unit}" scope="page" />
+	</isif>
+	
+	<isif condition="${!empty(caseSize)}">
+		<isset name="caseSizeValue" value="${caseSize}" scope="page" />
+	<iselse>
+		<isset name="caseSizeValue" value="${pdict.Product.custom.caseSize}" scope="page" />
+	</isif>
+	
+		<isif condition="${!pdict.Product.productSet && !(pdict.Product.master && pdict.Product.priceModel.isPriceRange())}"> 
+				<isif condition="${ShowStandardPrice}">
+					<isif condition="${StandardPrice.valueOrNull != null && StandardPrice.valueOrNull > 0}">
+					
+					<isif condition="${unit=='CA'}"> 
+					<span class="perCase"><isprint value="${new dw.value.Money(ProductUtils.getPe	rUnitPrice(caseSizeValue,StandardPrice), currencyCode)}" /> ${Resource.msg('product.pricing.percase','product',null)} </span> 
+					</isif>					
+					<span class="perLitre"><isprint value="${new dw.value.Money(ProductUtils.getPerLiterPrice(unit,caseSizeValue,size,StandardPrice), currencyCode)}" /> ${Resource.msg('product.pricing.perlitre','product',null)} </span> 
+					</isif>					
+				</isif>		
+						
+				<isif condition="${(SalesPrice.valueOrNull != null && SalesPrice.valueOrNull > 0) || isPromoPrice}">	
+					<isif condition="${unit=='CA'}"> 
+					<span class="perCase"><isprint value="${new dw.value.Money(ProductUtils.getPerUnitPrice(caseSizeValue,SalesPrice), currencyCode)}" />  ${Resource.msg('product.pricing.percase','product',null)} </span> 
+					</isif>					
+					<span class="perLitre"><isprint value="${new dw.value.Money(ProductUtils.getPerLiterPrice(unit,caseSizeValue,size,SalesPrice), currencyCode)}"/> ${Resource.msg('product.pricing.perlitre','product',null)} </span>  
+				</isif>	
+		</isif>	
+	</div>
+

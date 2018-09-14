@@ -1,0 +1,49 @@
+<isinclude template="util/modules"/>
+
+<iscomment>if theres an error message to show. add the class errors-total-visible to the .errors-total div below</iscomment>
+
+<isif condition="${!pdict.CurrentForms.login.loginsucceeded.valid || !pdict.CurrentForms.login.passwordMatch.valid || (pdict.TempCustomer != null && pdict.TempCustomer.profile != null && pdict.TempCustomer.profile.credentials.locked) }">
+<div class="errors-total errors-total-visible" style="max-height:62px;">
+<iselse>
+<div class="errors-total">
+</isif>
+	<div class="errors-total-inner">
+		<iscomment>All validation errors listed at the top of the form</iscomment>
+		<iscomment>Login Unsuccessful Error Message</iscomment>
+		<isif condition="${pdict.TempCustomer != null && pdict.TempCustomer.profile != null && pdict.TempCustomer.profile.credentials.locked}">
+			<div class="error-form">${Resource.msg('logininclude.locked','account',null)}</div>
+		<iselseif condition="${pdict.TempCustomer != null && pdict.TempCustomer.profile != null && (pdict.TempCustomer.profile.credentials.remainingLoginAttempts == 1)}">
+			<div class="error-form">${Resource.msg('logininclude.willbelocked','account',null)}</div>
+		<iselseif condition="${!pdict.CurrentForms.login.loginsucceeded.valid}">
+			<div class="error-form">${Resource.msg('logininclude.loginerror','account',null)}</div>
+		<iselseif condition="${!pdict.CurrentForms.login.passwordMatch.valid}">
+			<div class="error-form">${Resource.msg('logininclude.passworderror','account',null)}</div>
+		</isif>
+	</div>
+</div>
+<div id="ajaxForm" class="confirmLogin">
+	<img src="${URLUtils.staticURL('/css/'+pdict.CurrentSession.custom.brand+'/images/logo.png')}" class="logo" />
+	
+	<div class="greet"><span>,</span> <iscontentasset aid="loginGreeting"/></div>
+	<isinclude template="account/login/login_form"/>
+</div>
+  
+<script type="text/javascript">
+$(document).ready(function(){
+	var d = new Date();
+    var time = d.getHours();
+    var $greet = $(".greet");
+    if (time >= 0 && time <= 11){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.morning','account',null)}");
+    }
+    else if (time >= 12 && time <= 17){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+    }
+    else{
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.evening','account',null)}");
+    };
+    
+    $greet.addClass("greet-visible");
+      
+});
+</script>

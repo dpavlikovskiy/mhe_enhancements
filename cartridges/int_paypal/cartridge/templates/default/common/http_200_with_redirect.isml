@@ -1,0 +1,3 @@
+<!--- TEMPLATENAME: http_200_with_redirect.isml --->
+<isstatus value="200"/>
+<isredirect location="${pdict.Location}"/>

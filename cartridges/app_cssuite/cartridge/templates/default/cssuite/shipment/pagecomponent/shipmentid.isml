@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: shipmentid.isml --->
+<!-- START shipment/shipmentid.isml -->
+<isscript>
+	importScript("app_cssuite:css/utils.ds");
+	var shipmentShortDescription = getShipmentDescr(pdict.p_shipment);
+</isscript>
+
+<isprint value="${shipmentShortDescription}">
+<!-- END shipment/shipmentid.isml -->

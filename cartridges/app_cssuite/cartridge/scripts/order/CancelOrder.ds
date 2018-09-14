@@ -1,0 +1,179 @@
+/**
+* Demandware Script File
+*This Script file will change the orderStatus custom attribute to CANCEL and mark the cs_RefundStatus to ready.
+*  
+* @input order : dw.order.Order
+* @input agentName : String
+* @input cancellationDescription : String
+* @output chilledDeiveryFlow : Boolean
+*
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.catalog );
+importPackage( dw.value );
+
+/*Constant declaration*/
+var REJECT:String="REJECT";
+var STATUS_CANCEL:String="CANCEL";
+var STATUS_TRIGERRED:String="TRIGGERED";
+var STATUS_READY:String="READY";
+var STATUS_EMPTY:String="EMPTY";
+var DELIVERED:String="DELIVERED";
+var bundleProductInventory: Boolean= 'false';
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+	var order : Order = pdict.order;
+   	var settlementStatus:String = null;
+	var refundStatus: String= null;
+	var refundEligible:Boolean=false;
+	var settlementTrigerred:Boolean=false;
+
+	pdict.chilledDeiveryFlow=false;
+	if (empty(order))
+    	return PIPELET_ERROR;
+    	
+	if(!empty( order.custom.cs_SettlementStatus.value)){
+	settlementStatus=order.custom.cs_SettlementStatus.value;
+		if(settlementStatus.equalsIgnoreCase(STATUS_TRIGERRED)|| settlementStatus.equalsIgnoreCase(STATUS_READY)){
+		settlementTrigerred=true;
+		}
+	}
+	
+	if(!empty( order.custom.cs_RefundStatus.value)){
+	refundStatus=order.custom.cs_RefundStatus.value;
+	if(refundStatus.equalsIgnoreCase("null")){
+		refundEligible=true;
+	}
+	}else{
+		refundEligible=true;
+	}
+	
+	
+	//set OrderStatus as cancel
+     if(order.custom.orderStatus!=REJECT){ 
+   		 order.custom.orderStatus=STATUS_CANCEL;
+     }
+	 order.setStatus(Order.ORDER_STATUS_CANCELLED);
+	 
+	 if(empty(order.cancelDescription)&&!empty(pdict.agentName)){
+     order.setCancelDescription(dw.web.Resource.msg('global.cancelorder.desc','locale',null)+pdict.agentName.toUpperCase());
+	 }
+	 
+	if(order.exportStatus==Order.EXPORT_STATUS_READY){
+	order.setExportStatus(Order.EXPORT_STATUS_NOTEXPORTED);
+	}
+	if(order.defaultShipment!=null && 'chilledDeliveryShippingMethod' in order.defaultShipment.shippingMethod.custom && order.defaultShipment.shippingMethod.custom.chilledDeliveryShippingMethod)
+	{
+	if(settlementStatus.equalsIgnoreCase(STATUS_READY)){
+		order.custom.cs_SettlementStatus= STATUS_EMPTY;
+	}
+	refundEligible=false;
+	pdict.chilledDeiveryFlow=true;
+	}
+	//set refundstatus as ready
+	if(settlementTrigerred && refundEligible){
+   		order.custom.cs_RefundStatus=STATUS_READY;
+	}
+	
+	//Update allocation Quantity=ATS+Ordered quantity
+	if(order.shippingStatus==Order.SHIPPING_STATUS_NOTSHIPPED){  
+	  var productLineItems : Iterator= order.getAllProductLineItems().iterator();
+	  var productLineItem : ProductLineItem=null;
+	  var skipBundledProducts : Collection = null;
+	  while(productLineItems.hasNext()) {
+		//find quantity ordered
+		productLineItem = productLineItems.next();	
+		 if (!(productLineItem.bundledProductLineItem && !empty(skipBundledProducts) && skipBundledProducts.contains(productLineItem))) {
+			if (!empty(productLineItem.bundledProductLineItems) && productLineItem.product.getAvailabilityModel().getInventoryRecord()!=null) {
+				if(!productStockUpdate(productLineItem.getProduct(), productLineItem.getQuantity())) {
+	    			Logger.error("Something went wrong while updating inventory for product id: "+productLineItem.productID+" while cancelling  order number: "+order.orderNo+" in "+Site.current.ID);
+	   	 } 
+			skipBundledProducts = productLineItem.bundledProductLineItems;
+		  } else if (!(!empty(productLineItem.bundledProductLineItems) && productLineItem.product.getAvailabilityModel().getInventoryRecord()==null)) {
+					if(!productStockUpdate(productLineItem.getProduct(), productLineItem.getQuantity())) {
+		    		Logger.error("Something went wrong while updating inventory for product id: "+productLineItem.productID+" while cancelling  order number: "+order.orderNo+" in "+Site.current.ID);
+		   			 }	 
+		  }
+		}				
+		   
+	}
+	}
+	
+  try{	
+	//update replacement order cros-linking 
+	if(!empty(order.custom.replacedOrderNumber)){
+		 var orderno:String = order.custom.replacedOrderNumber;
+	     var order1:Order = OrderMgr.getOrder(orderno);
+         var arr:Array =order1.custom.replacementOrders;
+	     var newlist:ArrayList =new ArrayList();
+	     for(var i=0;i<arr.length;i++){
+		 	if(!arr[i].toString().equalsIgnoreCase(order.orderNo)){
+		 		newlist.add(arr[i]);
+		 	}
+		 } 
+		 order1.custom.replacementOrders=newlist; 
+		 if(empty(newlist)){
+		  order1.setStatus(Order.ORDER_STATUS_OPEN);
+		 }
+	 } 
+	}catch(e){
+	  var msg:String=e.message;
+	}
+	
+   return PIPELET_NEXT;
+}
+
+
+ function  productStockUpdate(product:Product,productQuantity:Number) : Boolean{
+   	try{
+   		if(product!=null && product.getAvailabilityModel()!=null && (product.getAvailabilityModel().getInventoryRecord()!=null||product.bundle||product.bundled))
+   		{   		
+			 var availabilityModel:ProductAvailabilityModel= product.getAvailabilityModel();
+			 var invRecord:ProductInventoryRecord= availabilityModel.getInventoryRecord();
+			 // get allocation qunatity 
+			 var newQty:Number=0;
+			  var ATSQty:Quantity =null;
+			  
+			  if(invRecord==null &&product.bundle){
+			  	
+			  return true;
+			  }
+			   if(invRecord==null &&product.bundled){
+			  	
+			  return true;
+			  }
+			 if(invRecord==null&& (product.bundle||product.bundled))
+			 ATSQty =availabilityModel.getAvailability().getATS();
+			 else{
+			  ATSQty =invRecord.getATS();
+			 }
+			 if(ATSQty!=null){
+				 newQty=ATSQty.value + productQuantity;
+			 } 
+			 if(availabilityModel.availabilityStatus.equals(ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER) || availabilityModel.availabilityStatus.equals(ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER)) {
+			 	if(newQty>=0){   
+				   invRecord.setPreorderBackorderAllocation(newQty);
+				 }else{
+			 	  invRecord.setPreorderBackorderAllocation(0);
+			 	}
+			 } else {
+			 	//update allocation quantity
+					if(newQty >=0){   
+					  invRecord.setAllocation(newQty);
+					}else{
+					 invRecord.setAllocation(0);
+				   }
+		  	}
+		  	return true;
+   		}else{
+   			return false;
+   		 }
+   	}catch(e){
+   	   	Logger.error("Something went wrong while updating inventory for product id: "+product.ID+" while cancelling  order in "+Site.current.ID);
+   	}
+   
+   }

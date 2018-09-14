@@ -1,0 +1,54 @@
+/**
+* Demandware Script File
+* 
+* @input URL 				: String the URL to call
+*
+* @output Status 			: dw.system.Status request status
+* @output RawData 			: String	the returned contents of the URL
+* @output ResponseHeaders 	: Object	Headers
+*/
+
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.net );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var feedURI = pdict.URL;
+	var httpClient : HTTPClient = new HTTPClient();
+	var message : String;
+	
+	var status = new Status( Status.OK );
+
+	if ( empty(feedURI) ) {
+		Logger.error('ExecuteURL.ds: feedURI job parameter is missing.');
+		return PIPELET_ERROR;
+	}
+
+	try {
+		httpClient.open('GET', feedURI);
+		httpClient.send();
+
+		if ( httpClient.statusCode == 200 ) {
+			message = httpClient.text;
+		} else {
+			// error handling
+			status = new Status(Status.ERROR, httpClient.statusCode, 'Code: ' + httpClient.statusCode + ' Message: ' + httpClient.statusMessage);
+		}
+		var responseHeaders : Map = new HashMap();
+		
+		for each ( var key : String in httpClient.allResponseHeaders.keySet() ) {
+			var value = httpClient.getResponseHeader(key);
+			responseHeaders.put(key,value);
+		}
+		pdict.ResponseHeaders = responseHeaders;
+	}
+	catch(e) {
+		var exception = e;
+		message = "An error occured with status code " + e;
+		status = new Status(Status.ERROR, httpClient.statusCode, e );
+	}
+	pdict.RawData = message;
+	pdict.Status = status;
+	return PIPELET_NEXT;
+}

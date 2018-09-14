@@ -1,0 +1,183 @@
+/**
+*	@input ParamMap : dw.web.HttpParameterMap
+*   @output sendServiceEmail : Boolean
+*/
+
+importPackage( dw.util );
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.web );
+
+var EMAILS_ALLOWED_IN_ONE_CUSTOM_OBJECT : number = 119;
+
+function execute( pdict : PipelineDictionary ) : Number
+{	
+	
+	var paramMap : HttpParameterMap = pdict.ParamMap;
+	var objId : String = paramMap.pid;
+	var serviceId = String = paramMap.serviceId.stringValue;
+	var riObj : dw.object.CustomObject = null;
+	var csOnly : String = paramMap.csOnly;
+	
+	
+	var serviceTypePrefrences : Array = dw.system.Site.getCurrent().preferences.custom.serviceTypes;
+		for (var i=0; i < serviceTypePrefrences.length; i++) 
+		{
+			if ((null != paramMap.serviceId) && (paramMap.serviceId == serviceTypePrefrences[i])) 
+			{
+				pdict.sendServiceEmail = true;
+				return PIPELET_NEXT;
+			}
+		}
+	
+	
+	
+	if(null != serviceId && serviceId != ""){
+		riObj = getCustomObjectToUpdateForMakeEnquiry(serviceId);
+	}else{
+		riObj = getCustomObjectToUpdate(objId,csOnly);
+	}
+	
+	var salutation : String = "";
+	var title : String = "";
+	var name : String = "";
+	var surname : String = "";
+	var customerEmail : String = "";
+	var contactNumber : String = "";
+	var message : String = "";
+	
+	if(null != paramMap.salutation && null != paramMap.salutation.stringValue){
+		salutation = paramMap.salutation.stringValue;
+	}
+	
+	if(null != paramMap.title && null != paramMap.title.stringValue){
+		title = paramMap.title.stringValue;
+	} else if(null == paramMap.title && null == paramMap.title.stringValue && dw.system.Site.current.ID=="DESelection") {
+	title = " ";
+	}
+
+	if(null != paramMap.dwfrm_reginterest_title && null != paramMap.dwfrm_reginterest_title.stringValue){
+		title = paramMap.dwfrm_reginterest_title.stringValue;
+	}
+	
+	if(null != paramMap.dwfrm_reginterest_firstname && null != paramMap.dwfrm_reginterest_firstname.stringValue){
+		name = paramMap.dwfrm_reginterest_firstname.stringValue;
+	}
+	
+	if(null != paramMap.dwfrm_reginterest_lastname && null != paramMap.dwfrm_reginterest_lastname.stringValue){
+		surname = paramMap.dwfrm_reginterest_lastname.stringValue;
+	}
+	
+	if(null != paramMap.dwfrm_reginterest_email && null != paramMap.dwfrm_reginterest_email.stringValue){
+		customerEmail = paramMap.dwfrm_reginterest_email.stringValue;
+	}
+	
+	if(null != paramMap.dwfrm_reginterest_phone && null != paramMap.dwfrm_reginterest_phone.stringValue){
+		contactNumber = paramMap.dwfrm_reginterest_phone.stringValue;
+	}
+	
+	if(null != paramMap.dwfrm_reginterest_message && null != paramMap.dwfrm_reginterest_message.stringValue){
+		message = paramMap.dwfrm_reginterest_message.stringValue;
+	}
+
+	try {
+		if(null != serviceId && serviceId != ""){
+			var emailList : List = new ArrayList(riObj.custom.custDetails);
+		}else{
+			var emailList : List = new ArrayList(riObj.custom.emailIds);
+		}
+		var concateDetails : String = "";
+		if(salutation == ""){
+			 concateDetails = title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}else if(title == "" && dw.system.Site.current.ID!="DESelection" ){
+			concateDetails = salutation+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}else if(dw.system.Site.current.ID=="DESelection") {
+			concateDetails = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		
+		}else{
+		concateDetails = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		}
+		//var concateDetails : String = salutation+"|"+title+"|"+name+"|"+surname+"|"+customerEmail+"|"+contactNumber+"|"+message;
+		emailList.push(concateDetails);
+		if(null != serviceId && serviceId != ""){
+			riObj.custom.custDetails = emailList;
+		}else{
+			riObj.custom.emailIds = emailList;
+		}
+		
+				
+	} catch (e){
+		Logger.error("Error in Registering Interest for PID - " + objId + " :: Email Address - " + customerEmail + "\n Error Message - " + e.message);
+		return PIPELET_ERROR;
+	}
+	return PIPELET_NEXT;
+}
+
+function getCustomObjectToUpdate(prodId: String,csOnly :String) : dw.object.CustomObject {
+	
+	var objType : String = "CO_KeepMeUpdated";	
+	if(csOnly =='true'){
+		var objType : String = "CO_CSOnlyProducts";	
+	}
+	var qry : String = "custom.prodId LIKE {0}";
+	var sort : String = "custom.prodId desc";
+	
+	var customObjItr : dw.util.SeekableIterator = dw.object.CustomObjectMgr.queryCustomObjects(objType, qry, sort, (prodId+"*"));
+	var customObj : dw.object.CustomObject = null;
+	var customObjCounter : Number = 1;
+	
+	try {
+		if (!customObjItr.hasNext()){
+			//Create New Custom Object
+			customObj = dw.object.CustomObjectMgr.createCustomObject(objType, prodId + "_" + customObjCounter);
+			return customObj;
+		} else {
+			//Get the Latest Custom IOject
+			customObjCounter = customObjItr.count+1;
+			customObj = customObjItr.first();		
+			var emailList : List = new ArrayList(customObj.custom.emailIds);
+			if (emailList.size() >= EMAILS_ALLOWED_IN_ONE_CUSTOM_OBJECT){
+				//Create New Custom Object
+				customObj = dw.object.CustomObjectMgr.createCustomObject(objType, prodId + "_" + customObjCounter);
+			}			
+			return customObj;			
+		}
+		
+	} catch (e){
+		Logger.error("Error in Finding/Creating Register Interest Custom Object for PID - " + prodId + "\n Error Message - " + e.message);
+		return customObj;
+	}	
+}
+
+function getCustomObjectToUpdateForMakeEnquiry(serviceId: String) : dw.object.CustomObject {
+	var objType : String = "CO_ServiceCustDtls";	
+	var qry : String = "custom.serviceType LIKE {0}";
+	var sort : String = "custom.serviceType desc";
+	
+	var customObjItr : dw.util.SeekableIterator = dw.object.CustomObjectMgr.queryCustomObjects(objType, qry, sort, (serviceId+"*"));
+	var customObj : dw.object.CustomObject = null;
+	var customObjCounter : Number = 1;
+	
+	try {
+		if (!customObjItr.hasNext()){
+			//Create New Custom Object
+			customObj = dw.object.CustomObjectMgr.createCustomObject(objType, serviceId + "_" + customObjCounter);
+			return customObj;
+		} else {
+			//Get the Latest Custom IOject
+			customObjCounter = customObjItr.count+1;
+			customObj = customObjItr.first();		
+			var emailList : List = new ArrayList(customObj.custom.custDetails);
+			if (emailList.size() >= EMAILS_ALLOWED_IN_ONE_CUSTOM_OBJECT){
+				//Create New Custom Object
+				customObj = dw.object.CustomObjectMgr.createCustomObject(objType, serviceId + "_" + customObjCounter);
+			}			
+			return customObj;			
+		}
+		
+	} catch (e){
+		Logger.error("Error in Finding/Creating Register Interest Custom Object for Service Type - " + serviceId + "\n Error Message - " + e.message);
+		return customObj;
+	}	
+}

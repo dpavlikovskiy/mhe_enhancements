@@ -1,0 +1,30 @@
+/**
+* This script removes a shipping price adjustment from the basket.
+* @input Basket : dw.order.Basket : The basket.
+* @input ShippingPriceAdjustmentID : String The price adjustment UUID.
+* @output ErrorMessage : String error message in case of error.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	var priceAdjustmentID : String = pdict.ShippingPriceAdjustmentID;
+	if (empty(priceAdjustmentID)) {
+		pdict.ErrorMessage = "The shipping price adjustment ID must be given.";
+		Logger.error(pdict.ErrorMessage);
+		return PIPELET_ERROR;		
+	}
+	for (var it : Iterator = basket.getShippingPriceAdjustments().iterator(); it.hasNext();) {
+		var priceAdjustment : PriceAdjustment = it.next();
+		if (priceAdjustment.UUID == priceAdjustmentID) {
+			if (Logger.isDebugEnabled()) {
+				Logger.debug("Removing shipping price adjustment [{0}]", priceAdjustment);
+			}
+			basket.removeShippingPriceAdjustment(priceAdjustment);			
+		}
+	}
+    return PIPELET_NEXT;
+}

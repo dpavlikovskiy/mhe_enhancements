@@ -1,0 +1,1 @@
+!function(a){a.fn.showFullPharagraph=function(){a(".limit-para-trigger").on("click",function(b){return a(".limitedpara").hide(),a(this).hide(),a(".limit-para-extra").fadeIn("slow"),!1})}}(jQuery),$(document).ready(function(){var a=$("body").find(".limit-para-trigger");a.showFullPharagraph()});

@@ -1,0 +1,17 @@
+<iscontent type="application/text" charset="UTF-8"><isscript>
+	importPackage(dw.io);
+	importPackage(dw.system);
+	var readBufferSize : Number = 1024;		
+	var fileReader : FileReader = new FileReader(pdict.File);
+	try {
+		var line : String = fileReader.read(readBufferSize);		
+		while ( line != null ) {
+			out.print(line);		
+			line = fileReader.read(readBufferSize);
+		}
+	} catch( e ) {
+		Logger.error( e );
+	} finally {
+		fileReader.close();
+	}
+</isscript>

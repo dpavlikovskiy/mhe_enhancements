@@ -1,0 +1,28 @@
+/**
+ * GetArticleMenu.ds
+ *
+ * This script gets subfolders of parent folder.
+ *
+ */
+importPackage( dw.content );
+importPackage( dw.system );
+importPackage( dw.util );
+
+function getArticleMenu( FolderID : String ) : LinkedHashMap
+{
+	// get the customer service folder
+	var articleFolders : Map = new LinkedHashMap();
+	if ( !empty(FolderID) ) {
+		var parentFolder : Folder = ContentMgr.getFolder(FolderID);
+		if ( !empty(parentFolder) ) {
+			var subFolders : Iterator = parentFolder.getOnlineSubFolders().iterator();
+			var currentFolder : Folder;
+			while (subFolders.hasNext()) {
+				currentFolder = subFolders.next();
+				articleFolders.put(currentFolder.getID(),currentFolder.getDisplayName());
+			}
+		}
+	}
+    
+	return articleFolders;
+}

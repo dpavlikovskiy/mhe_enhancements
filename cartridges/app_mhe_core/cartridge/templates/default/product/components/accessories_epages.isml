@@ -1,0 +1,116 @@
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+<isif condition="${!empty(pdict.Product)}">
+	<isscript>
+		// get all orderable accessories (3 = Others)
+		var accessories : dw.util.Iterator = pdict.Product.getOrderableRecommendations(3).iterator();
+		var recProducts : dw.util.Collection = new dw.util.ArrayList();
+	
+		// display 2 accessories at maximum and all for heropage template
+		var maxRecs = 3, counter = 0;
+		
+		 if('pagetype' in pdict.CurrentHttpParameterMap && pdict.CurrentHttpParameterMap.pagetype == 'heroTemplatePage') 
+		 { maxRecs=1000;
+		 }
+		 else
+		 {maxRecs = 3;
+		 }
+		
+	
+		while( accessories.hasNext() )
+		{
+			var accessory : dw.catalog.Recommendation = accessories.next();
+			var accessoryProduct : dw.catalog.Product = accessory.getRecommendedItem();
+	
+			if ((accessoryProduct.master && accessoryProduct.priceModel.minPrice.value!=0) || (!accessoryProduct.master && accessoryProduct.priceModel.price.value!=0)) {
+				recProducts.add( accessoryProduct );
+				if(++counter >= maxRecs)
+				{
+					break;
+				}
+			}
+		}
+		var isDialog : Boolean = false;
+		if (pdict.CurrentHttpParameterMap.source.stringValue.equalsIgnoreCase('dialog')){
+			isDialog = true;
+		}
+
+		importScript("product/ProductUtils.ds");
+		var availableCount : Number = null;
+		var invFlag: Boolean=dw.catalog.ProductInventoryMgr.getInventoryList().getDefaultInStockFlag();				
+		availableCount = ProductUtils.getMaxOrderableQuantity(pdict.Product,invFlag);
+
+	</isscript>
+
+	<div class="recommendations cross-sell">
+		<isif condition="${recProducts.size() > 0}">
+			<!-- <ul id="carousel-recomendations"> -->
+			<h3>${Resource.msg('accessory.brand','product',null)}</h3>
+			<div class="epageTT">
+			     <span class="tooltip left">
+			     	<span class="ptIcon"></span>
+			     	<div class="tooltip-content">${Resource.msg('accessories.tooltip','forms',null)}</div>
+			     </span>
+		    </div>
+			<ul class="accessory-list">	
+				<iscomment>Preserve the Product instance</iscomment>
+				<isset name="mainProduct" value="${pdict.Product}" scope="pdict"/>
+				<isloop items="${recProducts}" var="rec" end="2">
+					<isset name="Product" value="${rec}" scope="pdict"/>
+					<isset name="pName" value="${pdict.Product.name}" scope="page"/>
+	
+					 <isset name="StaticOfferApplicable" value="${pdict.Product.custom.applicableForStaticOffers|| (pdict.Product.variant && pdict.Product.masterProduct.custom.applicableForStaticOffers)}" scope="page"/>
+					 <isscript>
+						importScript("product/ProductUtils.ds");
+						var category : dw.catalog.Category = ProductUtils.getProductCategoryForStaticPDP(null, pdict.Product);
+					</isscript>	
+					
+					 <isif condition="${StaticOfferApplicable && null!=category }">
+						<li>
+							<div class="product-tile">
+								<div class="analytics capture-product-id"><isprint value="${pdict.Product.ID}"/></div>
+								<div class="product-image recommendation_image">
+									<isif condition="${!empty(pdict.Product.getImage('hi-res',0))}">
+										<img src="${(new ProductImage('accessories', pdict.Product,0)).getURL()}" alt="${pName}" />
+									<iselse>
+										<img src="${URLUtils.staticURL('/images/noimagesmall.png')}" alt="${pName}" />
+									</isif>
+								</div>
+								<div class="item-details">
+									<div class="product-name">
+										<isprint value="${pName}"/>
+									</div>
+									<isinclude template="product/components/pricing.isml"/>
+									<isif condition="${!isDialog}">
+										<a class="showaccessory" href="${URLUtils.http('Product-Show','pid', pdict.Product.ID, 'mainPID', pdict.mainProduct.ID, 'showAccessory', 'true','csOnly',pdict.Product.custom.csOnlyIsOrderable)}">${Resource.msg('accessory.link.more','product',null)}</a>
+									<iselse>
+										<div class="inventory">
+											<div class="quantity">
+												<a class="qtyMinus quant-mod-btn quant-mod-btn-neg" href="${pdict.Product.ID}">-</a>					
+												<input type="text" class="input-text quant-mod-quantity" name="qtyAccessory" id="${pdict.Product.ID}" size="2" maxlength="3" value="${Number(0).toFixed()}" data-available="${new Number(availableCount).toFixed()}" readonly="readonly" />
+												<a class="qtyPlus quant-mod-btn quant-mod-btn-pos" href="${pdict.Product.ID}">+</a>
+											</div>
+										</div>
+									</isif>
+								</div> 
+							</div>
+						</li>
+					</isif>	
+				</isloop>
+				<iscomment>Restore the Product instance</iscomment>
+				<isset name="Product" value="${pdict.mainProduct}" scope="pdict"/>
+			</ul>
+			
+			<isif condition="${!isDialog && !(pdict.mainProduct.custom.csOnlyIsOrderable && pdict.CurrentSession.userName.equalsIgnoreCase('storefront'))}">
+				<ul class="cta-list cta-list-accessory" style="display:none;">
+					<li>
+						<button class="button secondary button-accessory accessory" value="${URLUtils.url('Product-ShowAccessories', 'pid', pdict.Product.ID, 'source', 'dialog')}">
+			  				<span class="face front">${Resource.msg('accessory.add','product',null)}</span>
+			  				<span class="face back">${Resource.msg('accessory.add','product',null)}</span>
+				   		</button>
+					</li>
+				</ul>
+	   		</isif>
+	   		
+		</isif>
+	</div>
+</isif>

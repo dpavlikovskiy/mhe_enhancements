@@ -1,0 +1,119 @@
+<iscomment>Expected parameters are product & quantity.</iscomment>
+<isif condition="${quantity != null}">
+<isset name="levels" value="${product.availabilityModel.getAvailabilityLevels(quantity)}" scope="page"/>
+<iselse>
+ <isset name="levels" value="${null}" scope="page"/>
+</isif>
+<isif condition="${!empty(product.availabilityModel.getInventoryRecord())}">
+<isset name="ATSQty" value="${product.availabilityModel.getInventoryRecord().getATS().value}" scope="page"/>
+<iselse>
+<isset name="ATSQty" value="0" scope="page"/>
+</isif>
+
+<isif condition="${product.bundle}">
+<isset name="ATSQty" value="${product.availabilityModel.getAvailability()}" scope="page"/>
+</isif>
+
+
+<isif condition="${!product.isVariant()}"> 
+	<isset name="inStockDate" value="${product.custom.launchDate}" scope="page"/>
+<iselseif condition="${product.isVariant() && product.custom.launchDate !=null }">
+	<isset name="inStockDate" value="${product.custom.launchDate}" scope="page"/>
+<iselse> 
+	<isset name="inStockDate" value="${product.masterProduct.custom.launchDate}" scope="page"/>
+</isif>
+ 
+<isif condition="${product != null && product.custom.discontinued != null}">
+<isset name="discountinued" value="${product.custom.discontinued}" scope="page"/>
+<iselse>
+<isset name="discountinued" value="${null}" scope="page"/>
+</isif>
+<isif condition="${!(product.online)}">
+<isset name="discountinued" value="${true}" scope="page"/>
+</isif>
+
+
+
+<isif condition="${discountinued}">	
+   <div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+" "+Resource.msg('global.discontinued','locale',null))}</div>
+<iselse>	
+	<isset name="maxOrderableQuantity" value="0" scope="page"/>
+	<isif condition="${!empty(product.custom.maxOrderableQuantity) || (product.variant && !empty( product.masterProduct.custom.maxOrderableQuantity))}">
+	<isset name="maxOrderableQuantity" value="${!empty(product.custom.maxOrderableQuantity) ? product.custom.maxOrderableQuantity : product.masterProduct.custom.maxOrderableQuantity}" scope="page"/>
+ 	</isif>
+    <isif condition="${levels!=null}">
+  	   <isif condition="${levels.inStock.value > 0 && !product.bundle}">
+  	  	    <isif condition="${maxOrderableQuantity >0 && maxOrderableQuantity < quantity}">
+		     <isif condition="${maxOrderableQuantity > 1 && dw.system.Site.getCurrent().defaultLocale == 'de_DE'}">
+		     <div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.onlyxallowed.DE','locale',null),maxOrderableQuantity)}</div>
+			<iselse>
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.onlyxallowed','locale',null),maxOrderableQuantity)}</div>
+			</isif>
+			<iselseif condition="${ ATSQty < quantity}">
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.remainingnotavailable','locale',null),ATSQty)}</div>
+			</isif>
+		</isif>
+		<isif condition="${levels.inStock.value > 0 && product.bundle}">
+		     <isif condition="${maxOrderableQuantity >0 && maxOrderableQuantity < quantity}">
+			<isif condition="${maxOrderableQuantity > 1 && dw.system.Site.getCurrent().defaultLocale == 'de_DE'}">
+		     <div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.onlyxallowed.DE','locale',null),maxOrderableQuantity)}</div>
+			<iselse>
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.onlyxallowed','locale',null),maxOrderableQuantity)}</div>
+			</isif>
+			<iselseif condition="${ levels.inStock.value<quantity}">
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.remainingnotavailable','locale',null),levels.inStock.value)}</div>
+			</isif>
+		</isif>
+		<isif condition="${levels.preorder.value > 0}">
+			<isif condition="${inStockDate != null}">
+				<div class="promo-adjustment">${StringUtils.format(Resource.msg('global.allpreorder','locale',null)+' '+Resource.msg('product.date.launch','product',null))}<isprint value="${inStockDate}"/></div>
+			 <iselse>
+			    <div class="promo-adjustment">${StringUtils.format(Resource.msg('global.allpreorder','locale',null))}</div>
+			</isif>
+			<isif condition="${maxOrderableQuantity >0 && maxOrderableQuantity < quantity}">
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.onlyxallowed','locale',null),maxOrderableQuantity)}</div>
+			<iselseif condition="${ ATSQty < quantity}">
+			<div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.remainingnotavailable','locale',null),ATSQty)}</div>
+			</isif>
+		</isif>
+		<isif condition="${levels.notAvailable.value > 0}"> 
+			<isif condition="${levels.notAvailable.value == quantity}">
+			 <div class="cartError">${StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.allnotavailable','locale',null))}</div>
+		 	</isif>
+		</isif>
+	</isif>
+</isif>
+
+<isscript>
+	// accessory error message
+	var accerror: String = null;
+	if(productLineItem.custom.associatedParentPosition == null){
+	   var accessoryCount: Number = 0;
+	   var accessoryIds:String=productLineItem.custom.associatedAccessoryId;
+	   if (!empty(accessoryIds)){
+	   var accessories : dw.util.List = new dw.util.ArrayList(accessoryIds.split(","));
+       if (!empty(accessories)) {
+   		var accessoriesList : Iterator = accessories.iterator();
+   		while(accessoriesList.hasNext()) {
+				var accessoryplis : dw.util.Collection = basket.getAllProductLineItems(accessoriesList.next().toString());
+			    	if (!empty(accessoryplis)) {
+			    		var pLtems : Iterator = accessoryplis.iterator();
+			    		 while(pLtems.hasNext()){
+			    		   var plItem : dw.order.ProductLineItem  = pLtems.next();
+							if(plItem.custom.associatedParentPosition==productLineItem.custom.pliPosition){
+							    accessoryCount=accessoryCount+ plItem.quantityValue;
+							}
+						}
+			    	}
+			  }
+	    }
+		if(accessoryCount > quantity*3){	
+			accerror=StringUtils.format(Resource.msg('global.sorry','locale',null)+Resource.msg('global.accessorieserror','locale',null),quantity*3)
+        }
+     }									
+	}
+</isscript>
+<isif condition="${!empty(accerror)}" > 
+   <div class="cartError"><isprint value="${accerror}" /></div>
+</isif>
+ 

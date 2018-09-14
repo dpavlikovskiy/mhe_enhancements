@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<isinclude template="cssuite/app/head"/>
+</head>
+<body onload="initHeight()">
+
+<!-- Set the start height of div 'MySplitter' to value appends the height of browser window. It's needed using Google Chrome. The function to resize the height is located in 'init.js'. -->
+<script type="text/javascript">
+<!--
+	function initHeight() {
+		var $ms = $("#MySplitter");
+		var top = $ms.offset().top;
+		var wh = $(window).height();
+		
+		$ms.css("height", (wh-top-15)+"px");
+		
+		var $lp = $("#LeftPane");
+		$lp.css("height", (wh-top-15)+"px");
+	}
+//-->
+</script>
+
+<div id="header">
+	<isinclude template="cssuite/app/header">
+</div><!-- END: header -->
+<div id="MySplitter">
+	<div id="LeftPane">
+        <div class="PaneContent">
+        	<isinclude template="cssuite/app/lefttabs">
+            <div id="msg_container"><span id="msg"></span></div><!-- END: msg_container -->
+        </div><!-- END: PaneContent -->
+	</div><!-- END: LeftPane -->
+	<div id="RightPane">
+		<div id="TopPane">
+        	<div class="main_corner_container">
+            	<div class="corner_topleft">&nbsp;</div><div class="corner_topright">&nbsp;</div>
+            </div>
+			<div class="PaneContent">
+				<div id="order_list"><isinclude template="cssuite/app/welcome"></div><!-- END: order_list -->
+				<div id="order_detail" style="display:none;">
+					<isinclude template="cssuite/app/tabs">
+				</div><!-- END: order_detail -->
+				<div id="product_detail" style="display:block;">&nbsp;</div><!-- END: product_detail -->
+			</div><!-- END: PaneContent -->
+		</div><!-- END: TopPane -->
+	</div><!-- END: RightPane -->	
+</div> <!-- END: MySplitter -->
+<div id="GeneralJQueryDialog" class="flora"></div>
+<div id="OrderOnBehalfDialog" class="flora"></div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+.mini-cart-content {
+	background-color: $white;
+	border:none;
+	margin-top:20px;
+	top: 18px;
+	&:before {
+	    background-color: $white;
+	    border-left: 1px solid $white;
+	    border-top: 1px solid $white;
+	    left:auto;
+	    right: 45px;
+	}
+	.nano {
+		background-color: $white;
+		.pane {
+			.slider {
+				background:$brandBg;
+			}
+		}
+	}
+	.mini-cart-totals {
+		background-color: $white;
+		border-top:$brandBorder 1px solid;
+		margin:0;
+		.mini-cart-subtotals {
+			display:none;
+		}
+		.button {
+			float:none;
+			margin:20px 0 0 0;
+			.face {
+				&.back {
+					color: $brandColor;
+				}
+			}
+		}
+	}
+	.mini-cart-header {
+		border-bottom: $brandBorder 1px solid;
+		span {
+			color:$black;
+			font:$standardFontSize $titleFont;
+			position:relative;
+			text-align:left;
+			padding:5px 0 0 70px;
+		}
+		span:before {
+			background:url(images/tickIcon.png) no-repeat 0 0;
+			position: absolute;
+			left:20px;
+			top:5px;
+			content: "";
+			width:35px;
+			height:35px;
+		}
+		p {
+			text-align:left;
+			margin-left:65px;
+			font:Italic $mediumFontSize $regularFont;
+			color:$brandColor;
+		}
+	}
+	.mini-cart-products {
+		padding-bottom:20px;
+		.mini-cart-product {
+			border-top:$brandBorder 1px solid;
+			margin:0;
+			padding:20px;
+			&:hover {
+				background: none;
+			}
+			h4 {
+				color:$brandColor;
+				font:$mediumFontSize $titleFont;
+				a {
+					color:$black;
+					margin:5px 0 0 0;
+					float:left;
+					width:100%;
+				}
+			}
+			&.accessory {
+				background:$white;
+				border:$brandBorder 1px solid;
+				&.firstAcc {
+					&:before {
+						background:$white;
+						border-top:$brandBorder 1px solid;
+						border-left:$brandBorder 1px solid;
+					}
+				}
+			}
+			.mini-cart-pricing {
+				color:$black;
+				font:$mediumFontSize $titleFont;
+				.label {
+					color:$black;
+				}
+				.value {
+					color:$black;
+				}
+				.mini-cart-price {
+					font:$standardFontSize $regularFont;
+					color:$black;
+				}
+			}
+			.product-availability-list{
+				background: $white;
+				border: $brandBorder 1px solid;
+				&:before {
+					background: $white;
+					border-top: $brandBorder 1px solid;
+					border-left: $brandBorder 1px solid;
+				}
+				.preHeading {
+					color: $brandColor;
+					font: $mediumFontSize $titleFont;
+				}
+				.on-order {
+					color: $black;
+					font: $mediumFontSize $regularFont;
+					span {
+						color: $black;
+						margin-bottom: 4px;
+					}
+				}
+			}
+		}
+	}
+	.mini-cart-slot {
+		border:none;
+		font:$standardFontSize $titleFont;
+		color:$black;
+	}
+}
+
+

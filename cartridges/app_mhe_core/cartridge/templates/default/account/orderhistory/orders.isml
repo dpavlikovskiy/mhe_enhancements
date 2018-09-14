@@ -1,0 +1,215 @@
+ 
+<iscomment>Ajax call for order details </iscomment>
+<isscript>
+	importScript('checkout/Utils.ds');
+</isscript>
+
+<isdecorate template="account/orderhistory/pt_orderhistory">
+	<div class="account-nav orderhistory">
+		<isinclude url="${URLUtils.url('Account-IncludeNavigation')}"/>			
+	</div>
+	<div class="account-content">
+	<isinclude template="util/modules"/>
+		<iscomment>
+			<h1 class="account-header">${Resource.msg('orders.orderhistory','account',null)}</h1> 
+		</iscomment>
+		<isif condition="${pdict.CurrentCustomer.authenticated}"> 
+     	
+			<isif condition="${pdict.OrderPagingModel.empty}">
+				
+				<div class="account-module account-module-noorders no_orders">
+					<h2>${Resource.msg('orders.orderhistory','account',null)}</h2>
+					<p>
+						<b><isprint value="${Resource.msg('orders.noorders','account',null)}"/></b><br>
+						<isprint value="${Resource.msg('orders.noorders.contact','account',null)}"/>
+				    	<a href="${URLUtils.https('CustomerService-ContactUs')}">${Resource.msg('orders.noorders.contactus','account',null)}</a>.
+				    </p>
+				    <p>
+						<b><isprint value="${Resource.msg('orders.noorders.selection','account',null)}"/></b>
+					</p>
+		            <iscontentasset aid="ca_mh_categoryselection"/>
+				</div>
+				
+			<iselse>
+		
+				<h2>${Resource.msg('orders.orderhistory','account',null)}</h2>
+		        <p>${Resource.msg('orders.orderhistory.details','account',null)}</p>
+		
+		
+				<form action="${URLUtils.httpsContinue()}" method="post" id="${pdict.CurrentForms.orders.htmlName}">
+				<iscomment>		
+				<div class="search-result-options">
+					<ispagingbar pageurl="${URLUtils.https('Order-History')}" pagingmodel="${pdict.OrderPagingModel}"/>
+				</div>
+				</iscomment>
+			
+				<ul id="search-result-items" class="order-history js-order-history">
+				
+				<isloop items="${pdict.CurrentForms.orders.orderlist}" var="order" status="orderloopstate">
+					<li class="order">
+					 <isif condition="${!isComplimentaryOrder(order.object) && !isReplacementAndCancelledOrder(order.object)}"> 
+				     
+						<div class="order-overview">
+						     <isif condition="${empty(order.object.custom.replacedOrderNumber)}"  >
+						 	<div class="order-total-price">
+								<span class="label">${Resource.msg('orders.ordertotal','account',null)}</span>
+								<span class="value"><isprint value="${order.object.totalGrossPrice}"/></span>
+							</div>
+							<iselse>
+							  <div class="order-total-price">
+								<span class="label">${Resource.msg('orders.exchangedorder','account',null)} 
+								<span class="labelOrderNum"><isprint value="${order.object.custom.replacedOrderNumber}" /></span>
+								</span>
+								<span class="value">${Resource.msg('orders.exchange','account',null)}</span>
+							</div>
+							
+							</isif>
+							<div class="order-date">
+						    	<span class="label">${Resource.msg('orders.datelabel','account',null)}</span>
+							 	<span class="value"><isprint value="${order.object.creationDate}" /></span> 
+							</div>
+			
+			               <iscomment>
+								<isset name="Order" value="${order.object}" scope="page"/>
+								<isinclude template="account/orderhistory/orderstatusinclude" />
+			               </iscomment>
+			            
+			                <div class="order-status">
+								<span class="label">${Resource.msg('orders.statuslabel','account',null)}</span>
+								<isif condition="${!empty(order.object.custom.orderStatus)}"> 
+								    <span class="value ${order.object.custom.orderStatus.toLowerCase()}">
+								       <isscript>
+                                       importScript( "account/Utils.ds" );
+                                       var displayStatus : String = getDisplayOrderStatus(order.object.custom.orderStatus, order.object.custom.updateReasonCode); 
+                                       </isscript>
+                                       <isprint value="${displayStatus}"/>
+								    </span>
+								<iselse>
+								    <span class="value ${Resource.msg('orders.defaultstatus', 'account', null)}">
+										<isprint value="${Resource.msg('orders.defaultstatus', 'account', null)}"/>
+									</span>	
+								</isif>
+			                </div>
+			                
+							<div class="order-number">
+								<span class="label">${Resource.msg('orders.numberlabel','account',null)}</span>
+								<span class="value"><isprint value="${order.object.orderNo}" /></span>
+							</div>
+		    
+						</div>
+						
+						<isset name="orderno" value="${order.object.orderNo}" scope="page"/>
+						<div id="span${order.object.orderNo}" class="order-ajax">
+						</div>
+						<iscomment>Site Dev - Change below + symbol to - symbol after clicking  i.e., expand-collapse button </iscomment>
+						<div id="${order.object.orderNo}" > 
+							<h3 class="order-show-details collapsed" data-order-no="${order.object.orderNo}" data-order-url="${URLUtils.url('Order-Details')}"> ${Resource.msg('orders.orderdetail','account',null) }</h3> 
+						</div>
+						
+								 
+								<iscomment>
+								 Commented for My Account-Order History
+								<div class="order-history-items">
+								
+									<table class="order-history-table"></iscomment>
+										<iscomment>For each shipment, render shipped to, items and order total </iscomment>
+										<iscomment>
+										<isloop items="${order.object.shipments}" var="Shipment" status="shipmentloopstate">
+										</iscomment>	
+											<iscomment>display order total in first row only</iscomment>						
+											<iscomment>
+											<isif condition="${shipmentloopstate.first}">
+												<tr>
+													<th class="order-shipped-to">${Resource.msg('orders.shippedto','account',null)}</td> 
+													<th class="order-total-price">${Resource.msg('orders.ordertotal','account',null)}</td>
+												</tr>
+											<iselse>
+												<tr>
+													<th class="order-shipped-to">${Resource.msg('orders.shippedto','account',null)}</th>
+													<th></th>
+												</tr>	
+											</isif>
+											
+											<tr>
+											
+												<td></iscomment>
+										<iscomment>Gift Certificates are in there own shipment. So if we have a shipment that contains
+											just a Gift Certificate, we want to render the email address of the recipient</iscomment>
+										<iscomment>
+										<isif condition="${Shipment.giftCertificateLineItems.size() == 1}">
+											<isset name="theGiftCert" value="${Shipment.giftCertificateLineItems.iterator().next()}" scope="page"/>
+											<span class="value">${theGiftCert.recipientEmail}</span>
+										<iselse>
+											<span class="value"><isprint value="${Shipment.shippingAddress.fullName}" /></span>
+										</isif>
+		
+									</td>
+									
+								
+									
+									<td></iscomment>
+									
+									
+														<iscomment>Display total price for order</iscomment>
+														<iscomment>
+														<isif condition="${shipmentloopstate.first}">
+															<span class="value"><isprint value="${order.object.totalGrossPrice}"/></span>
+														<iselse>
+															&nbsp;
+														</isif>
+													</td>
+													
+												</tr>
+												
+											</isloop>
+										</table>
+					                  
+									</div>
+									</iscomment>
+									
+					</isif>				
+					</li>
+					
+					</isloop>
+				
+				</ul>
+				<iscomment><div class="search-result-options">
+					<ispagingbar pageurl="${URLUtils.https('Order-History')}" pagingmodel="${pdict.OrderPagingModel}"/>
+				</div>
+	            </iscomment>
+				
+				</form>
+			
+			</isif>
+			
+		<iselse>
+<iscomment>Login Popup </iscomment>
+<div id="authlogindialog" style="display:none"> Login </div>
+</isif>
+	</div>
+
+</isdecorate>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+	
+			var url=app.util.appendParamsToUrl(app.urls.accountLoginAuthenticate,{format:"ajax",authlogin:"orderhistory"});
+			
+			var options = {
+					url: url,
+					type: "POST"
+				};
+				$.ajax( options ).done(function(data){
+					 	var $authlogin = $("#authlogindialog");
+					
+					 	$authlogin.html(data);
+					 	$authlogin.dialog({ width:600 });
+						var $dialog = $authlogin.closest('.ui-dialog');
+						$dialog.addClass('cartPrompts popUpForms');
+						$dialog.find(".ui-dialog-titlebar").hide();
+						app.validator.init();
+						globalFormsCtrl.initGlobalForms();
+				});
+		   });
+
+</script>

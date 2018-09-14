@@ -1,0 +1,161 @@
+// =============================================================================
+// Tooltips
+// =============================================================================
+
+.tooltip-arrow {
+	content: " ";
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	@include transform(rotate(45deg));
+	background: $tooltip;
+	top: -7px;
+	margin-left: -7px;
+	left:25px;
+	
+}
+
+.tooltip-arrowIE {
+	top: -7px;
+	margin-left: -7px;
+	background: url('./img/ie/ie_tooltip_arrow.png') 0 0 no-repeat;
+}
+
+
+.tooltip-content {
+	padding: 12px 18px;
+	position: relative;
+	color: $white;
+	max-width: 125px;
+	text-align: center;
+	letter-spacing: 2px;
+
+	&:before {
+		@extend .tooltip-arrow;
+		left: 50%;
+	}
+	p {
+		font-size: 11px;
+		margin-bottom: 6px;
+		line-height: 1.25em;
+		&:first-child, &.title {
+			text-transform: uppercase;
+			font-weight: bold;
+		}
+		&:nth-child(2), &.serves {
+			text-transform: uppercase;
+			color: $lightpurple;
+		}
+		&:last-child, &.size {
+			margin-bottom: 0;
+		}
+	}
+}
+
+#tooltip {
+	border: 1px solid $mediumpurple;
+	background: $tooltip;
+	padding: 12px 18px;
+	position: absolute;
+	color: $white;
+	max-width:300px;
+	text-align: center;
+	letter-spacing: 2px;
+	z-index:9999;
+	p {
+		font-size: 11px;
+		margin-bottom: 6px;
+		line-height: 1.25em;
+		&:first-child, &.title {
+			text-transform: uppercase;
+			font-weight: bold;
+		}
+		&:nth-child(2), &.serves {
+			text-transform: uppercase;
+			color: $lightpurple;
+		}
+		&:last-child, &.size {
+			margin-bottom: 0;
+		}
+	}
+}
+.form-field-tooltip{
+	position: absolute;
+    right: 164px;
+    top:-5px;
+    .tooltip{
+		&.right{
+			.tooltip-content{
+				max-width: 300px;
+	    		width: 250px;
+	    		color: #888888;
+			    font-size: 13px;
+			    letter-spacing: 0;
+			    line-height: 18px;
+			    max-width: 300px;
+			    min-width: 250px;
+			    padding: 5px;
+			    text-transform: uppercase;
+	    		&:before{
+	    			right:-7px;
+	    			left:auto;
+	    			border-left:0;
+	    			margin-top: -7px;
+	    			margin-left:auto;
+	    			top:50%;
+				left: 25px;
+	    		}
+			}
+		}
+	}
+}
+
+.ie8 {
+	.tooltip-content {
+		&:before {
+			@extend .tooltip-arrowIE;
+			left: 50%;
+			border:0;
+			top:-10px;
+			width:18px;
+		}
+		p {
+			.serves {
+				text-transform: uppercase;
+				color: $lightpurple;
+			}
+			.size {
+				margin-bottom: 0;
+			}
+		}
+	}
+}
+
+.ie8 .accessory-dialog-wrap .column-mini-bag .minibag-accessory-wrap {
+	position: relative;
+	z-index: 1;
+
+	.accessory-row {
+		position: relative;
+		z-index: 1;
+
+		&:first-child {
+			&:before {
+				content: '';
+				background: url('./img/ie/ie_tooltip_arrow.png') 0 0 no-repeat;
+				border: none;
+				width: 18px;
+				height: 10px;
+				display: block;
+				position: absolute;
+				z-index: 10;
+				top: -10px;
+				left: 35px;
+			}
+		}
+	}
+
+	&:before {
+		display: none;
+	}
+}

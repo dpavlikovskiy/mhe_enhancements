@@ -1,0 +1,101 @@
+<iscache type="relative" hour="24"/>
+<isset name="DecoratorTemplate" value="content/pt_articledetail" scope="page"/>
+<isdecorate template="${DecoratorTemplate}">
+<iscomment>create reporting event</iscomment>
+<isinclude template="util/reporting/ReportSearch.isml"/>
+
+<iscomment>This content piece must deliver a valid article detail page</iscomment>
+<!-- dwMarker="content" dwContentID="${pdict.Content.UUID}" -->
+<isprint value="${pdict.Content.custom.carousal}" encoding="off" />
+<isif condition="${pdict.Content != null}">
+<isscript>
+	importScript('search/ProductGridUtils.ds');
+</isscript>
+<div class="artContent clearfix">
+	<div class="artilce-print">
+		<a class="button-sm" onclick="window.print();">
+			<isprint value="${Resource.msg('article.printarticle', 'rendering', null)}" encoding="off" /></span>
+		</a>
+	</div>
+	<div class="artInfo">
+		<p class="artType uppercase"><isprint value="${pdict.Content.getClassificationFolder().getDisplayName()}" /></p>
+		<h2 class="secondary"><isprint value="${pdict.Content.name}" encoding="off"/></h2>
+		<p class="date"><iscomment>Dkum37:: Hiding as per EU-128 (keeping p tag to keep margin space)<isprint value="${pdict.Content.custom.publishedDate}" formatter="dd MMMM  yyyy" encoding="off" /></iscomment></p>
+		<div class="video"><isprint value="${pdict.Content.custom.videoHtml}" encoding="off" /></div>
+		<div class="artProduct">
+			<isif condition="${'articleProductID' in pdict.Content.custom && !empty(pdict.Content.custom.articleProductID)}">
+				<iscomment>Iterating the product ids list</iscomment>
+				<isloop items="${pdict.productList}" var="product">
+				<div>
+					<isif condition="${!empty(product)}">
+						<isset name="articlePageName" value="${Resource.msg('product.article','product',null)}" scope="page" />		 		
+	 				    <isinclude url="${ProductGridUtils.buildArticleHitTileURL(product,null,articlePageName)}"/>
+						<iscomment>
+							<isset name="promos" value="${dw.campaign.PromotionMgr.activeCustomerPromotions.getProductPromotions(product)}"	scope="page"/>
+							<isif condition="${!empty(promos)}">
+								<div class="product-promo">
+								<isloop items="${promos}" var="promo" status="promoloopstate">
+								<a href="${URLUtils.url('Product-Show','pid',product.ID)}" class="promo-msg">
+									<isprint value="${promo.calloutMsg}" encoding="off" />
+								</a>
+								</isloop>
+								</div>
+						   </isif> 
+					   	</iscomment>
+					   
+				   	</isif>
+				</div>
+				</isloop>				
+			</isif>			
+		</div>
+	</div>
+			
+	<iscomment>
+		Remote call to assign object to form in case of authorised users
+	</iscomment>
+	<isinclude template="content/content/enquiry.isml"/>
+	<isif condition="${(!(pdict.CurrentSession.custom.brand.equals('mh'))) && (dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')||dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')||dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')||dw.system.Site.getCurrent().getCustomPreferenceValue('twitter'))}">
+	<div class="product-store-social">
+		<p class="social-heading">${Resource.msg('product.pdp.sharelove','product',null)}</p>
+		
+		<iscomment>
+			<ul class="social-icons">
+				<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+					<li><a class="ajaxData icon email" href=""  data-href="${URLUtils.https('SendToFriend-Start')}" id="sendtoFriendClicked"></a></li>
+				</isif>
+				<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}">
+					<li><a id="facebook" class="icon facebook" target="_blank" href="" title="facebook"></a></li>
+				</isif>
+				<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}">
+					<li><a id="pintrest"  class="icon pintrest" target="_blank" href="" title="pintrest"></a></li>
+				</isif>
+				<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}">					
+					<li><a id="twitter"  class="icon twitter" target="_blank" href=""  title="twitter"></a></li>
+				</isif>
+			</ul>	
+		</iscomment>
+		
+		<ul class="social-icons">
+			<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableEmailSharing')}">
+				<li><a title="email" href="" data-href="${URLUtils.https('SendToFriend-Start')}" class="icon email ajaxData" id="sendtoFriendClicked"></a>
+</li>
+			</isif>
+			<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('showSoicalIcons')}">
+				<li class = "fb-share-pdp"><span id="facebook" class="icon facebook"></span></li>
+			</isif>
+			<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('pininterest')}">
+				<li class = "pinterest-share-pdp"><span id="pintrest"  class="icon pintrest"></span></li>
+			</isif>
+			<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('twitter')}">					
+				<li class = "twitter-share-pdp"><span id="twitter"  class="icon twitter" title="twitter"></span></li>
+			</isif>
+		</ul>	
+							
+	</div>
+	</isif>
+	
+	<isinclude template="search/components/articledetailpagination.isml"/>
+	
+</div>
+</isif>
+</isdecorate>

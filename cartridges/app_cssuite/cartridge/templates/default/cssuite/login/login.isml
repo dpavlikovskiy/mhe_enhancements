@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>Customer Service Suite</title>
+	<link rel="stylesheet" type="text/css" href="${URLUtils.staticURL('/cssuite/css/login.css')}" />
+</head>
+<body>
+<div id="login">
+	<div id="logincontent"><isinclude url="${URLUtils.url('Page-Include','cid','CSSUITE_LOGIN')}"></div>
+	<div class="logoninstance"><isprint value="${pdict.CurrentRequest.httpHost}"></div>
+	<isif condition="${pdict.Status != null && !empty(pdict.Status.message)}">
+		<div class="login_failed">
+			You are currently not logged in.<br />CSSuite closes your session after&nbsp;15&nbsp;minutes.
+		</div>
+	<iselse>
+		<div class="logintext">
+			Enter your Login and Password below.
+		</div>
+	</isif>
+	<div class="loginform">
+		<form action="${URLUtils.httpsContinue()}" id="${pdict.CurrentForms.login.htmlName}" method="post">
+			<div class="loginlabel">Login:</div>
+			<input type="text" id="${pdict.CurrentForms.login.username.htmlName}" name="${pdict.CurrentForms.login.username.htmlName}" class="login_input" value=""/>
+			<script type="text/javascript">document.getElementById('${pdict.CurrentForms.login.username.htmlName}').focus();</script>
+			<div class="loginlabel">Password:</div>
+			<input type="password" AUTOCOMPLETE="off" value="" name="${pdict.CurrentForms.login.password.htmlName}" size="45" class="login_input"/>
+			<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+			<input type="submit" name="${pdict.CurrentForms.login.login.htmlName}" value="Logon" class="button" />
+		</form>
+	</div><!-- END: loginform -->
+	
+	<div class="logincopyright">
+		<isinclude template="cssuite/pagecomponents/copyright">
+	</div>
+</div><!-- END: login -->
+</body>
+</html>

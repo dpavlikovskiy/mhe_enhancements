@@ -1,0 +1,14 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="util/modules"/>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<isscript>
+importPackage( dw.system );
+var instanceName : String = !empty( System.getInstanceHostname() ) ? System.getInstanceHostname() : "(unknown)";
+var envName = instanceName.split(".");
+</isscript>
+<subject>${dw.system.Site.getCurrent().ID} - Application Failed To Send Email - ${envName[0]}</subject>
+
+<body>
+${pdict.FailedMessage}
+</body>
+</html>

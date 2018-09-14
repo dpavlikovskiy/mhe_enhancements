@@ -1,0 +1,17 @@
+// =============================================================================
+// Account wrap
+// =============================================================================
+
+.account-wrap {
+	width:940px;
+	margin:0 auto;
+	.account-header {
+		margin-top:48px;
+		font-size:60px;
+		text-align:center;
+	}
+}
+
+.capitalize{
+	text-transform: capitalize !important;
+}

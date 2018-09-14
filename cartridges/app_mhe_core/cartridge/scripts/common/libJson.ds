@@ -1,0 +1,79 @@
+/**
+ * This script contains JSON utility functions for use in scripts.
+ */
+importPackage( dw.system );
+
+/** 
+ * Returns a string with all the necessary characters escaped.
+ * @param s : String string to escape
+ */
+function escapeJsonString(s : String)
+{
+    if (s == null || s.length == 0)
+    {
+        return s;
+    }
+
+    var lastC : String = "";
+    var c : String;
+    var cCode : Number;
+
+    var sb : String = "";
+    for (var i = 0; i < s.length; i++)
+    {
+        lastC = c;
+        c = s.charAt(i);
+        
+        if ((c == '\\') || (c == '"'))
+        {
+        	sb += '\\' + c;
+        }
+        else if (c == '/')
+        {
+        	if (lastC == '<')
+        	{
+        		sb += '\\';
+        	}
+        	sb += c; 
+        }
+        else if (c == '\b')
+        {
+        	sb += '\\b';
+        }
+        else if (c == '\t')
+        {
+        	sb += '\\t';
+        }
+        else if (c == '\n')
+        {
+        	sb += '\\n';
+        }
+        else if (c == '\f')
+        {
+        	sb += '\\f';
+        }
+        else if (c == '\r')
+        {
+        	sb += '\\r';
+        }
+        else if (c == '\t')
+        {
+        	sb += '\\t';
+        }
+        else 
+        {
+	        var cCode : Number = s.charCodeAt(i);
+			if ((cCode < 32) || ((cCode >= 128) && (cCode < 160)) || ((cCode >= 8192) && (cCode < 8448)))
+        	{
+        		var t : String = '000' + cCode.toString(16);
+        		sb += '\\u' + t.substring(t.length - 4);
+        	}
+        	else
+        	{
+            	sb += c;
+        	}
+        }
+    }
+    
+    return sb;
+}

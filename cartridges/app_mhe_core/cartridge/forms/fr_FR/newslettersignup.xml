@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	
+	<field formid="fname" label="forms.sendtofriend.fname" type="string" mandatory="true" missing-error="forms.signup.missingname.error" />
+	<field formid="lname" label="forms.sendtofriend.lname" type="string" mandatory="true" missing-error="forms.signup.missingname.error" />
+	<field formid="youremail" label="forms.sendtofriend.yourEmail" type="string" mandatory="true" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"  missing-error="forms.sendtofriend.email.missing-error" parse-error="profile.emailparseerror" max-length="128" value-error="profile.emailparseerror"/>
+	<field formid="birthday" label="profile.dob" type="date" mandatory="true" format="dd/MM/yyyy" max="now" max-length="10" missing-error="login.dob.missing-error" value-error="agegate.error.message" parse-error="profile.dob.error-message"/>
+	
+	<action formid="confirm" label="forms.send" valid-form="true"/>
+</form>

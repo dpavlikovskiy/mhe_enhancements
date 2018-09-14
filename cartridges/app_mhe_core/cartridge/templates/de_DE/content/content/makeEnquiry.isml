@@ -1,0 +1,72 @@
+<!--- TEMPLATENAME: makeEnquiry.isml --->
+<isinclude template="util/modules"/>
+		<div id="make-enquiry" style="display: none;">
+			<isprint value="${pdict.Content.custom.serviceFormContent}" encoding="off"/>
+			<br/><br/>
+			<div id="myDivErr" style="display: none;"><h2>${Resource.msg('makeenquiry.error','forms',null)}</h2></div>	
+			<div id="myDiv" style="display: none;"><h2>${Resource.msg('makeenquiry.congrats','forms',null)}</h2></div>				
+			<form action="${URLUtils.httpsContinue()}" name="register-form" id="register-form">
+				 <input type="hidden" name="serviceId" id="serviceIdRI" value="${pdict.CurrentHttpParameterMap.serviceType}">
+				 <isset name="isAuth" value="${pdict.CurrentCustomer.authenticated}" scope="page" >
+				<isscript>
+						importScript('checkout/Utils.ds');
+						var titleMap : dw.util.Map = getTitleMap();	
+						var salutationMap : dw.util.Map = getSalutationMap();				
+				</isscript>
+				
+				<div class="form-row required " data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+					<select id="salutation" name="salutation" class="input-text required">
+						<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+						<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+							<isif condition="${isAuth && pdict.CurrentCustomer.profile.salutation.equals(salutationMap.get(key))}">							 
+					 			<option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+							<iselse>
+								<option value="${key}">${salutationMap.get(key)}</option>
+							</isif>	                            				
+						</isloop>
+					</select>
+				</div>
+				
+				<div class="form-row">
+					<span class="optional">${Resource.msg('singleshipping.optional','checkout',null)}</span></label>
+					<select id="${pdict.CurrentForms.reginterest.title.htmlName}" name="${pdict.CurrentForms.reginterest.title.htmlName}" class="input-text">
+						<option value="">${Resource.msg('profile.salutation','forms',null)}</option>
+						<isloop items="${titleMap.keySet().iterator()}" var="key" status="loopstatus">	
+							<isif condition="${pdict.CurrentCustomer.profile.title.equals(titleMap.get(key))}">							 
+					 			<option selected="selected" value="${key}">${titleMap.get(key)}</option>
+							<iselse>
+								<option value="${key}">${titleMap.get(key)}</option>
+							</isif>	                            				
+						</isloop>
+					</select>
+				</div>
+				
+					<div>
+						<isinputfield formfield="${pdict.CurrentForms.reginterest.firstname}" type="input" attribute2="value" value2="${isAuth ? pdict.CurrentCustomer.profile.firstName : ''}" attribute1="placeholder" value1="${Resource.msg('profile.name','forms',null)}" />
+					</div>
+					<div data-required-text="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}" class="form-row required">
+						<isinputfield formfield="${pdict.CurrentForms.reginterest.lastname}" type="input" attribute1="placeholder" value1="${Resource.msg('profile.surname','forms',null)}" requiredtext="${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}"/>
+					</div>
+					<div data-required-text="${Resource.msg('login.username.missing-error','forms',null)}" class="form-row required">
+						<isinputfield formfield="${pdict.CurrentForms.reginterest.email}" type="input"  attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('forms.sendtofriend.email.missing-error','forms',null)}"/>
+					</div>	
+					<div class="form-row phone-optional">
+						<isinputfield formfield="${pdict.CurrentForms.reginterest.phone}" xhtmlclass="phone-input" type="input"  attribute1="placeholder" value1="${Resource.msg('profile.contactnumber','forms',null)}"/>
+					</div>
+					<div class="form-row">
+						<isinputfield formfield="${pdict.CurrentForms.reginterest.message}" type="textarea" attribute1="placeholder" value1="${Resource.msg('forms.message.placeholder','forms',null)}" attribute1="rows" value1="5" attribute2="cols" value2="10" attribute3="data-character-limit" value3="1000" /> 
+					</div>
+				<ul class="bag-cta-list">
+					<li>
+						<button class="button secondary okay-button" id="btnSubmitRICellar" >
+							<span class="face front">${Resource.msg('global.send','locale',null)}</span>
+							<span class="face back">${Resource.msg('global.send','locale',null)}</span>
+						</button>
+					</li>
+				</ul>
+				<br/><br/>
+			</form>		
+		</div>
+			
+		
+	

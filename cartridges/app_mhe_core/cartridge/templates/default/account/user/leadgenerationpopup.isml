@@ -1,0 +1,8 @@
+<!--- TEMPLATENAME: leadgenerationpopup.isml --->
+
+<div class="popUp""> 
+${dw.web.Resource.msg('referfriend.popup1','account',null)} 
+ ${pdict.CurrentHttpParameterMap.name.value.toString()}, 
+ ${dw.web.Resource.msg('referfriend.popup2','account',null)}
+</div>
+ 

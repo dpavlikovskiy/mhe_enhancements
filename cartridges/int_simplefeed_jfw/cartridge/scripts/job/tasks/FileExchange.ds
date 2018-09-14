@@ -1,0 +1,126 @@
+/**
+* This script implements a task especially meant for file exchange.
+*
+Example Configurations:
+
+{ 
+  "name" 				: "Sync Product Images", 
+  "pipeline" 			: "FileSync-DownloadFiles", 
+  "type" 				: "fileexchange", 
+  "downloadDir" 		: "/CATALOGS/apparel-catalog/default/newimages", 
+  "remoteFolderUrl" 	: "images/", 
+  "remoteFilePattern" 	: "^.*\\.jpg$",
+  "remoteArchiveDir" 	: "/home/goalsconnect_org/archive/images", 
+  "recursive" 			: true,
+  "binaryMode" 			: true,
+  "deleteAfterDownload" : true
+}
+
+Parameters
+	downloadDir			- specifies the base directory all files are downloaded to
+	remoteFolderUrl		- URL or connection string (can also contain the relative path and will be completed with the file transfer server settings) 
+	remoteLogin			- login that can be used to access the file transfer server (defaults to configured file transfer server settings)
+	remotePassword		- password used to access the file transfer server (defaults to configured file transfer server settings)
+	remoteArchiveDir 	- folder files should be moved to if specified
+	remoteFilePattern	- defines what file patter the download should apply.
+	recursive			- Defines if the download task should crawl through all sub directories and replicate the content
+	binaryMode			- Defines if the binary mode should be used
+	deleteAfterDownload	- Defines if downloaded files should be deleted after the download and no archiving has been configured
+*/
+
+importPackage( dw.system );
+importScript( 'bc_jobframework:util/libInheritance.ds' );
+importScript( 'bc_jobframework:job/tasks/BasicTask.ds' );
+importScript( 'bc_jobframework:job/tasks/libTasks.ds' );
+
+/**
+* Factory function that initializes a task.
+* 
+* @param config JSON object that the task configuration.
+* 
+* return Task
+*/
+function initFileExchangeTask( taskConfig : Object, jobMonitor : JobMonitor ) : Task {
+	return new FileExchange( taskConfig, jobMonitor );
+};
+
+//Hack, because vars are cannot be imported in DW, only functions
+function getFileExchangeClass() {
+	return FileExchange;
+};
+var BasicTask = getBasicTaskClass();
+
+/**
+* FileExchange implementation.
+*/
+var FileExchange = BasicTask.extend ( 
+/** @lends FileExchange.prototype */
+{
+	/**
+	* Initialises the object
+	* @constructs
+	* @augments BasicTask 
+	*/
+	init : function( config : Object, jobMonitor : Object ) {
+		Logger.debugEnabled;
+		//call 'super class' init function
+		this._super( config, jobMonitor );
+
+		//reset executable flag
+		this.executable = false;		
+
+		//finally all basic checks have been passed
+		this.executable = true;		
+
+	},
+	
+	/**
+	* Returns the parameter defined for the task.
+	*
+	* @param parameterName name of the parameter at the to be returned
+	* @param defaultValue value that should be returned if the parameter is not present
+	*/
+	getParameter : function( parameterName : String, defaultValue : Object ) : Object {
+		var returnValue : String = null;  
+		var returnDefaultValue : Boolean = true;
+		if ( parameterName ) {
+			if ( this.config.hasOwnProperty(parameterName) ) {
+				returnValue = this.config[parameterName];
+				returnDefaultValue = false;
+			}
+			if ( empty(returnValue) ) {
+				switch (parameterName) {
+					case 'remoteFolderUrl' 	: return System.getPreferences().custom['fileExchangeURL'];
+					case 'remoteLogin' 		: return System.getPreferences().custom['fileExchangeUser']; 
+					case 'remotePassword' 	: return System.getPreferences().custom['fileExchangePassword'];
+				}
+			} else if ( parameterName == 'remoteFolderUrl' ) {
+				var tmpValue = returnValue.toLowerCase();
+				if ( tmpValue.indexOf( "sftp://" ) != 0 && tmpValue.indexOf( "ftp://" ) != 0 && tmpValue.indexOf( "http://" ) != 0 && tmpValue.indexOf( "https://" ) != 0 ) {
+					var baseURL : String = System.getPreferences().custom['fileExchangeURL'];
+					var remoteFolderURLArray : Array = [ baseURL ];
+					if ( baseURL.lastIndexOf( '/' ) != (baseURL.length - 1) && returnValue.indexOf('/') != 0 ) {
+						remoteFolderURLArray.push('/');
+					}
+					remoteFolderURLArray.push( returnValue );
+					if ( returnValue.lastIndexOf( '/' ) != (returnValue.length - 1) ) {
+						remoteFolderURLArray.push('/');
+					}
+					returnValue = remoteFolderURLArray.join('');
+				}
+				return returnValue.replace(/\{SiteID\}/g, Site.current ? Site.current.ID : 'Sites' );
+			} else if ( parameterName == 'remoteArchiveDir' ) {
+				var tmpValue = returnValue.toLowerCase();
+				if ( tmpValue.indexOf( "sftp://" ) == -1 && tmpValue.indexOf( "ftp://" ) == -1 && tmpValue.indexOf( "http://" ) == -1 && tmpValue.indexOf( "https://" ) == -1 ) {
+					var params : Array = /^.*ftp:\/\/([^\/:]+)(?::(\d+))?(\/(?:.*\/)?)$/.exec( System.getPreferences().custom['fileExchangeURL'] );
+					//@todo: poper URL string creation
+					return params[3] + returnValue;
+				} 
+			}
+		}
+		return returnDefaultValue ? defaultValue : returnValue;
+	}
+	
+});
+
+registerTaskClass( 'fileexchange', FileExchange );

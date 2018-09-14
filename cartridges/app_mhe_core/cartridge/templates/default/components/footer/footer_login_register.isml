@@ -1,0 +1,69 @@
+<iscomment>
+	This is the footer for all pages. Be careful caching it if it contains
+	user dependent information. Cache its elements instead if necessary (do not forget
+	to change the isinclude into a pipeline include for that).
+</iscomment>
+<isinclude template="util/modules"/>
+
+<div id="footer" class="footer" role="contentinfo">
+
+	<footer>
+		<iscontentasset aid="footer-login-register"/>
+		<iscomment>The below code is responsible for sending data to Google Analytics.</iscomment>
+		<isif condition="${'enableGoogleAnalytics' in dw.system.Site.getCurrent().preferences.custom && dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalytics}" >
+			<isinclude template="util/gamodule"/>
+	 		<isGoogleAnalytics trackingid="${dw.system.Site.getCurrent().preferences.custom.trackingIdGoogleAnalytics}" 
+	 				domain="${dw.system.Site.getCurrent().preferences.custom.domainNameForGoogleAnalytics}" 
+	 				gaenabled="${dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalytics}" 
+	 				eventtrackingenabled="${dw.system.Site.getCurrent().preferences.custom.enableGoogleAnalyticsEventTagging}" 
+	 				 />
+		</isif>
+		<isif condition="${'GhosteryIncTagPid' in dw.system.Site.getCurrent().preferences.custom && dw.system.Site.getCurrent().preferences.custom.GhosteryIncTagPid != null}">
+			<script type="text/javascript">
+			(function()
+			{ var hn = document.createElement('script'); hn.type = 'text/javascript'; hn.async = true; hn.setAttribute('data-ev-hover-pid',${dw.system.Site.getCurrent().preferences.custom.GhosteryIncTagPid}); hn.setAttribute('data-ev-hover-ocid', ${dw.system.Site.getCurrent().preferences.custom.GhosteryIncTagCid}); hn.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'c.betrad.com/geo/h1.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(hn, s); }
+			)();
+			</script>
+		</isif>		
+	</footer>
+</div><!-- /footer -->
+		<isif condition="${dw.system.Site.getCurrent().preferences.custom.enableGTM}">
+			<isif condition="${pdict.CurrentCustomer.registered}">
+				<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}">
+					<isset name="customerStatus" value="Member visit" scope="page" />
+				<iselse>
+					<isset name="customerStatus" value="Registered visit" scope="page" />
+				</isif>
+				<script>
+				window.dataLayer = window.dataLayer || [];
+		    	dataLayer.push({
+		    		'dimension1': "${customerStatus}"
+		    	});
+				</script>
+			<iselse>
+				<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}">
+					<isset name="customerStatus" value="Invitee visit" scope="page" />
+				<iselse>
+					<isset name="customerStatus" value="Guest visit" scope="page" />
+				</isif>
+				<script>
+				window.dataLayer = window.dataLayer || [];
+		    	dataLayer.push({
+		    		'dimension2': "${customerStatus}"
+		    	});
+				</script>
+			</isif>
+			<!-- Google Tag Manager -->
+			<isinclude template="tagmanager/gtm_container" />
+		</isif>	
+
+
+<iscomment>
+	Customer registration can happen everywhere in the page flow. As special tag in the pdict
+	is indicating it. So we have to check on every page, if we have to report this event for
+	the reporting engine.
+</iscomment>
+<isinclude template="util/reporting/ReportUserRegistration.isml"/>
+
+<isinclude template="components/footer/footer_UI"/>
+

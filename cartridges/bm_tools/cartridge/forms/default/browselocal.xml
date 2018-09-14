@@ -1,0 +1,23 @@
+<?xml version="1.0"?>	
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="basePath" label="Base Path" type="string" mandatory="true" default-value="TEMP">
+		<options>
+			<option label="CATALOGS"	value="CATALOGS"/>
+			<option label="IMPEX"		value="IMPEX"/>
+			<option label="LIBRARIES"	value="LIBRARIES"/>
+			<option label="STATIC"		value="STATIC"/>
+			<option label="TEMP"		value="TEMP"/>
+		</options>	
+	</field>
+	<field formid="relativePath" type="string" label="Relative Path" mandatory="false" default-value="/"/> 
+	<field formid="catalogID" type="string" label="Catalog ID" mandatory="false"/> 
+	<field formid="siteID" type="string" label="Site ID" mandatory="false"/> 
+	<field formid="analyzeFolderSize" label="Analyze Folder" type="string" mandatory="false" default-value="">
+		<options>
+			<option label="None"						value=""/>
+			<option label="Sub Directory Size"			value="SubDirectorySize"/>
+			<option label="Overall File Types"			value="OverallFileTypes"/>
+			<option label="File Types Per Directory"	value="FileTypesPerDirectory"/>
+		</options>	
+	</field>
+</form>

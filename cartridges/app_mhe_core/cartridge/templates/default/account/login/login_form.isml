@@ -1,0 +1,33 @@
+ <form action="${URLUtils.httpsContinue()}" method="post" class="clearfix" id="${pdict.CurrentForms.login.htmlName}" autocomplete="on">
+	<a href=""></a>
+	<isinputfield formfield="${pdict.CurrentForms.login.username}" type="input" xhtmlclass="email-input" p_dynamic="true" requiredtext="${Resource.msg('login.username.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhusername','forms',null)}"/>
+	<isinputfield formfield="${pdict.CurrentForms.login.password}" type="password" xhtmlclass="" requiredtext="${Resource.msg('login.password.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.mhpassword','forms',null)}" />
+	<isinputfield formfield="${pdict.CurrentForms.login.birthday}" type="input" xhtmlclass="date-input of-legal-age" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.dateofbirth','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+	<iscontentasset aid="over18text"/>
+	<isset name="className" value="button fr" scope="page"  >	
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh'))}">
+		<isset name="className" value="${className + ' submitAjaxForm'}" scope="page"  >
+	</isif>
+	
+	<div class="actions loginActions clearfix borderTop">
+		<isinputfield formfield="${pdict.CurrentForms.login.rememberme}" type="checkbox" rowclass="label-inline wrapper-checkbox" />
+		<button type="submit" class="${className}" value="${Resource.msg('global.login','locale',null)}" name="${pdict.CurrentForms.login.login.htmlName}">
+			<span class="face front">${Resource.msg('global.login','locale',null)}</span>
+			<span class="face back">${Resource.msg('global.login','locale',null)}</span>
+		</button>
+ 	</div>
+ 	
+ 	<div class="form-caption box600">
+	 	<iscontentasset aid="termsAndConditions"/>
+		<p class="small_text trouble-shooter">
+			<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh'))}">
+				<a href="" class="ajaxData" data-href="${URLUtils.url('Account-PasswordReset')}">
+				<isprint value="${Resource.msg('loginpage.problem.message','account',null)}"/></a></p>
+			<iselse>
+				<a href="${URLUtils.url('Account-PasswordReset')}">
+				<isprint value="${Resource.msg('loginpage.problem.message','account',null)}"/></a></p>
+			</isif>			
+	</div>
+	<input type="hidden" name="${pdict.CurrentForms.login.secureKeyHtmlName}" value="${pdict.CurrentForms.login.secureKeyValue}"/>
+	<input type="hidden" name="validAge" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('validAge')}"/>
+</form>

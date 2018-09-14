@@ -1,0 +1,343 @@
+<isdecorate template="checkout/pt_checkout"/>
+<isinclude template="util/modules"/>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+</isscript>
+<iscomment>
+	This template visualizes the last step of the checkout, the order summary
+	page prior to the actual order placing.
+	It displays the complete content of the cart including product line items,
+	bonus products, redeemed coupons and gift certificate line items.
+</iscomment>
+<isset name="currencyCode" value="${dw.system.Site.getCurrent().getDefaultCurrency()}" scope="page"/>	
+<isreportcheckout checkoutstep="${5}" checkoutname="${'OrderSummary'}"/>
+	
+	<isif condition="${!pdict.CurrentForms.multishipping.entered.value}">
+    	<ischeckoutprogressindicator step="3" multishipping="false" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	<iselse>
+		<ischeckoutprogressindicator step="4" multishipping="true" rendershipping="${pdict.Basket.productLineItems.size() == 0 ? 'false' : 'true'}"/>
+	</isif>
+
+	<div class="leftSide">
+	<div class="checkHeader">
+		<h1>${Resource.msg('pt_checkout.breadcrumb','checkout',null)}</h1>
+		<h3>${Resource.msg('checkoutprogressindicator.step3','checkout',null)} ${Resource.msg('checkoutprogressindicator.placeorder','checkout',null)}</h3>
+		<p class="normal">${Resource.msg('check_all_purchases','checkout',null)}</p>
+		<form action="${URLUtils.https('Cart-Show')}" method="post" class="submit-order" name="form1">
+			<button id="BackToBasketGA" class="button-sm button" type="submit" name="submit" value="${Resource.msg('summary.editcart','checkout',null)}" >
+				<span class="face front">${Resource.msg('global.edititems','locale',null)}</span>
+				<span class="face back">${Resource.msg('global.edititems','locale',null)}</span>
+			</button>
+		</form>
+	</div>
+ 	
+	<iscontent type="" />
+	<div class="checkoutTable">
+	<div class="basketContent">
+		<table class="item-list" id="cart-table" cellspacing="0">
+		
+			<thead>
+				<tr class="section-header">
+					<th colspan="2">${Resource.msg('global.items','locale',null)}</th>
+					<th class="center">${Resource.msg('global.qty','locale',null)}</th>
+					<th class="right">${Resource.msg('global.price','locale',null)}</th>
+					<th class="rightPadding right">${Resource.msg('global.totalprice','locale',null)}</th>
+				</tr>
+			</thead>
+				
+			<iscomment>render each shipment</iscomment>
+			<isset name="shipmentCount" value="${0}" scope="page"/>
+			<isset name="firstAcc" value="0" scope="page" />
+			<isloop items="${pdict.Basket.shipments}" var="shipment" status="shipmentloopstate">
+				
+				<isif condition="${shipment.productLineItems.size() > 0 || shipment.giftCertificateLineItems.size() > 0}">
+					
+					<isset name="shipmentCount" value="${shipmentCount+1}" scope="page"/>
+					<isif condition="${pdict.Basket.shipments.size() > 1}">
+						<tr class="cart-row">
+							<td colspan="5">
+								<div class="shipment-label">Shipment ${'#' + shipmentCount}</div>
+							</td>
+						</tr>
+					</isif>
+					
+					<isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+						
+						<tr class="cart-row<isif condition="${productLineItem.custom.associatedParentPosition == null }"> accParent</isif><isif condition="${productLineItem.custom.associatedParentPosition != null }"> accessory</isif>">
+									
+							<td class="item-image">
+								<isif condition="${productLineItem.custom.associatedParentPosition == null }"> 
+								  <isset name="firstAcc" value="0" scope="page" />
+								</isif>
+							
+								<isif condition="${productLineItem.custom.associatedParentPosition != null }">
+									<isif condition="${firstAcc == 0 }">
+									   <isset name="firstAcc" value="1" scope="page" />
+										<div class="hiddenDiv">
+											<span class="arrowTop"></span>
+										</div>
+									</isif>
+								</isif>
+								<isif condition="${productLineItem.product != null && productLineItem.product.getImage('hi-res',0) != null}">
+									<iscomment>
+									<img src="${productLineItem.product.getImage('small',0).getURL()}" alt="${productLineItem.product.getImage('small',0).alt}" />
+									 </iscomment>
+									<isset name="image" value="${new ProductImage('ordersummary', productLineItem.product, 0 )}" scope="page" />
+									<img src="${image.getURL()}" alt="${productLineItem.product.name}" />
+								
+								<iselse>
+									<img src="${URLUtils.staticURL('/images/noimagesmall.png')}" alt="${productLineItem.productName}" />
+								</isif>
+								<isif condition="${productLineItem.bonusProductLineItem}">
+									<div class="bonus-item">${Resource.msg('global.bonus','locale',null)}</div>
+								</isif>
+							</td>
+							
+							<td class="item-details">
+								<iscomment>Display product line and product using module</iscomment>
+								<isdisplayliproduct p_productli="${productLineItem}" p_editable="${false}" p_hidepromo="${false}"/>
+								
+								<iscomment>Dkum37: it is not required the error messages are handled in displayliproduct.isml;
+									<isset name="availabilityStatus" value="${productLineItem.product.availabilityModel.availabilityStatus}" scope="PAGE"/>
+									<isif condition="${availabilityStatus == dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER}">
+										<p class="preorder-msg"><isprint value="${StringUtils.format(Resource.msg('global.allpreorder','locale',null))}"/></p>
+									</isif>
+								</iscomment>
+							</td>
+							
+							<td class="item-quantity">
+								<isprint value="${productLineItem.quantity}" />
+							</td>
+						
+							<isset name="chilledbaseprice" value="" scope="page" />				
+							<isset name="chilledprice" value="" scope="page" />				
+							<isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.chilledDeliveryService }">
+									<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+										<isif condition="${oli.price > 0}"> 
+											<isif condition="${oli.price > oli.adjustedPrice}">
+											<isset name="chilledprice" value="${oli.adjustedPrice}" scope="page" />	
+											<isset name="chilledbaseprice" value="${oli.basePrice}" scope="page" />	
+											<iselse>
+											<isset name="chilledprice" value="${oli.price}" scope="page" />				
+											<isset name="chilledbaseprice" value="${oli.basePrice}" scope="page" />	
+											</isif>
+										</isif>
+									</isloop>
+							</isif>
+							<td class="item-price">
+						     	<isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money((chilledbaseprice+productLineItem.product.priceModel.price), currencyCode))}" />
+							</td>
+						    
+						    <td class="item-total">
+								<isif condition="${productLineItem.bonusProductLineItem}">
+								    <span class="bonus-item" style="text-transform: none">
+								    	${Resource.msg('global.bonus','locale',null)}
+								    </span>
+								<iselse>
+									<iscomment>Otherwise, render price using call to adjusted price </iscomment>
+								    <isprint value="${dw.util.StringUtils.formatMoney(dw.value.Money(chilledprice+productLineItem.adjustedPrice, currencyCode))}" />
+								</isif>								
+							 
+							</td>
+							
+						</tr>
+						
+					 <isif condition="${productLineItem.optionProductLineItems.size() > 0 && productLineItem.custom.engravingMessageLine1 !=null }">
+						  <tr class="cart-row accessory gift">
+							<td class="item-details" colspan="2">
+								<div class="hiddenDiv">
+									<span class="arrowTop"></span>
+								</div>
+							    <h3 class="sku">${Resource.msg('global.personaliselabel','locale',null)}</h3>
+							    <h4 class="name">${Resource.msg('global.personalisesublabel','locale',null)}</h4>
+							    <p class="msg"><isprint value="${productLineItem.custom.engravingMessageLine1}" /></p>
+							</td>
+							
+							<td class="item-quantity">
+								<isprint value="${productLineItem.quantity}" />
+							</td>
+							
+							<td class="item-price">
+						    	<isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+								<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+									<isif condition="${oli.price > 0}"> 
+										<isif condition="${oli.price > oli.adjustedPrice}">
+											<div class="price-option">
+												 
+												<span class="price-standard strike">
+													<isprint value="${oli.basePrice}" />
+												</span>
+												<span class="price-sales">
+													<isprint value="${oli.adjustedPrice}" />
+												</span>
+											</div>
+										<iselse>
+											<div class="price-option">
+												<span class="value">
+													    <isprint value="${oli.basePrice}" />
+												</span>
+											</div>
+										</isif>
+									</isif>
+								</isloop>
+							</isif>
+							 </td>
+							 <td class="item-total">
+							<iscomment>Options</iscomment>
+							<isif condition="${productLineItem.optionProductLineItems.size() > 0}">
+								<isloop items="${productLineItem.optionProductLineItems}" var="oli">
+									<isif condition="${oli.price > 0}"> 
+										<isif condition="${oli.price > oli.adjustedPrice}">
+											<div class="price-option">
+												 
+												<span class="price-standard strike">
+													<isprint value="${oli.price}" />
+												</span>
+												<span class="price-sales">
+													 <isprint value="${oli.adjustedPrice}" />
+												</span>
+											</div>
+										<iselse>
+											<div class="price-option">
+												 
+												<span class="value">
+													  <isprint value="${oli.price}" />
+												 
+												</span>
+											</div>
+										</isif>
+									</isif>
+								</isloop>
+							</isif>
+						</td>
+						</tr>
+					  </isif>
+					  
+					  
+					
+					</isloop>
+					
+					<isloop items="${shipment.giftCertificateLineItems}" var="giftCertificateLineItem" status="gcliloopstate">
+						
+						<tr  class="cart-row <isif condition="${gcliloopstate.first}"> first <iselseif condition="${gcliloopstate.last}"> last</isif>">
+							
+							<td class="item-image">
+								<img src="${URLUtils.staticURL('/images/gift_cert.gif')}" alt="<isprint value="${giftCertificateLineItem.lineItemText}"/>" />
+							</td>
+							
+							<td class="item-details">
+								<div class="gift-certificate-to">
+									<span class="label">${Resource.msg('global.to','locale',null)}:</span>
+									<span class="value">
+										<isprint value="${giftCertificateLineItem.recipientName}"/> 
+										(<isprint value="${giftCertificateLineItem.recipientEmail}"/>) 
+									</span>
+								</div>
+								<div class="gift-certificate-from">
+									<span class="label">${Resource.msg('global.from','locale',null)}:</span>
+									<span class="value"><isprint value="${giftCertificateLineItem.senderName}"/></span>
+								</div>
+							</td>
+							
+							<td class="item-quantity" colspan="2">1</td>
+							
+							<td  class="item-total">
+								<isprint value="${giftCertificateLineItem.price}"/>
+							</td>
+						
+						</tr>
+					
+					</isloop>
+					
+				</isif>
+				
+			</isloop>
+		</table>	
+		</div></div>	
+
+		<isslot id="placeorder-slot" description="Slot next to Order Totals in the footer of the Place Order page." context="global"/>
+			
+			
+			
+			
+		<div class="order-summary-footer">
+			
+			<div class="cart-footer">
+				<div class="cartWrap">
+					<div class="cart-order-totals">
+						<isordertotals p_lineitemctnr="${pdict.Basket}" p_showshipmentinfo="${false}" p_shipmenteditable="${false}" p_totallabel="${Resource.msg('summary.ordertotal','checkout',null)}" p_hidepromo="true"   p_hidepromobutton="${true}"  />
+					</div>
+				</div>
+			</div>
+		
+		<form action="${URLUtils.https('COSummary-Submit')}" method="post" id="submitOrder" class="submit-order" name="${pdict.CurrentForms.orderconfirmation.orderconfirmationhtmlName}">
+			<iscontentasset aid="scrollTerms" />
+			
+			<input type="hidden" name="${pdict.CurrentForms.orderconfirmation.secureKeyHtmlName}" value="${pdict.CurrentForms.orderconfirmation.secureKeyValue}"/>
+			<div class="clearfix acceptTerms">
+			   	<isinputfield formfield="${pdict.CurrentForms.orderconfirmation.orderconfirmation.termandcondition}" type="checkbox"   />
+			    <label for="acceptTerms">
+					<span></span>
+					<isif condition="${(pdict.CurrentSession.custom.brand.equals('mh'))}">
+						<isprint value="${Resource.msg('checkout.tnc1','checkout',null)}" /><br>
+						<a href="#" onClick="javascript:window.open('${URLUtils.https('Page-Overlay','secid','terms')}', '_blank', 'scrollbars=1,resizable=1,height=800,width=800');"><isprint value="${Resource.msg('checkout.tnc3','checkout',null)}" /></a>
+						<isprint value="${Resource.msg('checkout.tnc2','checkout',null)}" />
+						<a href="#" onClick="javascript:window.open('${URLUtils.https('Page-Overlay','secid','privacy-policy')}', '_blank', 'scrollbars=1,resizable=1,height=800,width=800');"><isprint value="${Resource.msg('checkout.tnc5','checkout',null)}" /></a>
+						<isprint value="${Resource.msg('checkout.tnc4','checkout',null)}" />
+						
+					<iselse>
+					  <isprint value="${Resource.msg('checkout.tnc1_brand','checkout',null)}" /><br>
+						<isprint value="${Resource.msg('checkout.tnc2_brand','checkout',null)}" />
+						<a href="#" onClick="javascript:window.open('${URLUtils.https('Page-Overlay','secid','terms')}', '_blank', 'scrollbars=1,resizable=1,height=800,width=800');"><isprint value="${Resource.msg('checkout.tnc3','checkout',null)}" /></a>
+						<isprint value="${Resource.msg('checkout.tnc4','checkout',null)}" />
+						<a href="#" onClick="javascript:window.open('${URLUtils.https('Page-Overlay','secid','privacy-policy')}', '_blank', 'scrollbars=1,resizable=1,height=800,width=800');"><isprint value="${Resource.msg('checkout.tnc5_brand','checkout',null)}" /></a>
+						<isprint value="${Resource.msg('checkout.tnc6_brand','checkout',null)}" />
+					</isif>
+					<div class="error" style="display:none;">${Resource.msg('summary.submit.error','checkout',null)}</div>
+					
+			   </label>
+			</div>	
+			<isif condition="${!(pdict.CurrentSession.custom.brand.equals('mh')) && !(pdict.CurrentCustomer.authenticated && pdict.CurrentCustomer.profile.custom.isNewsLetterSubscribed) }">
+				<div class="checkout-newsletter"> 
+				<isinputfield formfield="${pdict.CurrentForms.orderconfirmation.orderconfirmation.addtoemaillist}" type="checkbox"   />
+				</div>
+			</isif>	
+						
+			
+	    <div class="checkActions clearfix">
+	    	<div class="checkBack">
+	    		<a href="${URLUtils.https('COBilling-Start')}" ><isprint value="${Resource.msg('checkout.backtobilling','checkout',null)}"/></a>
+	    	</div>
+	    	<div class="checkForward">
+	    		 	<button class="button-fancy-large button submitOrderButton" type="submit" data-html="${Resource.msg('wait.processOrder','checkout',null)}">
+						<span class="face front">${Resource.msg('global.placeorder','locale',null)}</span>
+						<span class="face back">${Resource.msg('global.placeorder','locale',null)}</span>
+					</button>
+			
+	    	</div>
+	    </div>
+	    </form>
+		
+		</div>
+		</div>
+		<isscript>
+ 	var category = null;
+	if ('staticOfferCategory' in pdict.Basket.custom){
+		category=dw.catalog.CatalogMgr.getCategory(pdict.Basket.custom.staticOfferCategory);
+	}
+
+</isscript>
+		<div class="rightSide reviewModules">
+		<isif condition="${'staticOfferCategory' in pdict.Basket.custom && 'needHelpText' in category.custom}">
+			<isprint value="${category.custom.needHelpText}" encoding ="on"/>
+		<iselse>
+			<iscontentasset aid="cs-contact-number"/>
+		</isif>
+			
+			<iscomment>render single shipment boxes</iscomment>
+			<isinclude template="checkout/shipping/minishipmentscheckout"/>
+			 
+			<iscomment>render billing information: billing address and payment instruments</iscomment>	
+			<isinclude template="checkout/billing/minibillinginfo"/>
+		</div>
+</isdecorate>

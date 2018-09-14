@@ -1,0 +1,36 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	var basket = pdict.Basket;
+</isscript>
+<isinclude template="cssuite/utils/modules">
+
+	<isif condition="${isBMLUsed(basket)}">
+		<div class="error">
+			<strong>Please note:</strong> Due to the usage of BML as a payment method the modification of the order does not allow for editing the payment information and can also not exceed the previously authorized amount.
+			<br/><br/>
+		</div>
+	</isif>
+	<div class="lic_products_shipments_outside">
+	    <isscript>
+	        var shipments = basket.getShipments();
+	    </isscript>
+	    <isloop iterator="${shipments}" alias="shipment">
+	        <isshipment shipment="${shipment}">
+	    </isloop>
+	</div><!-- END: lic_products_shipments_outside -->
+
+	<div class="lic_quicktotals_contatiner_outside_div">
+		<table class="lic_quicktotals_contatiner_outside" width="100%">
+			<isinclude template="cssuite/cart/components/quicktotals">
+		
+			<isscript>var showTotalDetails = false;</isscript>
+			
+			<isif condition="${showTotalDetails}">
+				<isinclude template="cssuite/cart/components/priceadjustments">
+				<isinclude template="cssuite/cart/components/shipping">
+				<isinclude template="cssuite/cart/components/totals">
+			</isif>
+	
+		</table>
+	</div><!-- END: lic_quicktotals_contatiner_outside_div -->

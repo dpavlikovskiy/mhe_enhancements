@@ -1,0 +1,109 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isinclude template="cssuite/utils/modules">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	importPackage(dw.value);
+	var basket = pdict.Basket;
+	var product = pdict.Product;
+	var prodThumb = product.getImage('medium',0);
+	var shipments = basket.getShipments();
+	var shipNumber = shipments.length;
+	var shipment_str = "shipment";
+	if(shipNumber > 1){shipment_str += 's';}
+	var formId = dw.util.UUIDUtils.createUUID();
+
+	//if the product price is N/A do not make it available
+	var pm = product.getPriceModel();
+
+	var allowAdd2Cart = true;
+
+	if( (!product.master && !product.variant && pm.getPrice() == Money.NOT_AVAILABLE) || product.productSet ){
+		allowAdd2Cart = false;
+	}
+</isscript>
+<div style="background:#fff; height:100%; width:800px;">
+	<div style="background:#fff; padding:10px;">
+		<div class="productInformation">
+			<table cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tr>
+					<td>
+						<isif condition="${prodThumb != null}">
+							<img src='${prodThumb.getAbsURL()}' border='0'/>
+						<iselse>
+							&nbsp;
+						</isif>
+					</td>
+					<td>
+						<p><strong>${product.name}</strong></p>
+						<p><em>${product.ID}</em></p>
+						<isif condition="${product.longDescription}">
+							<p>${product.longDescription}</p>
+						</isif>
+						<p><isinclude template="cssuite/product/components/options"/></p>
+						<isinclude template="cssuite/product/components/variations"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+		This order contains ${shipNumber}&nbsp;${shipment_str}:<br>
+		For each shipment, please enter the number of products to assign.<br><br>
+		<isif condition="${!allowAdd2Cart}">
+			<div style="border:solid 1px #ff0000;font-family:verdana;margin-bottom:20px;">
+				<span style="color: #ff0000;">This product is currently not available.<br>
+					This product cannot be added to the order.
+				</span>
+			</div>
+		</isif>
+
+		<form id="${formId}" action="" >
+			<input type="hidden" id="productid" name="productid" value="${product.getID()}">
+			<table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tbody>
+				<tr class="listTableHeader">
+					<td>Shipment</td>
+					<td>Quantity</td>
+				</tr>
+				<isloop iterator="${shipments}" alias="shipment" status="loopstatus">
+					<isscript>
+						var isDefault = shipment.isDefault();
+						var baseQty = 0;
+						//if(isDefault) baseQty = 1;
+						baseQty = StringUtils.formatNumber(baseQty,"#");
+					</isscript>
+					<tr class="${getRowClass(loopstatus)}"><td>
+						<isshipmentid p_shipment="${shipment}">
+						<isif condition="${isDefault}">
+							&nbsp;(default shipment)
+						</isif>
+					</td><td>
+						<input type="text" value="${baseQty}" id="shipment_${shipment.ID}" name="shipment_${shipment.ID}" style='width: 30px;'/>
+					</td></tr>
+				</isloop>
+				</tbody>
+			</table>
+			<br/>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+<!--
+	Dialog.formDialog('Add \'${escape(product.name)}\'' ,
+		{
+			<isif condition="${allowAdd2Cart}">
+				"Apply": function() {
+					if ($('#productid')[0].value) {
+						$(this).dialog('destroy');
+						Order.addProductToShipments('${formId}');
+					} else {
+						alert('The product is not fully specified. Please check the product settings.');
+					}
+				},
+			</isif>
+			"Cancel": function() {
+				$(this).dialog('destroy');}
+		},
+		false, 'auto', 'auto'
+	);
+//-->
+</script>

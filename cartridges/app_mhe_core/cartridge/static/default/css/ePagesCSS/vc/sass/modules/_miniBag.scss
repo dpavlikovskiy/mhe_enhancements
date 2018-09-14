@@ -1,0 +1,139 @@
+.mini-cart-content {
+	background-color: $white;
+	border:none;
+	margin-top:20px;
+	/*@include box-shadow($greyBorder 2px 2px 10px);*/
+	&:before {
+	    background-color: $white;
+	    border-left: 1px solid $white;
+	    border-top: 1px solid $white;
+	    left:auto;
+	    right: 45px;
+	}
+	.nano {
+		background-color: $white;
+		.pane {
+			.slider {
+				background:$brandBg;
+			}
+		}
+	}
+	.mini-cart-totals {
+		background-color: $white;
+		border-top:$lightGreyBorder 1px solid;
+		margin:0;
+		.mini-cart-subtotals {
+			display:none;
+		}
+		.button {
+			float:none;
+			margin:20px 0 0 0;
+			.face {
+				background:$brandBg;
+				color:$white;
+				border:none;
+				font-family: $titleFont;
+				font-weight:normal;
+			}
+		}
+	}
+	.mini-cart-header {
+		border-bottom:$lightGreyBorder 1px solid;
+		span {
+			color:$packerygreyText;
+			font:$small_text $titleFont;
+			position:relative;
+			text-align:left;
+			padding:5px 0 0 70px;
+		}
+		span:before {
+			background:url(images/tickIcon.png);
+			position: absolute;
+			left:20px;
+			top:5px;
+			content: "";
+			width:35px;
+			height:35px;
+		}
+		p {
+			text-align:left;
+			margin-left:65px;
+			font:Italic $smaller_heading $regularFont;
+			color:$greyText;
+		}
+	}
+	.mini-cart-products {
+		padding-bottom:20px;
+		.mini-cart-product {
+			border-top:$lightGreyBorder 1px solid;
+			margin:0;
+			padding:20px;
+			&:hover {
+				background: none;
+			}
+			h4 {
+				color:$brandcolor;
+				font:$very_small_text $titleFont;
+				a {
+					color:$packerygreyText;
+					margin:5px 0 0 0;
+					float:left;
+					width:100%;
+				}
+			}
+			&.accessory {
+				background:$white;
+				border:$lightGreyBorder 1px solid;
+				&.firstAcc {
+					&:before {
+						background:$white;
+						border-top:$lightGreyBorder 1px solid;
+						border-left:$lightGreyBorder 1px solid;
+					}
+				}
+			}
+			.mini-cart-pricing {
+				color:$packerygreyText;
+				font:$very_small_text $titleFont;
+				.label {
+					color:$packerygreyText;
+				}
+				.value {
+					color:$packerygreyText;
+				}
+				.mini-cart-price {
+					font:$normal-font-size $regularFont;
+					color:$packerygreyText;
+				}
+			}
+			.product-availability-list{
+				background: $white;
+				border: $lightGreyBorder 1px solid;
+				&:before {
+					background: $white;
+					border-top: $lightGreyBorder 1px solid;
+					border-left: $lightGreyBorder 1px solid;
+				}
+				.preHeading {
+					color: $brandcolor;
+					font: $smaller_heading $titleFont;
+				}
+				.on-order {
+					color: $packerygreyText;
+					font: $very_small_text $regularFont;
+					span {
+						color: $packerygreyText;
+						margin-bottom: 4px;
+					}
+				}
+			}
+		}
+	}
+	.mini-cart-slot {
+		border:none;
+		font:$small_heading $titleFont;
+		color:$packerygreyText;
+	}
+}
+
+

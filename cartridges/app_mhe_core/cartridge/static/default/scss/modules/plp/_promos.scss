@@ -1,0 +1,252 @@
+// =============================================================================
+// Promo panels
+// =============================================================================
+
+.plp-promo {
+	display:none;
+	background-image:url(img/bg/promo-active.png), url(img/bg/promo.png);
+	background-repeat:no-repeat, no-repeat;
+	background-position:0 -100px, 0 28px;
+	width:300px;
+	height: 620px;
+	padding:3px 8px 31px 8px;
+	position:relative;
+	&.packery {
+		display:block;
+	}
+	&.plp-promo-shelf {
+		&:hover {
+			background-position:0 395px, 0 28px;
+		}
+	}
+	&.plp-promo-active {
+		background-position:0 395px, 0 28px;
+	}
+	img {
+		position:absolute;
+		z-index:0;
+		left:8px;
+		top:31px;
+	}
+	.promo-title, .promo-details {
+		display:table;
+		width:285px;
+		height:364px;
+		position:absolute;
+		z-index:10;
+		margin-top:28px;
+	}
+	.promo-title {
+		b {
+			font-size:2.5em;
+			display:inline-block;
+			line-height:0.75em;
+		}
+		&.promo-title-tall {
+			b {
+				line-height:1.5em;
+			}
+		}
+		&.promo-title-multiline {
+			b {
+				line-height:1em;
+			}
+		}
+	}
+	.promo-details {
+		.promo-text-btm {
+			&:before {
+				content:"\00B7\A";
+    			white-space: pre;
+    			color:#9882c1;
+			}
+			b {
+				font-size:1.75em;
+				display:inline-block;
+				&.promo-text-price {
+					@include price;
+				}
+			}
+		}
+	}
+	.promo-text {
+		color:#16151d;
+		display:table-cell;
+		text-align:center;
+		text-transform:uppercase;
+		font-size:14px;
+		letter-spacing:2px;
+		font-weight:$regular;
+		padding:0 10%;
+		b {
+			text-transform:none;
+			letter-spacing:0;
+		}
+		strong {
+			font-size:32px;
+			font-weight:300;
+		}
+		&.promo-text-top {
+			vertical-align:top;
+			padding-top:42px;
+		}
+		&.promo-text-mid {
+			vertical-align:middle;
+		}
+		&.promo-text-btm {
+			vertical-align:bottom;
+			padding-bottom:1.5em;
+		}
+	}
+	&.promo-dark {
+		.promo-text {
+			color:#fff;
+		}
+	}
+	&.promo-lg {
+		background-image:url(img/bg/promo-lg.png);
+		background-repeat:no-repeat;
+		background-position:0 0;
+		width:500px;
+		height:564px;
+		padding:3px 60px 77px 60px;
+
+
+
+		img {
+			left:60px;
+			top:3px;
+		}
+		.promo-title,
+		.promo-details {
+			width:380px;
+			height:484px;
+			margin-top:3px;
+		}
+		.promo-text {
+			font-size:18px;
+		}
+
+	}
+}
+
+
+// BLP promos ------------------------------------------------------------------
+.blp-page-slot-cont {
+	@include clearfix();
+	width:100%;
+	max-width:1200px;
+	 margin: 50px auto 0;
+	display:table;
+	.content-slot2{
+		display:table-cell;
+		text-align: center;
+		padding: 0 5px;
+	 .plp-promo {
+    		background-image: url("img/bg/promo.png");
+    		background-position: 0 9px;
+    		background-repeat: repeat repeat;
+    		background-size: 100% 100%;
+    		height: 388px;
+    		padding: 0;
+    		position: relative;
+    		width: 100%;
+		}		
+		.gamma-heading {
+    		font-size: 18px;
+    		font-weight: 700;
+    		letter-spacing: 0;
+    		text-transform: uppercase;
+			}
+			 p{
+    			font-size: 15px;
+    			text-transform: none;
+    			}
+		.blp-content-image{
+			height: 370px;
+		}
+	}
+	.plp-promo {
+		display:block;
+		float:left;
+		&.promo-lg {
+			width: 50%;
+			margin: 0;
+			padding:4px 0 77px 0;
+			background-position: 50% 0;
+			img {
+				position: relative;
+				top: auto;
+				left: auto;
+				display: display;
+				margin: 0 auto;
+			}
+			.promo-title {
+				position: absolute;
+				top: 0;
+				left:20%;
+				width: 60%;
+			}
+			.promo-text {
+				padding: 0;
+			}
+		}
+	}
+}
+
+
+// IE8 -------------------------------------------------------------------------
+.ie8 {
+	.plp-promo {
+		.promo-text {
+			padding:0;
+			b {
+				margin-top:-0.5em;
+			}
+			&.promo-text-top {
+				padding-top:42px;
+			}
+			&.promo-text-btm {
+				padding-bottom:1.5em;
+			}
+		}
+	}
+}
+
+
+// Modernizr, Multiple bg feature detect ---------------------------------------
+.no-multiplebgs {
+	.plp-promo {
+		background-image:url(img/bg/promo.png);
+		background-repeat:no-repeat;
+		background-position:0 28px;
+	}
+}
+
+.search-result-content{
+	.search-result-items{
+		.products-tile{
+			.shop-now{
+			text-align:center;
+			}
+		}
+	}
+}
+
+.blp-promos{
+	padding: 0 32px;
+	.plp-promo{
+		display:block;
+		float:left;
+		width:568px;
+		padding:3px 90px 77px;
+		&.promo-lg{
+			background-position:center 0;
+			img{
+				left: 94px;
+			}
+		}
+	}
+}
+
+

@@ -1,0 +1,76 @@
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	
+	var address;
+	try{
+		address = shipment.getShippingAddress();
+	}catch(e){
+		xerror(e);
+	}
+</isscript>
+
+<div class="order-address_nf-isml_form">
+
+<table class="listTable" cellpadding="0" cellspacing="0" border="0">
+<tbody>
+	<tr class="listTableHeader">
+		<td colspan="2">Shipping Address</td>
+	</tr>
+
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.firstname}" type="input">
+	</tr>  
+
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.lastname}" type="input">
+	</tr>
+
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.companyName}" type="input">
+	</tr>
+
+    <tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.states.state}" type="select">
+	</tr>
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.address1}" type="input">
+	</tr>
+
+	<tr>
+		<td class="key">
+       	</td>
+       	
+       		<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.address2}" type="input" label="false">
+	</tr>
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.zip}" type="input">
+	</tr>
+
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.city}" type="input">
+	</tr>
+
+	<tr>
+	<td class="key"><label><isprint value="${Resource.msg('forms.country','forms',null)}" /></label> </td>
+	<td class="value">					
+		<select id="${pdict.CurrentForms.csshipping.addressfields.country.htmlName}" name="${pdict.CurrentForms.csshipping.addressfields.country.htmlName}" class="input-text required ">								
+			<isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">
+				<isif condition="${!empty(pdict.Shipment.shippingAddress.countryCode.value) && pdict.Shipment.shippingAddress.countryCode.value == country.getValue()}">							 
+					<option selected="selected" value="${country.getValue()}">${country.getDisplayValue()}</option>
+				<iselse>
+					<option value="${country.getValue()}">${country.getDisplayValue()}</option>
+				</isif>		                            				
+			</isloop>
+		</select>
+	</td>
+	</tr>					
+	<tr>
+	<isinputfield formfield="${pdict.CurrentForms.csshipping.addressfields.phone}" type="input">
+	</tr>
+
+</tbody>
+</table>
+</div><!--::END:: CLASS=order-address_nf-isml_form -->
+
+
+

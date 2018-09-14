@@ -1,0 +1,33 @@
+<isdecorate template="search/pt_productsearchresult_content">
+
+<iscache type="relative" minute="30" varyby="price_promotion" /> 
+    <isinclude	template="util/modules" /> <iscomment>create reportingevent</iscomment> 
+    <isinclude template="util/reporting/ReportSearch.isml" />
+<iscomment>
+Creative -- Flag to identify if the page will be expanded</iscomment>
+ <isset	name="blpPageName" 	value="${Resource.msg('pagename.estoreaccessoryblp','components',null)}" scope="page" />
+<iscomment> Render promotional content at the top of searchresults as global slot. </iscomment> 
+<iscomment></iscomment>
+<isscript>
+importScript("product/ProductUtils.ds");
+var category : dw.catalog.Category = ProductUtils.getProductCategoryForPDP(pdict.ProductSearchResult, pdict.Product); 
+</isscript>
+
+
+<isscript> var selectedString = 'selected="selected"'; </isscript> 
+<isif condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+	<div class="search-result-content getTopMargin brandPLP blp-products">
+		<div class="content-slot">
+			<isslot id="clothing_Promo1" context="category" description="Category Promo One Slot" context-object="${pdict.ProductSearchResult.category}"/>
+		</div>
+			
+		<isproductgrid pagingmodel="${pdict.ProductPagingModel}" category="${pdict.ProductSearchResult.category}"	pagetype="${blpPageName}" />
+	</div>
+	
+<iselse>
+	 <iscomment>display no results</iscomment>
+	<div class="no-results">${Resource.msg('productresultarea.noresults','search',null)}</div>
+</isif> 
+</div>
+		
+</isdecorate>

@@ -1,0 +1,181 @@
+nav {
+	margin:auto;
+	width: 1200px;
+	height:50px;
+	display:block;
+	position:relative;
+	overflow:visible;
+	text-align:center;
+	z-index:2;
+	.shadow {
+		position:absolute;
+		background:$nav_bg;
+		z-index:5;
+		left:0;
+		width:100%;
+		height:50px;
+	}
+}
+.menu-category {
+	display:inline-block !important;
+	margin:auto;
+	li {
+		float: left;
+		position:relative;
+		a{
+			display: inline-block;
+			padding: 0 15px;
+			line-height:50px;
+			position:relative;
+			z-index:7;
+			@include transition(all 0.2s ease-out);
+		}
+		&.oneColumn {
+			.menu-wrapper {
+				padding: 20px 0 0 0;
+				li {
+					width: 100%;
+					a {
+						line-height: 30px;
+					}
+					&.viewAll {
+						padding: 10px 0 30px 0;
+					}
+				}
+			}
+		}
+		.menu-wrapper{
+			position:absolute;
+			top:0;
+			visibility:hidden;
+			opacity:0;
+			z-index:2;
+			padding: 0;
+			overflow: hidden;
+			// Navigation arrow
+			&:before{
+				
+				display: block;
+				margin: 0;
+				padding: 0;
+				height: 12px;
+				width: 12px;
+				background-color: #000;
+				position: absolute;
+				@include opacity(0);
+				top: -8px;
+				margin-left:-6px;
+				left: 50%;
+				@include box-shadow( rgba(255,255,255,0.4), 0, -9px, 55px, 18px );
+				@include rotate( 45deg );
+			}
+			&.opened{
+				&:before {
+					-webkit-transition: opacity .2s ease-in-out;
+					-moz-transition: opacity .2s ease-in-out;
+					-ms-transition: opacity .2s ease-in-out;
+					-o-transition: opacity .2s ease-in-out;
+					transition: opacity .2s ease-in-out;
+					@include opacity(1);
+				}
+			}
+			
+
+			li{
+				float:left;
+				a{
+					display:block;
+					
+					padding:0;
+					background:none;
+					&:hover img{
+						@include transition(all 0.2s ease-out);
+						@include opacity(1);
+					}
+				}
+				img{
+					@include transition(all 0.2s ease-out);
+					@include opacity(.5);
+					vertical-align:middle;
+				}
+			}
+			span.glow{
+				background-position:0 0;
+				width:116px;
+				height:49px;
+				position:absolute;
+				left:134px;
+				top:0;
+				//@include opacity(.75);
+			}
+			li.viewAll {
+				clear:both;
+				float:none;
+				width:100%;
+				padding:30px 0;
+				a{
+					display:inline;
+					line-height:normal;
+				}
+				.circle{
+
+					@include border-radius(50%);
+					width:5px;
+					height:5px;
+					background:$border_color;
+					display:inline-block;
+					margin-bottom: 15px;
+				}
+			}
+		}
+
+	}
+	div.arrow{
+		width:15px;
+		height:8px;
+		position:absolute;
+		top:43px;
+		margin-left:-8px;
+		z-index:11;
+		background-position:right -49px;
+	}
+}
+
+// Android/Tab 2 - stops top level links being active to show sub menu
+
+@media only screen and (min-device-width: 800px) and (max-device-width: 1280px) {
+	.touch {
+		.menu-category li.items {
+			a.level-1:active {
+				pointer-events: none;
+			}
+			ul li a:active {
+				pointer-events: auto;
+			}
+		}
+	}
+}
+
+
+
+.ie8 {
+	.menu-category {
+		li {
+			.menu-wrapper{
+				// Navigation arrow
+				&:before {
+					display: none;
+				}
+				.arrow {
+					float: none;
+					display: block;
+					margin: -1px auto 0 auto;
+					padding: 0;
+					height: 8px;
+					width: 15px;
+					background: url("img/icons/sprite.png") no-repeat right -49px;
+				}
+			}
+		}
+	}
+}

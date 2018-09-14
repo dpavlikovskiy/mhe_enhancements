@@ -1,0 +1,588 @@
+// =============================================================================
+// Global form styles
+// =============================================================================
+.account-module{
+	.plainText{
+		display:inline-block;
+		width:auto;
+		.cValue{
+			float: left;
+		    letter-spacing: 1px;
+		    line-height: 25px;
+		    min-height: 30px;
+		    text-transform: uppercase;
+		}
+	}
+	.form-field-tooltip{
+		display:inline-block;
+		margin:5px 0 0 10px;
+		position:relative;
+		right:auto;
+		left:auto;
+		top:auto;
+		.tooltip{
+			position:relative;
+			display:inline-block;
+			.ptIcon{
+				width:20px;
+				height:20px;
+				background-position:-20px -440px;
+				display:inline-block;
+				cursor:pointer;
+			}
+			.tooltip-content{
+				position:absolute;
+				width:380px;
+				max-width: 380px;
+				top: 11px;
+				z-index:150;
+				text-align:left;
+				left:35px;
+				@include opacity(0);
+				visibility:hidden;
+				text-transform: none;
+				font-size:$small_text;
+				line-height:18px;
+				color:$lightergrey;
+				letter-spacing: 0;
+				&:before{
+					border-top:0;
+					border-bottom: 1px solid $mediumpurple;
+				    left: 0;
+				    top: 50%;
+				    margin-top:-7px;
+				}
+				> img{
+					width:75px;
+					height:auto;
+					float:left;
+					margin:0;
+				}
+				h4{
+					font: bold 13px futura-pt;
+				    letter-spacing: 2px;
+				    margin:0 0 0 85px;
+				    text-transform: uppercase;
+				}
+				p{
+					font-size: $small_text;
+				    line-height: 1.25em;
+				    margin: 0 0 0 85px;
+				    word-spacing: 1px;
+				}
+			}
+			&:hover{
+				.ptIcon{
+					background-position:0px -440px;
+				}
+				.tooltip-content{
+					@include opacity(1);
+					visibility:visible;
+				}
+			}
+		}
+	}
+}
+#agegate-form{
+	.form-row{
+		margin:0 auto 20px;
+		width:300px;
+	}
+}
+.form-row{
+    margin:0 0 20px;
+    position:relative;
+    font-size:12px;
+    font-weight:500;
+    &:after {
+        position:absolute;
+        width:14px;
+        height:14px;
+        right:-24px;
+        top:8px;
+    }
+    .happyBirthday{
+    	position:absolute;
+    	background:url(img/icons/happy-birthday.png) no-repeat 0 0;
+    	line-height:45px;
+    	left:335px;
+    	top:-5px;
+    	display:none;
+    	padding:1px 0 0 22px;
+    	font-family:$heading-font-family;
+    	font-size:$big_text;
+    	white-space:nowrap;
+    	color:$white;
+    }
+    &.form-row-focussed{
+        input[type="text"],
+        input[type="password"],
+        .showPass {
+            border: 1px solid #888888;
+           
+        }
+        ::-webkit-input-placeholder { color: #fff; }
+        ::-moz-placeholder { color: #fff; }
+        :-ms-input-placeholder { color: #fff;}
+        ::placeholder{color: #fff;}
+    }
+    &.form-row-error {
+        position:relative;
+        &:after {
+            content:url(img/icons/form-error.png);
+        }
+        input[type="text"],
+        input[type="password"],
+        .selectHolder,
+        .showPass {
+            border: 1px solid $strongred;
+        }
+    }
+    &.form-row-valid {
+        &:after {
+            content:url(img/icons/form-valid.png);
+        }
+        .error {
+            display:none !important;
+        }
+    }
+    &.form-row-leftalign {
+        width:500px;
+        &.form-row-expiry{
+        	.form-row-error{
+        		.error{
+		    		width:125px;
+		    	}
+        	}
+	    }
+    }
+    &.form-row-leftalign, &.form-row-indent {
+        label {
+            float:left;
+            width:198px;
+            text-transform:uppercase;
+            letter-spacing:1px;
+            text-align:right;
+            padding-right:10px;
+            min-height:30px;
+            .subtitle {
+            	width:100%;
+            	right:10px;
+            	top:14px;
+            }
+            .optional {
+                display:none;
+            }
+        }
+        input {
+            text-align:left;
+            padding-left:10px;
+        }
+        textarea{
+        	border:1px solid $darkgrey;
+        	width:300px;
+        }
+        .error {
+            width:300px;
+            margin-left:198px;
+            text-align:left;
+        }
+        &.error{
+        	label{
+        		font-weight:normal;
+        	}
+        }
+        &.formRadio{
+        	margin:0 0 20px 198px;
+        	label{
+        		float:none;
+        		width:auto;
+        		display:inline-block;
+        	}
+        	.form-row{
+        		margin:0 0 5px;
+        	}
+        }
+    }
+    &.form-row-topalign {
+        label {
+            vertical-align:top;
+            padding-top:6px;
+        }
+    }
+    &.form-row-indent {
+       padding-left:199px;
+       label {
+            width:100%;
+            text-align:left;
+            line-height:1.75em;
+            span {
+                margin:0 8px 0 0;
+                vertical-align:top;
+            }
+       }
+    }
+    &.radios{
+    	padding:0 0 0 198px;
+    	width:auto;
+    	position:relative;
+    	.absLabel{
+    		position:absolute;
+    		left:0;
+    		text-align:right;
+    		width:198px;
+    	}
+    	label{
+    		float:none;
+    		text-align:left;
+    		display:block;
+    		width:auto;
+    	}
+    }
+    &.form-row-multiple {
+        // Account for demandware putting form row divs inside other form-row divs
+        label.line{
+        	line-height:22px;
+        }
+        .form-row {
+            width:85px;
+            margin-right:40px;
+            display:inline-block;
+            vertical-align:top;
+            label {
+                display:none;
+            }
+            select, .selectHolder {
+                width:85px !important;
+            }
+            &.error{
+            	&.required{
+            		background:none;
+            		border:0;
+            		padding:0;
+            		margin:0 40px 0 0;
+            		&:before{
+            			content:" ";
+            			background:none;
+            			border:0;
+            		}
+            		.form-caption {
+            			margin-left:0;
+            		}
+            	}
+            }
+        }
+    }
+    .error{
+        position:relative;
+        margin-top:17px;
+        @include transition-property(max-height);
+        @include transition-duration(0.2s);
+        @extend .error-tooltip;
+        display:none;
+        overflow:visible !important;    // overwrite inline styles set by jquery validate
+        text-align:center;
+        &:before {
+            @extend .tooltip-arrow;
+	    left:25px;	
+            border-left: 1px solid $mediumred;
+            border-top: 1px solid $mediumred;
+        }
+    }
+    label {
+        position:relative;
+        &.subtitled {
+        	top:-6px;
+        }
+        .subtitle {
+        	color:#888;
+        	font-size:11px;
+        	position:absolute;
+        }
+        br {
+            display:none;
+        }
+    }
+}
+
+input[type="text"],
+input[type="password"] {
+    font-family:$fixed-font-family, $base-font-family;
+    width:300px;
+    height:30px;
+    text-align:$center_align;
+    @include transition(border 0.3s);
+}
+
+input[type="submit"] {
+    &:focus {
+        border:none;
+        outline:none;
+    }
+}
+
+input[type="checkbox"] {
+    position:absolute;
+    left:-9999em;
+    &  + label span {
+        width:20px;
+        height:20px;
+        border:1px solid $input_border;
+        @include transition(border 0.3s);
+        
+        display:inline-block;
+        margin:10px 8px 0 0;
+    }
+    &:checked {
+        & + label span {
+        
+        }
+    }
+    &:focus {
+        & + label span {
+        
+        }
+    }
+}
+input[type="radio"] {
+    visibility:hidden;
+    position:absolute;
+    &  + label span:first-child {
+        width:20px;
+        height:20px;
+        display:inline-block;
+        margin:-6px 8px 0 0;
+        vertical-align:middle;
+    }
+}
+
+.focus{
+	.selectHolder{
+		border:#888888;
+	}
+}
+
+.selector {
+	display: inline-block;
+	vertical-align: middle;
+  	background-position: 0 -130px;
+	width:300px !important;
+	line-height: 30px;
+	position: relative;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+	span.selectHolder {
+		-webkit-font-smoothing: antialiased;
+		text-overflow: ellipsis;
+		display: block;
+	    overflow: hidden;
+	    white-space: nowrap;
+	    height: 30px;
+	    line-height: 30px;
+	    cursor: pointer;
+	    width:300px !important;
+	    color:#888888;
+	    background-color:$input_background;
+	    background-position:270px -49px;
+	    border:1px solid $input_border;
+	    font-size:15px;
+	    @include transition(border 0.3s);
+	}
+	select {
+	    opacity: 0;
+	    -moz-opacity: 0;
+	    background: none;
+	    position: absolute;
+	    height:30px;
+	    top: -1px;
+	    left: 0;
+	    width: 100%;
+    }
+    &.focus {
+    	outline: 0;
+        span.selectHolder {
+            border: 1px solid #888888 !important;
+        }
+    }
+}
+
+.form-row-leftalign {
+    .selector {
+    	height:auto;
+        margin-top:-4px;
+        .error{
+        	margin-left:0;
+        }
+        span.selectHolder {
+             background-position: 100% 0;
+             background-image: url(img/bg/customselect.png);
+             background-repeat:no-repeat;
+             padding:0 40px 0 10px;
+             text-transform:none;
+        }
+        &.focus {
+            span.selectHolder {
+                 background-position: 100% -30px;
+            }
+        }
+        select {
+            left:1px;
+            top:-1px;
+        }
+    }
+    .error {
+        &:before {
+            left:14px;
+        }
+    }
+    label{
+    	line-height:25px;
+    	vertical-align:top;
+    }
+}
+
+.form-row-error {
+    .selector {
+        span.selectHolder {
+            border: 1px solid $strongred !important;
+        }
+        &.focus {
+            span.selectHolder {
+                border: 1px solid #888888 !important;
+            }
+        }
+    }
+}
+
+select{
+    font-family:futura-pt, $base-font-family;
+    & > option {
+        background:$input_background;
+        color:$input_color;
+    }
+}
+
+textarea {
+    padding: 10px 15px;
+    &:focus {
+        outline: none;
+    }
+}
+
+.showPass{
+    position:absolute;
+    cursor:pointer;
+    right:0;
+    line-height:30px;
+    text-transform:uppercase;
+    top:0;
+    text-align:$center_align;
+    width:63px;
+    height:30px;
+    @include transition(border 0.3s);
+    overflow:hidden;
+    span{
+    }
+    .hide{
+        display:none;
+    }
+}
+
+
+.ie8 {
+	input[type="text"], input[type="password"], {
+		line-height:30px;
+	}
+	.showPass{
+		display:none;
+	}
+}
+
+.ie8 {
+    .selector{
+        select{
+            filter: alpha(opacity=0);
+        }
+    }
+    .form-row {
+        &.form-row-focussed {
+            &:after {
+                content:"" !important;
+            }
+        }
+        .error {
+            &:before {
+                background: url('img/icons/ie_tooltip_arrow_red.png') 0 0 no-repeat;
+                border: none;
+                width: 18px;
+                height: 10px;
+                margin-left: -9px;
+                margin-top: -3px;
+            }
+        }
+    }
+    input[type="radio"] {
+	    display:inline;
+	    position:static;
+	    visibility:visible;
+	    &  + label span:first-child {
+	        display:none;
+	    }
+	    &:checked {
+	        display:none;
+	    }
+	}
+	input[type="checkbox"] {
+	    position:relative;
+	    left:auto;
+	    &  + label span:first-child {
+	        display:none;
+	    }
+	    &:checked {
+	        display:none;
+	    }
+	}
+}
+.mc-tooltip{
+    position: absolute;
+    width: 210px;
+    padding: 0 12px;
+    background: #16151d;
+    color: #ccc;
+    text-align: left;
+    top: 0;
+    border: solid 1px #4a415f;
+    z-index: 999;
+    text-transform: uppercase;
+    line-height: 28px;
+    span{
+        content: '';
+        display: block;
+        width: 9px;
+        height: 16px;
+        background: url(img/icons/tooltip_arrow.png) no-repeat;
+        position: absolute;
+        top: 50%;
+        margin-top: -8px;
+        left: -9px;
+    }
+}
+.small_text{
+	
+	a{
+	
+	}
+}
+// IE8 -------------------------------------------------------------------------
+.ie8 {
+	.form-row{
+		&.form-row-indent{
+			label{
+				float:none;
+			}
+			input[type=checkbox] {
+				padding:0 5px 0 0;
+			}
+		}
+	}
+}

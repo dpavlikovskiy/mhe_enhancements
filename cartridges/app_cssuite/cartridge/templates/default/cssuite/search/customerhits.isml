@@ -1,0 +1,103 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	var customers : SeekableIterator = pdict.customers;
+	var results = pdict.CurrentHttpParameterMap.results.intValue;
+</isscript>
+
+<div id="msg_container">
+	<span id="msg">
+		${pdict.resultsno != 1 ? pdict.resultsno + ' matches found.' : '1 match found.'}
+		${pdict.resultsno > results ? results + ' matches displayed.' : ''}
+	</span>
+</div><!-- END: msg_container -->
+
+<div class="customerhits">
+<table class="listTable" cellpadding="0" cellspacing="0" border="0">
+   	<tbody>
+   		<tr class="listTableHeader">
+               <td class="listTableHeaderCell"></td>
+               <td class="listTableHeaderCell">Name</td>
+               <td class="listTableHeaderCell">ID</td>
+               <td class="listTableHeaderCell"></td>
+   		</tr>
+   
+    	<isloop iterator="${customers}" alias="cust" status="loopstatus">
+    		<isif condition="${loopstatus.count > results}">
+    			<isbreak>
+    		</isif>
+    		
+			<isscript>
+				if (empty(cust.credentials.login)) {
+					var custLogin = '';
+				} else {
+					var custLogin = cust.credentials.login;
+				}
+				
+				if (empty(cust.getFirstName()) || empty(cust.getLastName())) {
+					var custName = '';
+				} else {
+					var custName = cust.getFirstName() + ' ' + cust.getLastName();
+				}
+				
+				if (empty(cust.getCustomerNo())) {
+					var custNo = '';
+				} else {
+					var custNo = 'ID: ' + cust.getCustomerNo();
+				}
+				
+				var custAddress = '';
+				var custPhone = '';
+				if (!empty(cust.getAddressBook().getPreferredAddress())) {
+					if (!empty(cust.getAddressBook().getPreferredAddress().getAddress1())) {
+						custAddress += cust.getAddressBook().getPreferredAddress().getAddress1();
+					}
+					if (!empty(cust.getAddressBook().getPreferredAddress().getCity()) && !empty(cust.getAddressBook().getPreferredAddress().getPostalCode())) {
+						custAddress += '<br>';
+						custAddress += cust.getAddressBook().getPreferredAddress().getCity();
+						custAddress += ', ';						
+						custAddress += cust.getAddressBook().getPreferredAddress().getPostalCode();
+					}
+					if (!empty(cust.getAddressBook().getPreferredAddress().getPhone())) {
+						custPhone += cust.getAddressBook().getPreferredAddress().getPhone();
+					}
+				}
+
+				if (empty(cust.getEmail())) {
+					var custEmail = '';
+				} else {
+					var custEmail = cust.getEmail();
+				}
+
+				//escape characters
+				if (!empty(custAddress))
+				{
+					custAddress = custAddress.replace(new RegExp("\'", "g"), "\\'");
+				}
+				if (!empty(custName))
+				{
+					custName = custName.replace(new RegExp("\'", "g"), "\\'");
+				}
+			</isscript>
+    		
+ 	       	<tr class="${getRowClass(loopstatus)}" onclick="Order.getCustomerOrders('${cust.customerNo}'); show_customer_tooltip('${pdict.CurrentSession.userName}', '${custNo}', '${custAddress}', '${custPhone}', '${custEmail}', '${URLUtils.https('CSOrderOnBehalf-Registered', 'custid', custLogin)}', '${custLogin}', '${custName}');">
+				<td class="listTableCell iconcolumn">
+        			<img src="${URLUtils.staticURL('/cssuite/images/fam/user.png')}" ALT="Customer" />
+        		</td>
+                <td nowrap class="listTableCell customernamecolumn">
+        			${cust.getFirstName()} ${cust.getLastName()}<br>
+        		</td>
+         		<td class="listTableCell customernocolumn">
+        			${cust.getCustomerNo()}<br>
+        		</td>
+       			<td class="listTableCell iconcolumn">
+            		<img src="${URLUtils.staticURL('/cssuite/images/fam/arrow_right.png')}" alt="View Orders" />  
+        		</td>
+        	</tr>
+		</isloop>   
+    </tbody>
+</table>
+</div><!-- END: customerhits -->
+
+<div id="customer_tooltip">
+</div>

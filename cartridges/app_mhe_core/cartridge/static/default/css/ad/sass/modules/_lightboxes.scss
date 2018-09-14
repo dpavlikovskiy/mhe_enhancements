@@ -1,0 +1,69 @@
+.moet-overlay{
+	&.ui-dialog{
+		background-color: $bgbody;
+		border: 1px solid $lightboxBorder;
+	}
+	.ui-widget-overlay {
+		background-color: $black;
+	}
+	.beta-heading {
+		color: $greyText;
+	}
+}
+.account-module{
+	background-color:$lightboxBg;
+	p{
+		color:$greyText;
+		a{
+			color:$white;
+		}
+	}
+	.account-submit {
+		border-top:1px solid $footerDivider;
+	}
+}
+.account-module-editaddress{
+	p{
+		color:$white;
+	}
+}
+.account-module-addresses{
+	.address{
+		background-color:$bgbody;
+		color:$greyText;
+		&.default {
+			.address-default {
+				label {
+					color:#fff;
+				}
+			}
+		}
+		h3 {
+			color:#888;
+		}
+		.address-default {
+			label {
+				&:hover {
+					color:#fff;
+				}
+			}
+		}
+		.address-modify {
+			a {
+				color:$white;
+			}
+		}
+	}
+}
+.personalise-dialog{
+	.button{
+		&.secondary{
+			backgrond:transparent;
+		}
+	}
+	.cta-wrap{
+		.button-buy-me .face.front{
+			background:$brandBg;
+		}
+	}
+}

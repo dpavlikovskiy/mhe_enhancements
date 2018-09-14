@@ -1,0 +1,44 @@
+<isdecorate template="brand/search/pt_productsearchresult_content">
+
+<isinclude template="util/modules"/>
+	
+	<iscomment>Builds a registration page for the user. It provides all input fields for names and address</iscomment>
+<div id="ajaxForm" class="confirmLogin">
+	<div class="adRegistrationWrraper">
+		<div class ="reg-heading">${Resource.msg('account.register.header','account',null)}</div>
+		
+		<div class="errors-total">
+			<div class="errors-total-inner">
+				<iscomment>All validation errors listed at the top of the form</iscomment>
+			</div>
+		</div>
+	
+		<div class="shownItems">	
+			<isslot id="registrationSlotPartnerMsg" description="registrationSlot partner Message" context="global" />
+		</div>
+		<div class="adMandatoryFields">*${Resource.msg('account.register.mandatory','account',null)}</div>
+		<isinclude template="account/user/ad_registeruser_form"/>
+	</div>
+</div>
+</isdecorate>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	var d = new Date();
+    var time = d.getHours();
+    var $greet = $("p.greet");
+    if (time >= 0 && time <= 11){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.morning','account',null)}");
+    }
+    else if (time >= 12 && time <= 17){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+    }
+    else{
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.evening','account',null)}");
+    };
+    
+    $greet.addClass("greet-visible");
+    
+});
+</script> 
+	

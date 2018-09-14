@@ -1,0 +1,86 @@
+/**
+* This is adding the amount that was put on the given Gift Card to the available other payment instruments.
+*
+* @input Basket : dw.order.Basket The Basket.
+* @input GiftCardPaymentInstrument : dw.order.OrderPaymentInstrument The payment instrument
+*
+* @output Status : dw.system.Status The status is OK and the code is "CC_ACCEPTED" if the card is accepted, the status is ERROR and the code is "CC_DECLINED" if the card is declined. The status is ERROR and with an other code if there was an technical error. In this case the error exit is used. 
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.web );
+importPackage( dw.value );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	if ( empty(basket) ) {
+		Logger.error( "No basket available." );
+		return PIPELET_ERROR;
+	}
+	
+	var giftCardIDSet : dw.util.HashSet = new dw.util.HashSet();
+	giftCardIDSet.add('METHOD_PPGC', 'METHOD_SVGC');
+	
+	var giftCardPI : OrderPaymentInstrument = pdict.GiftCardPaymentInstrument;
+	var cardID : String = null;
+	if ( !empty(giftCardPI) ) {
+		if (giftCardPI.paymentMethod == 'METHOD_PPGC') {
+			cardID = giftCardPI.paymentTransaction.custom.ppgc_ID;
+		} else if (giftCardPI.paymentMethod == 'METHOD_SVGC') {
+			cardID = giftCardPI.paymentTransaction.custom.svgc_cardNumber;
+		}
+	} else {
+		Logger.debug( "No Gift Card PaymentInstrument available." );
+	}
+	
+	Logger.debug("Use Card Number: " + cardID);
+	
+	//assumption: All GC with transaction ids cannot be charged any more, all others can by using 
+	//up the balance that exceeds the already applied amount
+
+    var difference : Money = basket.totalGrossPrice;
+	for each (var giftCardMethodID : String in giftCardIDSet)
+	{	
+	    if (!empty(basket.getPaymentInstruments(giftCardMethodID))) {
+	    	for each (var pi : PaymentInstrument in basket.getPaymentInstruments(giftCardMethodID)) {
+	    		if ( empty(cardID) || (pi.paymentTransaction.custom.ppgc_ID != cardID && pi.paymentTransaction.custom.svgc_cardNumber != cardID && !pi.custom.toRemove) ) {
+	    			//subtract fix amounts in cases where the transaction id is present or the GC cannot be charged more
+					if ( !empty(pi.paymentTransaction.transactionID) || ((pi.paymentTransaction.amount.value == pi.paymentTransaction.custom.balance) && pi.paymentTransaction.amount.value < difference.value))
+					{
+					    Logger.debug("Keep GC Amount: " + pi.paymentTransaction.amount);
+						difference = difference.subtract(pi.paymentTransaction.amount);
+					} else {
+						var balance : Money = new Money(pi.paymentTransaction.custom.balance, difference.currencyCode);
+					    if (difference.value < balance.value) {
+					    	amount = difference;
+					    } else {
+					    	amount = balance;
+					    }
+					    Logger.debug("Set new GC Amount: " + amount);
+						pi.paymentTransaction.amount = amount;
+						difference = difference.subtract(amount);
+					}
+	    		}
+	    	}
+	    } else {
+		    Logger.debug("No {0} gift cards available.", giftCardMethodID);
+	    }
+	}
+	
+	//finding the primary payment
+	var primaryPayment : PaymentInstrument = null;
+   	for each (var pi : OrderPaymentInstrument in basket.paymentInstruments) {
+   		//preventing BML transaction amounts from being altered
+   		if (pi.paymentMethod != 'METHOD_PPGC' && pi.paymentMethod != dw.order.PaymentInstrument.METHOD_BML) {
+		    Logger.debug("Set new Primary Payment Amount: " + difference);
+   			pi.paymentTransaction.amount = difference;
+   			break;
+   		}
+   	}
+
+	//distributing the 
+
+	return PIPELET_NEXT;
+}

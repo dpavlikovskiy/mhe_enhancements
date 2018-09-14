@@ -1,0 +1,71 @@
+.aboutUs{  
+	width:100%;
+	h1{
+		font-size:80px;
+		@extend %text-shadow;
+	}
+	h2{
+		font-weight:$bold;
+		@extend %text-shadow;
+		font-size:$login_h2;
+		line-height:$base-line-height;
+		font-family:$fixed-font-family, $base-font-family;
+		text-transform:uppercase;
+		letter-spacing: 3px;
+	}
+	.selector{
+		height:auto;
+		overflow:visible;
+	}
+	.aboutUsSlot{
+		position:relative;
+		text-align:center;
+		.copy{
+			position:absolute;
+			height:250px;
+			left:50%;
+			margin:-125px 0 0 -300px;
+			width:600px;
+			z-index:2;
+			top:50%;
+			.logo{
+				img{
+					width:auto;
+					height:auto;
+					margin:auto;
+				}
+			}
+			span{
+				@include border-radius(50%);
+				width:5px; height:5px;
+				background:$white;
+				display:inline-block;
+				margin-bottom: 15px;
+				p{
+					margin:0 100px;
+				}
+			}
+		}
+		img{
+			display:block;
+			width:100%;
+			height:auto;
+		}
+	}
+	.footerlinks_footer {
+		background-color: $black;
+		margin-top:0;
+		padding: 8px 40px;
+		p {
+			color: $lightergrey;
+			font-size: $small_heading;
+			@include centered();
+			margin-bottom: 0;
+			span {
+				color: $darkpurple;
+				display: inline-block;
+				margin: 0 6px;
+			}
+		}
+	}
+}

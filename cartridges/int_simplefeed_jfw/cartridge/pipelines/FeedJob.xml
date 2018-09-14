@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="Feeds" type="job">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline can be used to download and import various types of feeds:
+
+Task Configuration Example:
+{
+    &quot;name&quot;: &quot;Import Catalogs&quot;,
+    &quot;pipeline&quot;: &quot;FeedJob-DownloadAndImport&quot;,
+    &quot;impexType&quot;: &quot;catalog&quot;,
+    &quot;importMode&quot;: &quot;REPLACE&quot;,
+    &quot;remoteFolderUrl&quot;: &quot;inbound/&quot;,
+    &quot;type&quot;: &quot;impex&quot;,
+    &quot;remoteFilePattern&quot;: &quot;^Catalog_.*\\.xml$&quot;,
+    &quot;tempFolder&quot;: &quot;catalog&quot;,
+    &quot;fileListBased&quot;: true,
+    &quot;deleteRemoteFile&quot;: false
+}</description>
+        </text-node>
+        <node-display width="3" x="4" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="DownloadAndImport">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="DownloadAndImport" secure="false"/>
+        <node-display x="6" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Reset RemoteFileList (don't remove)" pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="null" key="From_0"/>
+          <key-binding alias="RemoteFileList" key="To_0"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Starting file download&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Starting file download&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-DownloadFeed"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="FAILED">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="3" y="0"/>
+              <bend-point relative-to="target" x="-1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display orientation="horizontal" x="3" y="0"/>
+            </node>
+          </segment>
+        </branch>
+        <branch basename="b3" source-connector="NO_MORE_FILES">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node/>
+              <node-display x="-1" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Validating file &quot; + File)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage((&quot;Validating file &quot; + File))"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-ValidateFeed"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b4" source-connector="FAILED">
+          <transition target-connector="in1" target-path="./b5.1">
+            <transition-display>
+              <bend-point relative-to="source" x="4" y="0"/>
+              <bend-point relative-to="target" x="0" y="-3"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Importing file &quot; + File.name)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage((&quot;Importing file &quot; + File))"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-ImportFeed"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b5" source-connector="FAILED">
+          <transition target-connector="in1"/>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="2" y="0"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <call-node start-name-ref="FeedSteps-ArchiveFailureFeed"/>
+              <node-display x="0" y="2"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display x="0" y="2"/>
+            </node>
+          </segment>
+        </branch>
+        <branch basename="b6" source-connector="FEEDERROR">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="-4" y="0"/>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <call-node start-name-ref="FeedSteps-ArchiveFailureFeed"/>
+              <node-display x="-2" y="2"/>
+            </node>
+            <transition target-connector="in2" target-path="../+1">
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="4"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Archiving file &quot; + File.name)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Archiving file &quot; + File)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-ArchiveFeed"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b7" source-connector="FAILED">
+          <transition target-connector="in" target-path="./+1/b2.1">
+            <transition-display>
+              <bend-point relative-to="source" x="2" y="1"/>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Deleting file &quot; + File.name + &quot; on remote location.&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Deleting file &quot; + File + &quot; on remote location.&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-DeleteFeed"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="FAILED">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <call-node start-name-ref="Email-SendMail"/>
+              <node-display x="1" y="1"/>
+            </node>
+            <transition target-connector="in3" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./-2">
+        <transition-display>
+          <bend-point relative-to="source" x="-5" y="0"/>
+          <bend-point relative-to="target" x="-5" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_3">
+    <segment>
+      <node>
+        <text-node>
+          <description>This task can be used to export orders.
+Example configuration:
+{
+    &quot;name&quot;: &quot;Export Orders&quot;,
+    &quot;pipeline&quot;: &quot;FeedJob-ExportOrders&quot;,
+    &quot;remotePassword&quot;: &quot;MyPassword&quot;,
+    &quot;type&quot;: &quot;fileexchange&quot;,
+    &quot;remoteLogin&quot;: &quot;MyLogin&quot;,
+    &quot;remoteFolderUrl&quot;: &quot;sftp://myuploadserver.com/tmp/&quot;,
+    &quot;filePrefix&quot;: &quot;Order_&quot;,
+    &quot;tempFolder&quot;: &quot;temp&quot;
+}</description>
+        </text-node>
+        <node-display width="3" x="8" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="ExportOrders">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="ExportOrders" secure="false"/>
+        <node-display x="10" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Task.setStatusMessage(&quot;Start exporting orders&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+          <config-property key="OnError" value="null"/>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="Expression" value="Task.setStatusMessage(&quot;Start exporting orders&quot;)"/>
+          <key-binding alias="Result" key="Result"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <call-node start-name-ref="FeedSteps-ExportOrders"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="FAILED">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="target" x="-1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="FAILED"/>
+              <node-display orientation="horizontal" x="1" y="1"/>
+            </node>
+          </segment>
+        </branch>
+        <branch basename="b3" source-connector="SUCCESS">
+          <transition target-connector="in"/>
+          <segment>
+            <node>
+              <pipelet-node custom-name="Task.setStatusMessage(&quot;All orders exported&quot;)" pipelet-name="Eval" pipelet-set-identifier="bc_api">
+                <config-property key="OnError" value="null"/>
+                <config-property key="Transactional" value="true"/>
+                <config-property key="Expression" value="Task.setStatusMessage(&quot;All orders exported&quot;)"/>
+                <key-binding alias="Result" key="Result"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <end-node/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="OrdersNotYetDelivered">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="OrdersNotYetDelivered" secure="false"/>
+        <node-display x="15" y="0"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="dw.system.Site.getCurrent().getCustomPreferenceValue('numberOfDays')==null" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+                <config-property key="ObjectType" value="Order"/>
+                <config-property key="CaseSensitive" value="false"/>
+                <config-property key="SearchExpression" value="exportStatus={1} AND (custom.updateReasonCode!={2} OR custom.updateReasonCode={4}) AND status!={3}"/>
+                <key-binding alias="Orders" key="SearchResult"/>
+                <key-binding alias="OrderCount" key="SearchResultCount"/>
+                <key-binding alias="null" key="Search1Key"/>
+                <key-binding alias="dw.order.Order.EXPORT_STATUS_EXPORTED" key="Search1Value"/>
+                <key-binding alias="null" key="Search3Key"/>
+                <key-binding alias="dw.order.Order.ORDER_STATUS_CANCELLED" key="Search3Value"/>
+                <key-binding alias="null" key="Search4Key"/>
+                <key-binding alias="null" key="Search4Value"/>
+                <key-binding alias="null" key="Search5Key"/>
+                <key-binding alias="&quot;orderNo&quot;" key="SortBy1"/>
+                <key-binding alias="1" key="SortBy1Direction"/>
+                <key-binding alias="null" key="SortBy2"/>
+                <key-binding alias="null" key="SortBy2Direction"/>
+                <key-binding alias="null" key="SortBy3"/>
+                <key-binding alias="null" key="SortBy3Direction"/>
+                <key-binding alias="&quot;DELIVERED&quot;" key="Search2Value"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1"/>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="feeds/getlastorders.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('numberOfDays')" key="OrderDays"/>
+          <key-binding alias="lastorderedate" key="date"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+          <config-property key="ObjectType" value="Order"/>
+          <config-property key="CaseSensitive" value="false"/>
+          <config-property key="SearchExpression" value="exportStatus={1} AND (custom.updateReasonCode!={2} OR custom.updateReasonCode={4}) AND status!={3} AND creationDate&gt;={5}"/>
+          <key-binding alias="Orders" key="SearchResult"/>
+          <key-binding alias="OrderCount" key="SearchResultCount"/>
+          <key-binding alias="null" key="Search1Key"/>
+          <key-binding alias="dw.order.Order.EXPORT_STATUS_EXPORTED" key="Search1Value"/>
+          <key-binding alias="null" key="Search3Key"/>
+          <key-binding alias="dw.order.Order.ORDER_STATUS_CANCELLED" key="Search3Value"/>
+          <key-binding alias="null" key="Search4Key"/>
+          <key-binding alias="null" key="Search4Value"/>
+          <key-binding alias="null" key="Search5Key"/>
+          <key-binding alias="lastorderedate" key="Search5Value"/>
+          <key-binding alias="&quot;orderNo&quot;" key="SortBy1"/>
+          <key-binding alias="1" key="SortBy1Direction"/>
+          <key-binding alias="null" key="SortBy2"/>
+          <key-binding alias="null" key="SortBy2Direction"/>
+          <key-binding alias="null" key="SortBy3"/>
+          <key-binding alias="null" key="SortBy3Direction"/>
+          <key-binding alias="&quot;DELIVERED&quot;" key="Search2Value"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="Orders.asList()" key="From_0"/>
+          <key-binding alias="OrdersList" key="To_0"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <key-binding alias="instanceName" key="To_0"/>
+          <key-binding alias="!empty( dw.system.System.getInstanceHostname() ) ? dw.system.System.getInstanceHostname() : &quot;(unknown)&quot;" key="From_0"/>
+          <key-binding alias="instanceName.split(&quot;.&quot;)" key="From_1"/>
+          <key-binding alias="envName" key="To_1"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="MailFrom"/>
+          <key-binding alias="&quot;mail/ordersnotyetdeliveredreport&quot;" key="MailTemplate"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailAdminOrdersNotDeliveredReport" key="MailTo"/>
+          <key-binding alias="dw.system.Site.getCurrent().ID+&quot; - &quot;+dw.web.Resource.msg(&quot;notyetdelivered.subject&quot;,&quot;common&quot;,null) +   envName[0]" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="null" key="MailCC"/>
+          <key-binding alias="null" key="MailBCC"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="OrdersWithoutSapId">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="OrdersWithoutSapId" secure="false"/>
+        <node-display x="13" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SearchSystemObject" pipelet-set-identifier="bc_api">
+          <config-property key="ObjectType" value="Order"/>
+          <config-property key="CaseSensitive" value="false"/>
+          <config-property key="SearchExpression" value="exportStatus={1} AND custom.sapCustomerId={2}"/>
+          <key-binding alias="Orders" key="SearchResult"/>
+          <key-binding alias="OrderCount" key="SearchResultCount"/>
+          <key-binding alias="null" key="Search1Key"/>
+          <key-binding alias="dw.order.Order.EXPORT_STATUS_READY" key="Search1Value"/>
+          <key-binding alias="null" key="Search2Key"/>
+          <key-binding alias="null" key="Search3Key"/>
+          <key-binding alias="null" key="Search3Value"/>
+          <key-binding alias="null" key="Search4Key"/>
+          <key-binding alias="null" key="Search4Value"/>
+          <key-binding alias="null" key="Search5Key"/>
+          <key-binding alias="null" key="Search5Value"/>
+          <key-binding alias="&quot;orderNo&quot;" key="SortBy1"/>
+          <key-binding alias="1" key="SortBy1Direction"/>
+          <key-binding alias="null" key="SortBy2"/>
+          <key-binding alias="null" key="SortBy2Direction"/>
+          <key-binding alias="null" key="SortBy3"/>
+          <key-binding alias="null" key="SortBy3Direction"/>
+          <key-binding alias="empty" key="Search2Value"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="Orders.asList()" key="From_0"/>
+          <key-binding alias="OrdersList" key="To_0"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <key-binding alias="instanceName" key="To_0"/>
+          <key-binding alias="!empty( dw.system.System.getInstanceHostname() ) ? dw.system.System.getInstanceHostname() : &quot;(unknown)&quot;" key="From_0"/>
+          <key-binding alias="instanceName.split(&quot;.&quot;)" key="From_1"/>
+          <key-binding alias="envName" key="To_1"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.mailFrom" key="MailFrom"/>
+          <key-binding alias="&quot;mail/updateSapIdAdminEmail&quot;" key="MailTemplate"/>
+          <key-binding alias="dw.system.Site.getCurrent().preferences.custom.orderConfirmationMailBCC" key="MailTo"/>
+          <key-binding alias="dw.system.Site.getCurrent().ID+&quot; - &quot;+dw.web.Resource.msg(&quot;sapmail.subject&quot;,&quot;common&quot;,null) +   envName[0]" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="null" key="MailCC"/>
+          <key-binding alias="null" key="MailBCC"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="ReleaseTurnover">
+    <segment>
+      <node>
+        <start-node call-mode="private" name="ReleaseTurnover" secure="false"/>
+        <node-display x="17" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="customization/getOrdersforInventoryRelease.ds"/>
+          <key-binding alias="null" key="ScriptLog"/>
+          <key-binding alias="Orders" key="Orders"/>
+        </pipelet-node>
+        <node-display x="0" y="2"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in1" target-path="./+2">
+            <transition-display>
+              <bend-point relative-to="target" x="0" y="-2"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <transition target-connector="in" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <loop-node element-key="order" iterator-key="Orders"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="do">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="FailOrder" pipelet-set-identifier="bc_api">
+                <key-binding alias="order" key="Order"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="./+1">
+                  <transition-display>
+                    <bend-point relative-to="source" x="1" y="0"/>
+                    <bend-point relative-to="target" x="1" y="0"/>
+                  </transition-display>
+                </transition>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="./+1"/>
+          </segment>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="0" y="1"/>
+            </node>
+            <transition target-connector="loop" target-path="..">
+              <transition-display>
+                <bend-point relative-to="target" x="-1" y="0"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="1" y="-1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <end-node/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_8">
+    <segment>
+      <node>
+        <text-node>
+          <description>args.ReplayFile = &quot;FALSE&quot;;</description>
+        </text-node>
+        <node-display x="4" y="6"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_9">
+    <segment>
+      <node>
+        <text-node>
+          <description>This end node is reached if there are no more files to download or if there was a download error (and onTemporaryError is CONTINUE).</description>
+        </text-node>
+        <node-display x="4" y="7"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_10">
+    <segment>
+      <node>
+        <text-node>
+          <description>This end node is reached if there was nothing to export.</description>
+        </text-node>
+        <node-display x="12" y="4"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_11">
+    <segment>
+      <node>
+        <text-node>
+          <description>This end node is reached if there was an upload error (and onTemporaryError is CONTINUE).</description>
+        </text-node>
+        <node-display x="12" y="6"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_12">
+    <segment>
+      <node>
+        <end-node/>
+        <node-display x="19" y="5"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

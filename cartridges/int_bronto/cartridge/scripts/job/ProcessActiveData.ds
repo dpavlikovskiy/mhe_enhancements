@@ -1,0 +1,239 @@
+/**
+* This script creates an active data export file, 
+* and sends this file to Bronto via DirectImport
+**/
+
+importPackage(dw.customer);
+importPackage(dw.io);
+importPackage(dw.net);
+importPackage(dw.order);
+importPackage(dw.object);
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.web);
+
+importScript ('Bronto/API.ds');
+importScript ('job/Utils.ds');
+
+function execute ( args : PipelineDictionary ) : Number {
+	
+	/*
+	*==========================================================================
+	*===== First part - collect appropriate contacts for update ===============
+	*==========================================================================
+	*/
+	
+
+	// authorize session API
+	var map = authorizeAPI();
+	var fieldsIdMap : HashMap = getFieldList(map);
+	// Query the orders
+	var orderIterator : SeekableIterator = queryPreviousDayOrders(); // sorted by orderNo asc
+	var orders : Array = getOrderIdArray(orderIterator);
+	var customers : Array = getUniqueCustomers(orders); // array of profile.customerNo
+
+	if (!empty(customers)) {
+
+		/*
+		*==========================================================================
+		*===== Second part - write file with update data ==========================
+		*==========================================================================
+		*/
+		
+		removeOldExportFile();
+	
+		// Export File Writer configuration
+		// Set file name and location
+		var fileName : String = 'Bronto_DirectImport.csv';
+		var fileMgr : File = new File(File.IMPEX +'/src/');
+		fileMgr.mkdirs();
+		var file : File = new File(File.IMPEX +'/src/'+ fileName);
+		var exportFileWriter = new FileWriter(file, false);
+		
+		// Write FileWriter with header		
+		var fieldsHash = initFieldsHash(); // initialize hash and fills it with header captions
+		writeFileString(exportFileWriter, fieldsHash); // write header
+		
+		// Write FileWriter with data
+		
+		for (let i = 0; i < customers.length; i++) {
+			
+			// Prepare customers data
+			var customerProfile : Profile = dw.customer.CustomerMgr.getProfile(customers[i]);
+			//var customerProfile  = dw.customer.CustomerMgr.getProfile(customers[i]);
+			completeHashWithCustomerData (customerProfile, fieldsHash);
+	
+			// Write string with customer data
+			writeFileString(exportFileWriter, fieldsHash);
+		}
+		
+		// Write FileWriter content to file and close writer
+		exportFileWriter.flush();
+		exportFileWriter.close();
+		
+		/*
+		*==========================================================================
+		*===== Third part - send file with data to Bronto ==========================
+		*==========================================================================
+		*/
+		
+		
+		
+		// Read parameters from preferences
+		var params : HashMap = new HashMap();
+			params.put("targetURL", getCustomPreferenceValue("BrontoDirectImportURL"));
+			params.put("siteId", getCustomPreferenceValue("BrontoDirectImportSiteId"));
+			params.put("userId", getCustomPreferenceValue("BrontoDirectImportUserId"));
+			params.put("key", getCustomPreferenceValue("BrontoDirectImportKey"));
+			params.put("format", "csv");
+			params.put("source", "Shop customers from " + Site.getCurrent().name);
+	
+		// read file with contacts 
+		var fileContent : FileReader = new FileReader(file);
+		
+		// generate request body and parameters
+	    var sendData = createSendData(fileName, fileContent.getString(), params);
+		// create Http client and send a request with file
+		var httpClient : HTTPClient = new HTTPClient();
+			httpClient.open("POST", params.get("targetURL") );
+			httpClient.setRequestHeader("Content-Type", sendData.contentType);
+			httpClient.setRequestHeader("Content-Length", sendData.contentLength);
+			
+		try {
+			httpClient.send(sendData.body);
+		} catch (e) {
+			handleError(e, "File sending error");
+			return PIPELET_ERROR;
+		}
+		
+	} // end of if (!empty(customers))
+   return PIPELET_NEXT;
+}
+
+// Util methods
+
+function initFieldsHash() {
+	
+	var hash : HashMap = new HashMap();
+	try {
+
+		hash.put("email", "email");
+		hash.put("30dayprodview", "30dayprodview");
+		hash.put("7dayvisits", "7dayvisits");
+		hash.put("30dayvisits", "30dayvisits");
+		hash.put("365dayvisits", "365dayvisits");
+
+	   return hash;
+	} catch (e) {
+		handleError(e, "initFieldsHash");
+	}		
+}
+
+function completeHashWithCustomerData (customerProfile : Profile, hash : HashMap) {
+	try {
+
+		hash.put("email", getCustomerEmail(customerProfile));
+		hash.put("30dayprodview", customerProfile.customer.activeData.productsViewedMonth.length==0?"0":customerProfile.customer.activeData.productsViewedMonth.length.toString());
+		hash.put("7dayvisits", customerProfile.customer.activeData.visitsWeek==null?"0":customerProfile.customer.activeData.visitsWeek.toString());
+		hash.put("30dayvisits", customerProfile.customer.activeData.visitsMonth==null?"0":customerProfile.customer.activeData.visitsMonth.toString());
+		hash.put("365dayvisits", customerProfile.customer.activeData.visitsYear==null?"0":customerProfile.customer.activeData.visitsYear.toString());
+
+	} catch (e) {
+		handleError(e, "completeHashWithCustomerData");
+	}	
+}
+
+function writeFileString (exportFileWriter : FileWriter, hash : HashMap) {
+	if (!empty(hash)) {
+		try {
+			// Header string csv formatted
+			exportFileWriter.write("\"" + hash.get("email") + "\",");
+			exportFileWriter.write("\"" + hash.get("30dayprodview") + "\",");
+			exportFileWriter.write("\"" + hash.get("7dayvisits") + "\",");
+			exportFileWriter.write("\"" + hash.get("30dayvisits") + "\",");
+			exportFileWriter.write("\"" + hash.get("365dayvisits") + "\"" +"\r\n");	
+		} catch (e) {
+			handleError(e, "writeFileString");	
+		}
+	}
+}
+
+function removeOldExportFile () {
+	try {
+		var fileName : String = 'Bronto_DirectImport.csv';
+		var fileMgr : File = new File(File.IMPEX +'/src/');
+		var file : File = new File(File.IMPEX +'/src/'+ fileName);
+		file.remove();
+	} catch (e) {
+		handleError(e, "writeFileString");	
+	}
+}
+
+/**
+ * Helper method to workaround 10k bytes limitation
+ */
+function getContentLength(content, enc){
+	var buffer : String = content;
+	var bytes : Number = 0; 
+	var chunkSize = 4000;
+	while(buffer.length > 0){
+		bytes += (new Bytes(buffer.substring(0,Math.min(4000,buffer.length)),enc)).length;
+		buffer = buffer.substring(Math.min(4000,buffer.length));
+	}
+	return bytes;
+}	
+
+var exportFileWriter : FileWriter;
+
+/**
+ * Multipart file upload the manual way
+ */
+function createSendData(filename : String, filedata : String, params : HashMap) : String{
+	
+	// boundary is a bytes sequense, that should not occur in the file
+	var BOUNDARY = "---------------------------41184676334"; 
+	var CRLF = '\r\n';
+    var lines : Array = [];
+
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="site_id"');
+    lines.push('');
+    lines.push(params.get("siteId"));
+
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="user_id"');
+    lines.push('');
+    lines.push(params.get("userId"));
+
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="key"');
+    lines.push('');
+    lines.push(params.get("key"));
+
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="format"');
+    lines.push('');
+    lines.push(params.get("format"));
+    
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="source"');
+    lines.push('');
+    lines.push(params.get("source"));  
+            
+    lines.push('--' + BOUNDARY);
+    lines.push('Content-Disposition: form-data; name="filename"; filename="'+filename+'"');
+    lines.push('Content-Type: text/plain;');
+    lines.push('');
+    lines.push(filedata);
+
+    lines.push('--' + BOUNDARY + '--');
+    lines.push('');
+    var body : String = lines.join(CRLF);
+    return {
+    	      body          : body, 
+    	      contentType   : ("multipart/form-data; boundary="+BOUNDARY),
+    	      contentLength : getContentLength(body,"UTF-8")
+    	    };
+}
+
+var exportFileWriter : FileWriter;

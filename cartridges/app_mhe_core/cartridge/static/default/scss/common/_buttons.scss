@@ -1,0 +1,180 @@
+// =============================================================================
+// Buttons
+// =============================================================================
+
+.button {
+	text-decoration: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    width: auto;
+    min-height: 40px;
+	text-transform: uppercase;
+	display: inline-block;
+	letter-spacing: 2px;
+    position: relative;
+    @include transform-style(preserve-3d);
+    .face {
+		@include transition(all 0.2s ease-out);
+		@include transform-origin(50% 0);
+	    display: block;
+		font-family: $fixed-font-family, $base-font-family;
+	    font-size: 12px;
+	    padding: 0 20px;
+	    line-height:40px;
+	    text-align: center;
+		&.back {
+			@include transform(translate3d(0, 10px, 0) rotate3d(1, 0, 0, 90deg));
+	    	@include opacity(0);
+			position:absolute;
+			left:0;
+			top:0;
+			width:100%;
+		}
+		&.black {
+			@include transform(translate3d(0, 10px, 0) rotate3d(1, 0, 0, 90deg));
+	    	@include opacity(0);
+			position:absolute;
+			left:0;
+			top:0;
+			width:100%;
+		}
+	}
+	&:hover, &:focus, &.selected {
+		.face.front {
+			@include transform(translate3d(0, 0, 0) rotate3d(1, 0, 0, 90deg));
+	    	@include opacity(0);
+		}
+	}
+	&:hover, &:focus, &.selected {
+		.face.back {
+			@include transform(rotate3d(1, 0, 0, 0deg));
+	    	@include opacity(1);
+	    }
+	    .face.black {
+			@include transform(rotate3d(1, 0, 0, 0deg));
+	    	@include opacity(1);
+	    }
+	}
+	&.overimage {
+		.face {
+			color: $white;
+			border-color: $white;
+			&.front {
+				background-color: $darkergrey;
+			}
+			&.back {
+				background-color: $white;
+				color: $black;
+			}
+		}
+	}
+	&.overimage.trans {
+		.face.front {
+			background: rgba(0,0,0,0.25);
+		}
+	}
+	&:disabled {
+		color: $lightgrey;
+		@include transform-style(none);
+		.face {
+			color: $lightgrey;
+			border: 1px solid $lightgrey;
+			@include transition(none);
+			@include transform-origin(0 0);
+		}
+		&:hover {
+			.face {
+				background-color: transparent;
+			}
+		}
+	}
+}
+
+button {
+	&:disabled {
+		color: $lightgrey;
+		@include transform-style(none);
+		.face {
+			color: $lightgrey;
+			border: 1px solid $lightgrey;
+			@include transition(none);
+			@include transform-origin(0 0);
+		}
+		&:hover {
+			.face {
+				background-color: transparent;
+			}
+		}
+	}
+}
+
+
+
+a.youTubeOverlay{
+	display: block;
+	position: relative;
+	span.play-icon{
+		width: 80px;
+		height: 80px;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		margin: -40px 0 0 -40px;
+		display: block;
+		background: url(img/icons/videoThumbPlayBtn.png) no-repeat;
+	}
+	&:hover{
+		span.play-icon{
+			background-position: 0 -80px;
+		}
+	}
+}
+
+.ie8 {
+	button[disabled] {
+		.face {
+			color: $lightgrey;
+			border: 1px solid $lightgrey;
+		}
+		&:hover {
+			.face {
+				background: transparent;
+				border: 1px solid $lightgrey;
+			}
+		}
+	}
+	button.button {
+		overflow: visible;
+		.face {
+			top: 0;
+			padding-top:-13px;
+		}
+		&.secondary {
+			min-height: 42px;
+			/*margin-top:20px;*/
+			.face {
+				/*top: -20px;*/
+			}
+		}
+	}
+	.button {
+		&.hero {
+	    	.face {
+				&.front {
+					-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+				}
+			}
+	    }
+	}
+}
+
+.printInvoice {
+	.button {
+		&.secondary { 
+			min-height:26px;
+			.face {line-height:26px;}
+		}	
+	}
+}

@@ -1,0 +1,81 @@
+<!--- TEMPLATENAME: blankshippingForm.isml --->
+<isinclude template="util/modules"/>
+
+ <div id="shipping-address-form" style="display: none;"  >
+	
+	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.addressName}" type="hidden"  />
+	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addToAddressBook}" type="hidden" />
+    <isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.salutation}" type="hidden"/>
+    <isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.firstName}" type="hidden"/>
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.lastName}" type="hidden"/>
+	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.companyName}" type="hidden"/>   	
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address1}" type="hidden"/>
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.address2}" type="hidden" />
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.country}" type="hidden"  />
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.zip}" xhtmlclass="postcode-input" type="hidden" />
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.city}" type="hidden"/>
+   	<isinputfield formfield="${pdict.CurrentForms.singleshipping.shippingAddress.addressFields.phone}" type="hidden"/>
+</div>
+
+ <ul class="address-list">
+ <isif condition="${'ID' in pdict.Address && !empty(pdict.Address.ID)}">
+ 	<li>
+ 		<div class="mini-address-title">
+		<iscomment>Dkum37: do not remove the below label, hide it for your story if required.</iscomment>
+			<label>${Resource.msg('minishipments.deliverto','checkout',null)}</label>
+			<h2><isprint value="${pdict.Address.ID}"/></h2>
+		<iscomment>	
+		<isif condition="${!empty(pdict.p_productlist)}">
+				<div class="mini-address-product-list">${Resource.msg('miniaddress.registrywishlist','account',null)}</div>
+			</isif> 
+			 </iscomment>
+		</div>
+ 	</li>
+ 
+	
+</isif>
+<li>
+<div class="mini-address-location">
+
+	<address>
+	    <isprint value="${pdict.Address.salutation}"/>
+	    <isprint value="${pdict.Address.firstName}"/>
+		<isprint value="${pdict.Address.lastName}"/></br>
+	
+	    <isif condition="${!empty(pdict.Address.companyName)}">
+			<isprint value="${pdict.Address.companyName}"/> <br>
+		</isif>
+	
+	    <isif condition="${!empty(pdict.Address.address1)}">
+			<isprint value="${pdict.Address.address1}"/> <br>
+		</isif>
+		
+		<isif condition="${!empty(pdict.Address.address2)}">
+			<isprint value="${pdict.Address.address2}"/> <br>
+		</isif>
+	
+		<isif condition="${!empty(pdict.Address.postalCode)}">
+		<isprint value="${pdict.Address.postalCode}"/> <br>
+		</isif>
+		
+		<isif condition="${pdict.Address.city != null}">
+			<isprint value="${pdict.Address.city}"/> <br>
+		</isif>
+		   
+		  <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==pdict.Address.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+           </isloop> <br>
+		
+		<isif condition="${!empty(pdict.Address.phone)}">
+		<iscomment>	<br/>${Resource.msg('miniaddress.phone','account',null)}   </iscomment>
+			 <isprint value="${pdict.Address.phone}"/> 
+		</isif>
+	
+	</address>
+	
+</div>
+</li>
+</ul>

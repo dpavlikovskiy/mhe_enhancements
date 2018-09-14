@@ -1,0 +1,56 @@
+.column-hero{
+	.main-image{
+		cursor:url(img/icons/cursor-plus.png) 28 28, pointer;
+		display: block;
+	}
+}
+.pdpSlides.bootCaro{
+	padding:0 !important;
+	//cursor:none;
+	.bootCaro-inner{
+		.item{
+			height:1285px;
+			img{
+				margin:auto;
+			}
+		}
+	}
+	.carousel-control{
+		width:40px;
+		height:40px;
+		background:$black;
+		border:1px solid $lightergrey;
+		color:$white;
+		margin-top:-20px;
+		left:0;
+		font:32px/47px $heading-font-family;
+		text-indent:0;
+		text-align:center;
+		&.right{
+			right:0;
+		}
+	}
+}
+.mover{
+	//@include transition(all 0.5s ease-out);
+	@include border-radius(50%);
+	width:50px;
+	height:50px;
+	//margin-bottom: 15px;
+	margin: -25px 0 0 -25px;
+	position:absolute;
+	line-height:50px;
+	font-size:30px;
+	display:none;
+	color:$white;
+	text-align:center;
+	&.close{
+		@include transition(all 0.5s ease-out);
+		-webkit-transform: rotate(45deg);
+	    -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	    -o-transform: rotate(45deg);
+	    transform:rotate(45deg);
+	    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+	}
+}

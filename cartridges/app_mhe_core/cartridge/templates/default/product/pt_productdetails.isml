@@ -1,0 +1,78 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:(pdict.Product.name || 'Product Detail'), type:'product', ns:'product'};
+
+		importScript( "product/ProductUtils.ds" );					
+		var badgeValidity : Boolean = ProductUtils.displayBadge(pdict.Product); 
+		var avm = pdict.Product.availabilityModel;
+		pdict.available = avm.availability>0;
+	</isscript>
+	<isinclude template="components/header/htmlhead"/>
+<isif condition="${!empty(pdict.Product)}">
+	
+	<meta property="og:description" content="${pdict.Product.custom.csOnlyIsOrderable}" />
+	<isif condition="${!empty(pdict.Product.getImage('hi-res', 0))}">
+	<meta property="og:image" content="${pdict.Product.getImage('hi-res', 0).getURL()}" />
+<iselse>
+	<meta property="og:image" content="${URLUtils.staticURL('/images/noimagelarge.png')}" />
+</isif>
+</isif>
+	<isinclude template="product/pt_productdetails_UI"/>
+
+	<link rel="canonical" href="${URLUtils.url('Product-Show','pid', pdict.Product.ID)}"/>	
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('DP'))}">
+		<link rel="alternate"  href="${URLUtils.url('Product-Show','pid', pdict.Product.ID)}" hreflang="${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}" />
+	</isif>
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+<body class="pdpPage">
+
+	<div id="wrapper" class="pt_product-details">
+	
+		<isinclude url="${URLUtils.url('Home-IncludeHeader')}"/>	
+		<div id="main" role="main" class="full-width main clearfix">
+					
+			<isinclude template="components/browsertoolscheck"/>								
+			<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+			<isinclude template="components/productbreadcrumbs"/>
+			<iselse>
+			<isinclude template="brand/components/productbreadcrumbs"/>
+			</isif>
+			
+			<div id="primary" class="primary-content">
+			
+				<div id="product-nav-container">
+					<isinclude template="search/productnav"/>
+				</div> <!-- /product-nav-container -->
+				
+				<isreplace/>
+			</div><!-- /primary-content -->
+			
+		</div> <!-- /main -->
+		
+		<isinclude template="components/footer/footer"/>
+		<isinclude template="product/pt_productdetails_VARS"/>				
+	</div> <!-- /pt_product-details -->
+	<isif condition="${!pdict.CurrentSession.custom.brand.equals('mh')}" >
+	
+		<isif condition="${(!pdict.available) || (pdict.Product.custom.badge=='ComingSoon' && badgeValidity)?true:false || pdict.Product.variant}">
+		<div class="pdp-register-interest">
+			<isinclude url="${URLUtils.url('Product-KeepMeUpdate', 'productID', pdict.Product.ID,'csOnly','false')}"/>
+		</div>
+		<iselseif condition="${pdict.CurrentSession.userName.equalsIgnoreCase('storefront') && pdict.Product.custom.csOnlyIsOrderable}">
+			<div class="pdp-register-interest">
+			<isinclude url="${URLUtils.url('Product-KeepMeUpdate', 'productID', pdict.Product.ID,'csOnly',pdict.Product.custom.csOnlyIsOrderable)}"/>
+			</div>
+		</isif>	
+	</isif>		
+</body>
+</html>

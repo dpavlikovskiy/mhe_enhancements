@@ -1,0 +1,150 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<script>
+
+Customer.searchUrl = '${URLUtils.url('CSCustomer-Search')}';
+Customer.resetPasswordUrl = '${URLUtils.url('CSCustomer-ResetPassword')}';;
+
+Order.addCouponUrl = '${URLUtils.url('CSCart-AddCoupon')}';
+Order.addNoteUrl = '${URLUtils.url('CSCart-AddNote')}';
+Order.addPaymentUrl = '${URLUtils.url('CSPayments-AddPayment')}';
+Order.editPaymentUrl = '${URLUtils.url('CSPayments-EditPayment')}';
+Order.addPriceAdjustmentUrl = '${URLUtils.url('CSCart-AddPriceAdjustment')}';
+Order.dialogCancelOrderUrl= '${URLUtils.url('CSOrder-Cancel')}';
+Order.dialogCreateShipmentUrl = '${URLUtils.url('CSShipping-CreateShipment')}';
+Order.dialogEditShipmentUrl = '${URLUtils.url('CSShipping-EditShipment')}';
+Order.deleteShipmentUrl = '${URLUtils.url('CSShipping-DeleteShipment')}';
+Order.dialogProductToShipmentsUrl = '${URLUtils.url('CSCart-DialogProductToShipments')}';
+Order.editBillingAddressURL = '${URLUtils.url('CSBilling-EditBillingAddress')}';
+Order.editShipmentURL = '${URLUtils.url('CSShipping-EditShipment')}';
+Order.generalInfoUrl = '${URLUtils.url('CSCart-GetGeneralInfo')}';
+Order.getBillingAddressURL = '${URLUtils.url('CSBilling-GetBillingAddress')}';
+Order.getHistoryUrl = '${URLUtils.url('CSCart-GetOrderHistory')}';
+Order.getNotesUrl = '${URLUtils.url('CSCart-GetNotes')}';
+Order.getCartInfoUrl = '${URLUtils.url('CSCart-GetCartInfo')}';
+Order.immutableOrderDetailsURL = '${URLUtils.url('CSOrder-ViewImmutableOrderDetails')}';
+Order.modifyOrderUrl = '${URLUtils.url('CSCart-CreateBasketForOrderEdit')}';
+Order.createBasketUrl = '${URLUtils.url('CSCart-CreateBasket')}';
+Order.paymentInfoUrl = '${URLUtils.url('CSPayments-GetPaymentInfo')}';
+Order.productLineItemsUrl = '${URLUtils.url('CSCart-GetProductLineItems')}';
+Order.addProductToShipmentsUrl = '${URLUtils.url('CSCart-AddProductToShipments')}';
+Order.removeCouponUrl = '${URLUtils.url('CSCart-RemoveCoupon')}';
+Order.removeLineItemUrl = '${URLUtils.url('CSCart-RemoveLineItem')}';
+Order.removePriceAdjustmentUrl = '${URLUtils.url('CSCart-RemovePriceAdjustment')}';
+Order.saveOrderURL = '${URLUtils.url('CSSubmit-SaveOrder')}';
+Order.saveUrl = '${URLUtils.url('CSSubmit-SaveOrder')}';
+Order.searchOrdersUrl = '${URLUtils.url('CSOrder-Search')}';
+Order.shippingInfoUrl = '${URLUtils.url('CSShipping-GetShippingInfo')}';
+Order.shippingPriceUrl = '${URLUtils.url('CSCart-SetShippingPrice')}';
+Order.updateLineItemQtyUrl = '${URLUtils.url('CSCart-UpdateLineItemQty')}';
+Order.removeShippingPriceAdjustmentUrl = '${URLUtils.url('CSCart-RemoveShippingPriceAdjustment')}';
+
+Product.dialogShowProductUrl = '${URLUtils.url('CSProduct-DialogShowProduct')}';
+Product.searchUrl = '${URLUtils.url('CSProduct-Show')}';
+Product.getVariantsURL = '${URLUtils.url('CSProduct-GetVariants')}';
+
+//the site id is used to prefix the cookie names which store the last known state of forms
+CSSuite.siteID = '${dw.system.Site.getCurrent().ID}';
+
+//UI ajax calls
+CSSuite.homeUrl = '${URLUtils.url('CSSuite-Home')}';
+CSSuite.sessionExpiredURL = '${URLUtils.url('CSLogin-LoginSessionExpired')}';
+CSSuite.sessionKeepAllive = '${URLUtils.url('CSKeepSessionAlive-Start')}';
+
+CSSuite.waitUrl = '<img src="${URLUtils.staticURL('/cssuite/images/loader1.gif')}" border="0" style="margin:0px 0px 0px 0px;float:left;" />';
+CSSuite.wait2Url = '<img src="${URLUtils.staticURL('/cssuite/images/loading.gif')}" border="0" style="float:left;margin:0px 10px 0px 10px;"/>Working...';
+
+CSSuite.noSearchCriteria='${Resource.msg('search.nocriteria','cssuite',null)}'
+//creating the country-state map that is used to
+//populate state select boxes based on the selected country
+CSSuite.stateOptionMap = new Object();
+
+stateMapUS = new Object();
+stateMapUS[0] = ["","${Resource.msg('forms.customeraddress.011','forms',null)}"];
+stateMapUS[1] = ["AL","${Resource.msg('forms.state.alabama','forms',null)}"];
+stateMapUS[2] = ["AK","${Resource.msg('forms.state.alaska','forms',null)}"];
+stateMapUS[3] = ["AZ","${Resource.msg('forms.state.arizona','forms',null)}"];
+stateMapUS[4] = ["AR","${Resource.msg('forms.state.arkansas','forms',null)}"];
+stateMapUS[5] = ["CA","${Resource.msg('forms.state.california','forms',null)}"];
+stateMapUS[6] = ["CO","${Resource.msg('forms.state.colorado','forms',null)}"];
+stateMapUS[7] = ["CT","${Resource.msg('forms.state.connecticut','forms',null)}"];
+stateMapUS[8] = ["DE","${Resource.msg('forms.state.delaware','forms',null)}"];
+stateMapUS[9] = ["DC","${Resource.msg('forms.state.districtOfColumbia','forms',null)}"];
+stateMapUS[10] = ["FL","${Resource.msg('forms.state.florida','forms',null)}"];
+stateMapUS[11] = ["GA","${Resource.msg('forms.state.georgia','forms',null)}"];
+stateMapUS[12] = ["HI","${Resource.msg('forms.state.hawaii','forms',null)}"];
+stateMapUS[13] = ["ID","${Resource.msg('forms.state.idaho','forms',null)}"];
+stateMapUS[14] = ["IL","${Resource.msg('forms.state.illinois','forms',null)}"];
+stateMapUS[15] = ["IN","${Resource.msg('forms.state.indiana','forms',null)}"];
+stateMapUS[16] = ["IA","${Resource.msg('forms.state.iowa','forms',null)}"];
+stateMapUS[17] = ["KS","${Resource.msg('forms.state.kansas','forms',null)}"];
+stateMapUS[18] = ["KY","${Resource.msg('forms.state.kentucky','forms',null)}"];
+stateMapUS[19] = ["LA","${Resource.msg('forms.state.louisiana','forms',null)}"];
+stateMapUS[20] = ["ME","${Resource.msg('forms.state.maine','forms',null)}"];
+stateMapUS[21] = ["MD","${Resource.msg('forms.state.maryland','forms',null)}"];
+stateMapUS[22] = ["MA","${Resource.msg('forms.state.massachusetts','forms',null)}"];
+stateMapUS[23] = ["MI","${Resource.msg('forms.state.michigan','forms',null)}"];
+stateMapUS[24] = ["MN","${Resource.msg('forms.state.minnesota','forms',null)}"];
+stateMapUS[25] = ["MS","${Resource.msg('forms.state.mississippi','forms',null)}"];
+stateMapUS[26] = ["MO","${Resource.msg('forms.state.missouri','forms',null)}"];
+stateMapUS[27] = ["MT","${Resource.msg('forms.state.montana','forms',null)}"];
+stateMapUS[28] = ["NE","${Resource.msg('forms.state.nebraska','forms',null)}"];
+stateMapUS[29] = ["NV","${Resource.msg('forms.state.nevada','forms',null)}"];
+stateMapUS[30] = ["NH","${Resource.msg('forms.state.newHampshire','forms',null)}"];
+stateMapUS[31] = ["NJ","${Resource.msg('forms.state.newJersey','forms',null)}"];
+stateMapUS[32] = ["NM","${Resource.msg('forms.state.newMexico','forms',null)}"];
+stateMapUS[33] = ["NY","${Resource.msg('forms.state.newYork','forms',null)}"];
+stateMapUS[34] = ["NC","${Resource.msg('forms.state.northCarolina','forms',null)}"];
+stateMapUS[35] = ["ND","${Resource.msg('forms.state.northDakota','forms',null)}"];
+stateMapUS[36] = ["OH","${Resource.msg('forms.state.ohio','forms',null)}"];
+stateMapUS[37] = ["OK","${Resource.msg('forms.state.oklahoma','forms',null)}"];
+stateMapUS[38] = ["OR","${Resource.msg('forms.state.oregon','forms',null)}"];
+stateMapUS[39] = ["PA","${Resource.msg('forms.state.pennsylvania','forms',null)}"];
+stateMapUS[40] = ["RI","${Resource.msg('forms.state.rhodeIsland','forms',null)}"];
+stateMapUS[41] = ["SC","${Resource.msg('forms.state.southCarolina','forms',null)}"];
+stateMapUS[42] = ["SD","${Resource.msg('forms.state.southDakota','forms',null)}"];
+stateMapUS[43] = ["TN","${Resource.msg('forms.state.tennessee','forms',null)}"];
+stateMapUS[44] = ["TX","${Resource.msg('forms.state.texas','forms',null)}"];
+stateMapUS[45] = ["UT","${Resource.msg('forms.state.utah','forms',null)}"];
+stateMapUS[46] = ["VT","${Resource.msg('forms.state.vermont','forms',null)}"];
+stateMapUS[47] = ["VA","${Resource.msg('forms.state.virginia','forms',null)}"];
+stateMapUS[48] = ["WA","${Resource.msg('forms.state.washington','forms',null)}"];
+stateMapUS[49] = ["WV","${Resource.msg('forms.state.westVirginia','forms',null)}"];
+stateMapUS[50] = ["WI","${Resource.msg('forms.state.wisconsin','forms',null)}"];
+stateMapUS[51] = ["WY","${Resource.msg('forms.state.wyoming','forms',null)}"];
+stateMapUS[52] = ["", ""];
+stateMapUS[53] = ["","${Resource.msg('forms.orderaddress.usTerritories','forms',null)}"];
+stateMapUS[54] = ["","${Resource.msg('forms.orderaddress.divider','forms',null)}"];
+stateMapUS[55] = ["AA","${Resource.msg('forms.state.armedForcesAmericas','forms',null)}"];
+stateMapUS[56] = ["AE","${Resource.msg('forms.state.armedForcesEurope','forms',null)}"];
+stateMapUS[57] = ["AP","${Resource.msg('forms.state.armedForcesPacific','forms',null)}"];
+stateMapUS[58] = ["AS","${Resource.msg('forms.state.americanSamoa','forms',null)}"];
+stateMapUS[59] = ["GU","${Resource.msg('forms.state.guam','forms',null)}"];
+stateMapUS[60] = ["MH","${Resource.msg('forms.state.marshallIslands','forms',null)}"];
+stateMapUS[61] = ["FM","${Resource.msg('forms.state.micronesia','forms',null)}"];
+stateMapUS[62] = ["MP","${Resource.msg('forms.state.northernMarianas','forms',null)}"];
+stateMapUS[63] = ["PW","${Resource.msg('forms.state.palau','forms',null)}"];
+stateMapUS[64] = ["PR","${Resource.msg('forms.state.puertoRico','forms',null)}"];
+stateMapUS[65] = ["VI","${Resource.msg('forms.state.virginIslands','forms',null)}"];
+CSSuite.stateOptionMap["US"] = stateMapUS;
+
+stateMapCA = new Object();
+stateMapCA[0] = ["","${Resource.msg('forms.customeraddress.011','forms',null)}"];
+stateMapCA[1] = ["AB","${Resource.msg('forms.province.alberta','forms',null)}"];
+stateMapCA[2] = ["BC","${Resource.msg('forms.province.britishColumbia','forms',null)}"];
+stateMapCA[3] = ["LB","${Resource.msg('forms.province.labrador','forms',null)}"];
+stateMapCA[4] = ["MB","${Resource.msg('forms.province.manitoba','forms',null)}"];
+stateMapCA[5] = ["NF","${Resource.msg('forms.province.newfoundland','forms',null)}"];
+stateMapCA[6] = ["NB","${Resource.msg('forms.province.newBrunswick','forms',null)}"];
+stateMapCA[7] = ["NT","${Resource.msg('forms.province.northwestTerritories','forms',null)}"];
+stateMapCA[8] = ["NS","${Resource.msg('forms.province.novaScotia','forms',null)}"];
+stateMapCA[9] = ["NU","${Resource.msg('forms.province.nunavut','forms',null)}"];
+stateMapCA[10] = ["ON","${Resource.msg('forms.province.ontario','forms',null)}"];
+stateMapCA[11] = ["PE","${Resource.msg('forms.province.princeEdwardIsland','forms',null)}"];
+stateMapCA[12] = ["QC","${Resource.msg('forms.province.quebec','forms',null)}"];
+stateMapCA[13] = ["SK","${Resource.msg('forms.province.saskatchewan','forms',null)}"];
+stateMapCA[14] = ["YT","${Resource.msg('forms.province.yukonTerritory','forms',null)}"];
+CSSuite.stateOptionMap["CA"] = stateMapCA;
+
+
+
+</script>

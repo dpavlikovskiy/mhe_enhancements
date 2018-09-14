@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+
+	<menuitem id="monitoring" position="9999" site="false">
+		<name xml:lang="x-default">Monitoring</name>
+		<short_description xml:lang="x-default">Module for monitoring the instance</short_description>
+		<description xml:lang="x-default">Here you can get different views to processes, and services.</description>
+		<icon>icons/search_ico.gif</icon>
+	</menuitem>
+
+	<menuaction id="show_job_process" menupath="monitoring" position="9997" site="false">
+	  <name xml:lang="x-default">Show Job Status</name>
+	  <short_description xml:lang="x-default">
+		  View the current state of a running import process or show finished processes.
+	  </short_description>
+	  <description xml:lang="x-default">
+		  View the current state of a running import process or show finished processes.
+	  </description>
+	  <exec pipeline="JobStatus" node="Show"/>
+	  <sub-pipelines>
+	     <pipeline name="JobStatus-Show" />
+	     <pipeline name="JobStatus-GetJobEntriesForDate" />
+	     <pipeline name="JobStatus-GetTaskEntries" />
+	     <pipeline name="JobStatus-MarkJobAsTerminated" />
+	     <pipeline name="JobStatus-RemoveJobStatus" />
+         <pipeline name="DownloadCustomLogFile-Start" />
+	  </sub-pipelines>
+	  <parameters>
+	  	<parameter name="menuname" value="Show processes"/>
+		<parameter name="mainmenuname" value="Operations"/>
+	  </parameters>
+	  <permissions />
+	  <icon>icons/series_numbers_ico.gif</icon>
+	</menuaction>
+
+	<menuaction id="show_job_configuration" menupath="operations" position="9998" site="false">
+	  <name xml:lang="x-default">Manage Job Configurations</name>
+	  <short_description xml:lang="x-default">
+		  Manage your job configurations.
+	  </short_description>
+	  <description xml:lang="x-default">
+		  Manage your job configurations.
+	  </description>
+	  <exec pipeline="JobConfiguration" node="Show"/>
+	  <sub-pipelines>
+	     <pipeline name="JobConfiguration-Show" />
+	     <pipeline name="JobConfiguration-Action" />
+	     <pipeline name="JobConfiguration-jobUpdate" />
+	     <pipeline name="JobConfiguration-Add" />
+	     <pipeline name="JobConfiguration-Edit" />
+	     <pipeline name="JobConfiguration-Remove" />
+	     <pipeline name="JobConfiguration-CustomObjectEdit"/>
+	     <pipeline name="JobConfiguration-JSONEditor"/>
+	  </sub-pipelines>
+	  <parameters/>
+	  <permissions />
+	  <icon>icons/series_numbers_ico.gif</icon>
+	</menuaction>
+
+</extensions>

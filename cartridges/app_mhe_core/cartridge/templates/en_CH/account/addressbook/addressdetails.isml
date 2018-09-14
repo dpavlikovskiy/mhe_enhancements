@@ -1,0 +1,108 @@
+<isinclude template="util/modules"/>
+<isset name="DecoratorTemplate" value="util/pt_empty" scope="page"/>
+<isdecorate template="${DecoratorTemplate}">
+		<h1>${Resource.msg('editaddress.editaddress','account',null)}</h1>
+		<p>${Resource.msg('editaddress.editaddressdetails','account',null)}</p>
+	
+	<div class="errors-total">
+		<div class="errors-total-inner">
+			this is the one
+			<iscomment>All validation errors listed at the top of the form</iscomment>
+		</div>
+	</div>
+	
+	<form method="post" action="${URLUtils.httpsContinue()}" id="edit-address-form" name="${pdict.CurrentForms.profile.address.htmlName}">		
+		<fieldset class="account-form">
+			<isif condition="${pdict.Status != null && pdict.Status.isError()}">				 
+			 	<!--- Use the error code value to build an appropriate error message --->
+				<span class="form-error">
+					<isprint value="${Resource.msg('addressdetails.' + pdict.Status.code, 'account',null)}"/>
+				</span>
+			</isif>
+			
+			<div class="form-row form-row-leftalign">
+		    	<isinputfield formfield="${pdict.CurrentForms.profile.address.addressid}" type="input" requiredtext="${Resource.msg('forms.customeraddress.addressid.missing-error','forms',null)}" />  
+		    </div>
+		    
+		    		<isscript>
+							importScript('checkout/Utils.ds');
+							var salutationMap : dw.util.Map = getSalutationMap();					
+					</isscript>
+					
+					
+			<div class="form-row form-row-leftalign required " data-required-text="${Resource.msg('profile.salutation2.missing-error','forms',null)}" >
+				<label>${Resource.msg('profile.salutation2','forms',null)}</label>
+				<select id="${pdict.CurrentForms.profile.address.salutation.htmlName}" name="${pdict.CurrentForms.profile.address.salutation.htmlName}" class="input-text required custom-select">
+				<option value="">${Resource.msg('profile.salutation2','forms',null)}</option>
+					<isloop items="${salutationMap.keySet().iterator()}" var="key" status="loopstatus">	
+						<isif condition="${pdict.CurrentForms.profile.address.salutation.htmlValue.equals(salutationMap.get(key))}">								 
+				 			 <option selected="selected" value="${key}">${salutationMap.get(key)}</option>
+						<iselse>
+							<option  value="${key}">${salutationMap.get(key)}</option>
+						</isif>	                            				
+					</isloop>
+				</select>
+			</div>
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.firstname}" type="input" 
+						 requiredtext = "${Resource.msg('forms.customeraddress.firstname.missing-error','forms',null)}" xhtmlclass="name-input" rowclass="form-row-leftalign"/>
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.lastname}" type="input" 
+						 requiredtext = "${Resource.msg('forms.customeraddress.lastname.missing-error','forms',null)}" xhtmlclass="name-input" rowclass="form-row-leftalign"/>
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.companyName}" type="input" rowclass="form-row-leftalign" />
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.address1}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.customeraddress.address1.description','forms',null)}" />
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.address2}" type="input" rowclass="form-row-leftalign"/>
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.country}" type="hidden" />		
+			</div>
+			
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.zip}" xhtmlclass="postcode-input" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.errorzip','forms',null)}" />
+			</div>
+
+			<div class="form-row form-row-leftalign">
+				<isinputfield formfield="${pdict.CurrentForms.profile.address.city}" type="input" 
+						rowclass="form-row-leftalign" requiredtext = "${Resource.msg('forms.customeraddress.city.missing-error','forms',null)}" /> 
+			</div>
+			
+			
+			<div class="form-row form-row-leftalign">
+				
+					<isinputfield formfield="${pdict.CurrentForms.profile.address.phone}" type="input" requiredtext="${Resource.msg('forms.customeraddress.phone.missing-error','forms',null)}" xhtmlclass="phone-input" />
+			</div>
+			
+			
+			
+			
+			<div class="account-submit account-submit-indent">							 	
+				<button class="button secondary clear save-changes" type="submit" name="${pdict.Action == 'add' ? pdict.CurrentForms.profile.address.create.htmlName : pdict.CurrentForms.profile.address.edit.htmlName}" value="${Resource.msg('global.apply','locale',null)}">
+					<span class="face front">
+						${Resource.msg('global.savechanges','locale',null)}
+					</span>
+					<span class="face back">
+						${Resource.msg('global.savechanges','locale',null)}
+					</span>
+				</button>
+			</div>
+			
+			<input type="hidden" name="${pdict.CurrentForms.profile.secureKeyHtmlName}" value="${pdict.CurrentForms.profile.secureKeyValue}"/>
+			
+		</fieldset>
+			
+	</form>
+</isdecorate>

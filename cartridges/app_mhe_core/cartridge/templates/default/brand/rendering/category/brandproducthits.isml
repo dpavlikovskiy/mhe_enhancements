@@ -1,0 +1,64 @@
+<isdecorate template="search/pt_productsearchresult_content">
+
+<iscache type="relative" minute="30" varyby="price_promotion" /> <isinclude
+	template="util/modules" /> <iscomment>create reporting
+event</iscomment> <isinclude template="util/reporting/ReportSearch.isml" /> <iscomment>
+Creative -- Flag to identify if the page will be expanded</iscomment>  <isset
+	name="blpPageName"
+	value="${Resource.msg('pagename.estoreblp','components',null)}" scope="page" />
+<iscomment> Render promotional content at the top of search
+results as global slot. </iscomment> <iscomment>
+
+</iscomment>
+<isscript>
+importScript("product/ProductUtils.ds");
+var category : dw.catalog.Category = ProductUtils.getProductCategoryForPDP(pdict.ProductSearchResult, pdict.Product); 
+</isscript>
+
+
+<isscript> var selectedString = 'selected="selected"'; </isscript> <isif
+	condition="${!(pdict.ProductPagingModel == null) && !pdict.ProductPagingModel.empty}">
+<div class="content-slot slot-grid-header">
+	<isslot id="categoryImageSlot" context="category" description="Top image mudule for category pages" context-object="${pdict.ProductSearchResult.category}" />
+</div>
+<div class="search-result-content getTopMargin brandPLP">
+	<div class="content-slot">
+		<isslot id="PLP_Promo1" context="category" description="Category Promo One Slot" context-object="${pdict.ProductSearchResult.category}"/>
+	</div>
+		
+	<isproductgrid pagingmodel="${pdict.ProductPagingModel}"
+		category="${pdict.ProductSearchResult.category}"
+		pagetype="${blpPageName}" />
+</div>
+
+<div class='blp-page-slot-cont'>
+	<div class="content-slot2">
+	<isslot id="BLPSlot_promo1" context="category"
+		description="First BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+	<div class="content-slot2">
+	<isslot id="BLPSlot_prom2" context="category"
+		description="Second BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+	<div class="content-slot2">
+	<isslot id="BLPSlot_promo3" context="category"
+		description="Third BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+	<div class="content-slot2">
+	<isslot id="BLPSlot_promo4" context="category"
+		description="Fourth BLP Optional Promo Tile Slot"
+		context-object="${pdict.ProductSearchResult.category}" />
+	</div>
+</div>
+
+
+	
+<iselse> <iscomment>display no results</iscomment>
+<div class="no-results">
+	${Resource.msg('productresultarea.noresults','search',null)}</div></isif> 
+</div>
+		
+</isdecorate>

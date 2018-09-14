@@ -1,0 +1,198 @@
+<!--- TODO: this form --->
+
+<SCRIPT LANGUAGE="JavaScript">
+	var cal = new CalendarPopup();
+</SCRIPT>
+
+<div id="order_searchform" class="order_searchform">
+	<div class="order_searchform_top">&nbsp;</div>
+	<div class="search_order_attributes">
+		<h3>Order Attributes</h3>
+        <table class="searchtable">
+        	<tbody>
+        		<tr>
+        			<td class="label searchtable_row_left">Order No:</td>
+        			<td class="value searchtable_row_right"><input class="OrderSearchForm" id="OrderSearchForm_OrderNo" onkeypress="if (event.keyCode == 13) Order.showAllOrders();" onload="focus()" value="" type="text"></td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+    <div class="search_customer_attributes">
+		<h3>Customer Attributes</h3>
+        <table class="searchtable">
+        	<tbody>
+                <tr>
+        			<td class="label searchtable_row_left">Customer No:</td>
+        			<td class="value searchtable_row_right"><input class="OrderSearchForm" id="OrderSearchForm_CustomerNo" onkeypress="if (event.keyCode == 13) Order.showAllOrders();" value="" type="text"></td>
+        		</tr>
+        		<tr>
+        			<td class="label searchtable_row_left">First Name:</td>
+        			<td class="value searchtable_row_right"><input class="OrderSearchForm" id="OrderSearchForm_FirstName" onkeypress="if (event.keyCode == 13) Order.showAllOrders();" value="" type="text"></td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Last Name:</td>
+        			<td class="value searchtable_row_right"><input class="OrderSearchForm" id="OrderSearchForm_LastName" onkeypress="if (event.keyCode == 13) Order.showAllOrders();" value="" type="text"></td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Email:</td>
+        			<td class="value searchtable_row_right"><input class="OrderSearchForm" id="OrderSearchForm_CustomerEmail" onkeypress="if (event.keyCode == 13) Order.showAllOrders();" value="" type="text"></td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+    <div class="search_orderstatus_attributes">
+		<h3>Order Status</h3>
+        <table class="searchtable">
+        	<tbody>
+                <tr>
+        			<td class="label searchtable_row_left">Status:</td>
+        			<td class="value searchtable_row_right">
+                        <select class="OrderSearchDropDown" id="OrderSearchForm_OrderStatus" size="1"  >
+							<option value="1" selected="selected">All</option>
+							<!---<option value="2">Declined</option>--->
+							<option value="3">New</option>
+							<option value="4">Open</option>
+							<option value="5">Completed</option>
+							<option value="6">Cancelled</option>
+							<!---<option value="7">Replaced</option>--->
+						</select>
+                    </td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Confirmation:</td>
+        			<td class="value searchtable_row_right">
+                        <select class="OrderSearchDropDown" id="OrderSearchForm_ConfirmationStatus" size="1"  >
+							<option value="1" selected="selected">All</option>
+							<option value="0">Not Confirmed</option>
+							<option value="2">Confirmed</option>
+						</select>
+					</td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Shipment:</td>
+        			<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown" id="OrderSearchForm_ShippingStatus" size="1"  >
+							<option value="3">All</option>
+							<option value="0" selected="selected">Not Shipped</option>
+							<option value="1">Partly Shipped</option>
+							<option value="2">Shipped</option>
+						</select>
+					</td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Payment:</td>
+        			<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown" id="OrderSearchForm_PaymentStatus" size="1"  >
+							<option value="3" selected="selected">All</option>
+							<option value="0">Not Paid</option>
+							<option value="1">Partly Paid</option>
+							<option value="2">Paid</option>
+						</select>
+					</td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Export:</td>
+        			<td class="value searchtable_row_right">
+				       <select class="OrderSearchDropDown" id="OrderSearchForm_ExportStatus" size="1"  >
+				   			<option value="4">All</option>
+				   			<option value="0">Not Exported</option>
+				   			<option value="1">Exported</option>
+				   			<option value="2" selected="selected">Ready for Export</option>
+				   			<option value="3">Export Failed</option>
+				   		</select>
+					</td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+	<!---
+    <div class="search_source_attributes">
+		<h3>Source Code Usage</h3>
+        <table border="0" cellpadding="0" cellspacing="0" class="searchtable">
+        	<tbody>
+                <tr>
+        			<td class="label searchtable_row_left">Source Code:</td>
+        			<td class="value label searchtable_row_right"><input name="OrderSearchForm_SourceCode" value="" type="text"></td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Source Code Group:</td>
+        			<td class="value label searchtable_row_right"><input name="OrderSearchForm_SourceCodeGroup" value="" type="text" /></td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+	
+    <div class="search_merchandise_attributes">
+		<h3>Merchandise</h3>
+        <table border="0" cellpadding="0" cellspacing="0" class="searchtable">
+        	<tbody>
+                <tr>
+        			<td class="label searchtable_row_left">Product ID:</td>
+        			<td class="value label searchtable_row_right"><input name="OrderSearchForm_ProductID" value="" type="text"></td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Manufacturer:</td>
+        			<td class="value label searchtable_row_right"><input name="OrderSearchForm_Manufacturer" value="" type="text"></td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+	--->
+    <div class="search_creation_attributes">
+		<h3>Order Creation</h3>
+        <table class="searchtable">
+        	<tbody>
+        		<!---
+                <tr>
+        			<td class="label">Created By:</td>
+        			<td class="value">
+						<select id="OrderSearchForm_CreatedBy" style="width: 120px;">
+							<option value="any">Any</option>
+							<option value="storefront">Customer</option>
+							<option value="agent">Agent</option>
+						</select>
+						<input name="OrderSearchForm_AgentName" class="agentname" value="" disabled="disabled" type="text">
+                    </td>
+        		</tr>
+				--->
+                <tr>
+        			<td class="label searchtable_row_left">Date from:</td>
+        			<td class="value searchtable_row_right">
+						<input class="OrderSearchDates" id="OrderSearchForm_OrderStartDate" name="OrderSearchForm_OrderStartDate" size="12" value=""  type="text">
+						<span class="dates">MM/DD/YYYY</span> <input type="image" NAME="button_OrderSearchForm_OrderStartDate"  ID="button_OrderSearchForm_OrderStartDate" value="" onClick="cal.select(document.getElementById('OrderSearchForm_OrderStartDate'),'button_OrderSearchForm_OrderStartDate','MM/dd/yyyy'); return false;" src="${URLUtils.staticURL('/cssuite/images/icon_calendar.gif')}"/>                         
+                    </td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">To:</td>
+        			<td class="value searchtable_row_right">
+                    	<input class="OrderSearchDates" id="OrderSearchForm_OrderEndDate" name="OrderSearchForm_OrderEndDate" size="12" value=""  type="text">
+						<span class="dates">MM/DD/YYYY</span> <input type="image" id="button_OrderSearchForm_OrderEndDate" name="button_OrderSearchForm_OrderEndDate" value="" onClick="cal.select(document.getElementById('OrderSearchForm_OrderEndDate'),'button_OrderSearchForm_OrderEndDate','MM/dd/yyyy'); return false;" src="${URLUtils.staticURL('/cssuite/images/icon_calendar.gif')}"/>
+                    </td>
+        		</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="search_creation_attributes">
+		<h3>Search Results</h3>
+		<table class="searchtable">
+			<tbody>
+	            <tr>
+					<td class="label searchtable_row_left">Maximum Results:</td>
+					<td class="value searchtable_row_right">
+						<select class="OrderSearchDropDown MAXresults" id="OrderSearchForm_ResultSet">
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50" selected="selected">50</option>
+							<option value="100">100</option>
+							<option value="500">500</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="lefttab_searchbutton_container">
+		<input class="lefttab_button search" name="searchOrder" onclick="Order.showAllOrders();">
+	</div>
+</div>

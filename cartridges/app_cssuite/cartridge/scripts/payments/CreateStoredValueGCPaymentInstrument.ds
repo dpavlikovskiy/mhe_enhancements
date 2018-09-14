@@ -1,0 +1,108 @@
+/**
+* This script creates a payment instrumet for the Profit Point Gift Card, based on the Card-ID and Amount.
+*
+*   @input Basket : dw.order.Basket The basket.
+*   @input Balance : dw.value.Money The balance of the gift card.
+*	@input CardNumber : String The id of the card.
+*	@input PinNumber : String The pin for the card.
+*   @output SVGCPaymentInstrument : dw.order.PaymentInstrument The created Profit Point Gift Card payment instrument or null
+*
+*/
+importPackage( dw.system );
+importPackage( dw.value );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	if (basket == null) {
+		Logger.error("CreateStoredValueGCPaymentInstrument.ds: Basket is null");
+		return PIPELET_ERROR;
+	}
+    
+    var balance : Money = pdict.Balance;
+    if (balance == null) {
+    	Logger.error("CreateStoredValueGCPaymentInstrument.ds: balance is null");
+		return PIPELET_ERROR;
+    }
+    
+    var cardNumber : String = pdict.CardNumber;
+    if (empty(cardNumber)) {
+    	Logger.error("CreateStoredValueGCPaymentInstrument.ds: CardNumber is empty");
+		return PIPELET_ERROR;
+    } 
+    
+    var pinNumber : String = pdict.PinNumber;
+    if (empty(pinNumber)) {
+    	Logger.error("CreateStoredValueGCPaymentInstrument.ds: PinNumber is empty");
+		return PIPELET_ERROR;
+    } 
+
+    var svgcpi : OrderPaymentInstrument = null;
+    
+    var primaryPaymentInstrument : OrderPaymentInstrument = null;
+    	
+    if (!empty(basket.getPaymentInstruments("METHOD_SVGC"))) {
+    	for each (var pi : PaymentInstrument in basket.getPaymentInstruments("METHOD_SVGC")) {
+    		if (pi.paymentTransaction.custom.svgc_cardNumber == cardNumber && !pi.custom.toRemove) {
+				Logger.debug("CreateStoredValueGCPaymentInstrument.ds: Found payment instrument ({0})", pi.UUID);    			
+    			svgcpi = pi;
+    			break;
+    		}
+    	}
+    }
+    
+    // calculate how much of basket total is covered by other payment instruments
+    var otherInstrumentAmounts : Money = new Money(0, Site.getCurrent().getDefaultCurrency());
+    for each (var payInst : OrderPaymentInstrument in basket.paymentInstruments) {
+    	if (payInst.paymentMethod == "METHOD_SVGC") {
+			if (!payInst.custom.toRemove)    		
+				otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+		} else if (payInst.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE) {
+			otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+		} else {
+			//if there is a payment transaction in place that cannot be voided we keep it ...
+			if (!empty(payInst.paymentTransaction.transactionID)  && payInst.paymentMethod != "CREDIT_CARD" ) {
+				otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+			} else {
+				primaryPaymentInstrument = payInst;
+			}
+		}
+    }
+    Logger.debug("CreateStoredValueGCPaymentInstrument.ds: PayInstAmount is ({0})", otherInstrumentAmounts);
+    
+    // determine how much we need to take from that gift card
+    var difference : Money = basket.totalGrossPrice.subtract(otherInstrumentAmounts);
+
+	var leftAmount : Money = new Money(0, difference.currencyCode );
+	
+    Logger.debug("CreateStoredValueGCPaymentInstrument.ds: Difference is ({0})", difference);
+    var amount : Money = null;
+    if (difference.value < balance.value) {
+    	amount = difference;
+    } else {
+    	amount = balance;
+    	leftAmount = difference.subtract(balance);
+    }
+    Logger.debug("CreateStoredValueGCPaymentInstrument.ds: Amount is ({0})", amount);
+    
+    if (svgcpi == null) {
+	    svgcpi = basket.createPaymentInstrument("METHOD_SVGC", amount);
+	    svgcpi.paymentTransaction.custom.svgc_cardNumber = cardNumber;
+	    svgcpi.paymentTransaction.custom.svgc_pinNumber = pinNumber;
+    } else {
+		// we only update the amount of this SVGC if no transaction is associated with it    	
+    	if (empty(svgcpi.paymentTransaction.transactionID))
+        	svgcpi.paymentTransaction.amount = amount;
+    }
+    
+    svgcpi.paymentTransaction.custom.balance = balance.value;
+    Logger.debug("CreateStoredValueGCPaymentInstrument.ds: Created payment instrument ({0}) ({1})", svgcpi.UUID, amount);    			
+    			
+	if (!empty(primaryPaymentInstrument))
+	{
+		primaryPaymentInstrument.paymentTransaction.amount = leftAmount;
+	}
+
+    return PIPELET_NEXT;
+}

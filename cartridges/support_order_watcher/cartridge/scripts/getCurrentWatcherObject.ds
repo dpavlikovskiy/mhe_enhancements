@@ -1,0 +1,109 @@
+/**
+* Demandware Script File
+* This script will get the current list of WatcherObjects and get the last one.
+* It will also put the last x number (based on the fault preference) into the dictionary
+* incase it needs to find the last fault that was saved. 
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+* For example:
+*   @input  faultN : Number
+*   @input  faultNOffHours : Number
+*   @input  OffHours : dw.util.ArrayList
+*   @output WatcherObject : dw.object.CustomObject;
+*   @output lastNList : dw.util.List;
+*   @output  faultValue : Number
+*dw.object.CustomObject;
+*/
+importPackage( dw.system );
+importPackage(dw.object);
+importPackage(dw.util);
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var offhours : ArrayList = pdict.OffHours;
+	var watcher_Date : Date = System.getCalendar().getTime() ;
+	var year : Number = watcher_Date.getFullYear();
+    var month : Number = watcher_Date.getMonth();
+    var day : Number = watcher_Date.getDate();
+    var hour : Number = watcher_Date.getHours();
+    //go back one day
+    watcher_Date = new Date(year,month,day -1);
+    var faultNumber : Number;
+	
+	var querry : String = "creationDate > {0}";
+	var watcherObject : CustomObject = null;
+	var watcherList : SeekableIterator = CustomObjectMgr.queryCustomObjects("OrderWatcher", querry, "creationDate asc", watcher_Date);
+	var lastN : List;
+	
+	
+	
+	if(offhours.contains(hour.toString())){
+		faultNumber = pdict.faultNOffHours;
+		pdict.faultValue =  faultNumber;
+	}else{
+		faultNumber = pdict.faultN;
+	}	
+	
+	if(watcherList != null){
+	if(!checkValidList(watcherList.asList())){
+		
+		watcherList  = CustomObjectMgr.queryCustomObjects("OrderWatcher", querry, "creationDate asc", watcher_Date);
+		watcherObject = getLastWatcherObject(watcherList.asList());
+		
+		watcherList = CustomObjectMgr.queryCustomObjects("OrderWatcher", querry, "creationDate asc", watcher_Date);
+		lastN = getLastNList(watcherList.asList(),faultNumber);
+	}else{
+		watcherObject = null;
+		lastN = null;
+	}
+}
+	watcherList.close();
+    pdict.lastNList = lastN;
+    pdict.WatcherObject =watcherObject;
+      return PIPELET_NEXT;
+}
+function getLastWatcherObject(list : List) : CustomObject
+{
+	var size : Number = list.size();
+	var tmp_watcher : CustomObject = list.get(size-1);
+	return tmp_watcher;
+}
+
+function checkValidList(list : List) : Boolean
+{
+	return list.isEmpty();	
+}
+//Get the lastN watcherObjects in case we need them
+//We need to check to make sure that we have enough to check
+function getLastNList(list : List, fault : Number) : List
+{	
+	
+	list.reverse();	
+	Logger.error(list.length + " - " + fault);
+	if(list.length > fault){
+		//get the fault number -1 as the current watcherobject needs to be considered
+		return list.subList(0,fault -1);
+	}else{
+		return list.subList(0,list.length -1);
+	}	
+}
+//This was designed to delete bad stored objects. I found that if the code
+//cannot save an object, it will commit what it can, leaving the object in a bad
+//state with no valid id. 
+function checkForInvalidObjects(iterator : Iterator) : Boolean
+{
+		while(iterator.hasNext()){
+			var object : CustomObject = iterator.next();
+			var attributes : CustomAttributes = object.getCustom();
+			if(attributes["WatcherID"] == null){
+				CustomObjectMgr.remove(object);
+			}
+		}
+			
+		}

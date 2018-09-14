@@ -1,0 +1,5 @@
+<isinclude template="util/modules"/>
+<iscomment>Do not remove the below div with id "accountPages"</iscomment>
+<div id="accountPages">
+	<iscontentasset aid="account-nav-registered"/>
+</div>

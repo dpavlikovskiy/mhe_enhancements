@@ -1,0 +1,66 @@
+<tr>
+<td colspan="2">
+	<isscript>
+		var _pi = pdict.instrument;
+	</isscript>
+</td>
+</tr>
+<div id="order_searchform" class="order_searchform">
+<table class="orders_tab_expandand">
+
+<isif condition="${_pi.paymentMethod == dw.order.PaymentInstrument.METHOD_CREDIT_CARD}">
+	<tr>
+		<td class="label searchtable_row_left">Card Type:</td>
+		<td class="value searchtable_row_right"><isprint value="${_pi.creditCardType}"></td>
+	</tr>
+	<tr>
+		<td class="label searchtable_row_left">Card Number:</td>
+		<td class="value searchtable_row_right"><isprint value="${_pi.maskedCreditCardNumber}"></td>
+	</tr>
+	<isif condition="${_pi.creditCardType != 'TD Retail Card'}">
+		<tr>
+			<td class="label searchtable_row_left">Card Holder:</td>
+			<td class="value searchtable_row_right"><isprint value="${_pi.creditCardHolder}"></td>
+		</tr>
+	
+		<tr>
+			<td class="label searchtable_row_left">Expiration Month</td>
+			<td class="value searchtable_row_right"><isprint value="${_pi.creditCardExpirationMonth}"></td>
+		</tr>
+	
+		<tr>
+			<td class="label searchtable_row_left">Expiration Year:</td>
+			<td class="value searchtable_row_right"><isprint value="${_pi.creditCardExpirationYear}" formatter="####0"></td>
+		</tr>
+	
+		<isif condition="${!empty(_pi.creditCardValidFromMonth)}">
+		<tr>
+			<td class="label searchtable_row_left">Card Valid From Month:</td>
+			<td><isprint value="${_pi.creditCardValidFromMonth}"></td>
+		</tr>
+		</isif>
+	
+		<isif condition="${!empty(_pi.creditCardValidFromYear)}">
+		<tr>
+			<td class="label searchtable_row_left">Card Valid From Year:</td>
+			<td class="value searchtable_row_right"><isprint value="${_pi.creditCardValidFromYear}" formatter="####0"></td>
+		</tr>
+		</isif>
+		<tr>
+			<td colspan="2">
+				<input onclick="Dialog.editPayment();" name="editPayment" class="lefttab_button edit_payment" />
+			</td>
+		</tr>
+		
+	</isif>
+<iselseif condition="${_pi.paymentMethod == dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE}">
+	<tr>
+		<td class="label searchtable_row_left">Gift Certificate Code:</td>
+		<td class="value searchtable_row_right">${_pi.getMaskedGiftCertificateCode()}</td>
+	</tr>
+</isif>
+		
+<tr><td class="bottom_padding" colspan="2"><!-- SPACER --></td></tr>
+</table>
+
+</div>

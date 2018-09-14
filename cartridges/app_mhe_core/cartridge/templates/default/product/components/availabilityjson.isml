@@ -1,0 +1,7 @@
+<iscontent type="application/json" charset="UTF-8" compact="true"/>
+<isscript>
+importScript("product/ProductUtils.ds");
+var chilledSatatusCode = ProductUtils.getChilldDeliveryStatus(pdict.Basket);
+var av = ProductUtils.getAvailability(pdict.Product, pdict.CurrentHttpParameterMap.Quantity.stringValue,chilledSatatusCode);
+</isscript>
+<isprint value="${JSON.stringify(av)}" encoding="off"/>

@@ -1,0 +1,44 @@
+/**
+* This script removes a job status and all dependent assets like log files etc. from the system.
+*
+* @input JobStatusID : String The id of the job status object.
+*/
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.util );
+
+var STATUS_RUNNING : String = 'RUNNING';
+
+function execute( args : PipelineDictionary ) : Number {
+	var jobStatusID : String = args.JobStatusID;
+	if ( empty(jobStatusID) ) {
+		return PIPELET_NEXT;
+	}
+	var jobStatusObject : CustomObject = CustomObjectMgr.getCustomObject('JobStatus', jobStatusID);
+	if ( empty(jobStatusObject) ) {
+		return PIPELET_NEXT;
+	}
+	
+	if ( jobStatusObject.custom.state != 'RUNNING' ) {
+		var taskStatusObjects : SeekableIterator = CustomObjectMgr.queryCustomObjects('JobStatus', 'custom.parent={0}', null, jobStatusID );
+		for each( var taskStatusObject : CustomObject in taskStatusObjects ) {
+			removeStatusObject(taskStatusObject);
+		}
+		removeStatusObject(jobStatusObject);
+	}
+		
+    return PIPELET_NEXT;
+}
+
+function removeStatusObject( statusObject : CustomObject ) {
+	if ( !empty(statusObject) ) {
+		var logFilePath : String = statusObject.custom.logFilePath;
+		if ( !empty(logFilePath) ) {
+			var logFile : dw.io.File = new dw.io.File(logFilePath);
+			if ( logFile.exists() ) {
+				logFile.remove();
+			}
+		}
+		CustomObjectMgr.remove(statusObject);
+	}
+}

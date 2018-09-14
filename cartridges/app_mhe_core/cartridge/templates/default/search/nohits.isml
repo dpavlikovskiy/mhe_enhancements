@@ -1,0 +1,27 @@
+<isdecorate template="search/pt_productsearchresult_nohits">
+
+<isinclude template="util/modules"/>
+
+<iscomment>create reporting event</iscomment>
+<isinclude template="util/reporting/ReportSearch.isml"/>
+
+<div class="noResults">
+	
+	<div class="nothingFound">
+		<isprint value="${pdict.NoSearchMessage}"  encoding="off"/> 
+	</div>
+	
+	
+	<div class="tryAgain">
+	 	<form action="${URLUtils.url('Search-Show')}" method="get" name="searchAgain">
+			<label for="q">${Resource.msg('try.again','search',null)}</label>
+			<input type="text" class="input-text" name="q" value="" /><a class="sIcon" onclick="document.searchAgain.submit();">Search icon</a>
+		</form>
+	</div>
+	
+	<iscomment>Dkum37: Explore Options Content Asset</iscomment>
+	<iscontentasset aid="CA_EXPLORE_OPTIONS"/>
+	 
+	
+</div>	
+</isdecorate>

@@ -1,0 +1,244 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importPackage(dw.util);
+	importScript( "app_cssuite:css/utils.ds" );
+	var orders = pdict.orders;
+	results = pdict.CurrentHttpParameterMap.results.intValue;
+	resultsno = pdict.resultsno;
+</isscript>
+
+<isset name="showInvoiceColumn" value="${ dw.system.Site.getCurrent().getCustomPreferenceValue('pdfInvoiceRequired')!=null && !empty(dw.system.Site.getCurrent().getCustomPreferenceValue('pdfInvoiceRequired'))}" scope="page" />
+
+<div class="order_search_results">
+    <div id="round-container">
+        <div class="top"><span></span></div>
+       	<div id="content">
+			<div id="msg_container">
+				<span id="msg">${resultsno.count != '1' ? resultsno + ' matches found. ' : '1 match found. '}
+				${resultsno > results ? results + ' matches displayed.' : ''}
+				</span>
+			</div><!-- END: msg_container -->
+			<div class="order_results_table" id="id_order_results_table">
+				<table class="listTable" cellpadding="0" cellspacing="0" border="0" width="100%">
+					<thead>
+						<tr class="listTableHeader">
+							<td class="listTableHeaderCell iconmodifycolumn"></td>
+							<td class="listTableHeaderCell ordernocolumn">Original Order No</td>
+							<td class="listTableHeaderCell parentcolumn">Order Number</td>
+							<td class="listTableHeaderCell orderstatuscolumn">Status</td>
+							<td class="listTableHeaderCell creationcolumn">Creation Date</td>
+							<td class="listTableHeaderCell customercolumn">Customer</td>
+							<isif condition="${dw.web.Resource.msg('order.modify', 'cssuite', null) == 'true'}"><td class="listTableHeaderCell modifycolumn">Modify</td></isif>
+							<td class="listTableHeaderCell cancelcolumn">Cancel</td>
+							<td class="listTableHeaderCell customercolumn">Carrier Name</td>
+							<td class="listTableHeaderCell cancelcolumn">Tracking Number</td>
+							<td class="listTableHeaderCell cancelcolumn">Track Order</td>
+							<td class="listTableHeaderCell orderstatuscolumn">Update Reason Code</td>
+							<isif condition="${showInvoiceColumn}"> 
+							<td class="listTableHeaderCell orderstatuscolumn">Invoice</td>
+							</isif>
+						</tr>
+					</thead>
+					<tbody>
+						<isloop iterator="${orders}" alias="order" status="loopstatus">
+							<isif condition="${loopstatus.count > results}"><isbreak></isif>
+							<isscript>
+								var giftCertLineItems = order.getGiftCertificateLineItems();
+								var originalOrder = order.originalOrder;
+								var replacementOrder = order.replacementOrder;
+								var canBeModified = false;
+								var canBeCancelled = false;
+						
+
+								if(empty(giftCertLineItems) && ((order.exportStatus == dw.order.Order.EXPORT_STATUS_NOTEXPORTED || order.exportStatus == dw.order.Order.EXPORT_STATUS_READY) && (order.status != dw.order.Order.ORDER_STATUS_CANCELLED) && order.status != dw.order.Order.ORDER_STATUS_REPLACED)) {
+									//canBeModified = true;
+								}
+							
+								if(!(order.status==dw.order.Order.ORDER_STATUS_CANCELLED)) {
+									canBeCancelled = true;
+								}
+								
+								var doubleClickMethod =  "";
+								var replacedDoubleClickMethod =  "";
+								
+								if (canBeModified) {
+									if(!empty(order.custom.replacedOrderNumber) && order.custom.replacedOrderNumber.length > 1){ 
+										doubleClickMethod =  "Dialog.viewOrderDetails('" + order.custom.replacedOrderNumber + "');";
+									    replacedDoubleClickMethod =  "Dialog.viewOrderDetails('" + order.orderNo + "');";
+									}else {
+									    doubleClickMethod = "Order.modifyOrder('" + order.orderNo + "');";
+								   }
+								} else {
+									doubleClickMethod =  "Dialog.viewOrderDetails('" + order.orderNo + "');";
+								}
+
+								var singleClickMethod = "";
+								if (!empty(order.replacedOrder)) {
+									singleClickMethod = "toggleOrderHistory('" + order.UUID + "_order_history');";
+								}
+							</isscript>
+							<tr class="${getRowClass(loopstatus)}">
+	                            <isif condition="${canBeModified}">
+	                                <td class="column-icon-bullet" id="${loopstatus.count}">
+	                                    <img src="${URLUtils.staticURL('/cssuite/images/icon_green_bullet.gif')}" alt="Order can be modified">
+	                                </td>
+	                            <iselse>
+									<td>&nbsp;</td>
+								</isif>
+	                            <!--- ORIGINAL ORDER NO --->
+	                            <td class="pointer" <isif condition="${dw.web.Resource.msg('order.addshipment', 'cssuite', null) == 'true'}">ondblclick="${doubleClickMethod}"</isif>>${!empty(order.custom.replacedOrderNumber)?order.custom.replacedOrderNumber:order.orderNo}</td>
+		                            <!--- ORDER NUMBER --->
+		                            <isif condition="${!empty(order.replacedOrder)}">
+		                                <td class="pointer" onclick="${singleClickMethod}">${order.orderNo}
+											<img class="orderNoImageShowHide" src="${URLUtils.staticURL('/cssuite/images/fam/control_eject_blue_180.png')}" id="${order.UUID}_order_history_show" alt="Show order history"/>
+											<img class="orderNoImageShowHide" src="${URLUtils.staticURL('/cssuite/images/fam/control_eject_blue.png')}" id="${order.UUID}_order_history_hide" alt="Hide order history" style="display: none"/>
+									<iselse>
+								  	   <isif  condition="${!empty(order.custom.replacedOrderNumber) && order.custom.replacedOrderNumber.length > 1}">
+										 <td class="pointer" ondblclick="${replacedDoubleClickMethod}">${order.orderNo}
+								 	   <iselse>
+										 <td>${order.orderNo}
+									   </isif>
+						 		  </isif>	
+	                            </td>
+	                            <!--- STATUS --->
+	                            <td><isif condition="${order.exportStatus == dw.order.Order.EXPORT_STATUS_NOTEXPORTED}">${order.getStatus()}<iselse>${order.exportStatus}</isif></td>
+	                            <!--- CREATION DATE --->
+	                            <td>${order.creationDate.toLocaleString()}</td>
+	                            <!--- CUSTOMER --->
+	                            <td><isif condition="${order.getCustomerNo() != null}"><img src="${URLUtils.staticURL('/cssuite/images/fam/user.png')}" ALT="Customer " /> </isif>${order.getCustomerName()}</td>
+	                            <iscomment> 
+	                            <isif condition="${dw.web.Resource.msg('order.modify', 'cssuite', null) == 'true'}">
+	                            <td class="img-button-modify">
+	                                <isif condition="${canBeModified}">
+	                                <input type="image" onclick="Order.modifyOrder('${order.orderNo}');" class="modifyorderinput" src="${URLUtils.staticURL('/cssuite/images/button_modify.gif')}" value="Modify">
+	                                </isif>
+	                               
+	                            </td>
+	                             </isif>
+	                             </iscomment>
+	                            <td class="cancel_column">
+	                                <isif condition="${canBeCancelled}">
+	              						<input type="image" value="Cancel Order" class="cancelorderinput" onclick="Dialog.cancelOrder('${order.orderNo}');" src="${URLUtils.staticURL('/cssuite/images/fam/cross.png')}">
+	                          		</isif>
+	                              
+	                            </td>
+	                           <td>
+	                           <isif condition="${!empty(order.shipments[0].custom.carriername)}">
+	                            ${order.shipments[0].custom.carriername}
+	                             <iselse>
+	                             None
+	                            </isif>
+	                            </td>
+	                            <td>
+	                           <isif condition="${!empty(order.shipments[0].trackingNumber)}">
+	                            ${order.shipments[0].trackingNumber}
+	                             <iselse>
+	                             None
+	                            </isif>
+	                            </td>
+	                            <td>
+	                            <isif condition="${!empty(order.shipments[0].custom.carrierurl)}">
+	                            <a href="#" onclick="window.open('${order.shipments[0].custom.carrierurl}');">Track Your Order</a>
+	                             <iselse>
+	                             None
+	                            </isif>
+	                            </td>
+	                            <td>
+	                           <isif condition="${'updateReasonCode' in order.custom && !empty(order.custom.updateReasonCode)}">
+	                          	 ${order.custom.updateReasonCode}
+	                             <iselse>
+	                             None
+	                            </isif>
+	                            </td>
+	                            
+	                            <isif condition="${showInvoiceColumn}">  
+	                           <td>
+	                           <isif condition="${order.custom.updateReasonCode=='SHIPPED' || order.custom.updateReasonCode=='DELIVERED'}">
+	                         	 	<a 
+									target="_blank" href="${URLUtils.https('Invoice-Generate', 'OrderId', dw.util.StringUtils.encodeBase64(order.orderNo).toString())}" > 
+										Print
+									</a>
+	                             <iselse>
+	                             N/A
+	                            </isif>
+	                             
+	                            </td>
+	                            </isif>
+							</tr>
+
+							<!--- render replaced versions of an order --->
+							<isif condition="${!empty(order.replacedOrder)}">
+								<isscript>
+									var replacedOrders = new ArrayList();
+									var tmpOrder = order;
+									while(!empty(tmpOrder.replacedOrder))
+									{
+										tmpOrder = tmpOrder.replacedOrder;
+										if (replacedOrders.contains(tmpOrder))
+										{
+											break;
+										}
+										replacedOrders.add(tmpOrder);
+									}
+								</isscript>
+								<tr class="order_history_row" style="height: 0; display: table-row">
+									<td colspan="8" style="height:auto;">
+										<div id="${order.UUID}_order_history" class="order_history" style="display: none">
+											<span class="replaced">Replaced:</span>
+											<table>
+												<thead>
+						                            <tr>
+						                            	<td class="paddingrow" colspan="4"><!-- SPACER ROW --></td>
+						                            </tr>
+													<tr>
+														<td class="order_no">Order Number:</td>
+														<td class="creation_date">Creation Date:</td>
+														<td class="created_by">Created By:</td>
+						                            	<td>
+						                            		<div class="pointer" onclick="${singleClickMethod}">
+						                            			<span>Close</span>
+						                            			<img class="orderNoImageShowHide" src="${URLUtils.staticURL('/cssuite/images/fam/control_eject_blue.png')}" alt="Hide order history"/>
+						                            	</td>
+													</tr>
+												</thead>
+												<tbody>
+						                           	<isloop iterator="${replacedOrders.iterator()}" alias="replacedOrder" status="orderhistoryloopstatus">
+														<tr class="pointer" ondblclick="Dialog.viewOrderDetails('${replacedOrder.orderNo}');">
+								                            <!--- ORDER NUMBER --->
+								                            <td class="order_no">${replacedOrder.orderNo}</td>
+								                            <!--- CREATION DATE --->
+								                            <td class="creation_date">${replacedOrder.creationDate}</td>
+								                            <!--- CREATED BYE --->
+							                            	<td class="created_by">${replacedOrder.createdBy}</td>
+							                         		<td>&nbsp;</td>
+							                            </tr>
+							                            <isif condition="${orderhistoryloopstatus.last}">
+								                            <tr>
+								                            	<td class="paddingrow" colspan="4"><!-- SPACER ROW --></td>
+								                            </tr>
+							                            </isif>
+						                            </isloop>
+					                            </tbody>
+											</table>
+											<div style="clear: both"></div>
+										</div>
+									</td>
+								</tr>
+							</isif>
+                       	</isloop>
+					</tbody>
+				</table>
+           	</div> <!-- END: order_results_table -->
+       	</div> <!-- END: content -->
+        <div class="bottom"><span></span></div>
+	</div> <!-- END: round-container -->
+</div> <!-- END: order_search_results -->
+
+<!-- Set the start height of div 'id_order_results_table' to value appends the height of browser window. The function to resize the height is located in 'init.js'. -->
+<script type="text/javascript">
+<!--
+	var lph = $("#LeftPane").height();
+	var $ort = $("#id_order_results_table");
+	$ort.css("height", (lph-90)+"px");
+//-->
+</script>

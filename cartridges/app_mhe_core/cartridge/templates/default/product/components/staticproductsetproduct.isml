@@ -1,0 +1,100 @@
+
+<isscript>
+	importPackage( dw.system );
+	importPackage( dw.util );
+	importPackage( dw.catalog );			
+importScript("product/ProductUtils.ds");
+	var avm = pdict.subProduct.availabilityModel;
+	pdict.available = avm.availabilityStatus==dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK 
+					&& avm.inventoryRecord != null 
+					&& avm.inventoryRecord.stockLevel.available;
+			
+			
+				
+
+/* Get Top Level category, to create the key for getting Serving and Volume Info */
+var rootCategory : dw.catalog.Category = ProductUtils.getRootCategory(pdict.subProduct);
+var productCategory : String=pdict.subProduct.custom.productCategory.toString().toLowerCase();
+</isscript>	
+	<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}" >
+<isset name="key" value="${rootCategory.ID + '-' + pdict.subProduct.custom.size}" scope="page" />
+<iselse>
+<isset name="key" value="${productCategory + '-' +pdict.subProduct.custom.size }" scope="page" />
+</isif>
+<isset name="volume" value="${ProductUtils.getValueFromSitePrefEnum('sizeVolume', key)}" scope="page"/>
+	<div class="productSetImage">
+	<isif condition="${pdict.subProduct.getImage('hi-res',0) != null}">
+		<isset name="smImg" value="${new ProductImage('pdp-bundledProducttopcontent', pdict.subProduct, 0 )}" scope="page" />
+		<img class="product-thumbnail" src="${smImg.getURL()}" alt="${smImg.alt}" />
+		<iselse>
+		<img src="${URLUtils.staticURL('/images/noimagesmall.png')}" alt="${pdict.subProduct.name}" />
+	</isif>
+	</div>
+
+	<h2><isprint value="${pdict.subProduct.custom.mheBrand}"/></a></h2>
+	<h3><isprint value="${pdict.subProduct.name}"/></h3>
+	<isif condition="${pdict.isBundle}">
+		<h4><isprint value="${pdict.ProductSet.getBundledProductQuantity(pdict.subProduct)}" />x<isprint value="${volume}" /></h4>
+	</isif>
+	<p><isprint value="${dw.util.StringUtils.truncate(pdict.subProduct.longDescription.markup,169,dw.util.StringUtils.TRUNCATE_WORD,'')}" encoding="off"/><span>...</span><a href="${URLUtils.url('Product-StaticShow','pid', pdict.subProduct.ID,'cgid',category.ID)}">${Resource.msg('product.longdescription.more','product',null)}</a>
+	</p>
+
+	
+	
+	<div class="product-set-details">
+		
+		<iscomment>Box Description </iscomment>
+		<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
+		<isif condition="${!empty(pdict.subProduct.custom.boxDescription)}"> 
+			<div class="boxDescription">
+				<isprint value="${pdict.subProduct.custom.boxDescription}" />
+			</div>
+		</isif>
+
+		
+				
+				
+		<isif condition="${pdict.isSet}">
+			<isinclude template="product/components/promotions"/>
+		</isif>
+		
+		
+		
+		<isif condition="${pdict.isSet}">
+			<isinclude template="product/components/variationsproductset"/>
+		</isif>
+		
+		<isset name="pam" value="${pdict.subProduct.getAttributeModel()}" scope="page"/>
+		<isset name="group" value="${pam.getAttributeGroup('mainAttributes')}" scope="page"/>
+		
+		<iscomment><isinclude template="product/components/group"/>			
+
+		<isinclude template="product/components/options"/></iscomment>
+		
+	</div>	
+	<iscomment> 
+	<isif condition="${pdict.isSet}">
+		<isscript>
+			// ensure a unique form name and make the name reuseable, because the call to
+			// dynamicHtmlName always creates a different name
+			var uniqueFormID : String = pdict.CurrentForms.product.addtocart.dynamicHtmlName;
+		</isscript>
+		<div class="block-add-to-cart add-sub-product">
+			<form action="${URLUtils.url('Cart-AddProduct')}" method="post" id="${uniqueFormID}">
+				<input type="hidden" name="availability" value="${pdict.subProduct.availabilityModel.availabilityStatus}"/>
+				<input type="hidden" name="pid" value="${pdict.subProduct.ID}" />
+				<div class="inventory">
+					<div class="quantity">
+					    <label for="${uniqueFormID}-quantity">${Resource.msg('global.qty','locale',null)}</label>
+						<input type="text" name="Quantity" id="${uniqueFormID}-quantity" maxlength="3" class="input-text" value="${Number(empty(pdict.CurrentHttpParameterMap.Quantity.stringValue) ? 1 : pdict.CurrentHttpParameterMap.Quantity.stringValue).toFixed()}" size="2" maxlength="6" />
+					</div>
+				</div>
+				<isinclude template="product/components/pricing"/>
+				<isset name="disabledText" value="${pdict.available ? '' : ' disabled="disabled"'}" scope="page"/>
+				<button type="submit" value="${Resource.msg('global.addtocart','locale',null)}" class="button-fancy-medium sub-product-item add-to-cart"<isprint value="${disabledText}" encoding="off"/>>
+					${Resource.msg('global.addtocart','locale',null)}
+				</button>
+			</form>
+		</div>
+	</isif>
+</iscomment>

@@ -1,0 +1,48 @@
+/**
+* Script File to remove accoicate accessory with current product line item  
+*
+*
+*    @input  ProductLineItem:dw.order.ProductLineItem
+*    @input  Basket:dw.order.Basket
+*
+*/
+importPackage( dw.system );
+
+function execute( args : PipelineDictionary ) : Number
+{
+  try{
+	    // read pipeline dictionary input parameter
+	    var parentPLI : dw.order.ProductLineItem = args.ProductLineItem;
+	  	var basket : dw.order.Basket = args.Basket;
+	    var accessoryIDs : String = parentPLI.custom.associatedAccessoryId;
+	    // var parentPosition : String = parentPLI.position;
+	    var parentPosition : String = parentPLI.custom.pliPosition
+	    
+	    var plis : dw.util.Collection = null;
+	    var productLineItems : Iterator = null;
+	    var plItem : dw.order.ProductLineItem = null;
+	    
+        if (!empty(accessoryIDs)) {
+		var accessories : dw.util.ArrayList = new dw.util.ArrayList(accessoryIDs.split(","));
+		var itrAccessories : dw.util.Iterator = accessories.iterator();
+		while(itrAccessories.hasNext())
+		{
+			plis = basket.getAllProductLineItems(itrAccessories.next().toString());
+	    	if (!empty(plis)) {
+	    		productLineItems = plis.iterator();
+	    		while(productLineItems.hasNext())
+				{
+					plItem = productLineItems.next();
+					if (plItem.custom.associatedParentPosition==parentPosition) {
+						basket.removeProductLineItem(plItem);
+					}
+				}
+	    	}			
+		 }
+       }
+	 }catch(e){
+	  Logger.error("Error in removing product line item  ", e.message);
+	  return PIPELET_ERROR;
+	}
+   return PIPELET_NEXT;
+}

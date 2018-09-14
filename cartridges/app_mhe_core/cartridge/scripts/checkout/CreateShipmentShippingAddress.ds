@@ -1,0 +1,100 @@
+/**
+ * Creates a shipping address for the given shipment and copies
+ * the address details stored in the given address form to the
+ * created shipment address.
+ * The method additionally sets the given gift options to the 
+ * shipment.
+ *
+ * @input Shipment : dw.order.Shipment The shipment to create the address for.
+ * @input AddressForm : dw.web.FormGroup The address form.
+ * @input GiftOptionsForm : dw.web.FormGroup The gift options form.
+ * 
+ * @output ShippingAddress : dw.order.OrderAddress The shipment's shipping address.
+ */
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.web );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var shipment : Shipment = pdict.Shipment;
+	var addressFields : FormGroup = pdict.AddressForm.addressFields;
+	var giftOptions : FormGroup = pdict.GiftOptionsForm;
+	var shippingAddress : OrderAddress = shipment.shippingAddress;
+	
+	// if the shipment has no shipping address yet, create one
+  	if( shippingAddress == null ) 
+  	{
+		shippingAddress = shipment.createShippingAddress();	
+	}
+	
+	// copy the address details
+	try{
+		shippingAddress.setSalutation( addressFields.salutation.value );
+	}catch(e){
+	    var ee:String=e.message;	
+	}	
+	
+	try{
+		shippingAddress.setTitle( addressFields.title.value );
+	}catch(e){
+	    var ee:String=e.message;	
+	}	
+
+	try{
+		shippingAddress.setCompanyName( addressFields.companyName.value );
+	}catch(e){
+	    var ee:String=e.message;	
+	}	
+
+	shippingAddress.setFirstName( addressFields.firstName.value );
+	shippingAddress.setLastName( addressFields.lastName.value );	
+	shippingAddress.setAddress1( addressFields.address1.value );
+	shippingAddress.setAddress2( addressFields.address2.value );
+	shippingAddress.setCity( addressFields.city.value );
+	shippingAddress.setPostalCode( addressFields.zip.value );
+	//shippingAddress.setStateCode( addressFields.states.state.value );
+	shippingAddress.setCountryCode( addressFields.country.value );
+	if(!empty(addressFields.mobilePhone.value )&& addressFields.mobilePhone.value.toString().length>3 ){
+	shippingAddress.setPhone( addressFields.mobilePhone.value );	
+	} else{
+	shippingAddress.setPhone( addressFields.phone.value );
+	} 
+	try{
+		if(!empty(addressFields.addressName.value)){
+		 	shippingAddress.custom.addressName=addressFields.addressName.value;
+		} else{
+		 	shippingAddress.custom.addressName=addressFields.object.ID;
+		 	addressFields.addressName.value=addressFields.object.ID;
+		}	 
+	}catch(e){
+	    var ee:String=e.message;	
+	}
+	 
+	 shipment.custom.deliveryInstructions=giftOptions.deliveryInstructions.value;//.replace(new RegExp("\\n","g"), "#");
+	 	
+	try{	
+	    if ( addressFields.states!=null && addressFields.states.state!=null ){
+			  shippingAddress.stateCode = addressFields.states.state.value;
+		 }	
+	}catch(e){
+	    var ee:String=e.message;	
+	}
+	
+	// copy the gift options
+	if( giftOptions != null && !empty(giftOptions.giftMessage.value) )
+	{
+		shipment.setGift(giftOptions.isGift.value);
+		shipment.setGiftMessage(giftOptions.giftMessage.value);//.replace(new RegExp("\\n","g"), "#"));
+	}else{
+		// fix for defect MHS-821
+		giftOptions.isGift.value=false;
+		shipment.setGift(giftOptions.isGift.value);
+	}
+	//shipment.custom.setRequestedDeliveryDates( giftOptions.requestedDeliveryDate.value );
+	
+	// output shipping address
+	pdict.ShippingAddress = shippingAddress;
+		
+    return PIPELET_NEXT;
+}

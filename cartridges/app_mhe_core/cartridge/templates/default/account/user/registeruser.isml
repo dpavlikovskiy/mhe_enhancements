@@ -1,0 +1,63 @@
+
+<isdecorate template="account/pt_login_register">
+	<isinclude template="util/modules"/>
+	<isinclude url="${URLUtils.url('Page-DisplayCookieBanner')}">
+	<iscomment>Builds a registration page for the user. It provides all input fields for names and address</iscomment>
+<div class="loginAreaCont register">
+	<div class="loginArea">
+		<div class="errors-total">
+			<div class="errors-total-inner">
+				<iscomment>All validation errors listed at the top of the form</iscomment>
+			</div>
+		</div>
+		<div class="lRBox">
+			<div class="cloneBox">
+				<div class="shownItems">	
+					<div id="logo" class="logo"><a href="#">&nbsp;</a></div>
+					<isslot id="registrationSlotPartnerMsg" description="registrationSlot partner Message" context="global" />
+				</div>
+				<div class="hiddenItems">
+					<h3>${Resource.msg('loginpage.hello.message','account',null)}</h3>
+					<p class="greet">${Resource.msg('register.welcomeagain.message','account',null)}</p> 
+				</div>
+				<isinclude template="account/user/registeruser_form"/>
+			</div>
+		</div>
+	</div>
+	<iscontentasset aid="discoverMoet"/>
+	<isslot id="registrationSlot1" description="registrationSlot1" context="global" />
+	<isslot id="registrationSlot2" description="registrationSlot2" context="global" />
+	<isslot id="registrationSlot3" description="registrationSlot3" context="global" />
+	<isslot id="registrationSlot4" description="registrationSlot4" context="global" />
+	<isslot id="registrationSlot5" description="registrationSlot5" context="global" />
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	var d = new Date();
+    var time = d.getHours();
+    var $greet = $("p.greet");
+    if (time >= 0 && time <= 11){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.morning','account',null)}");
+    }
+    else if (time >= 12 && time <= 17){
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.afternoon','account',null)}");
+    }
+    else{
+    	$greet.find("span").prepend("${Resource.msg('loginpage.greeting.evening','account',null)}");
+    };
+    
+    $greet.addClass("greet-visible");
+    
+});
+</script> 
+
+	<iscomment>
+	${Resource.msg('agegate.error.message','forms',null)}
+	${Resource.msg('password.format.error-message','forms',null)},
+	${Resource.msg('profile.dob.error-message','forms',null)},
+	${Resource.msg('register.welcomeagain','account',null)},
+	${Resource.msg('register.member.message','account',null)}
+	</iscomment>
+	
+</isdecorate>

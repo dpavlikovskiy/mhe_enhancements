@@ -1,0 +1,80 @@
+// =============================================================================
+// Error and 404 Pages
+// =============================================================================
+
+.page-404 {
+	min-height:809px;
+	margin-top: -121px;
+	img.full-bg {
+	  min-height: 100%;
+	  min-width: 1200px;
+	  width: 100%;
+	  height: auto;
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  z-index: -1;
+	}
+	.content-holder {
+		max-width: $max-container;
+		@include centerelement();
+		padding-top: 238px;
+		@include centered();
+		h1, h2, h3, .dot {
+			position: relative;
+		}
+		h1, h2, h3 {
+			@extend %text-shadow;
+		}
+		h1 {
+			font-size: 125px;
+		}
+		h2 {
+			font-size: 30px;
+			margin-bottom: 110px;
+		}
+		h3 {
+			font-size: 11px;
+		}
+		.dot {
+			@extend .sprite_divider_dot;
+			width: 7px;
+			height: 7px;
+			display: block;
+			margin:0 auto 35px;
+		}
+		.error_quicklinks {
+			margin-top: 25px;
+			margin-bottom: 40px;
+			li {
+				@include fl();
+				position: relative;
+				border: 3px solid white;
+				margin-right: 52px;
+				&:last-child {
+					margin-right: 0;
+				}
+				&.last {
+					margin-right: 0;
+				}
+				img {
+					z-index: 1;
+					display: block;
+				}
+				h3 {
+					z-index:2;
+					font-family: $fixed-font-family, $base-font-family;
+					display: block;
+					text-transform: uppercase;
+					font-size: 30px;
+					font-weight: $bold;
+					letter-spacing: 4px;
+					position: absolute;
+					top: 50%;
+					margin-top: -15px;
+					width: 100%;
+				}
+			}
+		}	
+	}
+}

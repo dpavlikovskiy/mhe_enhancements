@@ -1,0 +1,355 @@
+// =============================================================================
+// Order history
+// =============================================================================
+
+.order {
+	box-shadow: 0 5px 7px -2px rgba(0, 0, 0, 0.5);
+	margin-bottom:20px;
+	font-size:12px;
+	line-height:1.5em;
+	text-transform:uppercase;
+	letter-spacing:1px;
+	.label {
+		padding-right:4px;
+	}
+	.order-overview {
+		padding:35px 0 35px 40px;
+		.order-total-price {
+			width:200px;
+			padding-right:40px;
+			float:right;
+			text-align:right;
+			.label {
+				display:block;
+			}
+			.labelOrderNum {
+				color: $greyText;
+			}
+			.value {
+				display:block;
+				font-size:26px;
+				padding-top:0.375em;
+			}
+		}
+	}
+	.order-ajax {
+		height:0;
+		overflow:hidden;
+		@include opacity(0);
+		@include transition-property(height, opacity);
+		@include transition-duration(1s);
+		@include transition-timing-function($easeOutSine);
+		position:relative;
+		&.order-ajax-visible {
+			@include opacity(1);
+		}
+		.order-ajax-inner {
+			position:absolute;
+		}
+	}
+	.order-show-details {
+		font-size:12px;
+		font-family:$fixed-font-family;
+		text-align:center;
+		line-height:30px;
+		cursor:pointer;
+		@include transition(color 0.3s);
+		position:relative;
+		&:after {
+			font-size:10px;
+			position:absolute;
+			right:10px;
+			@include icon();
+			 margin-top:2px;
+		}
+		&.collapsed {
+			&:after {
+				content: "\e610";
+			}
+		}
+		&.expanded {
+			&:after {
+				content: "\e611";
+			}
+		}
+	}
+	.order-details {
+		padding:0 35px 35px;
+		position:relative;
+		.content-header {
+			padding-top:35px;
+		}
+		.items-ordered {
+			margin-top:60px;
+		}
+		.track-order {
+			margin: 25px 0;
+			min-height:26px;
+			.face{
+				line-height:26px;
+			}
+		}
+		.printInvoice {
+			margin:0 0 25px;
+			float:right;
+		}
+		.section-header {
+			h2 {
+				margin-bottom:1.5em;
+			}
+			&.section-header-col1 {
+				width:330px;
+			}
+			&.section-header-col2 {
+				width:270px;
+			}
+		}
+		.order-shipping, .order-billing {
+			padding-bottom:60px;
+		}
+		.mini-address-name {
+			font-family:$fixed-font-family;
+			font-size:12px;
+			font-weight:700;
+			margin-bottom:0.5em;
+		}
+		.order-shipment-table {
+			width:100%;
+			.section-header {
+				line-height:47px;
+				&.section-header-product {
+					width:270px;
+				}
+				&.section-header-quantity {
+					width:75px;
+				}
+				&.section-header-price {
+					width:85px;
+					text-align:right;
+				}
+				&.section-header-total {
+					width:130px;
+					text-align:right;
+				}
+			}
+			.space {
+				width:16px;
+				border-top:1px solid rgba(0,0,0,0);
+				border-bottom:1px solid rgba(0,0,0,0);
+			}
+			.section-content {
+				position:relative;
+				padding:20px 10px;
+				vertical-align:middle;
+				.price {
+					font-size:20px;
+				}
+				.plus {
+					font-family:$fixed-font-family;
+					font-size:16px;
+					display:inline;
+					padding-right:8px;
+					&:before {
+						content:"\A";
+						white-space:pre;
+					}
+				}
+				&.section-content-thumb, &.section-content-details {
+					vertical-align:top;
+				}
+				&.section-content-thumb{
+					text-align:center;
+					width:85px;
+				}
+				&.section-content-quantity {
+					text-align:center;
+					font-weight:700;
+				}
+				&.section-content-price {
+					text-align:right;
+				}
+				&.section-content-total {
+					text-align:right;
+					padding-right:0;
+				}
+			}
+			.product-thumb {
+				height:87px;
+				width:58px;
+			}
+			div.name {
+				display:none;
+			}
+			h3, h4, .cSize {
+				font-size:12px;
+				font-family:$fixed-font-family;
+				line-height:1.5em;
+				width:180px;
+				float:right;
+			}
+			h3 {
+				font-weight:700;
+				margin:0;
+			}
+			h4 {
+				margin:0;
+			}
+			p.gift-msg {
+				text-transform:none;
+			}
+			.cSize {
+				text-transform:none;
+				font-size:14px;
+				margin-top:0.5em;
+			}
+			.engraving-msg, .accessory {
+ 				.product-thumb {
+					height:66px;
+					width:58px;
+				}
+				td {
+					position:static;
+					&.section-content {
+						height:auto;
+						padding:20px 10px;
+					}
+				}
+				h3, h4, p {
+					float:none;
+					padding-left:16px;
+					width:auto;
+				}
+				h3 {
+					padding-top:0;
+					position:relative;
+					&:before {
+						@extend .tooltip-arrow;
+						left:-48px;
+						top:-28px;
+					}
+				}
+				p {
+					font-family: $heading-font-family;
+					margin:0.75em 0 0;
+					text-transform:none;
+					padding-right:0;
+					font-size:24px;
+				}
+			}
+			.engraving-msg {
+				td {
+					&.section-content-details {
+						padding:16px 0;
+					}
+				}
+				h3 {
+					&:before {
+						left:38px;
+						top:-24px;
+					}
+				}
+			}
+			.accessory {
+				td {
+					&.section-content-thumb {
+						padding:16px 0;
+					}
+				}
+				&+.accessory {
+					box-shadow:none;
+					td {
+						background-image:none;
+						&.section-content-details {
+							h3 {
+								&:before {
+									display:none;
+								}
+							}
+						}
+					}
+				}
+				h3,h4 {
+					padding-left:0;
+				}
+			}
+			.spacer {
+				td {
+					height:16px;
+				}
+			}
+		}
+		.order-totals-table, .order-total {
+			width:100%;
+			.first {
+				width:360px;
+				text-align:right;
+				padding-bottom:4px;
+			}
+			.last {
+				width:200px;
+				text-align:right;
+				padding-bottom:4px;
+				.price {
+					font-size:20px;
+					margin-top:2px;
+				}
+			}
+			.order-subtotal , .order-total {
+				td {
+					line-height:1.2em;
+					padding-top:45px;
+					vertical-align:top;
+					.subtotal-sub {
+						font-size:11px;
+						letter-spacing:0;
+					}
+				}
+			}
+		}
+		.order-totals-table {
+			margin-top:-2px;
+		}
+		.order-total {
+			border-top:none;
+			margin-top:36px;
+			.last {
+				.price {
+					font-size:28px;
+				}
+			}
+			.first {
+				font-size:14px;
+				font-weight:700;
+				letter-spacing:3px;
+			}
+		}
+	}
+}
+
+// IE 8 --------------------------------------------------------------
+.ie8 {
+	.order {
+		.order-details {
+			.order-shipment-table {
+				.engraving-msg, .accessory {
+					td {
+						background-image:none;
+					}
+					h3:before{
+						background:url(img/ie/ie-account-arrow.png) no-repeat 0 0;
+						border:0;
+						width:16px;
+						left:-50px;
+						top:-30px;
+					}
+				}
+				.engraving-msg{
+					h3:before{
+						left:38px;
+						top:-26px;
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,76 @@
+/**
+* Demandware Script Fileto write tweet to impex
+* @input jsonStr: String	
+* @output errorMessage : String
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.io );
+importPackage( dw.net );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number{
+       
+	var fileName:String=dw.system.Site.current.ID+"Tweets.text";
+	var fileNameWithPath : String =File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + "socialfeed"+ File.SEPARATOR+"twitter" + File.SEPARATOR + fileName;
+	var fileout : File = new File(fileNameWithPath);
+ 	if(!fileout.exists()){
+   		fileout.createNewFile();
+   	}    
+	var writer: FileWriter=null;  	    
+	var writer  = new FileWriter(fileout);
+    var jsondata=JSON.parse(args.jsonStr);	 
+    var tweetCount : Number = dw.system.Site.getCurrent().getCustomPreferenceValue("tweetCount");
+	var tweetjson = {}; 
+	var tweets = [];
+	var JSONTwitter = {};
+	try{
+	    
+		for(var i in jsondata) {
+			var item = jsondata[i];
+			if(item.in_reply_to_status_id == null){
+		       tweets.push({ 
+		        "text" : item.text,
+		        "user" : item.user.name,
+		        "time" : getTimeFromDate(item.created_at) 
+		    });
+		  }
+		}
+		JSONTwitter.tweets = tweets;
+
+	}catch(e){
+	Logger.error("Error in catch block impexWriter.ds - " + e.message);
+	args.errorMessage = "Error in catch block impexWriter.ds - " + e.message;
+	return PIPELET_ERROR;
+	}
+	
+	writer.writeLine(JSON.stringify(JSONTwitter));
+	writer.close();
+	cvLogger.debug( "Tweeter: Creating folder " + fileNameWithPath );
+	
+	return PIPELET_NEXT;
+}
+
+ 
+function getTimeFromDate(date : String) : String{
+	 
+	var TwittetDate:Calendar = new Calendar(new Date(date));
+    var CurrDate:Calendar = new Calendar(new Date());
+    var nnum:Number=CurrDate.getTime().valueOf();
+    var durDiff:Number=CurrDate.getTime().valueOf() - TwittetDate.getTime().valueOf();
+     
+    var days:Number=durDiff/(24*60*60*1000);
+    var hours:Number=durDiff/(60*60*1000);
+    var minute:Number=durDiff/(60*1000);
+    var agotime:Number=0;
+    if(days >=1 ){
+       agotime= Math.floor(days) +" Days ago";
+    }else if(hours >= 1){
+       agotime= Math.floor(hours) +" Hours ago";
+    }else if(minute >= 0){
+       agotime=Math.floor(minute) +" Minute ago";
+    } 
+    return agotime;
+};
+

@@ -1,0 +1,44 @@
+<!--- TEMPLATENAME: articlenavigation.isml --->
+<iscache type="relative" hour="24"/>	
+	<isscript>
+		importScript("article/GetArticleMenu.ds");
+		if(pdict.ContentSearchResult.folder.parent.ID=='root')
+		{
+			var articleFoldersMap=getArticleMenu(pdict.ContentSearchResult.folder.ID); 
+		 }
+		else
+		{
+			var articleFoldersMap=getArticleMenu(pdict.ContentSearchResult.folder.parent.ID);
+		}
+	</isscript>
+	
+	<ul class="artFilters uppercase">
+		<isif condition="${pdict.ContentSearchResult.folder.parent.ID=='root'}">
+			<li class="active">
+				<a href="${URLUtils.url('Search-ShowContent','fdid',pdict.ContentSearchResult.folder.ID)}">
+				<isprint value="${Resource.msg('article.all','rendering',null)}" encoding="off" /></a>
+			</li>
+		<iselse>
+			<li>
+				<a href="${URLUtils.url('Search-ShowContent','fdid',pdict.ContentSearchResult.folder.parent.ID)}"><isprint value="${Resource.msg('article.all','rendering',null)}" encoding="off" /></a>
+			</li>
+		</isif>
+		<isloop items="${articleFoldersMap.keySet().iterator()}" var="key" status="loopstate">
+			<isif condition="${pdict.CurrentHttpParameterMap.fdid.value==key}">
+				<li class="active">
+					<a href="${URLUtils.url('Search-ShowContent','fdid',key)}">
+						<isprint value="${articleFoldersMap.get(key)}"/>
+					</a>
+				</li>
+			<iselse>
+				<li>
+					<a href="${URLUtils.url('Search-ShowContent','fdid',key)}">
+						<isprint value="${articleFoldersMap.get(key)}"/>
+					</a>
+				</li>
+			</isif>
+		</isloop>
+	</ul>
+<iscomment>dkum37: do not remove the below 2 divs, they are associated with the other divs on other pages.</iscomment>	
+</div>
+</div>

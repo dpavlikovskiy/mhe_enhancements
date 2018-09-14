@@ -1,0 +1,3 @@
+<iscomment>This template launches order confirmation email sending</iscomment>
+  
+<img src="${URLUtils.url('CustomSend-Mail','orderNo', pdict.Order.orderNo)}" height="1" width="1" />

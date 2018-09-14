@@ -1,0 +1,38 @@
+/**
+* Name: GetHookPipeline.ds	
+*
+* Description: 
+*   Gets the configiured hook pipeline, if not found it returns EmptyHook-Start  
+*
+*   @input hookName 			: String	The property key of the Hook
+*	@input fallbackHookPipeline : String  	The pipeline, which should be used as a fallback, if the hook is not defined in the current site
+*   @output hookPipeline 		: String	The hook pipeline to call
+*
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+
+function execute( pdict : PipelineDictionary ) : Number {
+	// the name of the resource bundle that stores the hooks
+	var BUNDLE_KEY : String = "_hooks";
+
+	// define a default hook
+	var hook : String ="EmptyHook-Start";
+	
+	// check for configured fallback
+	if (!empty(pdict.fallbackHookPipeline)) {
+		hook = pdict.fallbackHookPipeline;
+	}
+		
+	// check for configured pipeline hook name
+    if (!empty(pdict.hookName)) {
+        var configValue : String = Resource.msg(pdict.hookName,BUNDLE_KEY,"");
+        if (!empty(configValue)) {
+        	hook = configValue;
+        }
+    }
+    
+    pdict.hookPipeline = hook;
+    
+    return PIPELET_NEXT;
+}

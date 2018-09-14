@@ -1,0 +1,79 @@
+/**
+ * Generate local and remote filenames using provided prefix and current timestamp in yyyy-MM-dd_HH-mm-ss GMT format.
+ *
+ * If TempFolder does not exist it is created.
+ *
+ * @input  TempFolder : String  mandatory, e.g. "order", folder is underneath Impex share, src folder
+ * @input  FilePrefix : String  optional, e.g. "Order_"
+ * @output File : String  name of the local file, relative to the Impex share, src folder, e.g. "orders/Orders_2009-06-23_20-14-52.xml"
+ * @output RemoteFile : String  name of the remote file inside RemoteFolderURL, e.g. "Orders_2009-06-23_20-14-52.xml"
+ */
+
+importPackage( dw.io );
+importPackage( dw.system );
+importPackage( dw.util );
+importScript('bc_jobframework:job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number
+{
+	// read parameters
+    var tempFolder : String = args.TempFolder;
+	var filePrefix : String = args.FilePrefix;
+	
+
+	// check parameters
+    if ( empty( tempFolder ) )
+    {
+    	cvLogger.error( "GenerateExportFilename: Parameter TempFolder empty" );
+    	return PIPELET_ERROR;
+    }
+	
+    cvLogger.debug( "GenerateExportFilename: TempFolder: " + tempFolder + ", FilePrefix: " + ( !empty( filePrefix ) ? filePrefix : "(empty)" ) );
+
+	// create temp folder
+	if ( !createTempFolder( tempFolder ) )
+	{
+		// couldn't create folder
+		return PIPELET_ERROR;
+	}
+	
+	// create filename
+	var calendar : Calendar = new Calendar();
+	calendar.timeZone = "GMT";//GMT timezone is used as default so that all the files are generated in the same timezone which is used maximum
+	var gmtDateString : String = StringUtils.formatCalendar( calendar, "yyyyMMddHHmmss" );
+	
+	
+	var remoteFile : String = ( !empty( filePrefix ) ? filePrefix : "" ) + "_" + gmtDateString + ".xml";
+	var file : String = tempFolder + File.SEPARATOR + remoteFile;
+	
+	cvLogger.debug( "GenerateExportFilename: File: " + file + ", RemoteFile: " + remoteFile );
+	
+	args.File = file;
+	args.RemoteFile = remoteFile;
+
+    return PIPELET_NEXT;
+}
+
+function createTempFolder( tempFolder : String ) : boolean
+{
+	var folder : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + tempFolder );
+
+	if ( folder.exists() )
+	{
+		// nothing to do
+		return true;
+	}
+
+	cvLogger.debug( "GenerateExportFilename: Creating temp folder " + folder.fullPath );
+
+	// create folder	
+	var result : boolean = folder.mkdirs();
+	if ( !result )
+	{
+		cvLogger.error( "GenerateExportFilename: Error creating temp folder " + folder.fullPath );
+		return false;
+	}
+	
+	return true;
+}

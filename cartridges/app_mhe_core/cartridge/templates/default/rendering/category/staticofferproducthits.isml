@@ -1,0 +1,54 @@
+<isdecorate template="product/pt_staticofferpage" scope="page">
+<iscache type="relative" minute="30" varyby="price_promotion" />
+<isinclude template="util/modules" />
+<iscomment>create reporting event</iscomment>
+<isinclude template="util/reporting/ReportSearch.isml" /> 
+<iscomment>Creative -- Flag to identify if the page will be expanded</iscomment>
+<isset name="expanded" value="${new Boolean('false')}" scope="page" />
+<isif condition="${pdict.ProductPagingModel.count > 2}">
+<isset name="expanded" value="${new Boolean('true')}" scope="page" />
+</isif>
+<isset name="slpPageName" value="${Resource.msg('pagename.slp','components',null)}" scope="page" />
+
+<!-- Dirty but had to add to hide breadcrumb on this page only -->
+<style>.breadcrumb{display:none}</style>
+
+<div class="plp-static-hero">
+	<isslot id="cat-banner" context="category" description="Category Banner" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<isscript> var selectedString = 'selected="selected"'; </isscript>
+<isif condition="${!pdict.ProductSearchResult.count != null &&  pdict.ProductSearchResult.count > 1}">
+<div class="homePage">
+	<div class="moetCaro slideOne" data-mcaro='{ "productShow": 4, "speed": 600 }'>
+		<div class="box">
+			<ul class="slider">
+				<isproductgrid pagingmodel="${pdict.ProductPagingModel}" category="${pdict.ProductSearchResult.category}" pagetype="${slpPageName}" />
+			</ul>
+	        <div class="controls">
+	            <a href="#" class="prev">&lt;</a>
+	            <a href="#" class="next">&gt;</a>
+	            <div class="disabledLayer"></div>
+	        </div>
+		</div>
+	</div>
+</div>
+
+ 
+</isif>
+<div id="catvalue" style="display:none">${pdict.ProductSearchResult.category.ID}</div>
+<iscomment>Renders Brand Heritage Content from the slot</iscomment> 
+<div class="search-promo plp-static-carousel plp-static-content">
+	<isslot id="cat-promo" context="category" description="Promotional Content at the bottom" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<iscomment>Renders
+Brand Heritage video from the slot</iscomment> 
+<div class="static-video">
+	<isslot id="promo-video" context="category" description="Promotional video at the bottom" context-object="${pdict.ProductSearchResult.category}"/>
+</div>
+
+<span class="signoff"><isslot id="static-text" context="category" description="Static Text At The Bottom For Static Offer Page" context-object="${pdict.ProductSearchResult.category}"/></span>
+
+</isdecorate>
+

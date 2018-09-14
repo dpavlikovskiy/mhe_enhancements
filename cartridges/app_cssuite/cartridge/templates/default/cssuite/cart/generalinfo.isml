@@ -1,0 +1,67 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importPackage(dw.util);
+	var basket = pdict.Basket;
+	var order = basket.orderBeingEdited;
+</isscript>
+<h3>Order Information</h3>
+        <table class="searchtable">
+        	<tbody>
+                <tr>
+        			<td class="label searchtable_row_lefttop">Order contains:</td>
+        			<td class="value searchtable_row_righttop">${!empty(basket.allProductLineItems)?basket.allProductLineItems.length:"0"} line items to ${!empty(basket.shipments)?basket.shipments.length:"0"} shipping location(s).</td>
+        		</tr>
+                <tr>
+        			<td class="label searchtable_row_left">Total Price:</td>
+        			<td class="value searchtable_row_right">${basket.getTotalGrossPrice()}</td>
+        		</tr>
+        		<isif condition="${!empty(order)}">
+	                <tr>
+	        			<td class="label searchtable_row_left">Date received:</td>
+	        			<td class="value searchtable_row_right">${order.creationDate}</td>
+	        		</tr>
+	                <tr>
+	        			<td class="label searchtable_row_left">Created By:</td>
+	        			<td class="value searchtable_row_right">${order.createdBy}</td>
+	        		</tr>
+        		<iselse>
+	                <tr>
+	        			<td class="label searchtable_row_left">Date received:</td>
+	        			<td class="value searchtable_row_right">New order to be created.</td>
+	        		</tr>
+        		</isif>
+        		<isif condition="${!empty(basket.customerName)}">
+	                <tr>
+	        			<td class="label searchtable_row_left">Customer:</td>
+	        			<td class="value searchtable_row_right">${basket.customerName}</td>
+	        		</tr>
+        		</isif>
+                <tr>
+        			<td class="label searchtable_row_left">Customer No:</td>
+        			<td class="value searchtable_row_right">${!empty(basket.customerNo)?basket.customerNo:Resource.msg('order.anonymous','cssuite',null)}</td>
+        		</tr>
+        		<isif condition="${!empty(basket.customerEmail)}">
+	                <tr>
+	        			<td class="label searchtable_row_left">Email:</td>
+	        			<td class="value searchtable_row_right">${basket.customerEmail}</td>
+	        		</tr>
+        		</isif>
+        		<isif condition="${!empty(order)}">
+	        		<isif condition="${!empty(order.sourceCodeGroup)}">
+		                <tr>
+		        			<td class="label searchtable_row_left">Source Group / Code:</td>
+		        			<td class="value searchtable_row_right">${order.sourceCodeGroupID} / ${order.sourceCode}</td>
+		        		</tr>
+	        		</isif>
+	        	</isif>
+			</tbody>
+		</table>
+
+<script type="text/javascript">
+	setCustomerInfo("${!empty(basket.customerName) ? basket.customerName : Resource.msg('order.anonymous','cssuite',null);}");
+	setOrderNumber('${!empty(order) ? order.orderNo : ""}');
+</script>
+
+
+
+

@@ -1,0 +1,59 @@
+/**
+* Demandware Script File
+* To define input and output parameters, create entries of the form:
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+*   @input Email : String Mandatory
+*   @input Title : String
+*   @input Salutation : String
+*   @input FirstName : String
+*   @input LastName : String
+*	@input CustomerName : String
+*	@input birthday : Date
+*   @input StaticPageID : String
+*   @output NewsLetterParamMap : dw.util.HashMap
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var paramMap : HashMap = new dw.util.HashMap();
+	if (pdict.Email != null){ //if email is null dont put any param in map
+		paramMap.put("email", pdict.Email);
+		
+		if (pdict.Title != null){
+			paramMap.put("title", pdict.Title);
+		}
+		if (pdict.Salutation != null){
+			paramMap.put("salutation", pdict.Salutation);
+		}
+		if (pdict.FirstName != null){
+			paramMap.put("firstname", pdict.FirstName);
+		}
+		if (pdict.LastName != null){
+			paramMap.put("lastname", pdict.LastName);
+		}
+		if (pdict.CustomerName != null){
+			paramMap.put("CustomerName", pdict.CustomerName);
+		}
+		if (pdict.birthday != null){
+			paramMap.put("birthday", pdict.birthday.toString());
+		}
+		if (pdict.StaticPageID != null){
+			paramMap.put("StaticOfferID", pdict.StaticPageID.toString());
+		}
+	}
+	
+	pdict.NewsLetterParamMap = paramMap;
+	
+   	return PIPELET_NEXT;
+}

@@ -1,0 +1,100 @@
+/**
+* This script creates a payment instrumet for the Profit Point Gift Card, based on the Card-ID and Amount.
+*
+*   @input Basket : dw.order.Basket The basket.
+*   @input Balance : dw.value.Money The balance of the gift card.
+*	@input CardID : String The id of the card.
+*   @output PPGCPaymentInstrument : dw.order.PaymentInstrument The created Profit Point Gift Card payment instrument or null
+*
+*/
+importPackage( dw.system );
+importPackage( dw.value );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : Basket = pdict.Basket;
+	if (basket == null) {
+		Logger.error("CreatePaymentInstrument.ds: Basket is null");
+		return PIPELET_ERROR;
+	}
+    
+    var balance : Money = pdict.Balance;
+    if (balance == null) {
+    	Logger.error("CreatePaymentInstrument.ds: balance is null");
+		return PIPELET_ERROR;
+    }
+    
+    var cardID : String = pdict.CardID;
+    if (empty(cardID)) {
+    	Logger.error("CreatePaymentInstrument.ds: CardID is empty");
+		return PIPELET_ERROR;
+    } 
+    
+    var ppgcpi : OrderPaymentInstrument = null;
+    
+    var primaryPaymentInstrument : OrderPaymentInstrument = null;
+    	
+    if (!empty(basket.getPaymentInstruments("METHOD_PPGC"))) {
+    	for each (var pi : PaymentInstrument in basket.getPaymentInstruments("METHOD_PPGC")) {
+    		if (pi.paymentTransaction.custom.ppgc_ID == cardID && !pi.custom.toRemove) {
+				Logger.debug("CreatePaymentInstrument.ds: Found payment instrument ({0})", pi.UUID);    			
+    			ppgcpi = pi;
+    			break;
+    		}
+    	}
+    }
+    
+    // calculate how much of basket total is covered by other payment instruments
+    var otherInstrumentAmounts : Money = new Money(0, Site.getCurrent().getDefaultCurrency());
+    for each (var payInst : OrderPaymentInstrument in basket.paymentInstruments) {
+    	if (payInst.paymentMethod == "METHOD_PPGC") {
+			if (!payInst.custom.toRemove)    		
+				otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+		} else if (payInst.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE) {
+			otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+		} else {
+			//if there is a payment transaction in place that cannot be voided we keep it ...
+			if (!empty(payInst.paymentTransaction.transactionID)  && payInst.paymentMethod != "CREDIT_CARD" ) {
+				otherInstrumentAmounts = otherInstrumentAmounts.add(payInst.paymentTransaction.amount);
+			} else {
+				primaryPaymentInstrument = payInst;
+			}
+		}
+    }
+    Logger.debug("CreatePaymentInstrument.ds: PayInstAmount is ({0})", otherInstrumentAmounts);
+    
+    // determine how much we need to take from that gift card
+    var difference : Money = basket.totalGrossPrice.subtract(otherInstrumentAmounts);
+
+	var leftAmount : Money = new Money(0, difference.currencyCode );
+	
+    Logger.debug("CreatePaymentInstrument.ds: Difference is ({0})", difference);
+    var amount : Money = null;
+    if (difference.value < balance.value) {
+    	amount = difference;
+    } else {
+    	amount = balance;
+    	leftAmount = difference.subtract(balance);
+    }
+    Logger.debug("CreatePaymentInstrument.ds: Amount is ({0})", amount);
+    
+    if (ppgcpi == null) {
+	    ppgcpi = basket.createPaymentInstrument("METHOD_PPGC", amount);
+	    ppgcpi.paymentTransaction.custom.ppgc_ID = cardID;
+    } else {
+		// we only update the amount of this PPGC if no transaction is associated with it    	
+    	if (empty(ppgcpi.paymentTransaction.transactionID))
+        	ppgcpi.paymentTransaction.amount = amount;
+    }
+    
+    ppgcpi.paymentTransaction.custom.balance = balance.value;
+    Logger.debug("CreatePaymentInstrument.ds: Created payment instrument ({0}) ({1})", ppgcpi.UUID, amount);    			
+    			
+	if (!empty(primaryPaymentInstrument))
+	{
+		primaryPaymentInstrument.paymentTransaction.amount = leftAmount;
+	}
+
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,16 @@
+<!--- TEMPLATENAME: TimeSlot.isml --->
+ <isinclude template="util/modules"/>
+
+<select id="shipment_calendar_time"   name="${}" class="input-text required chill_fuel_time " >
+	<option  value="" disabled selected>${Resource.msg('shippingmethod.deliverytime','forms',null)}</option>
+  		<isloop items="${pdict.timeSlotMap}" var="key" status="loopstatus">
+	 		<isscript>
+	 			var time: String= key.substring(0, key.indexOf(","));
+	 		</isscript>
+	  		<isif condition="${key.indexOf('enabled')>-1}" > 
+ 	  			<option  value="${time}">${time}</option>
+ 	  		<iselse>
+ 	   			<option  value="${time}" class="chilled_time_slots" disabled>${time} - not available</option>
+ 	  		</isif>
+ 	  	</isloop>
+</select>

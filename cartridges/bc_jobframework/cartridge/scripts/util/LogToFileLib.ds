@@ -1,0 +1,59 @@
+importPackage(dw.system);
+importPackage(dw.io);
+importPackage(dw.util);
+
+/**
+ * Created the lib with the given log file.
+ * 
+ * @param logFile : File The log file.
+ */
+function LogToFileLib(logFile : File) {
+	this.logFile = logFile;
+	
+	if (!empty(this.logFile)) {
+		var fullPath : String = this.logFile.getFullPath();
+		var parentDir : File = new File(fullPath.substring(0, fullPath.lastIndexOf(File.SEPARATOR)));
+		if (!parentDir.exists()) {
+			parentDir.mkdirs();
+		}
+		if (!this.logFile.exists()) {
+			this.logFile.createNewFile();
+		}
+	}
+}
+
+
+/**
+ * Logs the given message to the log file.
+ * 
+ * @param logMessage : String The log message.
+ */
+LogToFileLib.prototype.log = function(logMessage : String) {
+	if (empty(this.logFile)
+		|| empty(logMessage)) {
+		return;
+	}
+	
+	var timestamp : String = StringUtils.formatCalendar(System.getCalendar(), "yyyy-MM-dd HH:mm:ss.SSS z");
+	
+	var writer : FileWriter = new FileWriter(this.logFile, true);
+	
+	var logNDC : LogNDC = Log.getNDC();
+	var logNDCArray : Array = [];
+	if ( logNDC.peek() != '' ) {
+		let currentMessage : String = logNDC.pop(); 
+		while ( currentMessage != '' ) {
+			logNDCArray.push( currentMessage );
+			currentMessage = logNDC.pop();
+		}
+		for ( let i = logNDCArray.length-1; i>=0; i-- ) {
+			logNDC.push( logNDCArray[i] );
+		}		
+	}
+	if ( logNDCArray.length > 0 ) {
+		writer.writeLine( [timestamp, ,'(', logNDCArray.join(','), ')', " - ", logMessage].join('') );
+	} else {
+		writer.writeLine( [timestamp, " - ", logMessage].join('') );
+	}
+	writer.close();
+}

@@ -1,0 +1,87 @@
+
+<iscomment>
+	Renders personalize product page.	
+</iscomment>
+<isscript> importScript("util/ProductImageSO.ds"); </isscript>
+	<isinclude template="util/modules"/>	
+	<isset name="dialogType" value="${dw.web.Resource.msg('product.dialog.addpersonalize','product','personalize')}" scope="pdict">
+	<form action="href" method="post" id="personalize-form" class="personalize-form">
+		<fieldset>
+			<div class="section step-01 first-section">
+				<h2 class="beta-heading">
+					<strong>${dw.web.Resource.msg('personalize.dialog.step1','product','')}</strong> ${dw.web.Resource.msg('personalize.dialog.step1.text','product','')}
+				</h2>
+				<div id="dialogvariant">
+					<isinclude template="product/components/productcontentfordialog"/>
+				</div>
+			</div>
+
+			<isif condition="${!empty(pdict.Product.getImage('personalize',0))}">
+				<isset name="personalizeImageUrl" value="${ (new ProductImage('personalizeOverlay', pdict.Product, 0 )).getURL() }" scope="page" />
+			<iselse>
+				<isset name="personalizeImageUrl" value="${URLUtils.staticURL('/images/noimagesmall.png')}" scope="page"/>
+			</isif>
+			
+			<div class="section step-02 product-options-dialog">
+				<div class="branding-image">
+					<iscomment>
+						For UI Team -- Personalize Image URL is setup to be used 
+						How to use ${personalizeImageUrl} whereever the url is required
+					</iscomment>
+					
+					<img src="${personalizeImageUrl}" alt=""  />
+				</div>
+				<h2 class="beta-heading">
+					<strong>${dw.web.Resource.msg('personalize.dialog.step2','product','')}</strong> ${dw.web.Resource.msg('personalize.dialog.step2.text','product','')}
+					<isif condition="${pdict.CurrentOptionModel != null}">
+						<isset name="POM" value="${pdict.CurrentOptionModel}" scope="page"/>
+					<iselse>
+						<isset name="POM" value="${pdict.Product.getOptionModel()}" scope="page"/>
+					</isif>
+					<isloop items="${POM.options}" var="Option">
+						<isset value="${POM.getOptionValues(Option)[1]}" name="OptionValue" scope="page">
+						<isif condition="${OptionValue.ID =='engraving'}" >
+						<isscript>
+							var optionPrice = POM.getPrice(OptionValue);										
+							var combinedPrice = optionPrice.add(empty(pdict.displayPrice) ? 0 : pdict.displayPrice);
+						</isscript>
+						
+						<isprint value="${POM.getPrice(OptionValue)}" /> 
+						</isif>								
+					</isloop>
+				</h2>
+				<ul class="input-list">
+					<li class="form-row">
+						<isif condition="${'custom' in pdict.Product && !empty(pdict.Product.custom) && 'engravingmessagemaxlength' in pdict.Product.custom && !empty(pdict.Product.custom.engravingmessagemaxlength)}"> 
+						<isinputfield attribute2="cols" value2="66" attribute3="data-character-limit" value3="${pdict.Product.custom.engravingmessagemaxlength}" attribute1="placeholder" value1="${dw.web.Resource.msg('personalize.placeholder.text','product','')}" formfield="${pdict.CurrentForms.product.engravingMessageLine1}" type="textarea"/>					
+						<iselse>
+						<isinputfield attribute2="cols" value2="66" attribute3="data-character-limit" value3="${dw.web.Resource.msg('product.personalize.charlimit','product','')}" attribute1="placeholder" value1="${dw.web.Resource.msg('personalize.placeholder.text','product','')}" formfield="${pdict.CurrentForms.product.engravingMessageLine1}" type="textarea"/>
+						</isif>		 
+						<div class="error empty error-hidden">
+							<isprint value="${dw.web.Resource.msg('product.personalize.nomsg','product','')}" />
+						</div>
+						<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('Regex')!=null}"> 
+						<div class="error char-check error-hidden">
+							<isprint value="${Resource.msgf('product.personalize.specialCharPresent','product',null,dw.system.Site.getCurrent().getCustomPreferenceValue('Regex').toString())}" encoding="off"/></h2>	
+						</div>
+						</isif>
+						<div class="error char-check error-hidden profinity-error"></div>
+					</li>
+					
+				</ul>
+				<div class="cta-wrap">
+					<isset name="buyPersonalizeBottle" value="${dw.web.Resource.msg('personalize.buy.bottle','product','Buy personalised bottle')}" scope="page" />	
+					<button id="add-to-cart-dialog" type="submit" value="${buyPersonalizeBottle}" class="button-fancy-large add-to-cart button secondary button-buy-me js-add-to-cart">
+						<span class="face front">${buyPersonalizeBottle}</span>
+						<span class="face back">${buyPersonalizeBottle}</span>
+					</button>
+				</div>
+				
+				<iscomment>Removed class"personalize-veil" as this class was failing the personalization flow. Owen  to look into it.  </iscomment>
+				<div class="personalise-veil"></div>
+			</div>
+			<div class="section footer">
+				<iscontentasset aid="engraving-footer-text"/>
+			</div>
+		</fieldset>
+	</form>

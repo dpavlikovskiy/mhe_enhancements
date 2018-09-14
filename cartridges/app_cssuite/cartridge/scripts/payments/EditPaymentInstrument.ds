@@ -1,0 +1,20 @@
+/**
+*
+*	@input  PaymentMethodId : String
+*   @output PaymentMethod : dw.order.PaymentMethod 
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.web );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var paymentMethodId : String = pdict.PaymentMethodId;
+	var paymentMethod : PaymentMethod = PaymentMgr.getPaymentMethod(paymentMethodId);
+	
+	pdict.PaymentMethod = paymentMethod;
+    
+    return PIPELET_NEXT;
+}

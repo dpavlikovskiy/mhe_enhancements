@@ -1,0 +1,96 @@
+.pdp-section-tabs {
+	background: $brandBg;
+	.tab {
+		a {
+			color: $gray;
+			font: $mediumFontSize $regularFont;
+		}
+		&.ui-tabs-selected {
+			a {
+				color: $secondaryColor;
+				border-bottom: $brandColor 0px solid;
+			}
+		}
+	}
+	.tab-content {
+		.colWrapper {
+			.col-hero {
+				margin-bottom: 80px;
+				.col-inner {
+					img {
+						margin-bottom: 0;
+					}
+					p.credit {
+						padding-bottom:20px;
+					}
+				}
+			}
+			.col {
+				&.col-detail {
+					margin-top: 20px;
+				}
+			}
+		}
+		h2 {
+			color: $black;
+			font: $secondHeading $titleFont;
+			letter-spacing: 1px;
+			margin:20px 0;
+		}
+		h3 {
+			color: $black;
+			font: $standardFontSize $copyFont;
+		}
+		.gamma-heading {
+			color: $black;
+			font: $standardFontSize $copyFont;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			padding-bottom:10px;
+		}
+		p {
+			color: $black;
+			font: $standardFontSize $copyFont;
+			line-height: 18px;
+			letter-spacing: 1.5px;
+		}
+		p.credit {
+			padding-bottom: 20px !important;
+		}
+		&.characteristics {
+			p {
+				color: $black;
+				font:$mediumFontSize $regularFont;
+				line-height: 18px;
+				letter-spacing: 1.5px;
+			}
+		}
+		&.awards {
+			p {
+				color: $black;
+				font: $mediumFontSize $regularFont;
+				line-height: 18px;
+				letter-spacing: 1.5px;
+			}
+		}
+		blockquote {
+			&:before {
+				color: $brandColor;
+			}
+			&:after {
+				color: $brandColor;
+			}
+			p {
+				font: $forthHeading $regularFont;
+				line-height: 24px;
+				margin: -10px 0 5px 0;
+				letter-spacing: 2px;
+			}
+		}
+	}
+	.tabs-menu {
+		&:before {
+			display:none;
+		}
+	}
+}

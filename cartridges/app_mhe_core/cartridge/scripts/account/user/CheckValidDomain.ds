@@ -1,0 +1,18 @@
+/**
+*
+*  @input Email : String 
+*
+*/
+importPackage( dw.system );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var domain:String=args.Email.substr(args.Email.lastIndexOf('@')+1);
+	var preferences : Array = dw.system.Site.getCurrent().preferences.custom.allowedEmailDomainsForReferFriend;
+    	for (var i=0; i < preferences.length; i++) {
+			if (domain.equalsIgnoreCase(preferences[i].toString())) {
+				return PIPELET_NEXT;
+			}
+    	}
+   return PIPELET_ERROR;
+}

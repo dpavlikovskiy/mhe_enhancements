@@ -1,0 +1,55 @@
+/**
+* 	This script checks if the amount of all current gift cards is equal to the basket total. If this is the case, the status will be Status.OK,
+*	if not the status will be Status.ERROR to indicate that there need to be added an additional PaymentTransaction.
+*	For the calculation only gift cards that do not have the 'toRemove' flag set to true taken.
+*
+*   @input Basket : dw.order.Basket The basket.
+*  	@output Status : dw.system.Status the status of the operation.
+*/
+importPackage( dw.order );
+importPackage( dw.system );
+importPackage( dw.value );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+    var basket : Basket = pdict.Basket;
+	if (basket == null) {
+		Logger.error("CreatePaymentInstrument.ds: Basket is null");
+		return PIPELET_ERROR;
+	}
+    
+    var basketTotal : Money = basket.getTotalGrossPrice();
+    var giftCardTotal : Money = new Money(0, basket.getCurrencyCode());
+    
+    for each (var pi : OrderPaymentInstrument in basket.getPaymentInstruments()) {
+		var toRemove : Boolean = false;
+    	if ('toRemove' in pi.custom) 
+			toRemove = pi.custom.toRemove;    	
+    	
+    	if ((pi.paymentMethod == "METHOD_PPGC")) {
+			if (!toRemove)
+				giftCardTotal = giftCardTotal.add(pi.paymentTransaction.amount);
+		} else if (pi.paymentMethod == PaymentInstrument.METHOD_GIFT_CERTIFICATE) {
+			giftCardTotal = giftCardTotal.add(pi.paymentTransaction.amount);
+		} else {
+			//if there is a payment transaction in place that cannot be voided we keep it ...
+			Logger.debug("Payment Method: " + pi.paymentMethod);
+			if (!empty(pi.paymentTransaction.transactionID) && pi.paymentMethod != "CREDIT_CARD") {
+				giftCardTotal = giftCardTotal.add(pi.paymentTransaction.amount);
+			}
+		}
+    }
+    
+	// if the total is greater than the Gift Certificate total, return
+	if (giftCardTotal.getValue() < basketTotal.getValue()) {
+        pdict.Status = new Status(Status.OK);
+        return PIPELET_NEXT;
+	}
+	else {
+		pdict.Status = new Status(Status.ERROR, "ORDER_AMOUNT_EXCEEDED");
+        return PIPELET_ERROR;
+	}
+	
+	return PIPELET_NEXT;
+}

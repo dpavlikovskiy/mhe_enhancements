@@ -1,0 +1,389 @@
+/**
+* Demandware Script File
+*  To Process order xml file.Create XML object with file content and  check for
+*  all possible validation.if it passes then update order attribute based on UpdateReasonCode.  
+* 
+* @input File:String
+* @output ErrorMessage: String
+* @output ERRORTYPE: String
+* @output Order: dw.order.Order
+* @output EmailFlow: String
+* @output InvoiceAttachmentRequired: Boolean
+*/
+importPackage( dw.system);
+importPackage( dw.io);
+importPackage( dw.order);
+importPackage( dw.util);
+
+var errorType:String=null;
+
+/*Constant declaration*/
+var ACK:String="ACK";
+var SHIPPED:String="SHIPPED";
+var DELIVERED:String="DELIVERED";
+var NOT_DELIVERED:String="NOT_DELIVERED";
+var REFUSED:String="REFUSED";
+var FULL_CANCEL:String="FULL_CANCEL";
+var MISSED:String="MISSED";
+var STATUS_EMPTY:String = "EMPTY";
+var READY:String="READY";
+var TRIGGERED:String="TRIGGERED";
+var REJECT:String="REJECT";
+var CANCEL:String="CANCEL";
+var CANCEL_EMAILFLOW:String="orderCancellation";
+var SHIPPED_EMAILFLOW:String="orderShipped";
+var DELIVERED_EMAILFLOW:String="orderDelivered";
+var oldOrderStatus:String="";
+var oldUpdateReasonCode:String="";
+var order : dw.order.Order =null;
+/*ArrayList to validate updateReasonCode*/
+var reasonCodeList:ArrayList=new ArrayList(ACK,SHIPPED,DELIVERED,NOT_DELIVERED,REFUSED,FULL_CANCEL,MISSED);
+var InvoiceAttachment:Boolean = false;
+function execute( pdict : PipelineDictionary ) : Number
+{
+	/*
+	  Get file name from pdict and create file object.processFile() function will create XML object 
+	  and process the file.
+	*/
+	 pdict.ERRORTYPE=null;
+	 pdict.InvoiceAttachmentRequired=false;
+	 pdict.EmailFlow="";
+     var file:String =pdict.File;
+     var xmlFile : File = new File( File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR + file );
+	 var fileProcessed : Number;
+	 fileProcessed= processFile(xmlFile,pdict);
+	 if (fileProcessed != 2){
+     	
+     	var newOrderStatus:String=!empty(order.custom.orderStatus)?order.custom.orderStatus:"";
+     	var newUpdateReasonCode:String=order.custom.updateReasonCode;
+     	if(oldOrderStatus!=newOrderStatus && newOrderStatus.equalsIgnoreCase(CANCEL))
+     	{
+     			pdict.EmailFlow=CANCEL_EMAILFLOW;
+     	}
+     	if(oldUpdateReasonCode!=newUpdateReasonCode&& newUpdateReasonCode.equalsIgnoreCase(SHIPPED))
+     	{
+     		pdict.EmailFlow=SHIPPED_EMAILFLOW;
+     	}
+     	if(oldUpdateReasonCode!=newUpdateReasonCode&& newUpdateReasonCode.equalsIgnoreCase(DELIVERED))
+     	{
+     		pdict.EmailFlow=DELIVERED_EMAILFLOW;
+     	}
+     	pdict.InvoiceAttachmentRequired=InvoiceAttachment;
+     	if(order.custom.settlementDate==null){
+     		order.custom.settlementDate=new Date();
+     	}
+    if(order.defaultShipment!=null && 'byPassFullfillmentEmails' in order.defaultShipment.shippingMethod.custom && order.defaultShipment.shippingMethod.custom.byPassFullfillmentEmails)
+	{
+	 pdict.EmailFlow="";
+	}
+ 	  return PIPELET_NEXT;
+ 	}else {
+ 	 pdict.ERRORTYPE=errorType;
+ 	 pdict.InvoiceAttachmentRequired=InvoiceAttachment;
+	  return PIPELET_ERROR;
+ 	}
+}
+
+
+  
+  function processFile(xmlFile : File,pdict : PipelineDictionary) : Number {
+ 
+   try{
+   	
+   	    /*Validate file object 
+   	    if(!empty(xmlFile)){
+   	         errorType="validation_error";
+			 Logger.error("Error! Not a valid File Object.");
+			 pdict.ErrorMessage="Error! Not a valid File Object.";
+			 return PIPELET_ERROR;
+   	    }
+   	*/     
+   		/*Read file and get contenet of file */
+	    var readFile:FileReader = new FileReader(xmlFile);//read file 
+	    var content : String = readFile.getString(); //get the file content 
+      	XML.setSettings();
+		content=normalizeXMLTags(content);
+		var ordersXML : XML=null;
+		
+		/*Validate xml format */
+		try{
+			ordersXML = new XML(content);
+		  }catch(ex){
+			   errorType="validation_error";
+			   Logger.error("File format must be in-compliance with Order Update schema."+ex.message);
+			   pdict.ErrorMessage="File format must be in-compliance with Order Update schema."+ex.message;
+			   return PIPELET_ERROR;
+		}
+	  	var attrio =ordersXML.children();
+	    var ns : Namespace = new Namespace(ordersXML.namespace());
+	  	
+	  	/*Retrive all order and process it*/
+	    for each ( var orderXML : XML in ordersXML.ns::order) 
+	    {
+			var orderUpdated:Boolean=false; 
+			
+			/*Get order attribute element from order update xml*/
+	  	    var orderID=ordersXML.ns::order.attribute("orderno").toString();
+	  	  	var effectiveDateTime=orderXML.ns::effectiveDateTime.toString();	
+			var updateReasonCode=orderXML.ns::updateReasonCode.toString();
+			var sapOrderId=orderXML.ns::sapOrderId.toString();
+			 var chilledDeliveryApplicable : Boolean =false;	 
+			/**
+			*  Validate mandatory attribute of XML file 	 
+			*/
+			if(empty(effectiveDateTime)||empty(updateReasonCode)||empty(orderID)){
+			     errorType="validation_error";
+				 Logger.error("Validation of mandatory attribute of XML file failed. Missing mandatory attributes.");
+				 pdict.ErrorMessage="Missing mandatory attributes";
+				 return PIPELET_ERROR;
+			}
+			
+			//check for date format
+			var newUpdDate:Calendar=new Calendar();
+			try{  
+				newUpdDate.parseByFormat(effectiveDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+			   // newUpdDate =new Calendar(new Date(effectiveDateTime));		// Date from XML file 
+			}catch(e){
+			     errorType="validation_error";
+				 Logger.error("Date Format error.Not able to parse effectiveDateTime."+e.message);
+				 pdict.ErrorMessage="Date Format error.Not able to parse effectiveDateTime."+e.message;
+				 return PIPELET_ERROR;
+			}
+			
+			
+		//Check for valid reason code
+			if(!reasonCodeList.contains(updateReasonCode)){
+			     errorType="validation_error";
+				 Logger.error("updateReasonCode id not a valid reason code.");
+				 pdict.ErrorMessage="updateReasonCode id not a valid reason code.";
+				 return PIPELET_ERROR;
+	         }	
+	     
+	     
+	       /*Get order object from DATABASE*/
+			order = OrderMgr.queryOrder("orderNo = {0}", orderID);
+			
+			//check order object exist 
+			if(order==null){   
+			   errorType="validation_error";
+			   Logger.error("Order object is null. Can not find order ID  " + orderID);
+			   pdict.ErrorMessage="Order object is null. Can not find order ID " + orderID;
+			    return PIPELET_ERROR;
+			}
+			var skipSettlement : Boolean = false;
+			if(empty(order.paymentInstrument) || empty(order.paymentInstrument.paymentMethod) 
+			|| order.paymentInstrument.paymentMethod.equals("ORDER_COMPLIMENTARY")
+			|| order.paymentInstrument.paymentMethod.equals("ORDER_OTHER_MEANS")
+			|| order.paymentInstrument.paymentMethod.equals("ORDER_REPLACEMENT")) {
+				skipSettlement = true;
+			}
+			oldOrderStatus =!empty(order.custom.orderStatus)?order.custom.orderStatus:"";
+			oldUpdateReasonCode =!empty(order.custom.updateReasonCode)?order.custom.updateReasonCode:"";
+			
+			//check for valid next possible updateReasonCode values 			
+			var reasonCodeSitePref:String = !empty(oldUpdateReasonCode)?"updateReasonCode_"+oldUpdateReasonCode:"updateReasonCode";
+			var possibleNextStates : Array = dw.system.Site.getCurrent().getCustomPreferenceValue(reasonCodeSitePref);
+			var invalidNextState:boolean = true;
+			
+			for (var i=0; i < possibleNextStates.length; i++)
+			 {
+				if (updateReasonCode.equalsIgnoreCase(possibleNextStates[i])) 
+				{
+					invalidNextState = false;
+					break;
+				}
+	    	 }
+	    	 
+	    	 var invoiceReasonCodes : Array = dw.system.Site.getCurrent().getCustomPreferenceValue("pdfInvoiceRequired");
+	    	 if(invoiceReasonCodes!=null && !empty(invoiceReasonCodes))
+	    	 {	    	 	
+	    	    for (var n=0; n < invoiceReasonCodes.length; n++)
+			    {	
+					if (updateReasonCode.equalsIgnoreCase(invoiceReasonCodes[n])) 
+					{
+						InvoiceAttachment = true;
+						break;
+					}
+	    		}
+	    	 }	
+		            
+			if(invalidNextState)
+			{
+				   	errorType="validation_error";
+			    	Logger.error("Update Reason Code("+updateReasonCode+") mentioned in XML is either invalid or not expected-As per the site preference defined for this reason code. Allowed Values after Update Reason Code = "+oldUpdateReasonCode+" are "+possibleNextStates.toLocaleString());
+			    	pdict.ErrorMessage="Update Reason Code ("+updateReasonCode+") mentioned in XML is either invalid or  not expected(As per the site preference defined for this reason code. Allowed Values after Update Reason Code = " +oldUpdateReasonCode + " are ( "+possibleNextStates.toLocaleString()+" )";
+			    	return PIPELET_ERROR;
+			}
+					     
+		   
+	if(order.defaultShipment!=null && 'chilledDeliveryShippingMethod' in order.defaultShipment.shippingMethod.custom && order.defaultShipment.shippingMethod.custom.chilledDeliveryShippingMethod)
+	{
+	chilledDeliveryApplicable =true;
+	}
+			/*
+			* check if the received XML is an old file 
+			* to do this we get the effective date from the XML and compare it with the stored effective date.
+			* if the effective date from XML is before the stored effective date, the script will return with ERROR			 
+			*/
+			var oldUpdDate:Calendar = new Calendar();
+			if (null != order.custom.effectiveDateTime){
+				oldUpdDate.parseByFormat(order.custom.effectiveDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+				//oldUpdDate = new Calendar(new Date(order.custom.effectiveDateTime));	// Stored effective Date
+			    var od:Date =oldUpdDate.getTime();
+			 	var nd:Date =newUpdDate.getTime();
+			 	 
+				 if(!(nd>od)){
+					errorType="replay_error";
+					Logger.error("The checkdate coming from the XML is less than the effective date that exists in the Order " + orderID);
+					pdict.ErrorMessage="The checkdate coming from the XML is less than the effective date that exists in the Order " + orderID;
+					return PIPELET_ERROR;
+				}			
+			}			
+			
+		   /* updateReasonCode == ACK*/
+			if(updateReasonCode.equalsIgnoreCase(ACK) || updateReasonCode.equalsIgnoreCase(MISSED)){
+				  updateOrderAttribute(order,orderXML,ns);
+			
+			 /* updateReasonCode == SHIPPED*/	  
+			}else if(updateReasonCode.equalsIgnoreCase(SHIPPED)){
+				 if(empty(order.custom.cs_SettlementStatus.value) && !skipSettlement) {
+				 	 order.custom.cs_SettlementStatus=READY;		
+				 }		 
+				  updateOrderAttribute(order,orderXML,ns);
+				  var SHIPPING_STATUS_SHIPPED:Number=dw.order.Shipment.SHIPPING_STATUS_SHIPPED;
+				  order.setShippingStatus(SHIPPING_STATUS_SHIPPED);
+		 
+		   /* updateReasonCode == DELIVERED*/		  
+			}else if(updateReasonCode.equalsIgnoreCase(DELIVERED)){
+			   if(empty(order.custom.cs_SettlementStatus.value) && !skipSettlement){
+			      order.custom.cs_SettlementStatus=READY;
+			      updateOrderAttribute(order,orderXML,ns);
+			    }else if(!empty(order.custom.cs_SettlementStatus.value) && order.custom.cs_SettlementStatus.value.equals(REJECT)){
+			        errorType="settlement_error";
+					Logger.error("The cs_SettlementStatus is in REJECT state and order has been delivered.Please take necessary action  " + orderID);
+					pdict.ErrorMessage="The cs_SettlementStatus is in REJECT state and order has been delivered.Please take necessary action " + orderID;
+					return PIPELET_ERROR;
+			  } else {
+				updateOrderAttribute(order,orderXML,ns);
+			  }
+			 /* updateReasonCode == NOT_DELIVERED OR REFUSED*/  
+		 	}else if(updateReasonCode.equalsIgnoreCase(NOT_DELIVERED)||updateReasonCode.equalsIgnoreCase(REFUSED)){
+				if(!empty(order.custom.cs_SettlementStatus.value)){
+				   if(order.custom.cs_SettlementStatus.value.equals(READY)|| order.custom.cs_SettlementStatus.value.equals(TRIGGERED)){
+					 if(empty(order.custom.cs_RefundStatus.value)||order.custom.cs_SettlementStatus.value.equals(READY) && !chilledDeliveryApplicable){
+					     order.custom.cs_RefundStatus=READY;
+					 }
+					 if(order.custom.cs_SettlementStatus.value.equals(READY) && chilledDeliveryApplicable) {
+					 	order.custom.cs_SettlementStatus = STATUS_EMPTY;
+					 }
+			 	    }
+				 }
+				 
+		 	order.custom.orderStatus=CANCEL;
+		 	order.setStatus(Order.ORDER_STATUS_CANCELLED);
+		 	order.setCancelDescription(dw.web.Resource.msg('global.cancelorder.storefront','locale',null));
+		 	
+			updateOrderAttribute(order,orderXML,ns);
+			 
+	       /* updateReasonCode == FULL_CANCEL*/  	 
+		   }else if(updateReasonCode.equalsIgnoreCase(FULL_CANCEL)){
+		   	    order.custom.orderStatus=CANCEL;
+		   	    order.setStatus(Order.ORDER_STATUS_CANCELLED);
+		   	    order.setCancelDescription(dw.web.Resource.msg('global.cancelorder.storefront','locale',null));
+		   	    updateOrderAttribute(order,orderXML,ns);
+		   }
+		   
+		   pdict.Order=order;
+		   
+	    } 
+	 
+	} catch (e){
+		var ex=e.message;
+		errorType="process_error";
+		Logger.error("Error occurred while consuming the Order Status XMl  "+ e.message);
+		pdict.ErrorMessage="Error occurred while consuming the Order Status XMl  "+ e.message;
+		return PIPELET_ERROR;
+	}
+	return PIPELET_NEXT;
+	return 
+}
+
+function updateOrderAttribute(order:Order,orderXML:XML,ns:Namespace):Boolean {
+
+	try{
+          //Set Custom attribute of order
+		   order.custom.updateReasonCode=orderXML.ns::updateReasonCode.toString();
+		   order.custom.effectiveDateTime=orderXML.ns::effectiveDateTime.toString();
+		   order.custom.sapOrderId=orderXML.ns::sapOrderId.toString();
+		   var shipmentsXML:XML=orderXML.ns::shipments;
+			for each(var shipmentXML:XML in shipmentsXML.ns::shipment){
+			        var shipmentid:String=shipmentXML.attribute("shipmentid").toString();
+				    var trackingnumber:String=shipmentXML.ns::trackingnumber.toString();
+				    var carriername:String=shipmentXML.ns::carriername.toString();
+			        var carrierurl:String=shipmentXML.ns::carrierurl.toString();
+				  	var shipment:dw.order.Shipment=null;
+				  	var shipmentLineItems : Collection = order.getShipments();
+					var shipmentLineItemsItr : Iterator = shipmentLineItems.iterator();
+					while(shipmentLineItemsItr.hasNext())
+					{
+						var shipmentCntr : dw.order.Shipment =  shipmentLineItemsItr.next();
+						if(shipmentid == null || empty(shipmentid) || (shipmentCntr.shipmentNo).equals(shipmentid)){
+							shipment=shipmentCntr;
+							break;
+						}					
+					}	
+				 		
+				 	if(!empty(shipment)){			 	
+			 			shipment.setTrackingNumber(trackingnumber);
+			 			shipment.custom.carriername=carriername;			 	
+			 			shipment.custom.carrierurl=carrierurl;
+				}
+			 }
+			 return true;
+	}catch(e){
+		var err:String=e.message;
+	    Logger.error("Error occurred while updating Order custom object"+ e.message);
+	   return false;
+	}
+}
+
+
+
+ function normalizeXMLTags(content:String):String
+ {
+   
+    var listOfTags:dw.util.ArrayList= getAllTags(content);
+   
+   var num :Number= content.split("-").length;
+   
+   for(var i=0;i<listOfTags.length;i++)
+   {
+   
+   var tagName :String=listOfTags.get(i);
+   tagName=tagName.replace("-", "");
+   content=content.replace(listOfTags.get(i),tagName);
+   
+   }
+ 
+ return content;
+}
+
+	function getAllTags(content:String):dw.util.ArrayList
+	{
+     var arrSplit:Array=content.split("<");
+     
+     var arrTagsList:dw.util.ArrayList= new dw.util.ArrayList();
+  
+  
+     for(var i=0;i<arrSplit.length;i++)
+   {
+   
+   var strTaGname:String = arrSplit[i];
+   strTaGname = strTaGname.substring(0,strTaGname.indexOf(">"));
+   arrTagsList.add(strTaGname);
+   }
+
+return arrTagsList;
+}
+
+ 

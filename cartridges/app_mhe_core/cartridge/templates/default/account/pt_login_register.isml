@@ -1,0 +1,51 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+
+	<isscript>var pageContext={title:'Login-Register', type:'Login-Register', ns:'login_register'};</isscript>
+	<isinclude url="${URLUtils.url('Login-CheckRegistered','TargetPipeline',pdict.TargetPipeline)}"/>
+	<isinclude template="util/modules"/>
+	
+	<isinclude template="components/header/htmlhead"/>
+	<isinclude template="account/pt_account_UI"/>
+	<isif condition="${dw.system.Site.getCurrent().ID=='FRSelection' || dw.system.Site.getCurrent().ID=='DESelection'}"> 
+	<isinclude template="util/loginRobotsCrawling"/>
+	<iselse>
+	<isinclude template="util/robotscrawling"/>
+	</isif>
+</head>
+
+<body class="loginRegister">
+
+	<div id="wrapper" class="fullWidth loginRegister">
+	
+		
+		
+		<div id="main" role="main" class="page-content main clearfix">
+			<isinclude template="components/browsertoolscheck"/>
+			
+		
+			<div id="primary" class="">
+				<isreplace/>
+			</div>
+			
+			
+					
+		</div><!-- /main -->
+		<isif condition="${pdict.CurrentSession.custom.brand.equals('mh')}">
+	
+		<isinclude template="components/footer/footer_login_register"/>	
+		<iselse>
+		<isinclude template="components/footer/footer"/>
+		</isif>
+		
+				
+	</div>
+	
+</body>
+</html>

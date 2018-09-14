@@ -1,0 +1,113 @@
+// =============================================================================
+// Global error styles
+// =============================================================================
+
+$bg-error: #16151c;
+
+p.error, span.error, div.error {
+    color: $error;
+    text-transform: uppercase;
+    font-weight: $bold;
+    font-size: $small_heading;
+    letter-spacing:1px;
+}
+.serverError{
+	padding:12px 40px;
+    background-color:$bg-error;
+    background-image:url(img/icons/form-error.png);
+    background-repeat:no-repeat;
+    background-position:14px 14px;
+    border:1px solid $mediumred;
+    font-size:$small_heading;
+    margin:0 0 25px;
+    .error {
+        padding-left:1px;
+        display:inline-block;
+        padding-bottom:4px;
+    }
+}
+.errors-total {
+    margin:0 40px;
+    position:absolute;
+    visibility:hidden;
+    top:40px;
+    max-height:0;
+    @include transition-property( max-height );
+    @include transition-duration( 0.5s );
+    @include transition-timing-function( $easeInOutSine );
+    &.errors-total-visible {
+        visibility:visible;
+        position:relative;
+    }
+    .errors-total-inner {
+        padding:12px 40px;
+        background-color:$bg-error;
+        background-image:url(img/icons/form-error.png);
+        background-repeat:no-repeat;
+        background-position:14px 14px;
+        border:1px solid $mediumred;
+        .error {
+            padding-left:1px;
+            display:inline-block;
+            padding-bottom:4px;
+        }
+        .error-field {
+            display:inline-block;
+            font-size:12px;
+            letter-spacing:2px;
+            margin-right:0.333em;
+            text-transform:uppercase;
+            line-height:1.4em;
+            &:after {
+                content:"/";
+                padding-left:0.333em;
+            }
+            &:last-child {
+                &:after {
+                    visibility:hidden;
+                }
+            }
+            &.last:after{
+                visibility:hidden;
+            }
+        }
+    }
+}
+
+.account-content {
+    .errors-total {
+        margin:0 0 15px;
+        top:0;
+        &.errors-total-personal {
+            margin:-31px 0 46px;
+        }
+    }
+}
+
+
+
+// Modernizr opacity enhancements
+.opacity {
+    .errors-total {
+        .errors-total-inner {
+            @include opacity(0);
+            @include transition-property( opacity );
+            @include transition-duration(0.5s);
+            @include transition-timing-function( ease-in );
+        }
+        &.errors-total-visible {
+            .errors-total-inner {
+                @include opacity(1);
+            }
+        }
+    }
+}
+
+.error-tooltip {
+    border:1px solid $mediumred;
+    background-color:$bg-error;
+    padding:8px 10px 7px;
+    width:100%;
+    display:inline-block;
+    line-height:1.4em;
+}

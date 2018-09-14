@@ -1,0 +1,67 @@
+importClass( dw.rpc.Stub );
+importClass( dw.util.ArrayList );
+
+function getAvailableFunctions( stub : Stub ) : ArrayList
+{
+	// var ccc : ArrayList = ["ASD"];
+	var ret : ArrayList = new ArrayList();
+	var std = getStdAttributes();
+	var xx : String;
+	for ( xx in stub )
+	{
+		if ( !std.contains( xx ) )
+			ret.add( new ArrayList( typeof stub[xx], xx ) );
+	}
+	return ret;
+}
+
+function getStdAttributes() : ArrayList
+{
+	// quare bracket has to go in the same line otherwise 
+	// the plain return statement will be considered as complete!
+	return	new ArrayList(
+		"_createCall", 
+		"_getCall", 
+		"_getProperty", 
+		"_getPropertyNames", 
+		"_getService", 
+		"_setProperty", 
+		"addAttachment", 
+		"attachments", 
+		"class", 
+		"clearAttachments", 
+		"clearHeaders", 
+		"equals", 
+		"extractAttachments", 
+		"getAttachments", 
+		"getClass", 
+		"getHeader", 
+		"getHeaders", 
+		"getPassword", 
+		"getPortName", 
+		"getResponseHeader", 
+		"getResponseHeaders", 
+		"getTimeout", 
+		"getUsername", 
+		"hashCode", 
+		"header", 
+		"headers", 
+		"maintainSession", 
+		"notify", 
+		"notifyAll", 
+		"password", 
+		"portName", 
+		"removeProperty", 
+		"responseHeaders", 
+		"setHeader", 
+		"setMaintainSession", 
+		"setPassword", 
+		"setPortName", 
+		"setTimeout", 
+		"setUsername", 
+		"timeout", 
+		"toString", 
+		"username", 
+		"wait"
+	);
+}

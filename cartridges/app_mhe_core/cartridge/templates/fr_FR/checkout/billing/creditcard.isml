@@ -1,0 +1,52 @@
+<!--- TEMPLATENAME: creditcard.isml --->
+<isinclude template="util/modules"/>
+<p class="greet">${Resource.msg('register.welcomeagain.requiredfiledsmessage','account',null)}</p>
+	<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.owner}" type="input"   attribute1="autocomplete" value1="off"  requiredtext="${Resource.msg('creditcard.ownermissingerror','forms',null)}" />
+  	<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.number}" type="input" xhtmlclass="card-input" attribute1="autocomplete" value1="off" requiredtext="${Resource.msg('creditcard.numbermissingerror','forms',null)}"/>
+
+	<div class="form-row ddmm">
+		<span class="form-label-text"> ${Resource.msg('billing.cardExpirationDate','checkout',null)} </span>
+		<div class="sContainer">
+			<span id="js-msg-expiry-month" class="hidden">${Resource.msg('paymentinstrumentdetails.expirymonth','account',null)}</span>
+			<span id="js-msg-expiry-year" class="hidden">${Resource.msg('paymentinstrumentdetails.expiryyear','account',null)}</span>
+			<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.month}" type="select" rowclass="month label-removed"  requiredtext="${Resource.msg('creditcard.monthmissingerror','forms',null)}"  />
+			<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.year}" type="select"  rowclass="year label-removed"  requiredtext="${Resource.msg('creditcard.yearmissingerror','forms',null)}" />
+		</div>
+	</div>      
+      
+	<isif condition="${!empty(pdict.SelectedCreditCard) && (pdict.SelectedCreditCard.creditCardType==Resource.msg('creditcard.amex','forms',null))}" >
+		<iscomment>
+ 			<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn}" type="password" rowclass="cvn" xhtmlclass="cvv-input" attribute1="autocomplete" value1="off" requiredtext="${Resource.msg('creditcard.cvnmissingerror','forms',null)}" attribute2="placeholder" value2="${Resource.msg('billing.cvn2.example','checkout',null)}" />
+   		</iscomment>
+   	<iselse>
+   		<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn}" type="password" rowclass="cvn" xhtmlclass="cvv-input" attribute1="autocomplete" value1="off" requiredtext="${Resource.msg('creditcard.cvnmissingerror','forms',null)}" attribute2="placeholder" value2="${Resource.msg('billing.cvn.example','checkout',null)}" />
+   	</isif>
+
+   	<isif condition="${pdict.CurrentForms.billing.paymentMethods.creditCard.cvn.error == null}">
+   		<div class="form-field-tooltip cvn-tip">
+   	<iselse>
+   		<div class="form-field-tooltip cvn-tip-error">
+   	</isif>
+   
+   	<span id="cv2" class="tooltip left hiddenCVV">
+		<span class="ptIcon"></span>
+     	<div class="tooltip-content" data-layout="small tooltip-cvn">
+     		<img src="${URLUtils.staticURL('/images/amex.png')}" />
+     		<h4>${Resource.msg('billing.cvv2Heading','checkout',null)}</h4>
+     		<p>${Resource.msg('billing.cvv2Paragraph','checkout',null)}</p>
+     	</div>
+    </span>
+     
+	<span id="cvv" class="tooltip left">
+     	<span class="ptIcon"></span>
+     	<div class="tooltip-content" data-layout="small tooltip-cvn">
+     		<img src="${URLUtils.staticURL('/images/visa-master.png')}" />
+     		<h4>${Resource.msg('billing.cvvHeading','checkout',null)}</h4>
+     		<p>${Resource.msg('billing.cvvParagraph','checkout',null)}</p>
+     	</div>
+    </span>
+    </div>
+    <isif condition="${pdict.CurrentCustomer.authenticated &&( pdict.CurrentSession.userName.equalsIgnoreCase('storefront') || !dw.system.Site.getCurrent().getCustomPreferenceValue('hideSavePaymentForCSSUITE'))}" > 
+		<isinputfield formfield="${pdict.CurrentForms.billing.paymentMethods.creditCard.saveCard}" type="checkbox" rowclass="label-inline form-indent checkBox"/>
+	</isif>
+	

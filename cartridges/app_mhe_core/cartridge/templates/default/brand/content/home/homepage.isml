@@ -1,0 +1,19 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+    <isscript>var pageContext={title:'Storefront',type:'storefront',ns:'storefront'};</isscript>
+	<isinclude template="util/modules"/>
+
+	<iscomment>This page must be cachable. It inherits the caching attributes by the decorated template.</iscomment>
+
+	<isinclude template="components/header/htmlhead"/>
+	<link rel="canonical" href="${URLUtils.http('Home-Show')}" />
+	<isif condition="${!(pdict.CurrentSession.custom.brand.equals('DP'))}">
+		<link rel="alternate" href="${URLUtils.http('Home-Show')}"  hreflang="${dw.util.Locale.getLocale(request.locale).toString().replace('_','-')}" />
+</isif>
+</head>
+<isinclude url="${URLUtils.url('Search-RootCategory','cgid','root')}"/>

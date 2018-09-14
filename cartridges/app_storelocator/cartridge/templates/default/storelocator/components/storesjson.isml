@@ -1,0 +1,29 @@
+<iscontent type="text/plain" charset="UTF-8" compact="true"/>
+<iscache type="relative" hour="8" />
+<iscomment>
+	Creates json containing store data
+</iscomment>
+{"stores": {
+<isloop items="${pdict.NearestStores.keySet()}" alias="Store" status="loopstate">
+	"${Store.ID}": {
+		"ID": ${JSON.stringify(!empty(Store.ID) ? Store.ID : '')},
+		"name": ${JSON.stringify(!empty(Store.name) ? Store.name : '')},
+		"address1": ${JSON.stringify(!empty(Store.address1) ? Store.address1 : '')},
+		"address2": ${JSON.stringify(!empty(Store.address2) ? Store.address2 : '')},
+		"postalCode": ${JSON.stringify(!empty(Store.postalCode) ? Store.postalCode : '')},
+		"city": ${JSON.stringify(!empty(Store.city) ? Store.city : '')},
+		"stateCode": ${JSON.stringify(!empty(Store.stateCode) ? Store.stateCode : '')},
+		"countryCode": ${JSON.stringify(!empty(Store.countryCode.value) ? Store.countryCode.value : '')},
+		"phone": ${JSON.stringify(!empty(Store.phone) ? Store.phone : '')},
+		"fax": ${JSON.stringify(!empty(Store.fax) ? Store.fax : '')},
+		"email": ${JSON.stringify(!empty(Store.email) ? Store.email : '')},
+		"image": ${!empty(Store.image) ? JSON.stringify(Store.image.URL) : JSON.stringify('')},
+		"storeHours": ${!empty(Store.storeHours) ? JSON.stringify(Store.storeHours.markup) : JSON.stringify('')},
+		"storeEvents": ${!empty(Store.storeEvents) ? JSON.stringify(Store.storeEvents.markup) : JSON.stringify('')},
+		"latitude": ${Store.latitude},
+		"longitude": ${Store.longitude},
+		"distance": ""
+	}
+	<isif condition="${!loopstate.last}">,</isif>	
+</isloop>
+}}

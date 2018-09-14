@@ -1,0 +1,61 @@
+// =============================================================================
+// Reset
+// =============================================================================
+
+
+
+// Global reset ----------------------------------------------------------------
+
+@import "compass/reset";
+
+// Box sizing ------------------------------------------------------------------
+
+*,
+*:before,
+*:after {
+    @include box-sizing(border-box)
+}
+
+// Selections ------------------------------------------------------------------
+
+::-moz-selection {
+	background-color: $darkpurple;
+	color: $white;
+}
+::selection {
+	background-color: $darkpurple;
+	color: $white;
+}
+
+
+// Form elements ---------------------------------------------------------------
+
+input[type='text'], input[type='password'], button, div, ul, a {
+	&:focus {
+		outline:none !important;
+		-webkit-appearance:none;
+		-moz-appearance:none;
+	}
+}
+
+input:-webkit-autofill {
+	-webkit-text-fill-color: #888 !important;
+	box-shadow: 0 0 0 1000px $input_background inset;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:$input_color;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:$input_color;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:$input_color;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:$input_color;
+}
+
+::-ms-clear {
+	display: none; // IE 10 adds form fi
+}

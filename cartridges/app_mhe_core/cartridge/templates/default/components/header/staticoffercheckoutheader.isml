@@ -1,0 +1,56 @@
+<!--- TEMPLATENAME: staticofferheader.isml --->
+<isinclude template="util/modules"/>
+<iscomment>Do no use any css for below "staticCheckoutHeader" this is very specific to checkout only.</iscomment>
+<div id="openStatPopUp"></div>
+<div id="header" class="header" role="banner">
+	<isif condition="${('isHomePage' in pdict.CurrentHttpParameterMap) && pdict.CurrentHttpParameterMap.isHomePage == 'true'}">
+		<iscontentasset aid="ca_legal_banner_epage_top"/>
+	</isif>
+	<header>
+		<isif condition="${!empty(pdict.CurrentHttpParameterMap.templatename) && (pdict.CurrentHttpParameterMap.templatename=='pt_staticOffer')}">
+		<div class="social-links">
+			<iscontentasset aid="social-networking-links">
+		</div>
+		</isif>
+	    <div class="header_right side-module">
+			<iscomment>INCLUDE: Mini-cart, do not cache</iscomment>
+		  	<div id="mini-cart" class="mini-cart">
+		    	<isinclude url="${URLUtils.url('Cart-MiniCart')}"/>
+		    </div>
+		</div>		
+		<div class="static-logo" id="headerLogo">
+			<h1 class="title-wrap">
+			<isif condition="${('logoURL' in pdict.CurrentSession.custom)}" >
+				<a href="${URLUtils.url('Search-Show','cgid',pdict.CurrentSession.custom.catID)}"><img src="${pdict.CurrentSession.custom.logoURL}" class="logo" /></a>
+			<iselse>
+				<a href="${URLUtils.url('Search-Show','cgid',pdict.category.ID)}"><img src="${pdict.category.thumbnail.URL}" class="logo" /></a>
+			</isif>
+				
+			</h1>
+		</div>
+		<iscomment>Davinder - Do not remove the below UL, it is being used for ePages header</iscomment>
+		<ul class="ePageNav"></ul>
+		
+			
+	</header>
+</div><!-- /header -->
+
+<script type="text/javascript">
+	
+	$(document).ready(function(){
+		
+		// Social Media Share Links
+		
+		var socialURL = window.location.href,
+			fbStart = "http://www.facebook.com/sharer/sharer.php?s=100&p[url]=",
+			fbEnd = "&p[images][0]=&p[title]=Moet%20Hennessey%20Link%20Title",
+			twStart = "http://twitter.com/home?status=Check%20out%20",
+			gpStart = "https://plus.google.com/share?url=";
+		
+		$("#facebook").attr("href", fbStart+socialURL+fbEnd);
+		$("#twitter").attr("href", twStart+socialURL);
+		$("#google").attr("href", gpStart+socialURL);
+		
+	});
+	
+</script>

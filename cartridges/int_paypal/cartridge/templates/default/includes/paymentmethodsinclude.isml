@@ -1,0 +1,7 @@
+<div id="PaymentMethod_PayPal" class="paymentform paypal">	
+	<!-- PayPal Logo -->
+	<a onclick="javascript:window.open('https://www.paypal.com/uk/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=500');">
+		<img src="${URLUtils.staticURL('/images/paypal_logo_payments_page.gif')}" border="0" alt="PayPal-Standard-Logo">
+	</a>
+	<!-- PayPal Logo -->		
+</div>

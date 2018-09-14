@@ -1,0 +1,82 @@
+/**
+* AddAddressToAddressBook.ds
+*
+* This script attempts to add the given order address to the 
+ * address book of the current customer profile.
+* The address attribute "city" is used to generate the address 
+ * ID within the address book. 
+ *
+* @input Profile : dw.customer.Profile
+* @input AddressForm : dw.web.FormGroup
+ 
+
+
+*/
+importPackage( dw.customer );
+importPackage( dw.order );
+importPackage( dw.system );
+importPackage( dw.web ); 
+importPackage(dw.util);
+
+importScript( "account/Utils.ds" );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	try{
+         var addressBook : AddressBook = pdict.Profile.addressBook;
+         var usedAddress : dw.web.FormGroup= pdict.AddressForm;
+         var profile : dw.customer.Profile = pdict.Profile;
+             profile.setGender(getGenderNumber(usedAddress.gender.value));
+             
+	     var addressID : String=determineUniqueAddressID(usedAddress.city.value, addressBook);
+         var address : CustomerAddress = null;
+           // check on empty address ID
+            if(empty(addressID))
+            {
+                  Logger.debug("Cannot add address to address book, with empty address ID.");
+                  return PIPELET_ERROR;
+            }
+            try{
+            address = addressBook.createAddress( addressID );
+            }
+            catch(e){
+                  address=addressBook.getAddress(addressID);
+            }
+            if(address==null)
+            {
+            address=addressBook.getAddress(addressID);
+            }
+            
+            
+            if(usedAddress.title.value!='false'){
+              address.setTitle(usedAddress.title.value );
+	        } 
+            address.setSalutation( usedAddress.salutation.value );
+            address.setFirstName( usedAddress.firstname.value );
+            address.setLastName( usedAddress.lastname.value );
+            address.setAddress1( usedAddress.address1.value );
+            address.setAddress2( usedAddress.address2.value );
+            address.setCity( usedAddress.city.value );
+            address.setPostalCode( usedAddress.zip.value );
+            address.setCountryCode( usedAddress.originCountry.value );
+        
+        
+	}catch(e){
+	  var aMsg:String=e.message;
+	}
+    return PIPELET_NEXT;
+}
+
+
+function getGenderNumber (gender: String) : Number{
+	
+	var genderNum : Number = 0;
+	if (gender.equalsIgnoreCase("MALE")){
+		genderNum = 1;
+	} else if (gender.equalsIgnoreCase("FEMALE")){
+		genderNum = 2;
+	}
+		
+	return genderNum;
+	
+}

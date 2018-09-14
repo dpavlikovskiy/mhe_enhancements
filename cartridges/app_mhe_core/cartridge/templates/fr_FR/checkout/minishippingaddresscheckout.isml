@@ -1,0 +1,97 @@
+<iscomment>
+    Creates a minishippingaddress display.
+
+    Parameter:
+    p_shipment       : a shipment
+    p_editable       : a boolean indicating if this is an editable address
+    p_showmethod     : a boolean that controls if shipping method should shown
+    p_showpromos     : a boolean that controls if shipping prices and adjustments should be shown
+</iscomment>
+
+<isset name="ShippingAddress" value="${pdict.p_shipment.shippingAddress}" scope="page"/>
+<iscomment>
+	There are some addresses without an ID, catch this here and make this include
+	more universal usable therefore.
+</iscomment>
+<isif condition="${'ID' in ShippingAddress && !empty(ShippingAddress.ID)}">
+	<div class="addressname">
+		<isprint value="${ShippingAddress.ID}"/>
+	</div>
+</isif>
+<iscomment>Confirmation Page Content
+<isif condition="${pdict.ifConfirmationPage}">
+	<isprint value="${Resource.msg('orderdetails.deliverto','components',null)}" />
+</isif>
+</iscomment>
+<div class="ocMContent clearfix">
+
+	<div class="ocLeft">
+	<div class="dMethod">		
+		<isif condition="${!empty(pdict.p_shipment.custom.requestedDeliveryDate)}" > 
+			<h3><isprint value="${Resource.msg('orderdetails.deliveryDate','components',null)}" /></h3>
+           		<isprint value="${pdict.p_shipment.custom.requestedDeliveryDate}" formatter="dd MMM YYYY" />
+        </isif>
+	</div>
+	
+		<div class="dMethod">
+			<h3><isprint value="${Resource.msg('orderdetails.deliverymethod','components',null)}" /></h3>		
+   			<isset name="shippingMethod" value="${pdict.p_shipment}" scope="page"/>
+     			<p>
+  	 				<isprint value="${shippingMethod.shippingMethod.displayName}"/>  [<isprint value="${shippingMethod.getAdjustedShippingTotalGrossPrice()}"/>] <br>
+  	 				<iscomment> <isprint value="${shippingMethod.shippingMethod.description}"/> </iscomment>   
+ 			   </p>
+		</div>
+		<isif condition="${!empty(pdict.p_shipment.giftMessage)}" > 
+		<div class="dMethod gift-msg">
+			<h3><isprint value="${Resource.msg('orderdetails.giftmessage','components',null)}" /></h3>
+			
+						
+			<isscript>
+			var giftmsg:String = pdict.p_shipment.giftMessage;
+			var giftmsgarray:Array = giftmsg.split('[#]');
+			</isscript>
+						
+			<isloop items="${giftmsgarray}" alias="gift">
+			<isprint value="${gift}" /><br>
+			</isloop>
+			<iscomment> <p><isprint value="${giftmsg}" /></p> </iscomment>
+			
+			
+			
+		</div>
+		</isif>
+	</div>
+
+	<div class="ocRight">
+		<div class="dMethod">
+			<h3><isprint value="${Resource.msg('orderdetails.deliverto','components',null)}" /></h3>
+			<p>
+	   		<isif condition="${!empty(ShippingAddress.custom.addressName)}">
+	   			"<isprint value="${ShippingAddress.custom.addressName}"/>"<br />
+	   		</isif>
+		    <isprint value="${ShippingAddress.salutation}"/> <isprint value="${ShippingAddress.firstName}"/> <isprint value="${ShippingAddress.lastName}"/><br />
+			<isif condition="${!empty(ShippingAddress.companyName)}">
+				<isprint value="${ShippingAddress.companyName}"/>, 
+			</isif>
+			<isprint value="${ShippingAddress.address1}"/>, 
+			<isif condition="${!empty(ShippingAddress.address2)}">
+				<isprint value="${ShippingAddress.address2}"/>, 
+			</isif>
+			<isprint value="${ShippingAddress.postalCode}"/><br />
+			
+			<isif condition="${ShippingAddress.city != null}">
+				<isprint value="${ShippingAddress.city}"/>,
+			</isif>
+			
+			  <isloop items="${dw.system.Site.getCurrent().getCustomPreferenceValue('country')}" var="country" status="loopstatus">  
+				 	      <isif condition="${country.getValue()==ShippingAddress.countryCode}">
+				 	      <isprint value="${country.getDisplayValue()}"/> 
+	                      <isbreak />
+	                      </isif>	  
+          	  </isloop>
+			<br />
+			<isprint value="${ShippingAddress.phone}"/>
+			</p>
+		</div><!-- END:name -->
+	</div>
+</div>

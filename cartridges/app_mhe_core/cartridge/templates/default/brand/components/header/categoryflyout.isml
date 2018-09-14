@@ -1,0 +1,22 @@
+<isscript>
+	importScript( "util/ViewHelpers.ds" );
+</isscript>
+<isscript>
+	importScript("util/ProductImageSO.ds");
+	importScript("util/DisImageSO.ds");
+</isscript>
+<isset name="topCat" value="${pdict.category}" scope="page"/>
+<isset name="flyOutRenderer" value="${MainNavigationUtilities.generateFlyoutRendering(topCat)}" scope="page"/>
+<isif condition="${flyOutRenderer.renderFlyout}">
+	<ul class="menu-wrapper">
+		<!--[if lt IE 9]>
+			<li class="arrow"></li>
+		<![endif]-->
+		<isloop items="${flyOutRenderer.subCategories}" var="subCat" status="subcatstatus">
+			<li>
+				<a href="<isprint value="${MainNavigationUtilities.getCategoryUrl(subCat)}" />" ><isprint value="${subCat.getDisplayName()}">
+				</a>
+			</li>
+		</isloop>
+	</ul>	
+</isif>

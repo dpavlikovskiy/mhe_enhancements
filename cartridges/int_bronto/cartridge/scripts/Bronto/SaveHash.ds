@@ -1,0 +1,25 @@
+/**
+* This script saves the list of field Id's to custom object in order to chache them. 
+* It saves time for reading them from Bronto (30 seconds of waiting).
+*
+* @input IdMap : dw.util.HashMap
+*/
+importPackage (dw.system);
+importPackage (dw.util);
+
+function execute (args : PipelineDictionary) : Number {
+	
+	var hash : HashMap = args.IdMap || new HashMap();
+	var cObj : CustomObject = dw.object.CustomObjectMgr.createCustomObject('BrontoFieldID', UUIDUtils.createUUID());
+		cObj.custom.accessKey = 'BrontoProfileFields' + Site.getCurrent().ID;
+	var separator = '|';
+	var key, value : String;
+	for (var item in hash) {
+		(key == undefined) ? (key = item + separator) : (key += item + separator);
+		(value == undefined) ? (value = hash.get(item) + separator) : (value += hash.get(item) + separator);
+	}
+	cObj.custom.fieldKey = key;
+	cObj.custom.fieldValue = value;
+		
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,40 @@
+/**
+* Demandware Script File
+* To determine the list of orders which have 
+* payment methods as Other Means and Complimentory from the notexported list of orders
+*
+*   List of Orders Not Exported
+*   Filtered List of Orders
+*   @input OrderList : dw.util.Iterator 
+*   @input PaymentMethod : String
+*   @output FilteredOrderList : dw.util.Collection
+*   @output ErrorMessage : String error message in case of error.
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.order );
+
+function execute( args : PipelineDictionary ) : Number
+{
+    var filteredOrderList = new ArrayList();
+    args.FilteredOrderList = filteredOrderList;
+    try{
+	    var ordListItr : Iterator = args.OrderList;
+	    var order : Order = null;
+	    var paymentInstr : Collection = null;
+	    while(ordListItr != null && ordListItr.hasNext()){
+	        var order = ordListItr.next();
+	    	var paymentInstr = order.getPaymentInstruments()[0];
+		    if(paymentInstr.paymentMethod.equals(args.PaymentMethod)){
+		    	 filteredOrderList.add(order);
+		    }
+	    }
+	    args.FilteredOrderList = filteredOrderList;
+    }catch(err){
+       args.ErrorMessage = err.message;
+       Logger.error("Error in fetching orders : ", err.message);
+       return PIPELET_ERROR;
+     }
+   return PIPELET_NEXT;
+}

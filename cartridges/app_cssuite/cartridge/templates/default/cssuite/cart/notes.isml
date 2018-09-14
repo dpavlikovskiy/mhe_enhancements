@@ -1,0 +1,80 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+</isscript>
+
+<isif condition="${!empty(pdict.SuccessJSAction)}">
+<script type="text/javascript">
+<!--
+${pdict.SuccessJSAction}
+//-->
+</script>
+</isif>
+
+<div style="background:#fff;">
+<table class="listTable" cellpadding="0" cellspacing="0" border="0"
+	width="100%">
+	<tbody>
+
+		<tr class="listTableHeader">
+			<td>Created by</td>
+			<td>Creation Date</td>
+			<td>Subject</td>
+			<td>Note</td>
+			<td>Order number</td>
+		</tr>
+		<isset value="${1}" name="counter" scope="page"/>
+		<isloop iterator="${pdict.OrderNotes}" alias="item" status="loopstatus">
+			<isif condition="${item.commentType == 2}">
+				<isset value="${counter+1}" name="counter" scope="page"/>
+				<tr class="${getRowClass(counter)}" onmouseover="$('#note_textbox').html('${item.text}')">
+					<td><isprint value="${item.createdBy}"></td>
+					<td><isprint value="${new Date(item.creationDate)}" formatter="MM/dd/yyyy HH:mm:ss"></td>
+					<td><isprint value="${item.subject}"></td>
+					<td><isprint value="${truncate(item.text, 60)}"></td>
+					<td>
+						<isif condition="${empty(item.orderNo)}">
+							New
+						<iselse>
+							<isprint value="${item.orderNo}">
+						</isif>
+					</td>
+				</tr>
+			</isif>
+		</isloop>
+
+	</tbody>
+</table>
+
+<fieldset class="note_fieldset">
+    <legend>Note</legend>
+    <div id="note_textbox">
+    	No note selected.
+	</div>
+</fieldset>
+
+<br>
+<br>
+<table class="notesTable" cellpadding="0" cellspacing="0" border="0"
+	width="50%">
+	<tr>
+		<td class="right">Subject:</td>
+		<td><input id='note_subject' type='text' value='subject'
+			style="width:300px" /></td>
+	</tr>
+
+	<tr>
+		<td class="right">Note:</td>
+		<td><input id='note_text' type='text' value=''
+			style="width:513px" /></td>
+	</tr>
+
+	<tr>
+		<td colspan="2" class="right"><input type="image"
+			src="${URLUtils.staticURL('/cssuite/images/button_save.gif')}" id="note_btn"
+			name="note_btn" value="Add Note" onclick="Order.addNote();">
+		</td>
+	</tr>
+
+</table>
+</div>

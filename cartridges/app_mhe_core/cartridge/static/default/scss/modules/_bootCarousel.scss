@@ -1,0 +1,142 @@
+.bootCaro {
+	width:1280px;
+	overflow:hidden;
+	margin:auto;
+	height:550px;
+	position: relative;
+	.bootCaro-inner {
+		position: relative;
+		width: 100%;
+		overflow: hidden;
+		> .item {
+			position: relative;
+			display: none;
+			-webkit-transition: 0.6s ease-in-out left;
+			transition: 0.6s ease-in-out left;
+		}
+		.item{
+			height: 550px;
+			> img, a > img{
+				display: block;
+				height: auto;
+				max-width: 100%;
+				line-height: 1;
+			}
+		}
+		> .active{
+			display:block;
+			left: 0;
+		}
+		.active.left {
+		  left: -100%;
+		}
+		.active.right {
+		  left: 100%;
+		}
+	}
+	.bootCaro-caption {
+		position: absolute;
+		right: 20%;
+		top: 130px;
+		left: 20%;
+		z-index: 10;
+		h2{
+			font-size:44px;
+			@extend %text-shadow;
+		}
+		h3 {
+		    font: bold 50px futura-pt;
+		    letter-spacing: 3px;
+		    text-transform: uppercase;
+		    @extend %text-shadow;
+		}
+		.desc{
+			margin:0 120px;
+			p{
+				text-shadow:1px 1px 1px #000;
+			}
+		}
+	}
+	.carousel-control {
+		position: absolute;
+		top: 50%;
+		left:50px;
+		width:32px;
+		height:57px;
+		margin-top:-28px;
+		opacity: 0.5;
+		background-position:0 -272px;
+		text-indent:-999em;
+		overflow:hidden;
+		&.right{
+			right:50px;
+			left:auto;
+			background-position:-32px -272px;
+		}
+		&:hover {
+		  text-decoration: none;
+		  opacity: 1;
+		}
+	}
+	.carousel-indicators {
+		position: absolute;
+		
+		
+		z-index: 15;
+		
+		padding-left: 0;
+		
+		text-align: center;
+		list-style: none;
+		li {
+			display: inline-block;
+			width: 12px;
+			height: 12px;
+			cursor: pointer;
+			background-color: #000;
+			border:2px solid #ffffff;
+			border-radius: 10px;
+			position:relative;
+			&.play, &.pause{
+				text-indent:-999em;
+				overflow:hidden;
+				border:0;
+				background-color:transparent;
+				background-position:-68px -272px;
+				width: 14px;
+			}
+			&.play{
+				background-position:-82px -272px;
+				display:none;
+			}
+			.hoverContent{
+				width:400px;
+				background:white;
+				padding:20px 20px 10px;
+				position:absolute;
+				left:-192px;
+				bottom:20px;
+				display:none;
+				h3{
+					color: #333333;
+				    line-height: 30px;
+				    margin: 0 0 10px;
+				    text-shadow: 0 0 0;
+				}
+				.img{
+					background:#f4f4f4;
+					height:auto; 
+					max-width:180px; 
+					margin:0 20px 10px 0; 
+					float:left;
+				}
+			}
+		}
+		.active {
+			width: 12px;
+			height: 12px;
+			margin: 0;
+			background-color: #ffffff;
+		}
+	}
+}

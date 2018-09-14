@@ -1,0 +1,25 @@
+<isinclude template="util/modules"/>
+
+<div class="confirmLogin">
+	
+	<iscontentasset aid="CA_NewsLetterPopUp" />
+	 <isset name="isAuth" value="${pdict.CurrentCustomer.authenticated}" scope="page" >
+	<form action="${URLUtils.httpsContinue()}" method="post" class="clearfix" id="${pdict.CurrentForms.newslettersignup.htmlName}">
+			
+		
+		<isinputfield formfield="${pdict.CurrentForms.newslettersignup.fname}" xhtmlclass="name-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.firstname','forms',null)}" requiredtext="${Resource.msg('forms.signup.missingname.error','forms',null)}" />
+		<isinputfield formfield="${pdict.CurrentForms.newslettersignup.lname}" xhtmlclass="name-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.lastname','forms',null)}" requiredtext="${Resource.msg('forms.signup.missingname.error','forms',null)}" />
+		<isinputfield formfield="${pdict.CurrentForms.newslettersignup.youremail}" xhtmlclass="email-input" type="input" attribute1="placeholder" value1="${Resource.msg('profile.email','forms',null)}" requiredtext="${Resource.msg('forms.address.email.invalid','forms',null)}"   />
+		<isinputfield formfield="${pdict.CurrentForms.newslettersignup.birthday}" xhtmlclass="date-input of-legal-age" type="input" requiredtext="${Resource.msg('login.dob.missing-error','forms',null)}" attribute1="placeholder" value1="${Resource.msg('label.dateofbirth_brand','forms',null)}" attribute2="data-tooltip" value2="${Resource.msg('label.dateofbirth','forms',null)}" attribute3="autocomplete" value3="off" />
+		<div class="form-row form-row-button">
+			<button class="button submitAjaxForm" id="${pdict.CurrentForms.newslettersignup.htmlName}" type="submit" value="${Resource.msg('global.apply','locale',null)}" name="${pdict.CurrentForms.newslettersignup.confirm.htmlName}">
+				<span class="face front">${Resource.msg('global.signup','locale',null)}</span>
+				<span class="face back">${Resource.msg('global.signup','locale',null)}</span>
+			</button>
+		</div> 
+		<input type="hidden" name="${pdict.CurrentForms.newslettersignup.secureKeyHtmlName}" value="${pdict.CurrentForms.newslettersignup.secureKeyValue}"/>	
+	</form>
+</div>
+ 
+
+

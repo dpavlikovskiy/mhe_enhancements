@@ -1,0 +1,78 @@
+/**
+ * Deletes old custom objects.
+ * 
+ * @input Folder : String - *required* location of the folder to remove
+ * @input MaxAge : Number - number of days the files should stay - 20 is the fallback default
+ * @input Recursive : Boolean - should the subfolders be checked as well - default is false
+ * @input DeleteEmptyFolders : Boolean - should empty subfolders be removed - default is false
+ * @input FilePattern : String - regexp file name pattern - defaults to '.*\..*' 
+ */
+
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.io);
+importPackage(dw.object);
+
+importScript('job/JobMonitor.ds');
+var cvLogger : Logger = getCurrentJobLogger();
+
+function execute( args : PipelineDictionary ) : Number {
+	var folderPath : String = args.Folder;
+	var maxAge : Number = args.MaxAge;
+	var recursive : Boolean = args.Recursive;
+	var deleteEmptyFolders : Boolean = args.DeleteEmptyFolders;
+	var filePattern : String = args.FilePattern || ".*\\..*";
+	
+	var maxAgeCalendar : Calendar = Site.current.calendar;
+	maxAgeCalendar.add( Calendar.DAY_OF_YEAR, -maxAge );
+	var maxAgeTime : Number = maxAgeCalendar.time.getTime();
+	
+	var fileRegexp : RegExp = new RegExp( filePattern );
+
+	var baseFolder : File = new File( folderPath );
+	if( !baseFolder.exists() || !baseFolder.directory ) {
+		cvLogger.error( "folder not found: " + folderPath );
+		return PIPELET_ERROR;
+	}
+	
+	var foldersTodo : Array = [ baseFolder ];
+	var removedFiles : Number = 0;
+	var removedFolders : Number = 0;
+	while( foldersTodo.length > 0 ) {
+		var folder : File = foldersTodo.pop();
+		for each( var file : File in folder.listFiles() ) {
+			if( file.directory ) {
+				if( recursive ) {
+					foldersTodo.push( file );
+				}
+			}
+			else if( file.file ) {
+				var matches : Boolean = fileRegexp.test( file.name );
+				var timed : Boolean = file.lastModified() < maxAgeTime;  
+				if( matches && timed ) {
+					if( !file.remove() ){
+						cvLogger.error( 'Unable to delete file ' + file.fullPath );
+					}
+					else {
+						removedFiles++;
+					}
+				}
+			} 			
+		}
+		if( deleteEmptyFolders && empty( folder.list() ) && folder.fullPath != baseFolder.fullPath ) {
+			if( !folder.remove() ) {
+				cvLogger.error( 'Unable to delete folder ' + folder.fullPath );
+			}
+			else {
+				removedFolders++;
+			}
+		}
+	}
+	
+	cvLogger.info( 'Removed '+ removedFiles + ' files' );
+	if( deleteEmptyFolders ) {
+		cvLogger.info( 'Removed '+ removedFolders + ' folders' );
+	} 
+
+	return PIPELET_NEXT;	
+}

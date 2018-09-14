@@ -1,0 +1,322 @@
+/**
+* This script provides a wrapper for Product Image API so transformation rules can be retrieved 
+* from preferences without having any effect on the actual code. That helps to easily adjust 
+* transformation settings and introduce new view types.
+*/
+importPackage ( dw.system );
+importPackage ( dw.web );
+var cvLogger : Logger = Logger.getLogger("ProductImageSO.ds");
+
+/**
+* Initializes the ProductImage wrapper object
+*
+* @param viewType 		: String type of view (resolution) that should be generated (required) 
+* @param imageObject 	: Product or ProductVariationAttributeValue	(required)
+* @index index			: Number position of the image in the list of images for the view type. Defaults to 0 if not provided
+*/
+function ProductImage( viewType: String, imageObject : Object, index : Number ) : ProductImage {
+
+	var thisObj = this;
+
+	//Check what type of image object the wrapper got
+	if ( imageObject instanceof dw.catalog.ProductVariationAttributeValue) {
+		this.referenceType = 'ProductVariationAttributeValue';
+	} else {
+		this.referenceType = 'Product';
+	}
+
+	//initialize the DIS config object from JSON
+	var disConfiguration : Object = null;
+	var disConfigurationJSON : String = dw.system.Site.getCurrent().getCustomPreferenceValue("disConfiguration");
+	if ( !empty( disConfigurationJSON ) ) {
+		disConfiguration = JSON.parse( disConfigurationJSON );
+	} else {
+		disConfiguration = {};
+	}
+
+	//init basic object attributes
+	// --> test image configuration
+	this.testImage = null;
+	// --> view type that should be rendered
+	this.viewType = viewType;
+	// --> the image object --> escape empty object
+	this.imageObject = (empty(imageObject)) ? {name: '', getImages: function(){return new dw.util.ArrayList()}, getImage: function(){return null;}} : imageObject;
+	// --> the view type that can be scaled - typically high resolution
+	this.scalableViewType = null;
+	// --> index of the image
+	this.index = (empty(index)) ? 0 : index;
+	// --> defines if the image needs to be scaled. That's not necessary if a product has an image for the given view type configured 
+	this.scaleImage = true;
+	
+	//check if test images should be used --> makes sense in cases where the product images haven't yet been configured
+	if ( disConfiguration.testImages && disConfiguration.testImages[viewType] ) {
+		this.testImage = disConfiguration.testImages[viewType];
+	}
+	this.transformationObj = ( empty(disConfiguration[viewType]) ) ? {} : disConfiguration[viewType];
+	
+	var view : String = this.viewType;
+	if (this.viewType.indexOf("Shelf") == 0){
+		view = "Shelf";
+	}
+	
+	//determine the scaleableImageType that correspoonds with the viewType
+	switch (view){
+		case 'plp':
+		case 'plpBrand':
+		case 'blp':
+		case 'magnum':
+		case 'small':
+		case 'medium':
+		case 'large':
+		case 'search':
+		case 'minicart':
+		case 'cart':
+		case 'topnav1':
+		case 'ordersummary':
+		case 'order-detail':
+		case 'staticofferbrandlogo':
+		case 'staticproductbrandlogo':
+		case 'staticofferbrandlogoemail':
+		case 'searchpage':
+		case 'staticoffer':
+		case 'staticOfferPdp':
+		case 'staticOfferPdpThumb':
+		case 'staticOfferPdpThumbLarge':
+		case 'home-product-tile':
+		case 'home-carousel-product':
+		case 'orderdetailsemail':
+		case 'producttile':
+		case 'product1x2':
+		case 'pdp-main':
+		case 'pdp-alt':
+		case 'recommendations':
+		case 'pdp-producttopcontent':
+		case 'pdp-variations-lgimage':
+		case 'pdp-variations-hiResURL':
+		case 'accessorymainproduct':
+		case 'cart-editproductsize-lgimage':
+		case 'cart-editproductsize-hiResURL':
+		case 'productnav':	
+		case 'pdp-bundledProducttopcontent':
+		case 'accessories':		
+		case 'producttileestore':
+		case 'staticofferprodsetlist':
+		case 'staticofferprodlist':
+		case 'herotemplate_acc':
+		case 'herotemplate_rec':
+		case 'herotemplate':
+		case 'pdp-quickview':
+		case 'estoreaccessoryblp':
+			this.scalableViewType = 'hi-res';
+			break;
+		case 'gallery-large':
+		case 'gallery-small':
+			this.scalableViewType = 'gallery';
+			break;
+		case 'Shelf':
+			this.scalableViewType = 'size-shelf';
+			break;
+		case 'personalize':
+		case 'personalizeOverlay':
+			this.scalableViewType = 'personalize';
+			break;
+		default:
+			this.scalableViewType = this.viewType;
+			break;
+	};
+	
+	// get the image from the variation value, if that is the type of the imageObject
+	if ( this.referenceType == 'ProductVariationAttributeValue' ) {
+		//Changes done to get the image from Hi-res first, and if not available there then get it from the viewType
+		this.image = this.imageObject.getImage(this.scalableViewType, this.index);
+		if ( empty(this.image) ) {
+			//there hasn't been a image configured and we fall back to the highres one which needs to be scaled
+			this.image = this.imageObject.getImage(this.viewType, this.index);
+			this.scaleImage = false;
+		}
+	} else {
+		//assume the imageObject is the product and we get the image from there
+		this.image = this.imageObject.getImage(this.scalableViewType, this.index);
+		if ( empty(this.image) ) {
+			//there hasn't been a image configured and we fall back to the highres one which needs to be scaled
+			this.image = this.imageObject.getImage(this.viewType, this.index);
+			this.scaleImage = false;
+		}
+	}
+
+	/**
+	* Get the physical file for the image.
+	*/	
+	this.getMediaFile = function() {
+		if ( this.mediaFile == null ){
+			var baseImageURL : String = this.image.httpURL.toString();
+			baseImageURL = baseImageURL.substr( baseImageURL.indexOf("/on/demandware.static/") + 22);
+			var baseImageURLArray : Array = baseImageURL.split( '/' );
+			var filePathArray : Array = [ dw.io.File.CATALOGS ];
+			for ( var i : Number = 0; i < baseImageURLArray.length; i++) {
+				if ( i == 0 || i == 3 ) {
+					continue;
+				} else if ( i == 1 ) {
+					filePathArray.push( baseImageURLArray[i].replace('Sites-', '') );
+				} else {
+					filePathArray.push( baseImageURLArray[i] );
+				}
+			}
+			var filePath : String = filePathArray.join( dw.io.File.SEPARATOR );
+			this.mediaFile = new dw.io.File( filePath );
+		}
+		return this.mediaFile;
+	}
+
+	// Check existence of the referenced image file.
+	if( disConfiguration.imageExistenceCheck ) {
+		if ( !empty(this.image) ) {
+			if ( !this.getMediaFile().exists() ) {
+				// Only log on non production instances.
+				if ( dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM ) {
+					cvLogger.error( "Image doesn´t exist: \"" + this.getMediaFile().path + "\". Product ID: \"" + this.imageObject.ID ); 
+				}
+				this.image = null;
+			}
+		} else {
+			// Only log on non production instances.
+			if ( dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM ) {
+				cvLogger.error( "Image couldn´t be determined for Product ID: \"" + this.imageObject.ID );
+			}
+			this.image = null;
+		}
+	}
+
+	
+	/**
+	* Gets the dimensions of the image - supports JPG only
+	*/
+	this.getDimensions = function() {
+		var file : dw.io.File = this.getMediaFile();
+		if ( file.exists() ) {
+			function to16BitInt(int1, int2)
+			{
+				function unsignInt(signedInt) {
+					if (signedInt < 0)
+						return signedInt += 256;
+					return signedInt;
+				}
+				return unsignInt(int1) * 256 + unsignInt(int2);	
+			}
+			var reader : dw.io.RandomAccessFileReader = new dw.io.RandomAccessFileReader(file);
+			try {
+				while ( reader.position <= reader.length()-1 ) {
+					if (reader.readByte() == -1) { // 0xFF, marker
+						var indicator = reader.readByte();
+						//check if it's a JFIF section, such as thumbnail, if so, jump past the segment (first 2 bytes tells the length)
+						if (indicator >= -32 && indicator <= -17 ) { //0xE0 - 0xEF, JFIF section
+							var jumplength = to16BitInt(reader.readByte(), reader.readByte());
+							reader.setPosition(reader.position + jumplength-2);
+						}
+						else if (indicator == -64) { //0xC0 Metadata section
+							reader.setPosition(reader.position + 3);
+							var height = to16BitInt(reader.readByte(), reader.readByte());
+							var width = to16BitInt(reader.readByte(), reader.readByte());
+							return [ width, height ];	
+						}
+					}
+				}
+			} catch( e ) {
+				Logger.error( e );
+			} finally {
+				reader.close();
+			}
+		}
+		return [ 0, 0 ];	
+	}
+
+	/*************************************************************************************************
+	******************************** API Methods *****************************************************
+	*************************************************************************************************/
+
+	this.getURL = function(){
+		return this.getImageURL();
+	};
+	
+	this.getImageURL = function(){
+		if (empty(this.image)) {
+			if ( this.testImage ) {
+				var imageURL : URL = URLUtils.staticURL( URLUtils.CONTEXT_SITE, Site.current.ID, this.testImage); 
+				return imageURL;
+			}
+			if (this.viewType == 'swatch') {
+				return null;
+			} else {
+				return dw.web.URLUtils.staticURL('/images/noimage'+ this.viewType +'.png');
+			}
+		}
+		if ( this.scaleImage ) { 
+			return this.image.getImageURL(this.transformationObj);
+		} else {
+			return this.image.getURL();
+		}
+	};
+	
+	this.getAbsURL = function(){
+		if (empty(this.image)) {
+			if (this.viewType == 'swatch') {
+				return null;
+			} else {
+				return dw.web.URLUtils.absStatic('/images/noimage'+ this.viewType +'.png');
+			}
+		} 
+		if ( this.scaleImage ) { 
+			return this.image.getAbsImageURL(this.transformationObj);
+		} else {
+			return this.image.getAbsURL();
+		}
+	};
+	
+	this.getTitle = function(){
+		if ( this.referenceType == 'ProductVariationAttributeValue' && this.viewType == 'swatch' ) {
+			return this.imageObject.displayValue;
+		} else {
+			if ( empty(this.image) || empty(this.image.title) ) {
+				if ( this.referenceType == 'Product' ) {
+					return this.imageObject.name;
+				} else {
+					return this.imageObject.displayValue;
+				}
+			} else {
+				return this.image.title;
+			}
+		}
+	};
+	
+	this.getAlt = function(){
+		if ( this.referenceType == 'ProductVariationAttributeValue' && this.viewType == 'swatch' ) {
+			return this.imageObject.displayValue;
+		} else {
+			var altArray = [];
+			if ( empty(this.image) || empty(this.image.alt) ) {
+				if ( this.referenceType == 'Product' ) {
+					return this.imageObject.name;
+				} else {
+					return this.imageObject.displayValue;
+				}
+			} else {
+				return this.image.alt;
+			}
+		}
+	};
+	
+	// Returns a Collection of ProductImage Instances of the productimages assigned for this viewtype
+	this.getAllImages = function(){
+		var result : dw.util.List = new dw.util.ArrayList();
+		var images  : dw.util.List = this.imageObject.getImages(this.scalableViewType);
+		if (images.length == 0) images = this.imageObject.getImages(this.viewType);
+		for (var i = 0; i < images.length; i++){
+			if (i == this.index) {
+				result.add(this);
+			} else {
+				result.add( new ProductImage(this.viewType, this.imageObject, i));
+			}
+		}
+		return result;
+	}
+}

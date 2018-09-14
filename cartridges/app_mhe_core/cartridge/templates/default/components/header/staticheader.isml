@@ -1,0 +1,38 @@
+<iscache type="relative" hour="24"/>
+<div id="header" class="header" role="banner">
+
+	<header>
+	<div class="header_right static-cart">
+			<iscomment>INCLUDE: Mini-cart, do not cache</iscomment>
+		  	<div id="mini-cart" class="mini-cart">
+		    	<isinclude url="${URLUtils.url('Cart-MiniCart')}"/>
+		    </div>
+		</div>
+		<isif condition="${('logoURL' in pdict.CurrentSession.custom)}" >
+		<div class="logo_header" id="headerLogo">
+			<h1 class="title-wrap">
+			<a href="${URLUtils.url('Search-Show','cgid',pdict.CurrentSession.custom.catID)}">
+			<span class="main-title">
+				<img src="${pdict.CurrentSession.custom.logoURL}" alt="Moet Hennessy" class="logo" /></a>
+			</span>
+	</h1>		</div>	
+	 
+		<iselse>
+		  <div class="logo_header" id="headerLogo" data-main-logo-anim='{"hideClass":"js-hide","showClass":"js-show","targetElement":"js-hide-target","scrollSwitchPoint":200}'>
+			<!-- <a href="${URLUtils.url('Home-Show')}" class="logo_sm">Selection</a> -->			
+			<h1 class="title-wrap">
+				<a href="${URLUtils.url('Home-Show')}">
+					<span class="main-title">
+						Selection
+					</span>
+					<span class="sub-heading js-hide-target js-show">
+						<img class="logo" src="${URLUtils.staticURL('/css/img/logos/by_hennessy.png')}" alt="Moet Hennessy" />
+					</span>
+				</a>
+			</h1>
+		</div>
+		</isif>
+	</header>
+	
+</div><!-- /header -->
+

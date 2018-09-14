@@ -1,0 +1,165 @@
+<isscript>
+	var processNameMap;
+	if (!pdict.CurrentHttpParameterMap.GroupByProcess.empty) {
+		processNameMap = pdict.ProcessNameMap;
+		
+		// Just to see "No entries".
+		if (empty(processNameMap)) {
+			processNameMap.put('', null);
+		}
+	} else {
+		processNameMap = new dw.util.HashMap();
+		
+		processNameMap.put('', pdict.Entries);
+	}
+</isscript>
+
+<isloop items="${processNameMap.keySet()}" var="ProcessName" status="ProcessNameStatus">
+	<isscript>
+		var entries = processNameMap.get(ProcessName);
+		if (!pdict.CurrentHttpParameterMap.GroupByProcess.empty) {
+			entries = entries.values();
+		}
+		
+		if (!empty(entries)) {
+			entries = entries.asList();
+			entries.sort(new dw.util.PropertyComparator('creationDate', false));
+		}
+	</isscript>
+	
+	<tr>
+		<td class="table_detail" colspan="8">
+			<isprint value="${ProcessName}">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="100" nowrap="nowrap" class="table_header n e s">Details</td>
+		<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+			<td width="130" nowrap="nowrap" class="table_header n e s">Job name</td>
+		</isif>
+		<td width="120" nowrap="nowrap" class="table_header n e s">Start date</td>
+		<td width="100" nowrap="nowrap" class="table_header n e s">Duration</td>
+		<td width="100" nowrap="nowrap" class="table_header n e s">Status code</td>
+		<td width="50%" nowrap="nowrap" class="table_header n e s">Status text</td>
+		<td width="25%" nowrap="nowrap" class="table_header n e s">Error</td>
+		<td width="25%" nowrap="nowrap" class="table_header n e s">Triggered Action</td>
+		<td width="100" nowrap="nowrap" class="table_header n e s">Site ID</td>
+		<td width="70" nowrap="nowrap" class="table_header n e s">Log</td>
+	</tr>
+	
+	<isif condition="${empty(entries)}">
+		<tr>
+			<td class="table_detail">
+				<isif condition="${pdict.Display}">No entries found.<iselse>Loading, please wait...</isif>
+			</td>
+		</tr>
+	<iselse>
+		<isloop items="${entries}" var="JobStatusObject" status="JobStatusObjectStatus">
+			<isscript>
+				var currentDate = dw.system.System.getCalendar().getTime();
+				var timeDifferenceDate = null;
+				if (!empty(JobStatusObject.custom.endDate)) {
+					timeDifferenceDate = new Date(JobStatusObject.custom.endDate.getTime() - JobStatusObject.creationDate.getTime());
+				} else {
+					timeDifferenceDate = new Date(currentDate.getTime() - JobStatusObject.creationDate.getTime());
+				}
+				
+				var bgcolor = '#FFFFFF';
+				var jobStatus = JobStatusObject.custom.state;
+				switch(jobStatus) {
+					case 'FINISHED' : bgcolor = '#C4FFBA'; break;
+					case 'FAILED'   : bgcolor = '#FFCDC9'; break;
+					case 'TERMINATED'  : bgcolor = '#FFCDC9'; break;
+					case 'RUNNING'  : bgcolor = '#FCFFC1'; break;
+					case 'WAITING'  : bgcolor = '#D6D6FF'; break;
+				}
+				
+				var jobStatusObjectName = JobStatusObject.custom.name;
+				var jobStatusObjectNameReplaced;
+				if (!empty(jobStatusObjectName)) {
+					jobStatusObjectNameReplaced = jobStatusObjectName.replace(/ /g, '');
+				} else {
+					jobStatusObjectNameReplaced = '';
+				}
+				var jobStatusObjectID = escape(JobStatusObject.custom.ID);
+			</isscript>
+		
+			<tr class="${jobStatusObjectNameReplaced}">
+				<td class="table_detail w e s">
+					<a href="javascript:toggleTaskVisibility(this, '${jobStatusObjectID}' );" id="${'tgl_'+jobStatusObjectID}">Show</a>
+					<isif condition="${jobStatus == 'RUNNING'}">
+						<br/><a href="javascript:refreshTaskView(this, '${jobStatusObjectID}')">Refresh View</a>
+						<br/><a href="javascript:markJobTerminated(this, '${jobStatusObjectID}')">Mark Terminated</a>
+					<iselse/>
+						&nbsp;&nbsp;&nbsp;<a href="javascript:removeJobStatus(this, '${jobStatusObjectID}')">Delete</a>
+					</isif>
+				</td>
+				<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+					<td class="table_detail e s">
+						<isprint value="${jobStatusObjectName}">
+					</td>
+				</isif>
+				
+				<td class="table_detail e s">
+					<isprint value="${JobStatusObject.creationDate}">
+					<isprint value="${JobStatusObject.creationDate}" style="DATE_TIME">
+				</td>
+				<td class="table_detail e s">
+					<isprint value="${timeDifferenceDate.getHours() + (timeDifferenceDate.getDate() - 1) * 24}" formatter="00"><isprint value="${timeDifferenceDate}" formatter=":mm:ss."><span style="color:lightgray;"><isprint value="${timeDifferenceDate}" formatter="SSS"></span>
+				</td>
+				<td class="table_detail e s" style="background-color: ${bgcolor}">
+					<isprint value="${!empty(JobStatusObject.custom.state) ? JobStatusObject.custom.state : '&nbsp;'}" encoding="off">
+				</td>
+				<td class="table_detail e s">
+					<isprint value="${!empty(JobStatusObject.custom.message) ? JobStatusObject.custom.message : '&nbsp;'}" encoding="off">
+				</td>
+				<td class="table_detail e s">
+					<isprint value="${!empty(JobStatusObject.custom.errorMessage) ? JobStatusObject.custom.errorMessage : '&nbsp;'}" encoding="off">
+				</td>
+				<td class="table_detail e s">
+					<isprint value="${!empty(JobStatusObject.custom.triggeredAction) ? JobStatusObject.custom.triggeredAction : '&nbsp;'}" encoding="off">
+				</td>
+				<td class="table_detail e s">
+					<isprint value="${!empty(JobStatusObject.custom.siteId) ? JobStatusObject.custom.siteId : '&nbsp;'}" encoding="off">
+				</td>
+				<td class="table_detail e s">
+					<isif condition="${!empty(JobStatusObject.custom.logFilePath)}">
+						<isscript>
+							var temp = JobStatusObject.custom.logFilePath.split(dw.io.File.SEPARATOR);
+							var dir = '';
+							for (var i=2; i<temp.length-1; i++) {
+								dir += temp[i] + dw.io.File.SEPARATOR;
+							}
+							var file = temp[temp.length - 1];
+						</isscript>
+						<a href="${URLUtils.url('DownloadCustomLogFile-Start', 'filename', file)}">Download</a>
+					<iselse>
+						&nbsp;
+					</isif>
+				</td>
+			</tr>
+			<tr  class="${jobStatusObjectNameReplaced}" id="${jobStatusObjectID}" style="display: none;">
+			</tr>
+			
+			<isif condition="${pdict.CurrentHttpParameterMap.GroupByProcess.empty}">
+				<script type="text/javascript">
+					//<!--
+					/* <![CDATA[ */
+					var filterElement = $('filterTd').getElementsBySelector('input.${jobStatusObjectNameReplaced}');
+					if (!filterElement || filterElement.length <= 0) {
+						if((ViewConfig.jobConfigCount % ViewConfig.jobConfigRows) == 0){
+							ViewConfig.currentColumn = 'column_'+ViewConfig.jobConfigCount;
+							new Insertion.Bottom('filterTd', '<div id="'+ViewConfig.currentColumn+'" style="float:left;"></div>');
+						}
+						var newHTML = '<input class="${jobStatusObjectNameReplaced}" type="checkbox" checked="checked" onclick="$(\'processTable\').getElementsBySelector(\'.${jobStatusObjectNameReplaced}\').invoke(\'toggle\');">${jobStatusObjectName}<br />';
+						new Insertion.Bottom(ViewConfig.currentColumn, newHTML);
+						ViewConfig.jobConfigCount++;
+					}
+					/* ]]> */
+					// -->
+				</script>
+			</isif>
+		</isloop>
+	</isif>
+</isloop>

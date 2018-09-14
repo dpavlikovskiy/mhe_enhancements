@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="view">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>This is used to decide, who should send email: DW or Bronto.</description>
+        </text-node>
+        <node-display x="1" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Mail">
+    <segment>
+      <node>
+        <start-node call-mode="public" name="Mail" secure="false"/>
+        <node-display x="1" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="true"/>
+          <key-binding alias="CurrentHttpParameterMap.orderNo.stringValue" key="From_0"/>
+          <key-binding alias="OrderNo" key="To_0"/>
+          <key-binding alias="dw.order.OrderMgr.getOrder(OrderNo)" key="From_1"/>
+          <key-binding alias="Order" key="To_1"/>
+          <key-binding alias="{Order : (!(empty(Order)) ? Order : null), CustomerEmail : (!(empty(Order) || empty(Order.customerEmail)) ? Order.customerEmail : null), OrderNo : (!(empty(Order) || empty(Order.orderNo)) ? Order.orderNo : null) }" key="From_2"/>
+          <key-binding alias="CsmTemplateVars" key="To_2"/>
+          <key-binding alias="&quot;orderconfirmation&quot;" key="From_3"/>
+          <key-binding alias="MailTemplate" key="To_3"/>
+          <key-binding alias="{from : MailFrom, to : &quot;&quot;, cc : &quot;&quot;, bcc : &quot;&quot;, subject : &quot;&quot;, template : MailTemplate, localeID : null}" key="From_4"/>
+          <key-binding alias="CsmMailParams" key="To_4"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="dw.web.URLUtils.absStatic('/images/space.gif')" key="From_5"/>
+          <key-binding alias="Location" key="To_5"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <decision-node condition-key="empty(Order.custom[&quot;mailedToBronto&quot;]) || (Order.custom[&quot;mailedToBronto&quot;] == false)" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="GetMailSender.ds"/>
+                <key-binding alias="CsmMailParams.template" key="MailTemplate"/>
+                <key-binding alias="CsmMailSender" key="MailSender"/>
+                <key-binding alias="Log" key="Log"/>
+                <key-binding alias="ScriptLog" key="ScriptLog"/>
+                <key-binding alias="CsmTemplatePath" key="TemplatePath"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in1" target-path="../+1"/>
+              </branch>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <decision-node condition-key="CsmMailSender != &quot;DW&quot;" condition-operator="expr"/>
+              <node-display x="0" y="2"/>
+              <branch basename="b3" source-connector="yes">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="true"/>
+                      <key-binding alias="null" key="From_2"/>
+                      <key-binding alias="null" key="To_2"/>
+                      <key-binding alias="null" key="From_3"/>
+                      <key-binding alias="null" key="To_3"/>
+                      <key-binding alias="null" key="From_4"/>
+                      <key-binding alias="null" key="To_4"/>
+                      <key-binding alias="null" key="From_5"/>
+                      <key-binding alias="null" key="To_5"/>
+                      <key-binding alias="null" key="From_6"/>
+                      <key-binding alias="null" key="To_6"/>
+                      <key-binding alias="null" key="From_7"/>
+                      <key-binding alias="null" key="To_7"/>
+                      <key-binding alias="null" key="From_8"/>
+                      <key-binding alias="null" key="To_8"/>
+                      <key-binding alias="null" key="From_9"/>
+                      <key-binding alias="null" key="To_9"/>
+                      <key-binding alias="CsmSetParamsCallNode" key="To_0"/>
+                      <key-binding alias="CsmMailSender + &quot;-SetParams_&quot; + CsmMailParams.template" key="From_0"/>
+                      <key-binding alias="Order.custom[&quot;mailedToBronto&quot;]" key="To_1"/>
+                      <key-binding alias="true" key="From_1"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
+                    <call-node start-name-key="CsmSetParamsCallNode"/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
+                    <jump-node start-name-ref="RedirectURL-Start"/>
+                    <node-display x="0" y="1"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <transition target-connector="in1" target-path="../+2"/>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="2" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="&quot;noreply@demandware.net&quot;" key="MailFrom"/>
+          <key-binding alias="&quot;mail/csm_errornotification&quot;" key="MailTemplate"/>
+          <key-binding alias="&quot;admin@yourstore.com&quot;" key="MailTo"/>
+          <key-binding alias="&quot;Error while sending Order confirmation&quot;" key="MailSubject"/>
+          <key-binding alias="null" key="LocaleID"/>
+          <key-binding alias="null" key="MailCC"/>
+          <key-binding alias="null" key="MailBCC"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1"/>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="SendMail" pipelet-set-identifier="bc_api">
+          <key-binding alias="&quot;donotreply@demandware.com&quot;" key="MailFrom"/>
+          <key-binding alias="CsmTemplatePath" key="MailTemplate"/>
+          <key-binding alias="Order.customerEmail" key="MailTo"/>
+          <key-binding alias="&quot;Confirmation of your order&quot;" key="MailSubject"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <jump-node start-name-ref="RedirectURL-Start"/>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

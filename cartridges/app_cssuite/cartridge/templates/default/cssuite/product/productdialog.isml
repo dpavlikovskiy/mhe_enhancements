@@ -1,0 +1,87 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<isscript>
+	importScript( "app_cssuite:css/utils.ds" );
+	var product = pdict.Product;
+	var thumb = product.getImage('medium',0);
+	var image = product.getImage('medium',0);
+</isscript>
+<table class="" cellpadding="0" cellspacing="0" border="0" width="800" >
+	<tbody>	
+		<tr>
+			<td>
+				<isif condition="${image != null}">
+					<img src='${image.getAbsURL()}' border='0'/>
+				</isif>
+			</td>			
+			<td>			
+				<div class="heading">Description</div>
+				<div id="Description">
+					<p>
+						<isif condition="${product.longDescription}">
+							${product.longDescription}
+						<iselse>
+							No description available.
+						</isif>
+					</p>
+				</div>
+				<isif condition="${!empty(pdict.Product.primaryCategory)}">
+		          <isloop iterator="${pdict.Product.primaryCategory.productAttributeModel.visibleAttributeGroups.iterator()}" alias="groups">
+		            <div id="${groups.ID}" style="">
+		            <div class="heading">${groups.displayName}</div>
+     						<div id="Description">
+		              <isscript>
+		                var defined = false
+		              </isscript>
+		              <isloop iterator="${pdict.Product.primaryCategory.productAttributeModel.getVisibleAttributeDefinitions(groups).iterator()}" alias="atts">
+		                <isif condition="${atts.system && pdict.Product[atts.ID] != null && pdict.Product[atts.ID] != '' || !atts.system && pdict.Product.custom[atts.ID] != null && pdict.Product.custom[atts.ID] != ''}">
+		                  <isscript>
+		                    defined = true
+		                  </isscript>
+		                  <isif condition="${pdict.Product.primaryCategory.productAttributeModel.getVisibleAttributeDefinitions(groups).length > 1}">
+		                    <p>
+		                      ${atts.displayName} :
+		                      <isif condition="${atts.system}">
+		                        ${pdict.Product[atts.ID]}
+		                        <iselse>
+		                          ${atts.unit != null && atts.unit!='' ? pdict.Product.custom[atts.ID] + ' ' + atts.unit : pdict.Product.custom[atts.ID]}
+		                      </isif>
+		                    </p>
+		                    <iselse>
+		                      <p>
+		                        <isif condition="${atts.system}">
+		                          ${pdict.Product[atts.ID]}
+		                          <iselse>
+		                            ${atts.unit != null && atts.unit!='' ? pdict.Product.custom[atts.ID] + ' ' + atts.unit : pdict.Product.custom[atts.ID]}
+		                        </isif>
+		                      </p>
+		                  </isif>
+		                </isif>
+		              </isloop>
+		            </div>				            
+		          </isloop>
+		        </isif>
+	            <div class="heading">Price Model:</div>
+	            <div id="Description">
+				Price: ${product.priceModel.getPrice()}
+				</div>
+				<div class="heading">Master:</div>
+				<div id="Description">
+				${product.isMaster()}
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<br/>	
+<script type="text/javascript">
+<!--
+	Dialog.formDialog('${escape(product.getName())}', 
+		{
+			"Close": function() { 
+				$(this).dialog("destroy");}
+		},
+		false, 'auto', 'auto'
+	);
+//-->
+</script>
+		

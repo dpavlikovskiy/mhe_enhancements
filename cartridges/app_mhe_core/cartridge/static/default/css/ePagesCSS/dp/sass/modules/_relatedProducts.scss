@@ -1,0 +1,83 @@
+.categoryProducts{
+	background:$eModulesBg;
+	h2{
+		font:$standardFontSize $titleFont;
+		color:$brandColor;
+		text-transform:uppercase;
+		text-align:center;
+		margin:0 0 35px 0;
+		padding: 35px 0 0 0;
+		letter-spacing:2px;
+		span{
+			font:bold $largeFontSize $regularFont;
+			display:block; 
+		}
+	}
+	.homePage{
+		.moetCaro{
+			max-width:1199px;
+			.box{
+				height:450px;
+			}
+			.slider{
+				li{
+					height:auto;
+					img{
+						height:320px;
+						width:auto;
+						&.homeBadge{
+							display:none;
+						}
+					}
+					.overlay_anim, .hr-line, h2.secondary, .productBoxDescription, .product-promo{
+						display:none;
+					}
+					.pImage{
+						height:320px;
+						border-right:1px solid $brandBorder;
+						margin:0 0 10px;
+					}
+					a.product-info{
+						color:$black;
+					}
+					h3.secondary{
+						font:normal $standardFontSize $regularFont;
+						margin:0;
+						color: $brandColor;
+					}
+					.price{
+						font:normal $largeFontSize $titleFont;
+						display:block;
+						margin:0 0 10px;
+						color: $white;
+						span {
+							color: $white;
+						}
+					}
+					&.in:last-child{
+						.pImage{
+							border-right:0;
+						}
+					}
+				}
+			}
+			.controls{
+				a{
+					background:transparent;
+				    border: 0 none;
+				    color: $brandColor;
+				    font-family: 'icomoon';
+				    font-size: 50px;
+				    height: 46px;
+				    width: 42px;
+					&.prev:before{
+						content: "\e616";
+					}
+					&.next:before {
+						content: "\e617";
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<group formid="jobConfigList">
+		<list formid="jobConfigs">
+			<action formid="edit" valid-form="false"/>
+			<action formid="remove" valid-form="false"/>
+		</list>
+		<action formid="add" valid-form="false"/>
+	</group>
+</form>

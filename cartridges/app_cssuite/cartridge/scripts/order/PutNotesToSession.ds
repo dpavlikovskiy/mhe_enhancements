@@ -1,0 +1,68 @@
+/**
+* This script will put all the notes from the order to the current session.
+*
+*   @input CurrentUserName : String
+*   @input Order : dw.order.Order The order
+*	@input CurrentSession : dw.system.Session The current session
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.object );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var order : Order = pdict.Order;
+	var userName : String = pdict.CurrentUserName;
+	if (empty(order)) {
+		pdict.CurrentSession.privacy["OrderNotes"] = new ArrayList();
+		return PIPELET_NEXT;
+	}
+	
+	var orderNotes : ArrayList = new ArrayList();
+		
+	getNotes(order, orderNotes, userName);
+		
+	pdict.CurrentSession.privacy["OrderNotes"] = orderNotes;
+    
+	return PIPELET_NEXT;
+}
+
+//all notes are supposed to be stored at the last order in the string
+function getNotes(order : Order, noteList : ArrayList, userName : String) {
+	if (empty(order.custom) || empty(order.custom.notesAndHistory))
+	{
+		var noteObject : Object = new Object();
+		noteObject["createdBy"] = order.createdBy;
+		noteObject["creationDate"] = order.creationDate.getTime();
+		noteObject["subject"] = "Order Created";
+		noteObject["text"] = "The order was initially created by " + order.createdBy;
+		noteObject["orderNo"] = order.orderNo;
+		noteObject["commentType"] = 1;
+		noteList.add(noteObject);
+	} else {
+		for each (var noteString : String in order.custom.notesAndHistory) {
+			noteList.add(deserializeNote(noteString));
+		}
+	}
+}
+
+function deserializeNote( noteString : String )
+{
+	var noteObject : Object = new Object();
+	var noteElements : Array = noteString.split("|");
+	var calendar : Calendar = new Calendar(); 
+	if (noteElements.length >= 6)
+	{
+		noteObject["createdBy"] = noteElements[0];
+		calendar.parseByFormat(noteElements[1], 'yyyy-MM-dd HH-mm-ss z');
+		noteObject["creationDate"] = calendar.time.getTime();
+		noteObject["subject"] = noteElements[2];
+		noteObject["text"] = noteElements[3];
+		noteObject["orderNo"] = noteElements[4];
+		noteObject["commentType"] = noteElements[5];
+		noteObject["new"] = false;
+	}
+	return noteObject;
+}

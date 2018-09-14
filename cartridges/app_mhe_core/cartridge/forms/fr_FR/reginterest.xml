@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="title" type="string" mandatory="true" max-length="5" binding="title" missing-error="profile.salutation.missing-error"/>
+	<field formid="firstname" type="string" mandatory="true" min-length="2" max-length="128" binding="firstName" missing-error="forms.customeraddress.firstname.missing-error" range-error="forms.name.range-error" />
+	<field formid="lastname" type="string" mandatory="true" min-length="2" max-length="128" binding="lastName" missing-error="forms.customeraddress.lastname.missing-error" range-error="forms.name.range-error" />
+	<field formid="email" type="string" mandatory="true" regexp="^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$" binding="email" parse-error="profile.emailparseerror" min-length="2" max-length="128" missing-error="login.username.missing-error"/>
+	<field formid="phone" type="string" max-length="14" default-value="" regexp="[+]?[ 0-9]+" binding="phoneHome" range-error="forms.address.field.invalid" />
+	<field formid="addtoemaillist" type="boolean" binding="custom.isNewsLetterSubscribed"/>
+	<field formid="message" type="string" mandatory="false" max-length="1000"/>
+	<action formid="send" valid-form="true"/>
+</form>

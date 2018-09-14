@@ -1,0 +1,3 @@
+<!--- TEMPLATENAME: blankshippingForm.isml --->
+<isinclude template="util/modules"/>
+<isinputfield xhtmlclass="name-input" formfield="${pdict.CurrentForms.singleshipping.shippingAddress.giftMessage}" type="textarea" attribute1="placeholder" value1="${Resource.msg('forms.giftmessage.placeholder','forms',null)}" attribute2="cols" value2="10" requiredtext="${Resource.msg('forms.giftmessageerror.placeholder','forms',null)}" attribute3="data-character-limit" value3="70" />

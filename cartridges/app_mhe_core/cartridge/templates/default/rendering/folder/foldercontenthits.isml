@@ -1,0 +1,15 @@
+<iscache type="relative" hour="24"/>
+<isdecorate template="search/pt_articlesearchresult">
+	<isinclude template="util/modules"/>
+	
+	<iscomment>create reporting event</iscomment>
+	<isinclude template="util/reporting/ReportSearch.isml"/>
+			
+	<isif condition="${!pdict.ContentPagingModel.empty}">
+
+		<div class="search-result-content">				
+			<iscontentgrid pagingmodel="${pdict.ContentPagingModel}" category="${pdict.ContentSearchResult.folder}"/>
+		</div>
+
+	</isif>	
+</isdecorate>

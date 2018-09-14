@@ -1,0 +1,31 @@
+// =============================================================================
+// Newsletter signup overlay
+// =============================================================================
+
+.newsletter-signup {
+	width:562px;
+	text-align:center;
+	h2 {
+		font-size:14px;
+		text-transform:uppercase;
+		font-weight:700;
+		font-family:$fixed_font_family;
+		letter-spacing:2px;
+		margin:-1em 15% 1em;
+		line-height:1.75em;
+	}
+	p {
+		margin:0 15% 1em;
+		.email {
+			color:#4a415f; 
+		}
+		.inspire {
+			margin:0.5em 0 1em;
+		}
+		.no-subscribe {
+			font-size:0.85em;
+			font-style:italic;
+		}
+	}
+}
+

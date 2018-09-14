@@ -1,0 +1,1 @@
+!function(a){a.fn.extend({limiter:function(b,c){function d(a,c){var d=a.value===a.getAttribute("placeholder")?0:a.value.length;d>b&&(a.value=a.value.substr(0,b),d=b),c.html(b-d+"<span>"+app.resources.CHAR_LEFT+"</span>")}a(this).on("keyup focus blur",function(){d(this,c)}),d(a(this)[0],c)}})}(jQuery);

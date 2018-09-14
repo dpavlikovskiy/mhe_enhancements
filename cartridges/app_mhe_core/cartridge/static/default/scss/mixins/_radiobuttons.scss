@@ -1,0 +1,44 @@
+// =============================================================================
+// Radio buttons
+// =============================================================================
+
+@mixin custom-radio {
+	label {
+		color:#888;
+		display: inline-block;
+	    cursor: pointer;
+	    position: relative;
+	    text-align:left;
+	    text-indent:28px;
+	    @include transition(color 0.3s);
+	    &:before {
+	    	content: "";
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			border-radius:10px;
+			border:1px solid #333;
+			@include transition(border 0.3s);
+		    position: absolute;
+		    left: 0;
+		    top:7px;
+		    text-indent:-6px;
+		    pointer-events:none;
+	    }
+	    &.active {
+	    	color:#fff;
+	    }
+	}
+	input[type=radio] {
+		display:none;
+		&:checked + label:before{
+			content: "\2022";
+		    color: #fff;
+		    font-size: 30px;
+		    text-align: center;
+		    line-height: 18px;
+		    border:1px solid #fff;
+		    vertical-align:middle;
+		}
+	}
+}

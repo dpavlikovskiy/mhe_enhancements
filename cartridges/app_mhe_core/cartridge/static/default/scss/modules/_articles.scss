@@ -1,0 +1,303 @@
+#infscr-loading{
+	display:none !important;
+}
+.articlePages{
+	.page-content{
+		text-align:center;
+		width:$max-container;
+		a{
+			@include transition(all 0.2s ease-out);
+		}
+	}
+	.sectionHeader{
+		h3.secondary,
+		.circle{
+			margin-bottom:25px;
+		}
+	}
+	.search-result-content a{
+		@include transition(all 0.2s ease-out);
+		span.artName{
+			font:bold 18px/24px $fixed-font-family, $base-font-family;
+	 		text-transform: uppercase;
+	 		letter-spacing: 2px;
+	 		padding-bottom: 12px;
+	 	}
+	 	&:hover{
+			span{
+				@include transition(all 0.2s ease-out);
+			}
+		}
+	}
+	.sectionHeader{
+		margin:0 0 50px;
+		h2 {
+			margin: 0;
+		}
+		.secondary {
+			margin-top: -18px;
+		}
+	}
+	.folder-content-list{
+		li{
+			float:left;
+			width:392px;
+			margin:0 0 60px 12px;
+			span{
+				display:block;
+				&.artType{
+					padding:12px 20px;
+					letter-spacing: 2px;
+				}
+			}
+			.artType,
+			.artName,
+			.artDesc{
+				padding:0 20px;
+			}
+		}
+		li.new-row{
+			margin-left:0;
+			clear:both;
+		}
+	}
+	.artContent{
+		padding:40px 48px 20px;
+		text-align:left;
+		width:998px;
+		margin:auto;
+		dl {
+			margin:0 0 15px;
+			dt,
+			dd{
+				float:left;
+				margin:0 0 5px 0;
+				width:400px;
+			}
+			dd{
+				&:before{
+					content:"\2022 ";
+				}
+			}
+			dt{
+				clear:both;
+				width:70px;
+				font:bold 18px/18px $fixed-font-family;
+				span{
+					font-size:12px;
+				}
+			}
+		}
+		dl.prepTime{
+			dt{
+				width:auto;
+			}
+			dd{
+				font:22px/11px $heading-font-family;
+				width:auto;
+				padding:7px 0 0 9px;
+				&:before{
+					content:"";
+				}
+			}
+		}
+		.preparation{
+			list-style:decimal;
+			padding:0 0 0 24px;
+			font:bold 18px $fixed-font-family;
+			li{
+				padding:0 0 0 15px;
+				margin:0 0 15px;
+				span{
+					font-size:$base-font-size;
+					font-weight:normal;
+				}
+			}
+		}
+		.artInfo{
+			float:left;
+			width:344px;
+			position:relative;
+			margin:30px 0;
+		}
+		.article{
+			float:left;
+			margin:30px 0 30px 55px;
+		} 
+		.artPagi{
+			clear:both;
+			font:25px $heading-font-family;
+			padding:40px 0 0;
+			background:url(img/icons/grey-dot.png) repeat-x 0 0;
+			span{
+				float:left;
+				position:relative;
+			}
+			.next{
+				float:right;
+				.articlePop{
+					right:0;
+				}
+			}
+			.articlePop{
+			    border: 1px solid $black;
+			    padding: 20px;
+			    position: absolute;
+			    width: 280px;
+			    bottom:60px;
+			    display:none;
+			    .img{
+			    	float: left;
+    				margin: 0 10px 0 0;
+    				img{
+    					display: block;
+					    height: auto;
+					    width: 70px;
+    				}
+			    }
+			    h5{
+				    font: $small_heading $fixed-font-family;
+				    letter-spacing: 2px;
+				    text-shadow: 0 0 0;
+				    text-transform: uppercase;
+			    }
+			    h3{
+				    font:bold $small_heading $fixed-font-family;
+				    text-shadow: 0 0 0;
+				    letter-spacing: 2px;
+			    }
+			}
+		}
+		.artilce-print{
+			position:relative;
+			.button-sm{
+				position:absolute;
+				right:-28px;
+				top:-20px;
+			}
+		}
+		h2,
+		h3{
+			text-shadow: 0 0 0 $black;
+			font-size:26px;
+			line-height:32px;
+		}
+		h2{
+			font-size:30px;
+		}
+		h4{
+			font:bold 18px $fixed-font-family;
+			text-shadow:none;
+		}
+		.quote{
+			padding:20px 0;
+			text-align:center;
+		}
+		.artType{
+			position:absolute;
+			top:-30px;
+			letter-spacing: 2px;
+		}
+		.date{
+			margin:0 0 70px;
+			font:bold 18px $fixed-font-family;
+			text-transform:uppercase;
+			letter-spacing:2px;
+		}
+		.video{
+			text-align:center;
+			.vidThumb{
+				margin:0 0 10px;
+			}
+			p{
+				font:bold 14px $fixed-font-family;
+				text-transform:uppercase;
+			}
+			img{
+				display:block;
+				&:after{
+					content:" ";
+				}
+			}
+		}
+		.artProduct{
+			text-align:center;
+			position:relative;
+			.prod{
+				img{
+					display:block;
+					margin:auto;
+				}
+			}
+			h4.uppercase{
+				font-size:13px;
+				margin:0 0 5px;
+			}
+			p{
+				letter-spacing:2px;
+			}
+			.artiBadge{
+				position:absolute;
+				width:200px;
+				height:auto;
+				rigth:0;
+				top:0;
+			}
+		}
+	}
+	.mover{
+		@include transition(all 0.5s ease-out);
+		@include border-radius(50%);
+		width:50px;
+		height:50px;
+		margin-bottom: 15px;
+		position:absolute;
+		line-height:50px;
+		font-size:30px;
+		display:none;
+		&.close{
+			@include transition(all 0.5s ease-out);
+			-webkit-transform: rotate(45deg);
+		    -moz-transform: rotate(45deg);
+		    -ms-transform: rotate(45deg);
+		    -o-transform: rotate(45deg);
+		    transform:rotate(45deg);
+		    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+		}
+	}
+}
+
+.womhContent{
+	margin:auto;
+	.html-slot-container{
+		margin:0 0 40px;
+	}
+	.artFilters{
+		margin:40px 0;
+		li{
+			display:inline-block;
+			margin:0 20px;
+			letter-spacing:2px;
+			&.active{
+				padding:0 0 10px;
+			}
+		}
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

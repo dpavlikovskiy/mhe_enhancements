@@ -1,0 +1,7 @@
+ <isif condition="${pdict.CurrentCustomer.registered}">
+		 <isprint value="${pdict.CurrentCustomer.profile.salutation}"/>
+		 <isprint value="${pdict.CurrentCustomer.profile.lastName}"/>
+ </isif>
+ 
+
+ 

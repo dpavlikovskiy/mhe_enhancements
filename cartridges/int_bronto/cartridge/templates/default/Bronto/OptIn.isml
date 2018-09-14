@@ -1,0 +1,6 @@
+<iscomment>This template renders successfull Bronto email subscription message</iscomment>
+<isdecorate template="content/pt_customerservice">
+
+<iscontent type="text/html" charset="UTF-8" compact="true">
+Email Opt In for: <isprint value="${pdict.CurrentHttpParameterMap.email.stringValue}">
+</isdecorate>

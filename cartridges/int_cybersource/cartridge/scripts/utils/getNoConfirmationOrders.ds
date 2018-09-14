@@ -1,0 +1,60 @@
+/**
+* Demandware Script File
+* To define input and output parameters, create entries of the form:
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+* For example:
+*
+*   @input shippingMethod : dw.order.ShippingMethod 	
+*	@output orderNumbers : String	Order Numbers seprated by comma (,)
+*
+*/
+importPackage( dw.system );
+importPackage( dw.net );
+importPackage( dw.order );
+importPackage( dw.util );
+importScript('utils/DateUtil.ds');
+
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	Logger.debug("[getNoConfirmationOrders.ds] START: Orders which got no confirmation from PSP ----------------");
+
+	var currentDateAndTime : Date = new Date(); 
+	var newQuery : String = "custom.orderStatus = {0} AND creationDate <= {1}" ;
+	var orderStatus : String = "REVIEW";
+	var dateAndTimeToCompare : Date = subtractMinutesFromDate(currentDateAndTime, pdict.shippingMethod.custom.noConfirmationWaitTime);
+	//Log, if the time to wait before sending the mail is not set in the shipping method. 
+	/*if(currentDateAndTime == dateAndTimeToCompare){
+		Logger.debug("[getNoConfirmationOrders.ds]Shipping Method: " + pdict.shippingMethod.ID + " : " + pdict.shippingMethod.displayName + " - \"No Confrimation Wait Time\" is Set to ZERO.");
+	}*/
+	
+	var orderIterator : SeekableIterator = OrderMgr.queryOrders(newQuery, "orderNo desc", orderStatus, dateAndTimeToCompare);
+	var orderNumbers : String = "";
+
+	//Iterate the orders 	
+	while (orderIterator.hasNext()){
+		var order : Order = orderIterator.next();
+		//Create a comma separetd list of order numbers
+		if (order.shipments[0].shippingMethodID == pdict.shippingMethod.ID) {
+			orderNumbers = orderNumbers + ", " + order.orderNo; 
+		}		
+	}
+	//remove the last comma from the order numbers list 
+	//and set the sendEmail flag as true
+	if (!empty(orderNumbers)) {
+		orderNumbers = orderNumbers.substr(1);		 
+	}
+   	
+   	pdict.orderNumbers = orderNumbers;
+
+	Logger.debug("[getNoConfirmationOrders.ds] END: Orders which got no confirmation from PSP ----------------");
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,31 @@
+// =============================================================================
+// Account navigation
+// =============================================================================
+
+.account-nav {
+	width:300px;
+	float:left;
+	padding-top:40px;
+	a {
+		display:inline-block;
+		@include transition(color 0.3s);
+		line-height:2em;
+		text-transform:uppercase;
+		letter-spacing:2px;
+		font-size:13px;
+	}
+}
+
+
+// Nav states -----------------------------------------------------------------
+
+.helpAsset{border-top:1px solid $darkgrey; margin:30px 30px 0 0; padding:40px 0 0; color:$lightergrey; letter-spacing:2px;}
+.helpAsset h3{letter-spacing:0; color:#888; line-height:10px;}
+.helpAsset p{text-transform:uppercase; font-size:13px; line-height:20px;}
+.helpAsset p span{color:#fff;}
+
+
+
+
+
+

@@ -1,0 +1,51 @@
+/**
+* Script file send conversion data (based on addConversion and addContact API methods)
+* @output IdMap : dw.util.HashMap The hash with Bronto fields id's
+* @output CacheTheHash : Number
+**/
+importPackage (dw.order);
+importPackage (dw.system);
+importPackage (dw.util);
+importPackage (dw.web);
+
+importScript ('Bronto/API.ds');
+importScript ('job/Utils.ds');
+
+/// Main workflow block ///
+function execute (args : PipelineDictionary) : Number {
+
+	// Initialize variables
+	var packageMaxSize : Number = getPackageLimit(),
+		i : Number = 0;
+	// authorize session API
+	var map = authorizeAPI();
+	var fieldsIdMap : HashMap = getFieldList(map);
+	// Collect all of the fields id's into one hash map
+	args.IdMap = fieldsIdMap;
+	args.CacheTheHash = map.CacheTheHash; // this flag is nececcery for cashing switch	
+	// Query the orders
+	var orderIterator : SeekableIterator = queryOrders(); // sorted by orderNo asc
+	var orders : Array = getOrderIdArray(orderIterator, packageMaxSize);
+	// get existing conversions in odrer to avoid duplication
+	var conversionFilter = createConversionFilter(orders, map);
+	var existingConversions = readConversions(conversionFilter, map);
+	var clarifiedOrders : Array = checkExistingConversions(orders, existingConversions);
+	if (!empty(clarifiedOrders)) {
+
+		// prepare data for sending
+		var preparedOrders = prepareOrders(clarifiedOrders, map);
+		var contacts : Array = prepareContacts(clarifiedOrders, fieldsIdMap, map);
+
+		// send conversion data
+		var conversionSendingResponse = map.brontoAPI.addOrUpdateOrders(preparedOrders, map.sessionHeader);	
+		var contactsSendingResponse = map.brontoAPI.addOrUpdateContacts(contacts, map.sessionHeader);
+		// ensure, that request succed
+		if ( !(conversionSendingResponse._return.errors == null &&
+			   contactsSendingResponse._return.errors == null) ) {
+			return PIPELET_ERROR;
+		}		
+	}
+   return PIPELET_NEXT;
+}
+
+/// Main workflow block end ///

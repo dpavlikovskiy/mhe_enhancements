@@ -1,0 +1,150 @@
+.homePage{
+	.moetCaro {
+		max-width:1200px;
+		position: relative;
+		margin:0 auto;
+		.box {
+			height: 580px;
+			overflow: hidden;
+			position: relative;
+		}
+		.slider {
+			position: absolute;
+			min-width: 1200px;
+			text-align: center;
+			li {
+				display: inline-block;
+				width: 300px;
+				height: 580px;
+				vertical-align:top;
+				* {
+					color:$lightergrey; // TODO: change this, with color:#9980c2 !important; below
+				}
+			}
+		}
+		.controls {
+			position: absolute;
+			top:40%;
+			width:100%;
+			background:none;
+			a {
+				display: inline-block;
+				border: 1px solid $lightgrey;
+				padding: 0;
+				font-size: 24px;
+				font-family: $heading-font-family, $base-font-family;
+				background:$black;
+				height:40px;
+				width:40px;
+				z-index: 9;
+				line-height:45px;
+				float:left;
+				text-align:center;
+				overflow:hidden;
+				position:relative;
+				&.next{
+					float:right;
+				}
+			}
+			.disable {
+				@include opacity(0.2);
+				cursor: default;
+			}
+			.disabledLayer{
+				height: 40px;
+			    position: absolute;
+			    width: 100%;
+			    z-index: 10;
+			    display:none;
+			}
+		}
+		// Product Module -----------------------------------------------
+		.product-info {
+			width: 300px;
+			overflow: hidden;
+			position: relative;
+			display: inline-block;
+			text-align: center;
+			img.homeBadge{
+				height: auto;
+			    left: 154px;
+			    position: absolute;
+			    top: 92px;
+			    width: 120px;
+			    z-index:10;
+			}
+			&:hover{
+				h2, h3, .price *{
+					color:$white;
+				}
+			}
+			h2, h3 {
+				font-size: 11px;
+				text-transform: uppercase;
+			}
+			h2 {
+				font-weight: $bold;
+				margin-bottom: 5px;
+			}
+			h3 {
+				font-weight: $regular;
+				margin-bottom: 14px;
+			}
+			.price {
+				color: $white;
+				font-size: $stand_first;
+				font-weight:$bold;
+				letter-spacing:1px;
+			}
+			.pImage{
+				height:440px;
+				.noImg{
+					padding:185px 0 0;
+					img{
+						height:auto;
+						width:auto;
+					}
+				}
+			}
+			img {
+				z-index: 3;
+				width: 300px;
+				position: relative;
+			}
+			.hr-line {
+				z-index: 2;
+				position: absolute;
+				background-color: $darkpurple;
+				width: 300px;
+				height: 1px;
+				top: 368px;
+				left:0;
+			}
+			.overlay_anim {
+				@include opacity(0);
+				background: url('./img/common/radial-gradient.png') 0 0 no-repeat;
+				z-index: 1;
+				position: absolute;
+				width: 300px;
+				height: 130px;
+				top: 238px;
+				left:0;
+				@include transition(all 0.3s ease-out);
+			}
+			&:hover .overlay_anim {
+				@include opacity(1);
+			}
+		}
+		.promo-msg {
+			color:#9980c2 !important; // TODO: change this, with * selector above
+			font-weight:700;
+			font-size:13px;
+			letter-spacing:2px;
+			text-overflow:ellipsis;
+			white-space:nowrap;
+			overflow:hidden;
+			display:inline-block;
+			text-transform:uppercase;
+		}
+	}
+}

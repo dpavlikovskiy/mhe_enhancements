@@ -1,0 +1,14 @@
+<iscontent type="text/html" charset="UTF-8" compact="true">
+<!--div id="debug_container"><span id="debug">debug</span></div-->
+<table border="0" cellpadding="0" cellspacing="0" class="header_table">
+	<tr>
+   	<td class="csSuite_logo">
+		<img src="${URLUtils.staticURL('/cssuite/images/demandware_csSuite_logo01.jpg')}" onclick="CSSuite.reset();" style="cursor: pointer;">
+    </td>
+    <td class="branding_hearderlogo">
+			&nbsp;<br />    
+			<!--- <img src="${URLUtils.staticURL('/cssuite/images/logo_box.png')}"><br />  --->    
+    	<span class="welcome_logon">Welcome,&nbsp;${if (pdict.CurrentSession.userName != null) pdict.CurrentSession.userName}&nbsp;</span><a class="Logout" href="${URLUtils.https('CSLogin-Logout')}">Logout</a>
+    </td>
+    </tr>
+</table>

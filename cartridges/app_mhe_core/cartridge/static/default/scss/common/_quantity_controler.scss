@@ -1,0 +1,45 @@
+// =============================================================================
+// Qunatity controler
+// =============================================================================
+.quantity {
+	@include clearfix;
+	label {
+		display: none;
+	}
+	%quant-mod {
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+		
+		text-align: center;
+		display: inline-block;
+		vertical-align: top;
+	}
+	.quant-mod-btn {
+		@extend %quant-mod; 
+		border: 1px solid $white;
+		font-size: 30px;
+		span {
+			display: block;
+		}
+		&.quant-mod-btn-neg {
+			position: relative;
+			z-index: 1;
+
+			span {
+				margin: -5px 0 0 0;
+				position: relative;
+				z-index: 1;
+			}
+		}
+		&.js-disabled {
+			@include opacity(0.2);
+		}
+	}
+	.quant-mod-quantity {
+		@extend %quant-mod;
+		background-color: transparent;
+		border: none;
+		font-size: 16px;
+	}
+}

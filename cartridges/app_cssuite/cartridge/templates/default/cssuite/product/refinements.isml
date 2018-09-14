@@ -1,0 +1,286 @@
+<isset name="Refinements" value="${pdict.ProductSearchResult.refinements}" scope="PAGE"/>
+
+<isif condition="${Refinements != null && Refinements.refinementDefinitions.size() > 0}">
+	<isscript>
+		var patternRefinementDefinition = null;
+		for each(definition in Refinements.refinementDefinitions) {
+			if(definition.attributeRefinement && definition.attributeID=="pattern") {  
+				patternRefinementDefinition  = definition;
+				break;
+			}
+		}
+		
+		var divClassID = 'right';
+		function toggleDIVClassID()
+		{
+			if (divClassID == 'right')
+			{
+				divClassID = 'left';
+			} else {
+				divClassID = 'right';
+			}
+			return divClassID;
+		}
+
+		function resetDIVClassID()
+		{
+			divClassID = 'right';
+		}
+		
+	</isscript>
+
+<div class="twocolumns">
+	<div class="${toggleDIVClassID()}">
+		<isif condition="${!empty(Refinements.categoryRefinementDefinition)}">
+			<isset name="RefinementDefinition" value="${Refinements.categoryRefinementDefinition}" scope="PAGE"/>
+			<!--- handle category refinements --->
+			<isif condition="${RefinementDefinition.isCategoryRefinement()}">
+				<isscript>
+					var superCats = new dw.util.ArrayList();
+					if(!empty(pdict.ProductSearchResult.category)) {
+						var currentCat = pdict.ProductSearchResult.category;
+						while(!currentCat.root) {
+							currentCat = currentCat.parent;
+							if(!empty(currentCat) && !currentCat.root) {
+								superCats.add(currentCat);
+							}
+						}
+						superCats.reverse();
+						}
+					</isscript>
+					<!--- Limit to next level refinements in case we have a category (may be root in case nothing is selected) --->
+					<isif condition="${!pdict.ProductSearchResult.category}">
+						<isset name="CategoryRefinements" value="${Refinements.getNextLevelCategoryRefinementValues(dw.catalog.CatalogMgr.getSiteCatalog().root)}" scope="PAGE"/>
+					<iselse>
+						<isset name="CategoryRefinements" value="${Refinements.getNextLevelCategoryRefinementValues(pdict.ProductSearchResult.category)}" scope="PAGE"/>
+					</isif>
+		
+					<!--- always display root  --->
+					<ul class="topRefinement">
+						<li class="selected">
+							<h2>
+								<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxCategory('CSProduct-Show')}')">
+									All categories
+								</a>
+							</h2>
+							<!--- rendering parent categories  --->
+							<isif condition="${!empty(superCats)}">
+								<isloop iterator="${superCats}" alias="supercat">
+								<ul>
+									<li classs="selected">
+										<h2>
+											<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefineCategory('CSProduct-Show', supercat.ID)}')">
+												<isprint value="${supercat.displayName}">
+											</a>
+										</h2>
+								</isloop>
+							</isif>
+							<isif condition="${CategoryRefinements.size() > 0}">
+								<!--- display category --->
+								<isif condition="${!empty(pdict.ProductSearchResult.category)}">
+									<ul>
+										<li class="selected active">
+											<h2>
+												<isprint value="${pdict.ProductSearchResult.category.displayName}">
+											</h2>
+								</isif>
+								<ul>
+									<!--- render individual refinements until the configured cutoff --->
+						   			<isloop iterator="${CategoryRefinements}" alias="RefinementValue">
+						   				 <isif condition="${RefinementValue.getValue()=='more'}">	
+						   				 	<isset name="MoreCategoryRefinements" value="${Refinements.getNextLevelCategoryRefinementValues(dw.catalog.CatalogMgr.getCategory(RefinementValue.getValue()))}" scope="PAGE"/>
+						   				 	<isloop iterator="${MoreCategoryRefinements}" alias="MoreRefinementValue">
+						   				 		<li><a title="${Resource.msg('search.productsearchrefinebar.clickrefinecategory','search',null)}" 
+						   				 			href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefineCategory('CSProduct-Show',MoreRefinementValue.getValue())}')">
+													<isprint value="${MoreRefinementValue.getDisplayValue()}">
+													<span class="resultcount">
+														${Resource.msg('global.symbol.openparentheses','cssuite',null)}${MoreRefinementValue.getHitCount()}${Resource.msg('global.symbol.closeparentheses','cssuite',null)}
+													</span>
+												</a></li>
+						   				 	</isloop>
+						      			 <iselse>
+							      			<!--- TODO different sorting conditions for catalog navigation and search ?? --->
+							      			<li>
+							      				<a title="${Resource.msg('search.productsearchrefinebar.clickrefinecategory','search',null)}" 
+							      				href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefineCategory('CSProduct-Show',RefinementValue.getValue())}')">
+												<isprint value="${RefinementValue.getDisplayValue()}">
+													<span class="resultcount">
+													${Resource.msg('global.symbol.openparentheses','cssuite',null)}${RefinementValue.getHitCount()}${Resource.msg('global.symbol.closeparentheses','cssuite',null)}
+													</span>
+												</a>
+											</li>
+										</isif>
+									</isloop>
+								</ul>
+								<!--- closing list from category --->
+								<isif condition="${!empty(pdict.ProductSearchResult.category)}">
+										</li>
+									</ul>
+								</isif>
+							<iselse>
+								<ul>
+									<li class="selected active">
+										<h2>
+											<isprint value="${pdict.ProductSearchResult.category.displayName}">
+										</h2>
+									</li>
+								</ul>
+							</isif>
+							<!--- close ul tags from parent categories  --->
+							<isif condition="${!empty(superCats)}">
+								<isloop iterator="${superCats}" alias="supercat">
+										</li>
+									</ul>
+								</isloop>
+							</isif>
+						</li>
+					</ul>
+				</isif> <!--- EO: category refinement handling --->
+			</isif>
+		<iselse>
+			<!--- always display root  --->
+			<ul class="topRefinement">
+				<li>
+					<p class="noresults">No results found.</p>			
+					<div class="selected">
+						<h2>
+							<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxCategory('CSProduct-Show')}')">
+								All categories
+							</a>
+						</h2>
+					</div>
+				</li>
+			</ul>
+		</isif>
+	</div>
+
+	<!-- price refinement -->
+	<isif condition="${!empty(Refinements.priceRefinementDefinition)}">
+		<div class="${toggleDIVClassID()}">
+			<isset name="RefinementDefinition" value="${Refinements.priceRefinementDefinition}" scope="PAGE"/>
+			<!-- handle price refinements -->
+			<isif condition="${RefinementDefinition.isPriceRefinement()}">
+				<ul class="topRefinement">
+					<isif condition="${pdict.ProductSearchResult.isRefinedByPrice()}">
+						<li id="price" class="expand">
+					<iselse>
+						<li id="price" class="collapsed">
+					</isif>
+					<a href='javascript:toggle("price")'><isprint value="${RefinementDefinition.getDisplayName()}"></a>
+						<ul>
+							<isloop iterator="${Refinements.getAllRefinementValues(RefinementDefinition)}" alias="RefinementValue">
+								<isif condition="${pdict.ProductSearchResult.isRefinedByPriceRange(RefinementValue.valueFrom,RefinementValue.valueTo)}">
+									<li class="selected active">
+										<a title="${Resource.msg('search.productsearchrefinebar.clickrelaxprice','search',null)}" 
+											href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxPrice('CSProduct-Show')}')">
+											<isprint value="${RefinementValue.getDisplayValue()}">
+											<span class="resultcount">
+												<isprint value="${Resource.msg('global.symbol.openparentheses','cssuite',null) + RefinementValue.getHitCount() + Resource.msg('global.symbol.closeparentheses','cssuite',null)}">
+											</span>
+										</a>
+									</li>
+								<iselse>
+									<li>
+										<a title="${Resource.msg('search.productsearchrefinebar.clickrefineprice','search',null)}" 
+											href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefinePrice('CSProduct-Show',RefinementValue.getValueFrom(),RefinementValue.getValueTo())}')">
+											<isprint value="${RefinementValue.getDisplayValue()}">
+											<span class="resultcount">
+												<isprint value="${Resource.msg('global.symbol.openparentheses','cssuite',null) + RefinementValue.getHitCount() + Resource.msg('global.symbol.closeparentheses','cssuite',null)}">
+											</span>
+										</a>
+									</li>
+								</isif>
+							</isloop>
+						</ul>
+					</li>
+				</ul>
+			</isif> <!--- EO: price refinement handling --->
+		</div>
+		<isif condition="${divClassID=='right'}">
+			<div style="clear: both;"></div>
+		</isif>
+	</isif>
+
+	<div style="clear: both;"></div>
+<!--- category refinement start --->
+
+	<isloop iterator="${Refinements.refinementDefinitions}" alias="RefinementDefinition">
+		<isif condition="${RefinementDefinition.isAttributeRefinement()}">
+			<isscript>
+				// trying to find out wether this is a boolean refinement (different style then)
+				var isBooleanRefinement = false;
+				var trueRefinementValue = null;
+				var possibleRefinementValues = Refinements.getAllRefinementValues(RefinementDefinition);
+			 	for each(possibleValue in possibleRefinementValues) {
+			 		if (possibleValue.getValue().toLowerCase() == 'true') {
+			 			isBooleanRefinement = true;
+			 			trueRefinementValue = possibleValue;
+			 		} else if (possibleValue.getValue().toLowerCase() == 'false') {
+			 			isBooleanRefinement = true;
+			 		}
+			 	}
+			</isscript>
+			<isif condition="${!isBooleanRefinement || !empty(trueRefinementValue)}">
+				<div class="${toggleDIVClassID()}">
+					<isif condition="${isBooleanRefinement}">
+						<isif condition="${!empty(trueRefinementValue)}">
+							<isif condition="${pdict.ProductSearchResult.isRefinedByAttribute(RefinementDefinition.attributeID)}">
+								<li class="selected active">
+									<h2><a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxAttributeValue('CSProduct-Show',trueRefinementValue.getID(),trueRefinementValue.getValue())}')">
+									<isprint value="${RefinementDefinition.getDisplayName()}">
+									<span class="resultcount">${Resource.msg('global.symbol.openparentheses','cssuite',null)}<isprint value="${trueRefinementValue.getHitCount()}">${Resource.msg('global.symbol.closeparentheses','cssuite',null)}</span>
+									</a></h2>
+								</li>
+							<iselse>
+								<li class="unrefined">
+									<h2><a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefineAttributeValue('CSProduct-Show',trueRefinementValue.getID(),trueRefinementValue.getValue())}')">
+									<isprint value="${RefinementDefinition.getDisplayName()}">
+									<span class="resultcount">${Resource.msg('global.symbol.openparentheses','cssuite',null)}<isprint value="${trueRefinementValue.getHitCount()}">${Resource.msg('global.symbol.closeparentheses','cssuite',null)}</span>
+									</a></h2>
+								</li>
+							</isif>
+						</isif>
+					<iselse>
+						<ul class="topRefinement">
+							<isif condition="${pdict.ProductSearchResult.isRefinedByAttribute(RefinementDefinition.attributeID)}">
+								<li id="${RefinementDefinition.attributeID}Values" class="expand">
+							<iselse>
+								<li id="${RefinementDefinition.attributeID}Values" class="collapsed">
+							</isif>
+								<h2><a href='javascript:toggle("${RefinementDefinition.attributeID}Values")'><isprint value="${RefinementDefinition.getDisplayName()}"></a></h2>
+								<ul>
+									<isloop iterator="${Refinements.getAllRefinementValues(RefinementDefinition)}" alias="RefinementValue">
+										<isif condition="${pdict.ProductSearchResult.isRefinedByAttributeValue(RefinementDefinition.attributeID,RefinementValue.value)}">
+											<li class="selected active">
+												<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRelaxAttributeValue('CSProduct-Show',RefinementValue.getID(),RefinementValue.getValue())}')">
+													${RefinementValue.getDisplayValue()}
+													<span class="resultcount">${Resource.msg('global.symbol.openparentheses','cssuite',null)}<isprint value="${RefinementValue.getHitCount()}">${Resource.msg('global.symbol.closeparentheses','cssuite',null)}</span>
+												</a>
+											</li>
+										<iselse>
+											<isif condition="${RefinementValue.hitCount>0}">
+												<li>
+													<a href="javascript:CSSuite.searchProduct('${pdict.ProductSearchResult.urlRefineAttribute('CSProduct-Show',RefinementValue.getID(),RefinementValue.getValue())}')">
+														${RefinementValue.getDisplayValue()}
+														<span class="resultcount">${Resource.msg('global.symbol.openparentheses','cssuite',null)}<isprint value="${RefinementValue.getHitCount()}">${Resource.msg('global.symbol.closeparentheses','cssuite',null)}</span>
+													</a>
+												</li>
+											</isif>
+										</isif>
+									</isloop>
+								</ul>
+							</li>
+						</ul>
+					</isif>
+				</div>
+				<isif condition="${divClassID=='right'}">
+					<div style="clear: both;"></div>
+				</isif>
+			</isif>
+		</isif>
+	</isloop>
+	<isif condition="${divClassID=='left'}"> <!--- for savety reasons we complete the 'table'  --->
+		<div class="right">&nbsp;</div>
+		<div style="clear: both;"></div>
+	</isif>
+</div>

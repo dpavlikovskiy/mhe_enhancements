@@ -1,0 +1,50 @@
+/**
+* This script implements a task and holds all necessary functions.
+*/
+importPackage( dw.system );
+importScript( 'util/libInheritance.ds' );
+importScript('job/tasks/BasicTask.ds');
+
+var TASK_REGISTRY : Object = { basic : getBasicTaskClass() };
+
+/**
+* Factory function that initializes a task.
+* 
+* @param config JSON object that the task configuration.
+* 
+* return Task
+*/
+function initTask( taskConfig : Object, jobMonitor : JobMonitor ) : Task {
+	//check if task config is available
+	if ( empty(taskConfig) ) {
+		throw('No task configuration available.');
+	}
+	//if task type is empty or 'basic', return BasicTask,
+	//otherwise return respective task type after initialization
+	var taskType : String = taskConfig.type ? taskConfig.type.toLowerCase() : 'basic' ;
+	var taskClass = TASK_REGISTRY[taskType];
+	
+	//if task type is unknown, try to initialize it using the task registration process
+	if ( empty(taskClass) ) {
+		var taskScript : String = dw.web.Resource.msg('job.taskregistry.'+taskType, 'jobs', 'bc_jobframework:job/tasks/BasicTask.ds');
+		importScript(taskScript);
+		taskClass = TASK_REGISTRY[taskType];
+		if ( empty(taskClass) ) {
+			taskClass = TASK_REGISTRY.basic;
+		}
+	}
+	
+	return new taskClass( taskConfig, jobMonitor );
+};
+
+/**
+* Use this function in Task scripts to register the class for task types.
+*
+* @param taskType : String type the tasks class is to be registered for
+* @param taskClass : Class Class that needs to be registered
+*/
+function registerTaskClass( taskType : String, taskClass : Class ) {
+	if ( !empty(taskType) && !empty(taskClass) ) {
+		TASK_REGISTRY[ taskType.toLowerCase() ] = taskClass;
+	}
+}

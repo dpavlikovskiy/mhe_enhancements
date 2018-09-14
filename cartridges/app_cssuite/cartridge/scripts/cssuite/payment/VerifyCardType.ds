@@ -1,0 +1,69 @@
+/**
+ * Function: execute
+ *
+ * Main function used to check the creditcards for number length/prefix based on cardType. 
+ *
+ * @input  cardNumber : String
+ * @input  cardType   : String 
+ */
+
+ function execute( pdict : PipelineDictionary ) : Number
+{
+	
+	var cardNumber : String = pdict.cardNumber;
+	var cardType : String = pdict.cardType;
+	var cardNumberLength : Number = cardNumber.length;
+	var finalCardTest : Boolean = false;
+	/*========================================================== 
+	
+		1. establish the card type in a switch statment
+		2. check card length with if statment
+		3. regex expression to check the prefix in nested if
+	
+	===========================================================*/	
+	switch( cardType )//carType should be uppercase for switch
+	{
+		case "Visa": 
+			if(cardNumberLength == 13 || cardNumberLength == 16) {
+				if(cardNumber.charAt(0)==4){finalCardTest = true}
+			}
+			break;
+		
+		case "MasterCard": 
+			if(cardNumberLength == 16) {
+				if(cardNumber.charAt(0)==5 && cardNumber.charAt(1)==5){finalCardTest = true}
+				if(cardNumber.charAt(0)==5 && cardNumber.charAt(1)==4){finalCardTest = true}
+				if(cardNumber.charAt(0)==5 && cardNumber.charAt(1)==3){finalCardTest = true}
+				if(cardNumber.charAt(0)==5 && cardNumber.charAt(1)==2){finalCardTest = true}
+				if(cardNumber.charAt(0)==5 && cardNumber.charAt(1)==1){finalCardTest = true}
+			}
+			break;
+		
+		case "Amex": 
+			if(cardNumberLength == 15) {
+				if(cardNumber.charAt(0)==3 && cardNumber.charAt(1)==4){finalCardTest = true}
+				if(cardNumber.charAt(0)==3 && cardNumber.charAt(1)==7){finalCardTest = true}
+			}
+			break;
+		
+		case "Discover": 
+			if(cardNumberLength == 16){
+
+				if( cardNumber.charAt(0)==6 &&
+					cardNumber.charAt(1)==0 &&
+					cardNumber.charAt(2)==1 && 
+					cardNumber.charAt(3)==1 ) {
+						finalCardTest = true
+				}
+			}		
+			break;
+
+	}
+		
+	//how to use the boolean to deternmine the next pipeline element
+	if(!finalCardTest){
+		return PIPELET_ERROR;
+	}
+	
+	return PIPELET_NEXT;
+}

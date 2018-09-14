@@ -1,0 +1,60 @@
+/**
+*   @input Basket : dw.order.Basket
+*	@input MainProductid : String
+*	@input MainProductPosition : String
+*	@input AccessoryIds : String
+*   @output ProductLineItem : dw.order.ProductLineItem
+*
+*/
+
+importPackage( dw.util );
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.order );
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+	var basket : dw.order.Basket = pdict.Basket;
+	var productLineItem : dw.order.ProductLineItem = null;
+	var prodId : String = pdict.MainProductid;
+	var prodPos : String = pdict.MainProductPosition;
+	var pliList : dw.util.List = new dw.util.ArrayList(basket.getProductLineItems());
+	var listItr : Iterator = pliList.iterator();
+	
+	while (listItr.hasNext()){
+		var pli : ProductLineItem = listItr.next();
+		if (pli.custom.pliPosition == prodPos){
+			productLineItem = pli;
+			break;
+		}
+	}
+	//Add Accessory IDs if Available
+	if (pdict.AccessoryIds != null){
+		var newAccessoryIdList : dw.util.List = new dw.util.ArrayList(pdict.AccessoryIds.split(",")) ;
+		var oldAccessoryIdList : dw.util.List = new dw.util.ArrayList();
+		if (productLineItem.custom.associatedAccessoryId!=null){
+			oldAccessoryIdList =  new ArrayList(productLineItem.custom.associatedAccessoryId.split(","));
+		}
+		var itr : Iterator = newAccessoryIdList.iterator(); 		
+		while (itr.hasNext()){
+			var accessoryId : String = itr.next();
+			if (oldAccessoryIdList.indexOf(accessoryId) < 0){
+				oldAccessoryIdList.add(accessoryId);
+			}
+		}
+		
+		productLineItem.custom.associatedAccessoryId = oldAccessoryIdList.join();		
+	}
+	
+	pdict.ProductLineItem = productLineItem;
+	return PIPELET_NEXT;
+			
+/*	var basket : dw.order.Basket = pdict.Basket;
+	var pliList : dw.util.List = new dw.util.ArrayList(basket.productLineItems);
+//	pliList.reverse();
+	var productLineItem : dw.order.ProductLineItem = pliList.pop();
+	pdict.ProductLineItem = productLineItem;
+	return PIPELET_NEXT;
+*/
+	
+}

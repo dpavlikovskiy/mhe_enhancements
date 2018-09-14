@@ -1,0 +1,53 @@
+// =============================================================================
+// Home Parallax Module and Hover State
+// =============================================================================
+
+.module {
+	display: block;
+	position: relative;
+	@include transition(all 0.2s ease-out);
+	img {
+		display: block;
+		z-index: 1;
+	}
+	.overlay {
+		@include opacity(0);
+		display: block;
+		position: absolute;
+		z-index: 3;
+		width: 100%;
+		height: 100%;
+		top:0;
+		@include transition(all 0.3s ease-out);
+		img {
+			margin-left: auto;
+			margin-right: auto;
+			margin-top: -200px;
+			display: block;
+			float: none;
+			position:absolute;
+			left:0;
+			top:50%;
+		}
+		button {
+			cursor: pointer;
+		}
+	}
+	&:hover .overlay,
+	&:focus .overlay {
+		@include opacity(1);
+		background: $black;
+		background: rgba(0,0,0,0.7);
+	}
+}
+
+// IE8 ------------------------------------------------------------------------
+
+.ie8 {
+	.module {
+		&:hover .overlay,
+		&:focus .overlay {
+			-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
+		}
+	}
+}
