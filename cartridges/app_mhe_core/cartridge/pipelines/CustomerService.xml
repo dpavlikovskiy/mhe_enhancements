@@ -337,6 +337,40 @@
                     </transition-display>
                   </simple-transition>
                   <node>
+                    <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="true"/>
+                      <config-property key="OnError" value="PIPELET_ERROR"/>
+                      <config-property key="ScriptFile" value="contact/ContactEvent.ds"/>
+                      <key-binding alias="Log" key="ScriptLog"/>
+                      <key-binding alias="CurrentForms.contactus.salutation!=undefined?CurrentForms.contactus.salutation.value:&quot;&quot;" key="civility"/>
+                      <key-binding alias="CurrentForms.contactus.lastname.value" key="lastname"/>
+                      <key-binding alias="CurrentForms.contactus.firstname.value" key="firstname"/>
+                      <key-binding alias="CurrentForms.contactus.email.value" key="email"/>
+                      <key-binding alias="CurrentForms.contactus.email.value" key="dataEmailChannel"/>
+                      <key-binding alias="false" key="optinEmailChannel"/>
+                      <key-binding alias="false" key="optinGlobal"/>
+                      <key-binding alias="false" key="optinRelational"/>
+                      <key-binding alias="&quot;contact&quot;" key="typeOfTouchPoint"/>
+                      <key-binding alias="CurrentRequest.httpReferer" key="touchPoint"/>
+                      <key-binding alias="&quot;brand&quot;" key="newsletterType"/>
+                      <key-binding alias="&quot;FRA&quot;" key="market"/>
+                      <key-binding alias="&quot;FRA&quot;" key="locationOfResidence"/>
+                      <key-binding alias="&quot;FRE&quot;" key="language"/>
+                      <key-binding alias="&quot;MHS&quot;" key="brand"/>
+                      <key-binding alias="dw.util.UUIDUtils.createUUID()" key="contact_id"/>
+                      <key-binding alias="&quot;e-commerce&quot;" key="dataSourceQualification"/>
+                      <key-binding alias="new Date()" key="dateOptinEmailChannel"/>
+                      <key-binding alias="new Date()" key="dateOptinRelational"/>
+                      <key-binding alias="Contact" key="contact"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
                     <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
                       <config-property key="Transactional" value="false"/>
                       <key-binding alias="dw.system.Site.getCurrent().getCustomPreferenceValue('contactusemail')" key="From_0"/>
@@ -364,20 +398,16 @@
                   </node>
                   <simple-transition>
                     <transition-display>
-                      <bend-point relative-to="target" x="0" y="-1"/>
-                      <bend-point relative-to="source" x="1" y="-1"/>
-                      <bend-point relative-to="source" x="1" y="0"/>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                      <bend-point relative-to="target" x="-1" y="1"/>
+                      <bend-point relative-to="target" x="-1" y="0"/>
                     </transition-display>
                   </simple-transition>
                   <node>
                     <call-node start-name-ref="Email-SendMail"/>
-                    <node-display orientation="horizontal" x="1" y="0"/>
+                    <node-display orientation="horizontal" x="2" y="0"/>
                   </node>
-                  <transition target-connector="in1" target-path="../+1">
-                    <transition-display>
-                      <bend-point relative-to="source" x="2" y="0"/>
-                    </transition-display>
-                  </transition>
+                  <transition target-connector="in1" target-path="../+1"/>
                 </segment>
               </branch>
             </node>

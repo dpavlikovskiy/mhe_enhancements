@@ -1,0 +1,37 @@
+/**
+ * Initialize HTTP services for a cartridge
+ */
+importPackage( dw.svc );
+importPackage( dw.net );
+importPackage( dw.io );
+
+   /**
+    *
+    * HTTP Services
+    *
+    */
+   ServiceRegistry.configure("mhs.datalake.serv", {
+		createRequest: function(svc:HTTPService, args){
+			svc.addHeader("Content-Type","application/json");
+			svc.addHeader("Api_Key",svc.configuration.credential.custom.apiKey);
+			svc.setRequestMethod("POST");
+			
+			//svc.addParam("body",JSON.stringify(args));
+			
+			if(args) {
+				return JSON.stringify(args);
+			} else {
+				return null;
+			}
+			//return JSON.stringify(args);
+		},
+		parseResponse: function(svc:HTTPService, client:HTTPClient) {
+			if(client.statusCode == 201){
+				var result = JSON.parse(client.text);
+				return result;
+			}
+			return {"error": true};
+		}
+	});
+	
+	

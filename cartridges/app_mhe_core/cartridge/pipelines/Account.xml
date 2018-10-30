@@ -330,6 +330,7 @@
                   <simple-transition>
                     <transition-display>
                       <bend-point relative-to="source" x="1" y="0"/>
+                      <bend-point relative-to="target" x="-1" y="0"/>
                     </transition-display>
                   </simple-transition>
                   <node>
@@ -356,11 +357,49 @@
                       <key-binding alias="CustomObject.custom.channel" key="To_2"/>
                       <key-binding alias="&quot;partner&quot;" key="From_2"/>
                     </pipelet-node>
-                    <node-display orientation="horizontal" x="1" y="0"/>
+                    <node-display orientation="horizontal" x="1" y="-1"/>
                   </node>
                   <simple-transition>
                     <transition-display>
                       <bend-point relative-to="source" x="1" y="0"/>
+                      <bend-point relative-to="source" x="1" y="1"/>
+                      <bend-point relative-to="source" x="0" y="1"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
+                    <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="true"/>
+                      <config-property key="OnError" value="PIPELET_ERROR"/>
+                      <config-property key="ScriptFile" value="contact/ContactEvent.ds"/>
+                      <key-binding alias="Log" key="ScriptLog"/>
+                      <key-binding alias="dw.util.UUIDUtils.createUUID()" key="contact_id"/>
+                      <key-binding alias="CurrentForms.profile.customer.email.value" key="email"/>
+                      <key-binding alias="CurrentForms.profile.customer.firstname.value" key="firstname"/>
+                      <key-binding alias="CurrentForms.profile.customer.lastname.value" key="lastname"/>
+                      <key-binding alias="&quot;e-commerce&quot;" key="dataSourceQualification"/>
+                      <key-binding alias="&quot;FRA&quot;" key="locationOfResidence"/>
+                      <key-binding alias="&quot;FRA&quot;" key="market"/>
+                      <key-binding alias="&quot;brand&quot;" key="newsletterType"/>
+                      <key-binding alias="&quot;MHS&quot;" key="brand"/>
+                      <key-binding alias="CurrentForms.profile.customer.email.value" key="dataEmailChannel"/>
+                      <key-binding alias="Contact" key="subscription"/>
+                      <key-binding alias="Contact" key="contact"/>
+                      <key-binding alias="CurrentForms.profile.customer.salutation.value" key="civility"/>
+                      <key-binding alias="CurrentForms.profile.customer.birthday.value" key="birthDate"/>
+                      <key-binding alias="CurrentRequest.httpReferer" key="touchPoint"/>
+                      <key-binding alias="&quot;account creation&quot;" key="typeOfTouchPoint"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinEmailChannel"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinGlobal"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinRelational"/>
+                      <key-binding alias="&quot;FRE&quot;" key="language"/>
+                      <key-binding alias="new Date()" key="dateOptinEmailChannel"/>
+                      <key-binding alias="new Date()" key="dateOptinRelational"/>
+                    </pipelet-node>
+                    <node-display x="0" y="1"/>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="source" x="0" y="1"/>
                     </transition-display>
                   </simple-transition>
                   <node>
@@ -1001,18 +1040,66 @@
                       <key-binding alias="null" key="From_9"/>
                       <key-binding alias="null" key="To_9"/>
                     </pipelet-node>
-                    <node-display x="0" y="1"/>
+                    <node-display orientation="horizontal" x="0" y="1"/>
                   </node>
                   <simple-transition>
                     <transition-display>
-                      <bend-point relative-to="source" x="0" y="1"/>
+                      <bend-point relative-to="source" x="1" y="0"/>
+                    </transition-display>
+                  </simple-transition>
+                  <node>
+                    <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                      <config-property key="Transactional" value="true"/>
+                      <config-property key="OnError" value="PIPELET_ERROR"/>
+                      <config-property key="ScriptFile" value="contact/ContactEvent.ds"/>
+                      <key-binding alias="Log" key="ScriptLog"/>
+                      <key-binding alias="Contact" key="contact"/>
+                      <key-binding alias="&quot;account update&quot;" key="typeOfTouchPoint"/>
+                      <key-binding alias="CurrentRequest.httpReferer" key="touchPoint"/>
+                      <key-binding alias="CurrentForms.profile.customer.birthday.value" key="birthDate"/>
+                      <key-binding alias="&quot;MHS&quot;" key="brand"/>
+                      <key-binding alias="CurrentForms.profile.customer.salutation.value" key="civility"/>
+                      <key-binding alias="dw.util.UUIDUtils.createUUID()" key="contact_id"/>
+                      <key-binding alias="CurrentForms.profile.customer.email.value" key="dataEmailChannel"/>
+                      <key-binding alias="&quot;e-commerce&quot;" key="dataSourceQualification"/>
+                      <key-binding alias="new Date()" key="dateOptinEmailChannel"/>
+                      <key-binding alias="new Date()" key="dateOptinRelational"/>
+                      <key-binding alias="CurrentForms.profile.customer.email.value" key="email"/>
+                      <key-binding alias="CurrentForms.profile.customer.firstname.value" key="firstname"/>
+                      <key-binding alias="&quot;FRE&quot;" key="language"/>
+                      <key-binding alias="CurrentForms.profile.customer.lastname.value" key="lastname"/>
+                      <key-binding alias="&quot;FRA&quot;" key="locationOfResidence"/>
+                      <key-binding alias="&quot;FRA&quot;" key="market"/>
+                      <key-binding alias="&quot;brand&quot;" key="newsletterType"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinEmailChannel"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinGlobal"/>
+                      <key-binding alias="CurrentForms.profile.customer.addtoemaillist.value" key="optinRelational"/>
+                    </pipelet-node>
+                    <node-display orientation="horizontal" x="1" y="0"/>
+                    <branch basename="b2" source-connector="error">
+                      <transition target-connector="in">
+                        <transition-display>
+                          <bend-point relative-to="source" x="0" y="1"/>
+                        </transition-display>
+                      </transition>
+                      <segment>
+                        <node>
+                          <end-node/>
+                          <node-display x="0" y="1"/>
+                        </node>
+                      </segment>
+                    </branch>
+                  </node>
+                  <simple-transition>
+                    <transition-display>
+                      <bend-point relative-to="target" x="0" y="-1"/>
                     </transition-display>
                   </simple-transition>
                   <node>
                     <call-node start-name-ref="Opt-In"/>
-                    <node-display x="0" y="1"/>
-                    <branch basename="b2" source-connector="ERROR">
-                      <transition target-connector="in1" target-path="./b3.1">
+                    <node-display x="-1" y="1"/>
+                    <branch basename="b3" source-connector="ERROR">
+                      <transition target-connector="in1" target-path="./b4.1">
                         <transition-display>
                           <bend-point relative-to="target" x="-1" y="-1"/>
                         </transition-display>
@@ -1030,7 +1117,7 @@
                       <key-binding alias="CurrentCustomer.profile" key="Object"/>
                     </pipelet-node>
                     <node-display x="0" y="1"/>
-                    <branch basename="b3" source-connector="error">
+                    <branch basename="b4" source-connector="error">
                       <transition target-connector="in2"/>
                       <segment>
                         <node>
@@ -2625,17 +2712,66 @@
             <simple-transition>
               <transition-display>
                 <bend-point relative-to="source" x="0" y="1"/>
+                <bend-point relative-to="target" x="0" y="-1"/>
               </transition-display>
             </simple-transition>
             <node>
-              <call-node start-name-ref="Opt-In"/>
-              <node-display x="0" y="1"/>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="true"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="contact/ContactEvent.ds"/>
+                <key-binding alias="Log" key="ScriptLog"/>
+                <key-binding alias="CurrentForms.newslettersignup.fname.value" key="firstname"/>
+                <key-binding alias="CurrentForms.newslettersignup.youremail.value" key="email"/>
+                <key-binding alias="CurrentForms.newslettersignup.birthday.value" key="birthDate"/>
+                <key-binding alias="&quot;MHS&quot;" key="brand"/>
+                <key-binding alias="dw.util.UUIDUtils.createUUID()" key="contact_id"/>
+                <key-binding alias="CurrentForms.newslettersignup.youremail.value" key="dataEmailChannel"/>
+                <key-binding alias="&quot;e-commerce&quot;" key="dataSourceQualification"/>
+                <key-binding alias="new Date()" key="dateOptinEmailChannel"/>
+                <key-binding alias="new Date()" key="dateOptinRelational"/>
+                <key-binding alias="&quot;FRE&quot;" key="language"/>
+                <key-binding alias="CurrentForms.newslettersignup.lname.value" key="lastname"/>
+                <key-binding alias="&quot;FRA&quot;" key="locationOfResidence"/>
+                <key-binding alias="&quot;FRA&quot;" key="market"/>
+                <key-binding alias="&quot;brand&quot;" key="newsletterType"/>
+                <key-binding alias="true" key="optinEmailChannel"/>
+                <key-binding alias="true" key="optinGlobal"/>
+                <key-binding alias="true" key="optinRelational"/>
+                <key-binding alias="&quot;newsletter&quot;" key="typeOfTouchPoint"/>
+                <key-binding alias="CurrentRequest.httpReferer" key="touchPoint"/>
+                <key-binding alias="Contact" key="contact"/>
+                <key-binding alias="&quot;&quot;" key="civility"/>
+              </pipelet-node>
+              <node-display x="-2" y="1"/>
+              <branch basename="b3" source-connector="error">
+                <transition target-connector="in">
+                  <transition-display>
+                    <bend-point relative-to="source" x="1" y="0"/>
+                  </transition-display>
+                </transition>
+                <segment>
+                  <node>
+                    <end-node/>
+                    <node-display orientation="horizontal" x="1" y="0"/>
+                  </node>
+                </segment>
+              </branch>
             </node>
             <simple-transition/>
             <node>
+              <call-node start-name-ref="Opt-In"/>
+              <node-display orientation="horizontal" x="1" y="1"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
               <decision-node condition-key="!empty(CurrentCustomer.profile)" condition-operator="expr"/>
-              <node-display x="0" y="1"/>
-              <branch basename="b3" source-connector="yes">
+              <node-display x="1" y="0"/>
+              <branch basename="b4" source-connector="yes">
                 <transition target-connector="in">
                   <transition-display>
                     <bend-point relative-to="source" x="0" y="1"/>

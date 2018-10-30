@@ -1,0 +1,19 @@
+<body>
+<p>Please find the Contacts Event List</p>
+
+<table>
+<tr>
+	<th>Email</th>
+	<th>Firstname</th>
+	<th>Lastname</th>
+	<th>Brand</th>
+</tr>
+<isloop items="${pdict.contact}" var="items" status="counter" >
+	<tr>
+		<td>${items.custom.email}</td>
+		<td>${items.custom.firstname}</td>
+		<td>${items.custom.lastname}</td>
+		<td>${items.custom.brand}</td>
+</isloop>
+</table>
+</body>

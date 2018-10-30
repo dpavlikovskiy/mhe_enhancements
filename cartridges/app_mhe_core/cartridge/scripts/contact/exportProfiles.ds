@@ -1,0 +1,119 @@
+/**
+* Demandware Script File
+* This process creates a customer export for Bronto for each customer being exported individually.
+*
+*	Based on SiteGenesis version 2.10.0.2
+*	Created By: Precision Design Studios
+*   Modified By: Astound Commerce
+*
+* @input Customers : dw.util.Iterator
+* @input custCount : Number
+* @output fileNameToArchive : String 
+* @output fileWriter : dw.io.CSVStreamWriter 
+* @output fileNameWithPath : String 
+* @output Custs : dw.util.Iterator
+*/
+
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.io );
+importPackage( dw.catalog );
+importPackage(dw.web);
+
+function getFullMonth(month) {
+	if (month < 10) {
+		return "0"+month;
+	} else {
+		return month;
+	}
+}
+
+function execute (args : PipelineDictionary) : Number {
+	
+	
+	var customers = args.Customers;
+	var writer : FileWriter=null;
+    var siteName:String = dw.system.Site.getCurrent().ID;
+    var hostName = dw.system.Site.getCurrent().httpsHostName;
+	var currentDateAndTime : Date = new Date(); 
+	var startCalender : dw.util.Calendar = new Calendar(currentDateAndTime);
+    var fileName : String = "DatalakeCustomersExport_"+siteName+"_"+currentDateAndTime.getDate()+"_"+(currentDateAndTime.getMonth()+1)+"_"+currentDateAndTime.getFullYear()+"_"+currentDateAndTime.getTime()+".csv";
+    var fileNameWithPath : String = File.IMPEX + File.SEPARATOR + "src" + File.SEPARATOR+ fileName;
+    var fileout : File = new File(fileNameWithPath);
+    	  
+   	if(!fileout.exists())
+   	{
+   		fileout.createNewFile();
+   	}    
+	
+	Logger.warn("Customers "+ args.custCount);
+	
+	
+	
+	
+	
+	var writer  = new FileWriter(fileout);
+	var csvWriter : CSVStreamWriter = new CSVStreamWriter(writer);
+	var touchPoint:String = "touchPoint";
+	var typeOfTouchPoint:String = "typeOfTouchPoint";
+	var brand:String = "brand";
+	var market:String = "market";
+	var email:String = "email";
+	var lastname:String = "lastname";
+	var firstname:String = "firstname";
+	var locationOfResidence:String = "locationOfResidence";
+	var birthDate:String = "birthDate";
+	var language:String = "language";
+	var creationDate:String = "creationDate";
+	var civility:String = "civility";
+	var newsletterType:String = "newsletterType";
+	var optinRelational:String = "optinRelational";
+	var dateOptinRelational:String = "dateOptinRelational";
+	var optinEmailChannel:String = "optinEmailChannel";
+	var dataEmailChannel:String = "dataEmailChannel";
+	var dateOptinEmailChannel:String = "dateOptinEmailChannel";
+	var optinGlobal:String = "optinGlobal";
+	var dataSourceQualification:String = "dataSourceQualification";
+	
+	var str:String = touchPoint +","+typeOfTouchPoint+","+brand+","+market+","+email+","+lastname+","+firstname+","+locationOfResidence+","+birthDate+","+language+","+creationDate+","+civility+","+newsletterType+","+optinRelational+","+dateOptinRelational+","+optinEmailChannel+","+dataEmailChannel+","+dateOptinEmailChannel+","+optinGlobal+","+dataSourceQualification+","+typeOfTouchPoint;
+	
+	var arr : Array = str.split(",");
+	csvWriter.writeNext(arr);
+	
+	while(customers.hasNext()) {
+		var c = customers.next();
+		Logger.warn("Customer Email "+ c.email);
+		touchPoint = hostName+"/fr-FR/registeruser?src=devenirmembre";
+		typeOfTouchPoint = "account creation";
+		brand = "MHS";
+		market = "FRA";
+		email = c.email;
+		lastname = c.lastName;
+		firstname = c.firstName;
+		locationOfResidence = "FRA";
+		birthDate = c.birthday?c.birthday.getDate()+"/"+getFullMonth(c.birthday.getMonth()+1)+"/"+c.birthday.getFullYear():"";
+		language = "FRE";
+		creationDate = c.creationDate.getDate()+"/"+getFullMonth(c.creationDate.getMonth()+1)+"/"+c.creationDate.getFullYear();
+		civility = c.salutation;
+		newsletterType = "brand";
+		optinRelational = c.custom.isNewsLetterSubscribed;
+		dateOptinRelational = currentDateAndTime.getDate()+"/"+getFullMonth(currentDateAndTime.getMonth()+1)+"/"+currentDateAndTime.getFullYear();
+		optinEmailChannel = c.custom.isNewsLetterSubscribed;
+		dataEmailChannel = c.email;
+		dateOptinEmailChannel = currentDateAndTime.getDate()+"/"+getFullMonth(currentDateAndTime.getMonth()+1)+"/"+currentDateAndTime.getFullYear();
+		optinGlobal = c.custom.isNewsLetterSubscribed;
+		dataSourceQualification = "e-commerce";
+		
+		str = touchPoint +","+typeOfTouchPoint+","+brand+","+market+","+email+","+lastname+","+firstname+","+locationOfResidence+","+birthDate+","+language+","+creationDate+","+civility+","+newsletterType+","+optinRelational+","+dateOptinRelational+","+optinEmailChannel+","+dataEmailChannel+","+dateOptinEmailChannel+","+optinGlobal+","+dataSourceQualification+","+typeOfTouchPoint;
+		
+		arr = str.split(",");
+		csvWriter.writeNext(arr);
+	}
+	
+	//csvWriter.close();
+	args.fileNameToArchive = fileName;
+	args.fileWriter = csvWriter;
+	args.fileNameWithPath = fileNameWithPath;
+	args.Custs = customers;
+	return PIPELET_NEXT;
+}

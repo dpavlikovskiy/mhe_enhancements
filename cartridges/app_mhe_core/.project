@@ -3,6 +3,18 @@
 	<name>app_mhe_core</name>
 	<comment></comment>
 	<projects>
+		<project>app_csuite</project>
+		<project>app_mhe_core_richUI</project>
+		<project>app_storelocator</project>
+		<project>bm_mhe</project>
+		<project>bm_tools</project>
+		<project>int_bronto</project>
+		<project>int_cybersource</project>
+		<project>int_googleanalytics</project>
+		<project>int_paypal</project>
+		<project>int_simplefeed_jfw</project>
+		<project>pdf_generator</project>
+		<project>support_order_watcher</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

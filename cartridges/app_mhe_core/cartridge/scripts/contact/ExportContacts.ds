@@ -1,0 +1,113 @@
+/**
+*
+*	@input numCalls : String the number of calls to make.
+*   @input returnCode : String the simulated http return code.
+*   @output contact: dw.util.ArrayList
+ *	 @output svcConfig : dw.svc.Service the service configuration object.
+ *   @output httpResult : dw.svc.Result the http result object.
+*/
+
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.svc );
+importPackage( dw.net );
+importPackage( dw.io );
+
+function getFullMonth(month) {
+	if (month < 10) {
+		return "0"+month;
+	} else {
+		return month;
+	}
+}
+
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+	var service:Service;
+   	var result:Result;
+   	var counter = pdict.numCalls;
+   	var mockCall = false;
+   	var pipelineError = false;
+   	var returnCode = pdict.returnCode;   
+   	var requestBody = {};
+	var contacts = CustomObjectMgr.getAllCustomObjects("contact_events");
+	var HashMap = require('dw/util/HashMap');
+	var ArrayList = require('dw/util/ArrayList');
+	var contact = new ArrayList();
+	var contactObj = new ArrayList();
+	while(contacts.hasNext()) {
+		
+		contact.add(contacts.next());
+	}
+	
+	function makeCall(svcConfig:Service, params:Object) {
+ 
+      if ( counter == null ){
+     	counter = 1;
+      }
+		
+      while ( counter != 0 ){
+      	if ( mockCall ) {
+     	  result = service.setMock().call(params);
+      	} else if ( pipelineError ) {
+      	  result = service.setThrowOnError().call(params);	
+      	} else {
+      	  result = service.call(params);
+      	}
+     	counter--;
+      }
+      
+      // Set pdict out values
+      pdict.svcConfig = svcConfig;
+      pdict.httpResult = result;
+   }
+   service = ServiceRegistry.get("mhs.datalake.serv");
+	for (var i=0; i < contact.size(); i++) {
+		var o = {
+				object:'contacts',
+				type:'create',
+				body: {
+					touchPoint: contact[i].custom.touchPoint,
+					typeOfTouchPoint: contact[i].custom.typeOfTouchPoint.value,
+					brand:contact[i].custom.brand,
+					market:contact[i].custom.market,
+					email:contact[i].custom.email,
+					lastname:contact[i].custom.lastname,
+					firstname:contact[i].custom.firstname,
+					locationOfResidence:contact[i].custom.locationOfResidence,
+					birthDate:contact[i].custom.birthDate?contact[i].custom.birthDate.getDate()+'/'+getFullMonth((contact[i].custom.birthDate.getMonth()+1))+'/'+contact[i].custom.birthDate.getFullYear():'',
+					language:contact[i].custom.language,
+					creationDate:contact[i].creationDate.getDate()+'/'+getFullMonth((contact[i].creationDate.getMonth()+1))+'/'+contact[i].creationDate.getFullYear(),
+					civility:contact[i].custom.civility?contact[i].custom.civility:'',
+					newsletterType:contact[i].custom.newsletterType,
+					optinRelational:contact[i].custom.optinRelational,
+					dateOptinRelational:contact[i].custom.dateOptinRelational?contact[i].custom.dateOptinRelational.getDate()+'/'+getFullMonth((contact[i].custom.dateOptinRelational.getMonth()+1))+'/'+contact[i].custom.dateOptinRelational.getFullYear():'',
+					optinEmailChannel: contact[i].custom.optinEmailChannel,
+				    dataEmailChannel: contact[i].custom.dataEmailChannel,
+				    dateOptinEmailChannel: contact[i].custom.dateOptinEmailChannel?contact[i].custom.dateOptinEmailChannel.getDate()+'/'+getFullMonth((contact[i].custom.dateOptinEmailChannel.getMonth()+1))+'/'+contact[i].custom.dateOptinEmailChannel.getFullYear():'',
+				    optinGlobal: contact[i].custom.optinGlobal,
+				    dataSourceQualification: contact[i].custom.dataSourceQualification
+				}		
+			}
+			
+		//var json = JSON.stringify(o);
+		//client.send(JSON.stringify(o));
+		
+		makeCall(service, o);
+		var res = result.msg;
+		if (result.msg == 'Created') {
+			var c  : CustomObject = CustomObjectMgr.getCustomObject("contact_events",contact[i].custom.contact_id);
+			CustomObjectMgr.remove(c);
+		}			
+	}
+	
+	
+	
+	
+	
+	pdict.contact = contact;
+	
+	
+	return PIPELET_NEXT;
+}

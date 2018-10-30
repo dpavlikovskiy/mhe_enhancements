@@ -1,0 +1,56 @@
+/**
+*
+*   @input contact_id : String
+*   @input firstname : String
+*   @input lastname : String
+*   @input email : String
+*   @input dataSourceQualification : String
+*   @input touchPoint : String
+*   @input typeOfTouchPoint : String
+*   @input brand : String
+*   @input market : String
+*   @input civility : String
+*   @input locationOfResidence : String
+*   @input birthDate : Date
+*   @input optinRelational : Boolean
+*   @input dateOptinRelational : Date
+*   @input optinGlobal : Boolean
+*   @input optinEmailChannel : Boolean
+*   @input dataEmailChannel : String
+*   @input dateOptinEmailChannel : Date
+*   @input newsletterType : String
+*   @input language : String
+*   @output contact: Object
+*/
+importPackage( dw.object );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	
+    //Use the same email twice to generate a duplicate key exception
+    var co = CustomObjectMgr.createCustomObject("contact_events", args.contact_id);
+    
+    co.custom.firstname = args.firstname;
+    co.custom.lastname = args.lastname;
+    co.custom.dataSourceQualification = args.dataSourceQualification;
+    co.custom.touchPoint = args.touchPoint;
+    co.custom.typeOfTouchPoint = args.typeOfTouchPoint;
+    co.custom.brand = args.brand;
+    co.custom.market = args.market;
+    co.custom.civility = args.civility;
+    co.custom.locationOfResidence = args.locationOfResidence;
+    co.custom.birthDate = args.birthDate;
+    co.custom.email = args.email;
+    co.custom.optinRelational = args.optinRelational;
+    co.custom.dateOptinRelational = args.dateOptinRelational;
+    co.custom.optinGlobal = args.optinGlobal;
+    co.custom.optinEmailChannel = args.optinEmailChannel;
+    co.custom.dataEmailChannel = args.dataEmailChannel;
+    co.custom.dateOptinEmailChannel = args.dateOptinEmailChannel;
+    co.custom.newsletterType = args.newsletterType;
+    co.custom.language = args.language;
+    
+    args.contact = co;
+    
+    return PIPELET_NEXT;
+}
